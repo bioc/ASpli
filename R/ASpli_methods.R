@@ -301,7 +301,14 @@ setMethod(
     empty[int,] <- dfe1e2
     dmerge <- cbind(dffinal, empty); 
     dmerge$jbin <- NULL
-    rownames(dmerge) <- names(intranges)
+    
+    # ------------------------------------------------------------------------ #
+    # BUG: dmerge should be sorted by the names of intranges. The original code
+    # changed the names of dmerge to be identical to those of intranges
+    # Changed rownames(dmerge) <- names(intranges) to :
+    dmerge <-  dmerge[ names(intranges) , ]
+    # ------------------------------------------------------------------------ #
+    
 ##########################################################################    
     intPIR <- function(x){
             x[is.na(x)] <- 0 # we have to remove NAs

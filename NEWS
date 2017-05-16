@@ -1,1 +1,23 @@
-New ASpli_binGenome.log file. It reports the number of features being processed
+
+CHANGES IN VERSION 1.3.1
+------------------------
+
+BUG FIXES
+
+    * AsDiscover() no longer contains mixed row data for some IR and IR* bins in
+      irPIR table. 
+
+    * DUReport() calculates correctly junction ratio for junctions sharing their
+      end in junction.counts table.
+      
+    * DUReport() no longer fails when there are no junctions that share their 
+      start or end. 
+
+      
+CHANGES IN VERSION 1.1.0
+------------------------
+
+NEW FEATURE
+
+    * New ASpli_binGenome.log file. It reports the number of features being processed
+      
