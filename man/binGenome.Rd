@@ -36,6 +36,7 @@ Bins and junctions are labelled always in  5' to 3' sense. This notation is stra
 }
 
 \examples{
+library(AnnotationDbi)
 chr14 <- system.file("extdata","chr14.sqlite", package="ASpli")
 genome <- loadDb(chr14)
 features <- binGenome(genome)

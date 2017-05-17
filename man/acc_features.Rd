@@ -23,6 +23,7 @@ Resturns a GenomicRanges object
 }
 \author{ Estefania Mancini, Marcelo Yanovsky, Ariel Chernomoretz  }
 \examples{
+library(AnnotationDbi)
 chr14 <- system.file("extdata","chr14.sqlite", package="ASpli")
 genome <- loadDb(chr14)
 features <- binGenome(genome)

@@ -209,19 +209,32 @@
   else
   {
     
-  j.start <- findOverlaps(jranges, drop.self=TRUE, drop.redundant=FALSE,
+    j.start <- findOverlaps(jranges, drop.self=TRUE, drop.redundant=FALSE,
                           type="start")
   }
+
   jjstart <- as.data.frame(j.start)
-  jjstart$queryHits <- names(jranges[jjstart$queryHits])
-  jjstart$subjectHits <- names(jranges[jjstart$subjectHits])
-  shareStart <- data.frame(aggregate(subjectHits ~ queryHits, 
-                                     data = jjstart, paste, collapse=";")) 
+  jjstart$queryHits   <- names( jranges[ jjstart$queryHits ] )
+  jjstart$subjectHits <- names( jranges[ jjstart$subjectHits ] )
+  
+  
+  # BUG FIX: aggregate fails when no junction overlaps 
+  if ( length( j.start ) > 0) {
+    shareStart <- data.frame(aggregate(subjectHits ~ queryHits, 
+                                     data = jjstart, paste, collapse=";"))
+  } else {
+    shareStart <- data.frame( 
+        subjectHits = character(0), 
+        queryHits = character(0))
+  }
+
+  
+  
   #counts matrix
   start <- ncol(df) - nrow(targets) + 1 #ok
   end <- ncol(df)#ok
   #aca no hay cuentas solo recupero los counts usando el indexado de subjectHits
-  dfCountsStart <- data.frame( names=jjstart$queryHits, 
+  dfCountsStart <- data.frame( names = jjstart$queryHits, 
                             df[jjstart$subjectHits,start:end],
                             row.names=NULL) #recover counts
   #tiene como names al query y como counts todos los subjects que dan con ese query. 
@@ -229,7 +242,19 @@
   #si es solo 1 hit deberian coincidir, cruzandose
   #aca hace el agregate y tengo los counts de todas las junturas 
   #que comparten start con esa menos ella
-  dfSumStart <- data.frame(aggregate(. ~ names, data = dfCountsStart, sum))
+
+  # BUG FIX: aggregate fails with 0-rows dfCountsStart. 
+  if ( nrow( dfCountsStart  ) > 0 ) {
+    dfSumStart <- data.frame(aggregate(. ~ names, data = dfCountsStart, sum))
+  } else {
+    dfSumStart <- data.frame( names = character(0) )
+    for ( i in 1:ncol( dfCountsStart ) ) {
+      dfSumStart[, i+1] <- integer(0)
+    }
+    colnames( dfSumStart )[2:ncol(dfSumStart)] <- colnames( dfCountsStart )
+  }
+  
+  
   sumJ <- paste(colnames(dfSumStart), "jsum", sep=".")
   colnames(dfSumStart) <-  sumJ
   rownames(dfSumStart) <- dfSumStart$names.jsum
@@ -280,12 +305,32 @@
   jjend <- as.data.frame(j.end)
   jjend$queryHits <- names(jranges[jjend$queryHits])
   jjend$subjectHits <- names(jranges[jjend$subjectHits])
-  shareEnd <- data.frame(aggregate(subjectHits ~ queryHits, 
-                                data = jjend, paste, collapse=";")) 
+  
+  # BUG FIX: aggregate fails when no junction overlaps 
+  if ( length( j.end ) > 0) {
+    shareEnd <- data.frame(aggregate(subjectHits ~ queryHits, 
+            data = jjend, paste, collapse=";"))
+  } else {
+    shareEnd <- data.frame( 
+        subjectHits = character(0), 
+        queryHits = character(0))
+  }
+  
   dfCountsEnd <- data.frame( names=jjend$queryHits, 
                           df[jjend$subjectHits,start:end],
                           row.names=NULL) #recover counts
-  dfSumEnd <- data.frame(aggregate(. ~ names, data = dfCountsEnd, sum))   
+                      
+  # BUG FIX: aggregate fails with 0-rows dfCountsStart. 
+  if ( nrow( dfCountsEnd  ) > 0 ) {
+    dfSumEnd <- data.frame(aggregate(. ~ names, data = dfCountsEnd, sum))
+  } else {
+    dfSumEnd <- data.frame( names = character(0) )
+    for ( i in 1:ncol( dfCountsEnd ) ) {
+      dfSumEnd[, i+1] <- integer(0)
+    }
+    colnames( dfSumEnd )[2:ncol(dfSumEnd)] <- colnames( dfCountsEnd )
+  }
+    
   sumJ <- paste(colnames(dfSumEnd), "jsum", sep=".")
   colnames(dfSumEnd) <- sumJ
   rownames(dfSumEnd) <- dfSumEnd$names.jsum
@@ -305,7 +350,12 @@
   ########################################################################
   ratioEnd <- data.frame(df[,countsSt:ncol(df)],dffEnd)
   ff <- rep(targets$condition,2)
-  colnames(ratioEnd) <- paste(ff, rep(1:2,length(targets$condition)))
+  
+  # -------------------------------------------------------------------------- #
+  # BUG fixed: mixed columns to calculate jratio
+  colnames(ratioEnd) <- paste(ff, rep(1:2, each = length(targets$condition)))
+  # -------------------------------------------------------------------------- #
+  
   dfSum <- t(apply(ratioEnd, 1, function(x){tapply(as.numeric(x), 
                                                  INDEX=colnames(ratioEnd), sum  )}))
   colnames(dfSum) <- rep(unique(targets$condition),each=2)

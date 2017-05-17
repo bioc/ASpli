@@ -13,8 +13,8 @@ ASpli allows users to produce self-explanatory intermediate outputs, based on th
 \tabular{ll}{
 Package: \tab ASpli\cr
 Type: \tab Package\cr
-Version: \tab 0.99.0\cr
-Date: \tab 2016-05-25\cr
+Version: \tab 1.2.1\cr
+Date: \tab 2017-05-17\cr
 License: \tab  GPL\cr
 Depends: \tab methods, GenomicRanges, GenomicFeatures, edgeR, methods, BiocGenerics, IRanges, GenomicAlignments, Gviz
 \cr
@@ -37,13 +37,14 @@ Estefania Mancini, Marcelo Yanovsky and Ariel Chernomoretz
 }
 \examples{ 
 library(RNAseqData.HNRNPC.bam.chr14)
+library(AnnotationDbi)
 chr14 <- system.file("extdata","chr14.sqlite", package="ASpli")
 genome <- loadDb(chr14)
 features <- binGenome(genome)
 targets <- data.frame(bam=RNAseqData.HNRNPC.bam.chr14_BAMFILES,
                        condition=c(rep("CT",4),rep("KD",4)))
 bam <- loadBAM(targets)
-counts <- readCounts(features, bam,  l=100L, maxISize=50000);
+counts <- readCounts(features, bam,  l=100L, targets = targets, maxISize=50000);
 group <- factor(c(rep("CT",4),rep("KD",4)))
 pair <- c("CT","KD")  
 du <- DUreport(counts, targets, pair, group)

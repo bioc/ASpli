@@ -154,13 +154,13 @@ setMethod(
 ##############################################################################
 setGeneric (
   name = "readCounts",
-  def = function(features, bam, cores=NULL, l, maxISize, minAnchor=NULL)
+  def = function(features, bam, cores=NULL, l, targets, maxISize, minAnchor=NULL)
   standardGeneric("readCounts"))
 ##########################################################################
 setMethod(
   f = "readCounts",
   signature = "ASpliFeatures",
-  definition = function(features, bam, cores=NULL, l, maxISize, minAnchor=NULL)
+  definition = function(features, bam, cores=NULL, l, targets , maxISize, minAnchor=NULL)
   {
       counts <- new(Class="ASpliCounts")
       if(is.null(minAnchor)){minAnchor=10}
@@ -301,7 +301,14 @@ setMethod(
     empty[int,] <- dfe1e2
     dmerge <- cbind(dffinal, empty); 
     dmerge$jbin <- NULL
-    rownames(dmerge) <- names(intranges)
+    
+    # ------------------------------------------------------------------------ #
+    # BUG: dmerge should be sorted by the names of intranges. The original code
+    # changed the names of dmerge to be identical to those of intranges
+    # Changed rownames(dmerge) <- names(intranges) to :
+    dmerge <-  dmerge[ names(intranges) , ]
+    # ------------------------------------------------------------------------ #
+    
 ##########################################################################    
     intPIR <- function(x){
             x[is.na(x)] <- 0 # we have to remove NAs
