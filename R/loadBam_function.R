@@ -1,5 +1,5 @@
 ################### loadBAM###################################
-loadBAM <-
+loadBAM <- 
   function(targets, cores=NULL) 
   {
     #1.-read files and get a list

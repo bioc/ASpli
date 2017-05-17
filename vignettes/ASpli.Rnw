@@ -139,7 +139,7 @@ bam <- loadBAM(targets)
 Using the method \texttt{readCounts}, read alignments are overlaid on features. Results are stored into an \texttt{ASpliCounts} object. Read densities (number of reads / feature length) are calculated for genes and bins.
 Count tables and read densities tables are produced at different genomic levels, including genes, bins, junctions, and intron flanking regions. 
 <<loadBam, echo=TRUE, eval=FALSE>>=
-counts <- readCounts(features, bam, l=100L, maxISize=5000)
+counts <- readCounts(features, bam, l=100L, targets = targets, maxISize=5000)
 @
 
 Parameters:
@@ -389,6 +389,7 @@ library(RNAseqData.HNRNPC.bam.chr14)
 In this case we are loading a genome \texttt{TranscriptDb} already created and available in the  \texttt{ASpli} package for the Homo sapiens chromosome 14:
 
 <<loadDb, echo=TRUE, eval=TRUE>>=
+library( AnnotationDbi )
 chr14 <- system.file("extdata","chr14.sqlite", package="ASpli")
 genome <- loadDb(chr14)
 @
@@ -410,7 +411,7 @@ bam <- loadBAM(targets)
 @
 Overlap alignments against features:
 <<todosJuntos, eval=TRUE>>=
-counts <- readCounts(features, bam, l=100L, maxISize=50000)
+counts <- readCounts(features, bam, l=100L, targets = targets, maxISize=50000)
 @
 Perform DE/DU analysis
 <<DU, eval=TRUE>>=
@@ -475,6 +476,7 @@ topTagsBinsDx <- which(binsdx$bin.fdr <= 0.1 &
 @
 Plot in a Venn Diagram:
 <<venn, echo=TRUE, eval=TRUE>>=
+library(limma)
 all <- union(topTagsBins, topTagsBinsDx)
 auxdf <- data.frame(edgeR=all%in%topTagsBins,
                     DEXSeq=all%in%topTagsBinsDx)

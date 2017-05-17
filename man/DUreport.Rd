@@ -35,13 +35,14 @@ Estefania Mancini, Marcelo Yanovsky, Ariel Chernomoretz
 }
 \examples{
 library(RNAseqData.HNRNPC.bam.chr14)
+library(AnnotationDbi)
 chr14 <- system.file("extdata","chr14.sqlite", package="ASpli")
 genome <- loadDb(chr14)
 features <- binGenome(genome)
 targets <- data.frame(bam=RNAseqData.HNRNPC.bam.chr14_BAMFILES,
                        condition=c(rep("CT",4),rep("KD",4)))
 bam <- loadBAM(targets)
-counts <- readCounts(features, bam, l=100L, maxISize=50000)
+counts <- readCounts(features, bam, l=100L, targets = targets, maxISize=50000)
 group <- factor(c(rep("CT",4), 
                 rep("KD",4)))
 pair <- c("CT","KD")  

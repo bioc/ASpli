@@ -154,13 +154,13 @@ setMethod(
 ##############################################################################
 setGeneric (
   name = "readCounts",
-  def = function(features, bam, cores=NULL, l, maxISize, minAnchor=NULL)
+  def = function(features, bam, cores=NULL, l, targets, maxISize, minAnchor=NULL)
   standardGeneric("readCounts"))
 ##########################################################################
 setMethod(
   f = "readCounts",
   signature = "ASpliFeatures",
-  definition = function(features, bam, cores=NULL, l, maxISize, minAnchor=NULL)
+  definition = function(features, bam, cores=NULL, l, targets , maxISize, minAnchor=NULL)
   {
       counts <- new(Class="ASpliCounts")
       if(is.null(minAnchor)){minAnchor=10}

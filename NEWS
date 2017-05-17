@@ -1,4 +1,3 @@
-
 CHANGES IN VERSION 1.3.1
 ------------------------
 
@@ -11,7 +10,10 @@ BUG FIXES
       end in junction.counts table.
       
     * DUReport() no longer fails when there are no junctions that share their 
-      start or end. 
+      start or end.
+      
+    * reacCounts() requires an explicit targets argument, instead of taking it 
+      from the global environment (in which may not exist with that name).  
 
       
 CHANGES IN VERSION 1.1.0
