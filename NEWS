@@ -19,7 +19,13 @@ BUG FIXES
 CHANGES IN VERSION 1.1.0
 ------------------------
 
-NEW FEATURE
+NEW FEATURES
 
     * New ASpli_binGenome.log file. It reports the number of features being processed
       
+CHANGES IN VERSION 0.98
+-------------------------
+
+NEW FEATURES
+    
+    * Multiple bins are reclassified using annotated junctions
