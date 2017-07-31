@@ -13,8 +13,8 @@ ASpli allows users to produce self-explanatory intermediate outputs, based on th
 \tabular{ll}{
 Package: \tab ASpli\cr
 Type: \tab Package\cr
-Version: \tab 1.2.1\cr
-Date: \tab 2017-07-12\cr
+Version: \tab 1.2.3\cr
+Date: \tab 2017-07-18\cr
 License: \tab  GPL\cr
 Depends: \tab methods, GenomicRanges, GenomicFeatures, edgeR, methods, BiocGenerics, IRanges, GenomicAlignments, Gviz
 \cr

@@ -22,10 +22,15 @@
     strand <- min(strand(feature))
     strand[strand==1] <- "+"
     strand[strand==2] <- "-"
-    genes <- GRanges(seqnames=geneChr,
-                   strand=strand,
-                   ranges=IRanges(geneStarts,geneEnds), 
-                   effective_length=wit) 
+    
+    geneChr[ lengths( geneChr ) > 1] <- geneChr[ lengths( geneChr )][1] 
+    geneChr <- unlist( geneChr )
+    
+    genes <- GRanges( seqnames = geneChr,
+                      strand = strand,
+                      ranges = IRanges( geneStarts , geneEnds ), 
+                      effective_length = wit )
+                  
     names(genes) <- names(feature)
     gene_coordinates <- feature@elementMetadata$gene_coordinates
     mcols(genes) <- append(mcols(genes), DataFrame(gene_coordinates=gene_coordinates))
@@ -123,6 +128,10 @@
   strand <- min(strand(feature))
   strand[strand==1] <- "+"
   strand[strand==2] <- "-"
+  
+  geneChr[ lengths( geneChr ) > 1] <- geneChr[ lengths( geneChr )][1] 
+  geneChr <- unlist( geneChr )
+  
   genes <- GRanges(seqnames=geneChr,
                  strand=strand,
                  ranges=IRanges(geneStarts,geneEnds), 

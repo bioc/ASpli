@@ -1,3 +1,19 @@
+CHANGES IN VERSION 1.2.3
+------------------------
+
+BUG FIXES
+
+    * reacCounts() can handle annotations that contain repeated gene names in
+      different chromosomes (bug reported by Cees Oudejans).
+      
+CHANGES IN VERSION 1.2.2
+------------------------
+
+BUG FIXES
+        
+    * DUReport() no longer fails when junctions counts are zero (bug reported by 
+      David Esteve).
+
 CHANGES IN VERSION 1.2.1
 ------------------------
 
@@ -10,7 +26,7 @@ BUG FIXES
       end in junction.counts table.
       
     * DUReport() no longer fails when there are no junctions that share their 
-      start or end.
+      start or end (bug reported by Enamul Huq).
       
     * reacCounts() requires an explicit targets argument, instead of taking it 
       from the global environment (in which may not exist with that name).  
