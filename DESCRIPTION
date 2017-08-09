@@ -3,7 +3,7 @@ Type: Package
 Title: Analysis of alternative splicing using RNA-Seq
 Version: 1.3.1
 Date: 2017-05-16
-Author: Estefania Mancini, Marcelo Yanovsky and Ariel Chernomoretz
+Author: Estefania Mancini, Javier Iserte, Marcelo Yanovsky and Ariel Chernomoretz
 License: GPL
 biocViews: GeneExpression, Transcription, AlternativeSplicing,
         Coverage, DifferentialExpression, DifferentialSplicing,
