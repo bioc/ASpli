@@ -12,6 +12,6 @@ Depends: methods, grDevices, stats, utils, parallel
 Imports: DESeq2, DEXSeq, GenomicRanges, GenomicFeatures, edgeR, BiocGenerics,
         IRanges, GenomicAlignments, Gviz, S4Vectors, AnnotationDbi, limma
 Suggests: RNAseqData.HNRNPC.bam.chr14, BiocStyle
-Maintainer: Estefania Mancini <emancini@leloir.org.ar>
+Maintainer: Estefania Mancini <emancini@leloir.org.ar>, Javier Iserte <jiserte@leloir.org.ar>
 Description: Integrative pipeline for the analysis of alternative
         splicing using RNA-seq.
