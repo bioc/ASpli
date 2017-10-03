@@ -77,7 +77,7 @@
   jjstart$queryHits <- names(jranges[jjstart$queryHits])
   jjstart$subjectHits <- names(jranges[jjstart$subjectHits])
   shareStart <- data.frame(aggregate(subjectHits ~ queryHits, 
-                                     data = jjstart, paste, collapse=";")) 
+                                     data = jjstart, base::paste, collapse=";"))
   #counts matrix
   start <- ncol(df) - nrow(targets) +1 #ok
   end <- ncol(df)#ok
@@ -136,7 +136,7 @@
   jjend$queryHits <- names(jranges[jjend$queryHits])
   jjend$subjectHits <- names(jranges[jjend$subjectHits])
   shareEnd <- data.frame(aggregate(subjectHits ~ queryHits,
-                                data = jjend, paste, collapse=";")) 
+                                data = jjend, base::paste, collapse=";"))
   dfCountsEnd <- data.frame( names=jjend$queryHits, 
                           df[jjend$subjectHits,start:end],
                           row.names=NULL) #recover counts

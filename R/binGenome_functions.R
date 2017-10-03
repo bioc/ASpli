@@ -27,7 +27,7 @@
       locus.df$names <- names(exons.by.gene.disjoint[locus.df$subjectHits])
       tt1 <- data.frame(aggregate(names ~ queryHits, 
                                   data = locus.df, 
-                                  paste, collapse = ';'))
+                                  base::paste, collapse = ';'))
       locus_overlap[tt1$queryHits] <- tt1$names
     }
     ##############

@@ -150,7 +150,7 @@
 
   # BUG FIX: aggregate fails with 0-rows dfCountsStart. 
   if ( nrow( overGeneDF  ) > 0 ) {
-    ttG <- data.frame(aggregate(subjectHits ~ queryHits, data = overGeneDF, paste, collapse=";"))
+    ttG <- data.frame(aggregate(subjectHits ~ queryHits, data = overGeneDF, base::paste, collapse=";"))
   } else {
     ttG <- data.frame( names = character(0) ) 
     for ( i in 1:ncol( overGeneDF ) ) {
@@ -197,7 +197,7 @@
   overDF[,2] <- names(exonsBins[namesBins])
   # BUG FIX: aggregate fails with 0-rows dfCountsStart. 
   if ( nrow( overDF  ) > 0 ) {
-    tt <- data.frame(aggregate(subjectHits ~ queryHits, data = overDF, paste, collapse=";")) 
+    tt <- data.frame(aggregate(subjectHits ~ queryHits, data = overDF, base::paste, collapse=";"))
   } else {
     tt <- data.frame( names = character(0) ) 
     for ( i in 1:ncol( overDF ) ) {
@@ -217,7 +217,7 @@
     overJunctionWithinBinsDF[,1] <- names(jranges[namesJ])
     overJunctionWithinBinsDF[,2] <- names(exonsBins[namesB])
     agtt <- data.frame(aggregate(subjectHits ~ queryHits,
-            data = overJunctionWithinBinsDF, paste, collapse=";")) 
+            data = overJunctionWithinBinsDF, base::paste, collapse=";"))
     tw <- match(names(jranges), agtt$queryHits) #ok;
     j_within_bin <- agtt$subjectHits[tw]
   }

@@ -70,7 +70,7 @@
                  jcounts[bin.start.df$subjectHits,start:end],
                  row.names=NULL) #recover counts
   tt1 <- data.frame(aggregate(. ~ names, data = df1, sum))
-  tt2 <- data.frame(aggregate(J1 ~ names, data = bin.start.df, paste, collapse=";"))
+  tt2 <- data.frame(aggregate(J1 ~ names, data = bin.start.df, base::paste, collapse=";"))
   aa <- merge(tt2,tt1, by.x="names", by.y="names")#merge both dataframes
   rownames(aa) <- aa$names
   aa$names <-  NULL
@@ -92,7 +92,7 @@
                  row.names=NULL) #recover counts
   tt1 <- data.frame(aggregate(. ~ names, data = df1, sum))   #aggregate counts
   tt2 <- data.frame(aggregate(J2 ~ names, data = bin.end.df, 
-                           paste, collapse=";")) #aggregate by name
+                           base::paste, collapse=";")) #aggregate by name
   aa <- merge(tt2,tt1, by.x="names", by.y="names")#merge both dataframes
   rownames(aa) <-  aa$names
   aa$names <-  NULL
@@ -111,7 +111,7 @@
                  jcounts[bin.within.df$subjectHits,start:end],
                  row.names=NULL) #recover counts
   tt1 <- data.frame(aggregate(. ~ names, data = df1, sum)) #aggregate counts
-  tt2 <- data.frame(aggregate( J3 ~ names, data = bin.within.df, paste, collapse=";")) 
+  tt2 <- data.frame(aggregate( J3 ~ names, data = bin.within.df, base::paste, collapse=";"))
   #aggregate by name
   aa <- merge(tt2,tt1, by.x="names", by.y="names")#merge both dataframes
   rownames(aa) <- aa$names
@@ -239,7 +239,7 @@
   jjstart <- as.data.frame(j.start)
   jjstart$queryHits <- names(jranges[jjstart$queryHits])
   jjstart$subjectHits <- names(jranges[jjstart$subjectHits])
-  shareStart <- data.frame(aggregate(subjectHits ~ queryHits, data = jjstart, paste, collapse=";")) 
+  shareStart <- data.frame(aggregate(subjectHits ~ queryHits, data = jjstart, base::paste, collapse=";"))
   #counts matrix
   start <- ncol(df)-nrow(targets) +1 #ok
   end <- ncol(df)#ok
@@ -310,7 +310,7 @@
   jjend <- as.data.frame(j.end)
   jjend$queryHits <- names(jranges[jjend$queryHits])
   jjend$subjectHits <- names(jranges[jjend$subjectHits])
-  shareEnd <- data.frame(aggregate(subjectHits ~ queryHits, data = jjend, paste, collapse=";")) 
+  shareEnd <- data.frame(aggregate(subjectHits ~ queryHits, data = jjend, base::paste, collapse=";"))
   dfCountsEnd <- data.frame( names=jjend$queryHits, 
                           df[jjend$subjectHits,start:end],
                           row.names=NULL) #recover counts
