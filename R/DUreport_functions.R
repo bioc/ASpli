@@ -221,7 +221,7 @@
   # BUG FIX: aggregate fails when no junction overlaps 
   if ( length( j.start ) > 0) {
     shareStart <- data.frame(aggregate(subjectHits ~ queryHits, 
-                                     data = jjstart, paste, collapse=";"))
+                                     data = jjstart, base::paste, collapse=";"))
   } else {
     shareStart <- data.frame( 
         subjectHits = character(0), 
@@ -309,7 +309,7 @@
   # BUG FIX: aggregate fails when no junction overlaps 
   if ( length( j.end ) > 0) {
     shareEnd <- data.frame(aggregate(subjectHits ~ queryHits, 
-            data = jjend, paste, collapse=";"))
+            data = jjend, base::paste, collapse=";"))
   } else {
     shareEnd <- data.frame( 
         subjectHits = character(0), 
