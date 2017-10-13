@@ -1,17 +1,17 @@
 Package: ASpli
 Type: Package
 Title: Analysis of alternative splicing using RNA-Seq
-Version: 1.3.2
-Date: 2017-10-03
+Version: 1.3.12
+Date: 2017-10-12
 Author: Estefania Mancini, Javier Iserte, Marcelo Yanovsky and Ariel Chernomoretz
 License: GPL
 biocViews: GeneExpression, Transcription, AlternativeSplicing,
-        Coverage, DifferentialExpression, DifferentialSplicing,
-        TimeCourse, RNASeq, GenomeAnnotation, Sequencing, Alignment
-Depends: methods, grDevices, stats, utils, parallel
-Imports: DESeq2, DEXSeq, GenomicRanges, GenomicFeatures, edgeR, BiocGenerics,
-        IRanges, GenomicAlignments, Gviz, S4Vectors, AnnotationDbi, limma
-Suggests: RNAseqData.HNRNPC.bam.chr14, BiocStyle
-Maintainer: Estefania Mancini <emancini@leloir.org.ar>, Javier Iserte <jiserte@leloir.org.ar>
+           Coverage, DifferentialExpression, DifferentialSplicing,
+           TimeCourse, RNASeq, GenomeAnnotation, Sequencing, Alignment
+Depends: methods, grDevices, stats, utils, parallel, edgeR 
+Imports: GenomicRanges, GenomicFeatures, BiocGenerics,
+         IRanges, GenomicAlignments, Gviz, S4Vectors, AnnotationDbi, Rsamtools,
+         BiocStyle
+Maintainer: Estefania Mancini <emancini@leloir.org.ar>
 Description: Integrative pipeline for the analysis of alternative
-        splicing using RNA-seq.
+             splicing using RNAseq.

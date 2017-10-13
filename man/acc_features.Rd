@@ -1,35 +1,48 @@
-\name{features accesors}
+\name{Features accesors}
 \alias{featuresb}
 \alias{featuresg}
 \alias{featuresj}
-\title{
-Accessors for ASpliFeatures object
-}
-\description{
-Accessors for ASpliFeatures object
-}
+\alias{featuresb<-}
+\alias{featuresg<-}
+\alias{featuresj<-}
+
+\title{ Accessors for ASpliFeatures object }
+
+\description{ Accessors for ASpliFeatures object }
+
 \usage{
-featuresg(x)
-featuresb(x)
-featuresj(x)
+  featuresg( x )
+  featuresb( x )
+  featuresj( x )
 }
+
 \arguments{
-  \item{x}{
-  An ASpliFeatures object
+  \item{x}{ An ASpliFeatures object }
 }
-}
+
 \value{
-Resturns a GenomicRanges object
+  Returns a GenomicRanges object. Function featuresg returns a GRangesList 
+  object containing exon ranges for each gene. Functions featuresb and 
+  featuresj, returns GRanges object for all bins and junctions. 
 }
-\author{ Estefania Mancini, Marcelo Yanovsky, Ariel Chernomoretz  }
+
+\author{ Estefania Mancini, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz}
+
 \examples{
-library(AnnotationDbi)
-chr14 <- system.file("extdata","chr14.sqlite", package="ASpli")
-genome <- loadDb(chr14)
-features <- binGenome(genome)
-featuresg(features)
-featuresb(features)
-featuresj(features)
+  # Get data from an ASpliFeatures object
+  
+  features <- aspliFeaturesExample()
+  
+  fg <- featuresg( features )
+  fb <- featuresb( features )
+  fj <- featuresj( features )
+  
+  # Set data to an ASpliFeatures object
+  
+  featuresg( features ) <- fg 
+  featuresb( features ) <- fb 
+  featuresj( features ) <- fj 
+
 }
 
 

@@ -1,18 +1,24 @@
 \name{binGenome-methods}
+
 \docType{methods}
+
 \alias{binGenome-methods}
 \alias{binGenome,TxDb-method}
+
 \title{ Feature coordinates extraction }
-\description{
-Feature coordinates extraction from a Transcript Db Database
-}
+
+\description{ Feature coordinates extraction from a Transcript Database }
+
 \section{Methods}{
-\describe{
-\item{\code{signature(genome = "TxDb")}}{
-An object of class transcriptDb (TxDb) 
+  \describe{
+    \item{\code{signature(genome = "TxDb")}}{
+      An object of class transcriptDb (TxDb) 
+    }
+  }
 }
-}}
-\author{Estefania Mancini, Marcelo Yanovsky, Ariel Chernomoretz }
+
+
+\author{Estefania Mancini, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz }
 \seealso{ \code{\link{featuresg}, \link{featuresb} , \link{featuresj} 
 } 
 }

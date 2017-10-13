@@ -3,29 +3,25 @@ import(methods)
 import(utils)
 import(BiocGenerics)
 import(IRanges)
+import(GenomicRanges)
 import(GenomicFeatures)
 import(edgeR)
-importFrom(limma, vennDiagram)
-import(AnnotationDbi)
-importFrom(GenomicAlignments, readGAlignments, njunc, junctions)
-importFrom(DESeq2, estimateSizeFactors, estimateDispersions, dispersions, 
-    "dispersions<-", DESeq, DESeqDataSetFromMatrix, results )
-importFrom(DEXSeq, DEXSeqDataSet, testForDEU, DEXSeqResults)
-importClassesFrom(DEXSeq, DEXSeqDataSet)
-importClassesFrom( GenomicRanges, GRanges, GRangesList )
-importFrom( GenomicRanges,  GRanges, GRangesList, findOverlaps, countOverlaps, 
-    disjoin, duplicated, strand )
-importFrom( "grDevices", "dev.off", "png" )
-importFrom( "stats", "aggregate", "formula", "p.adjust" )
-importFrom( parallel, mclapply )
+import(Rsamtools)
+import(BiocStyle)
+import(GenomicAlignments)
+importFrom( "grDevices", "dev.off", "png", "rgb", "bmp", "col2rgb", "dev.new", 
+            "jpeg", "pdf", "tiff")
+importFrom("stats", "aggregate", "formula", "p.adjust", "model.matrix")
+importFrom("graphics", "axis", "barplot", "legend", "lines", "par","plot", "title")
+importFrom(parallel, mclapply)
 import(S4Vectors)
 import(AnnotationDbi)
 import(Gviz)
+import(grid)
 exportMethods(
     "AsDiscover",
     "binGenome",
     "DUreport",
-    "DUreport_DEXSeq",
     "writeAS",
     "writeCounts",
     "writeDU",
@@ -45,17 +41,27 @@ exportMethods(
     "irPIR",
     "altPSI",
     "esPSI",
-     "joint",
+    "joint",
     "junctionsPIR",
     "junctionsPSI",
     "genesDE",
     "binsDU",
     "junctionsDU",
-    "show"
+    "DUreportBinSplice",
+    "show",
+    "junctionDUreport",
+    "containsGenesAndBins",
+    "containsJunctions",
+    "plotBins",
+    "plotGenomicRegions",
+    "subset",
+    "mergeBinDUAS",
+    "filterDU"
+    
 )
 exportClasses(
     "ASpliAS",
-     "ASpliCounts",
-     "ASpliDU",
-     "ASpliFeatures" 
+    "ASpliCounts",
+    "ASpliDU",
+    "ASpliFeatures" 
 )

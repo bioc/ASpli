@@ -1,8 +1,14 @@
 \name{ASpliCounts}
+
 \docType{class}
+
 \alias{ASpliCounts}
-\description{ Contains results of read overlaps against all feature levels summarization }
-\title{Class \code{"ASpliCounts"}}
+
+\description{ Contains results of read overlaps against all feature levels 
+  summarization }
+
+\title{ Class \code{"ASpliCounts"} }
+
 \section{Slots}{
   \describe{
     \item{\code{gene.counts}}{}
@@ -14,4 +20,4 @@
     \item{\code{bin.rd}}{}
   }
 }
-\author{ Estefania Mancini, Marcelo Yanovsky, Ariel Chernomoretz}
+\author{ Estefania Mancini, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz}

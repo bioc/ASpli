@@ -1,365 +1,320 @@
-#######################ASdiscovery FUNCTIONS###############################
-.filterJunctionBySample <- function(df0, targets, threshold)
-{
+
+
+# Filter junctions that has in at least one condition a given (threshold) number
+# of junction for all samples.
+.filterJunctionBySample <- function( df0, targets, threshold) {
+
+  # Simple function to compute the minimum of values of two vectors, by position
+  # Example:
+  # vecMin( c(1,2,3), c(2,0,0) ) -> c(1,0,0)
+  vecMin <- function ( a, b ) {
+    at <- a < b
+    bt <- a >= b
+    av <- rep( NA, length( a ) )
+    bv <- rep( NA, length( b ) )
+    av[ at ] <- a[ at ]
+    av[ !at ] <- 0
+    bv[ bt ] <- b[ bt ]
+    bv[ !bt ] <- 0
+    return( av + bv )
+  }
   
-  a <- table(targets$condition)
-  start <- ncol(df0)-sum(a)+1
-  jm <- df0[,start:ncol(df0)]
-  colnames(jm) <- targets$condition
-  ffJ <- t(apply(jm, 1, 
-          function(x){tapply(as.numeric(x), 
-                                 INDEX=colnames(jm), 
-                                  min )})>threshold)
-  ii <- rowSums(ffJ)>0#at least in one condition
-  df <- df0[ii,]
-  return (df)
+  cropped <- .extractCountColumns( df0, targets ) 
+  uniqueConditions <- unique( targets$condition )
+
+  # Creates an matrix with Inf ( the neutral element for Min function)
+  filter <- matrix( Inf ,
+      ncol = length( uniqueConditions ) ,
+      nrow = nrow( cropped ) )
+  
+  # Iterates over conditions and over samples of each condition
+  # uses filter matrix to compute partial min operations
+  for ( i in 1:length( uniqueConditions ) ) {
+    byCond <- cropped[ , targets$condition == uniqueConditions[ i ] , drop = FALSE]
+    for ( j in 1:ncol( byCond ) ) {
+      filter[ , i ] <- vecMin( filter[ , i ] , byCond[ , j ]  )
+    }
+  }
+  
+  # Filter the initial dataframe
+  filter <- rowSums( filter > threshold ) > 0
+  return( df0[ filter,  ] )
+
 }
-################################################################
-.e1e2JPIR<-function(intranges, jcounts)
-{
-  split <- data.frame(matrix(unlist(strsplit(rownames(jcounts),  "[.]") ),
-                   byrow=TRUE, ncol=3),   
-                   row.names=rownames(jcounts),
-                   stringsAsFactors=FALSE )  
-  colnames(split) <- c("chrom","start","end")
-  split$start <- as.numeric(split$start)  +1
-  split$end <- as.numeric(split$end) -1
+
+# Recover junctions that corresponds exactly to introns.
+.e1e2JPIR <- function( intronGRanges, jcounts, targets ) {
+  
+  # Creates a GRanges from junction names and modifies its to match the 
+  # corresponding intron.
+  jranges <- sort( .createGRangesExpJunctions( rownames( jcounts ) ) )
+  start( jranges ) <- start( jranges ) + 1  
+  end( jranges ) <- end( jranges ) - 1
+  
+  # Looks junctions that overlaps exactly with introns
+  overlapped <- findOverlaps( jranges, intronGRanges, type="equal" ) 
+
+  # reorder junction counts by query names  
+  queryNames   <- names( jranges )[ queryHits( overlapped ) ]
+  subjectNames <- names( intronGRanges )[ subjectHits( overlapped ) ]
+  queryOrder   <- match( queryNames, rownames( jcounts ) )
+  jc <- .extractCountColumns( jcounts, targets )[ queryOrder, ]
+  
+  result <- data.frame( J3 = queryNames, 
+                        jbin = subjectNames,
+                        jc,
+                        stringsAsFactors = FALSE)
+  return( result )
+}
+
+# Get junction PSI for junction overlapping different exon regions.
+# The possible overlapping types are: start, end and within
+.getJPSIByOverlap <- function ( jranges, exonGRanges, jcounts, targets, overlapType ) {
+  
+  jranges.edge <- jranges
+  
+  if ( overlapType == 'start' ) {
+    start( jranges.edge ) <- end( jranges.edge )
+  } else if ( overlapType == 'end' ){
+    end( jranges.edge ) <- start( jranges.edge )
+  }
+  
+  overlapped <- findOverlaps( exonGRanges, jranges.edge, type = overlapType )
+  
+  overlappedQueryNames <- names( exonGRanges[ queryHits( overlapped ) ] )
+  overlappedSubjectNames <- names( jranges.edge[ subjectHits( overlapped ) ] )
+  
+  df1 <- data.frame( 
+    names = overlappedQueryNames ,
+    .extractCountColumns( jcounts[ subjectHits( overlapped ), ] ,targets ),
+    row.names = NULL )
+  
+  result <- merge(
+    x = data.frame( aggregate( . ~ names, data = df1, sum ) ),
+    y = data.frame( aggregate( 
+            overlappedSubjectNames ~ overlappedQueryNames, 
+            FUN = paste, collapse=";")),
+    by.x = 1,
+    by.y = 1
+  )
+  rownames( result ) <- result$names
+  result[ , 1 ] <-  NULL
+  return( result )
+  
+}
+
+.createGRangesExpJunctions <- function( jnames ) {
+  split <- data.frame( matrix( unlist( strsplit( jnames,  "[.]" ) ),
+          byrow = TRUE, ncol = 3 ),   
+      row.names = jnames,
+      stringsAsFactors = FALSE )  
+  colnames(split)  <- c("chrom","start","end")
+  split$start <- as.numeric(split$start)  
+  split$end <- as.numeric(split$end)
   split$chrom <- as.character(split$chrom)
-  jranges <- GRanges( 
-    seqnames = split$chrom,
-                    ranges =IRanges(start= split$start, 
-                    end = split$end, 
-                    names = rownames(split)))
-  jranges <- sort(jranges)
-  #we have junctions coordenates equal to introns cordenates
-  ############################################################
-  jInt <- findOverlaps(jranges, intranges, type="equal") 
-  #junctions equal introns bins
-  jIntDF <- as.data.frame(jInt) 
-  jIntDF$queryHits <- names(jranges)[jIntDF$queryHits]
-  jIntDF$subjectHits <- names(intranges)[jIntDF$subjectHits]
-  matchJ <- match(jIntDF$queryHits, rownames(jcounts))
-  jc <- jcounts[matchJ, setdiff(colnames(jcounts),
-                              c("junction",
-                                "gene",
-                                "strand",
-                                "multipleHit",
-                                "symbol",
-                                "gene_coordinates", 
-                                "bin_spanned","j_within_bin"))]
-  #extraigo los conts de las junturas  que dan match igual
-  ###########hago la estadistica ###############################
-  dfe1e2 <- data.frame(J3=jIntDF$queryHits, 
-                     jbin=jIntDF$subjectHits,
-                     jc)
-  return(dfe1e2)
+  jranges <- GRanges( seqnames = split$chrom, 
+      ranges = IRanges(
+          start= split$start, 
+          end = split$end,
+          names = jnames)    )
+  # jranges <- sort(jranges)
+  return( jranges )
 }
-###################################################
-.startJPSI <- function(jranges, exranges, jcounts, targets)
-{
-  jranges.start <- jranges
-  start(jranges.start) <- end(jranges.start)
-  bin.start <- findOverlaps(exranges, jranges.start, type="start") 
-  #query exon -- subject junctio
-  bin.start.df <- as.data.frame(bin.start)
-  bin.start.df$names <- names(exranges[bin.start.df$queryHits])
-  bin.start.df$J1 <- names(jranges.start[bin.start.df$subjectHits])
-  start <- ncol(jcounts) -nrow(targets) +1
-  end <- ncol(jcounts)
-  df1 <- data.frame(names=bin.start.df$names, 
-                 jcounts[bin.start.df$subjectHits,start:end],
-                 row.names=NULL) #recover counts
-  tt1 <- data.frame(aggregate(. ~ names, data = df1, sum))
-  tt2 <- data.frame(aggregate(J1 ~ names, data = bin.start.df, base::paste, collapse=";"))
-  aa <- merge(tt2,tt1, by.x="names", by.y="names")#merge both dataframes
-  rownames(aa) <- aa$names
-  aa$names <-  NULL
-  return(aa)
-}
-########################################################
-.endJPSI <- function(jranges, exranges, jcounts, targets)
-{
-  jranges.end <- jranges
-  end(jranges.end) <- start(jranges.end)
-  bin.end <- findOverlaps(exranges, jranges.end, type="end") 
-  bin.end.df <- as.data.frame(bin.end)
-  bin.end.df$names <- names(exranges[bin.end.df$queryHits])
-  bin.end.df$J2 <- names(jranges.end[bin.end.df$subjectHits])
-  start <- ncol(jcounts) -nrow(targets) +1
-  end <- ncol(jcounts)
-  df1 <- data.frame(names=bin.end.df$names, 
-                 jcounts[bin.end.df$subjectHits,start:end],
-                 row.names=NULL) #recover counts
-  tt1 <- data.frame(aggregate(. ~ names, data = df1, sum))   #aggregate counts
-  tt2 <- data.frame(aggregate(J2 ~ names, data = bin.end.df, 
-                           base::paste, collapse=";")) #aggregate by name
-  aa <- merge(tt2,tt1, by.x="names", by.y="names")#merge both dataframes
-  rownames(aa) <-  aa$names
-  aa$names <-  NULL
-  return(aa)
-}
-#######################################################
-.withinJPSI <- function(jranges, exranges, jcounts, targets)
-{
-  bin.within <- findOverlaps(exranges, jranges, type="within")
-  bin.within.df <- as.data.frame(bin.within)
-  bin.within.df$names <- names(exranges[bin.within.df$queryHits])
-  bin.within.df$J3 <- names(jranges[bin.within.df$subjectHits])
-  start <- ncol(jcounts) -nrow(targets) +1
-  end <- ncol(jcounts)
-  df1<- data.frame(names=bin.within.df$names, 
-                 jcounts[bin.within.df$subjectHits,start:end],
-                 row.names=NULL) #recover counts
-  tt1 <- data.frame(aggregate(. ~ names, data = df1, sum)) #aggregate counts
-  tt2 <- data.frame(aggregate( J3 ~ names, data = bin.within.df, base::paste, collapse=";"))
-  #aggregate by name
-  aa <- merge(tt2,tt1, by.x="names", by.y="names")#merge both dataframes
-  rownames(aa) <- aa$names
-  aa$names  <-  NULL
-  return(aa)
-}
-###############################################################
-.createGRangesExpJunctions <-
-  function(jnames) 
-  {
-    split <- data.frame(matrix(unlist(strsplit(jnames,  "[.]") ),
-                     byrow=TRUE, ncol=3),   
-                     row.names=jnames,
-                     stringsAsFactors=FALSE )  
-    colnames(split)  <- c("chrom","start","end")
-    split$start <- as.numeric(split$start)  
-    split$end <- as.numeric(split$end)
-    split$chrom <- as.character(split$chrom)
-    jranges <- GRanges( seqnames = split$chrom, 
-                        ranges =IRanges(
-                        start= split$start, 
-                        end = split$end,
-                        names = jnames)    )
-    jranges <- sort(jranges)
-    return(jranges)
+
+.junctionsDiscover <- function( df, bam, cores, readLength, targets, features ) {
+
+  # This function get the counts of the junctions that overlaps the an 
+  # intron/exon region of a bin. The junction must overlap completely and at 
+  # least an 8% into the exon region and the intron region.
+  # The regions can be exon1-intron or intron-exon2. All junctions are assumed 
+  # to correspond to a intron.
+  getExonIntronCounts <- function( jranges, targets, bams, readLength, 
+      regionType, cores = 1 ) {
+    
+    exonIntron <- jranges
+
+    minAnchor <- round( 8 * readLength / 100 )
+    
+    start( exonIntron ) <- if ( regionType == 'e1i' ) start( jranges ) else end( jranges )
+    start( exonIntron ) <- start( exonIntron ) - ( readLength - minAnchor ) - 1
+    end( exonIntron )   <- if ( regionType == 'e1i' ) start( jranges ) else end( jranges )
+    end( exonIntron )   <- end( exonIntron ) + ( readLength - minAnchor ) - 1
+    
+    
+    hits <- lapply( bams, function( x ) { 
+          countOverlaps( exonIntron, x, ignore.strand = TRUE, 
+              minoverlap = readLength ) 
+        } )
+    
+    hits <- do.call( cbind.data.frame, hits )
+    
+    return( hits )
   }
-###############################################################
-.junctionsDiscover <- function(df, bam, cores, l, targets, features, pair) {
-  countsSt <- ncol(df)-nrow(targets)+1
-  jcounts <- df[,countsSt:ncol(df)] 
-  jranges <- .createGRangesExpJunctions(rownames(df))
-  e1i <- jranges
-  minAnchor <- round(8*l/100)
-  start(e1i) <- start(jranges)-(l-minAnchor)-1
-  end(e1i) <- start(jranges)+(l-minAnchor)-1
-  ie2 <- jranges
-  start(ie2) <- end(jranges)-(l-minAnchor)-1
-  end(ie2) <- end(jranges)+(l-minAnchor)-1
-  #######################################################
-  ungapped <- lapply(bam, function(x) {x[njunc(x)==0,]}) #extraigo los que no tienen GAPS
-  hits.e1i <- lapply(ungapped,function(x){countOverlaps(e1i, x,  
-                                                      ignore.strand = TRUE, 
-                                                      minoverlap = l)})
-  hits.e1i.ul <- do.call(cbind.data.frame, hits.e1i)
-  hits.ie2 <- lapply(ungapped,function(x){countOverlaps(ie2, 
-                                                      x,  
-                                                      ignore.strand = TRUE, 
-                                                      minoverlap = l)})
-  hits.ie2.ul <- do.call(cbind.data.frame, hits.ie2)
-  #######################################################
-  dfPIR <- cbind(hits.e1i.ul, hits.ie2.ul, jcounts)
-  cndfPIR <- colnames(dfPIR)
-  #only counts, repeat sample names, they are used for factorization
-  intPIR <- function(x){
-    x[is.na(x)] <- 0 # we have to remove NAs
-    res <- (x[1]+x[2])/(x[1]+x[2]+2*x[3])
-    return(res)
-  }
-  ff <- rep(targets$condition,3)
-  colnames(dfPIR) <- paste(ff, rep(1:3,each=length(targets$condition)), sep="."); head(dfPIR)
-  #here colnames are converted into condition
-  myfactor <- factor(paste(ff, rep(1:3,each=length(targets$condition)),sep="."), 
-                   levels=paste(rep(pair, each=3 ), 1:3, sep="."))
-  dfSum <- t(apply(dfPIR, 1, function(x){tapply(as.numeric(x),
-                                              INDEX=myfactor, sum  )}))
-  #sumo las junturas por condicion
-  colnames(dfSum) <- rep(unique(targets$condition), each=3)
-  myfactor <- factor(rep(unique(targets$condition),each=3), levels=pair)
-  intPIRres <- t(apply(dfSum, 1, 
-                function(x){tapply(as.numeric(x), 
-                            INDEX=myfactor, 
-                            intPIR  )}))
-  #########################################
-  hitIntron <- rep("-",  nrow(df))
-  hitIntronEvent <- rep("-", nrow(df))
-  #########################################
-  intronBins <- featuresb(features)
-  start(intronBins) <- start(intronBins)-1
-  end(intronBins)<-end(intronBins)+1
-  overJunctionEqualBins <- findOverlaps(jranges, intronBins,ignore.strand = TRUE, type="equal")
-  overJunctionEqualBinsDF <- as.data.frame(overJunctionEqualBins); head(overJunctionEqualBinsDF)
-  namesJ <- as.numeric(overJunctionEqualBinsDF[,1])
-  namesB <- as.numeric(overJunctionEqualBinsDF[,2])
-  overJunctionEqualBinsDF[,1] <- names(jranges[namesJ])
-  overJunctionEqualBinsDF[,2] <- names(intronBins[namesB])
-  overJunctionEqualBinsDF[,3] <- intronBins@elementMetadata$event[namesB]
-  colnames(overJunctionEqualBinsDF)[3] <- "event"
-  tw <- match(names(jranges), overJunctionEqualBinsDF$queryHits) #ok;
-  hitIntron <- overJunctionEqualBinsDF$subjectHits[tw]
-  hitIntronEvent <- overJunctionEqualBinsDF$event[tw]
-  #############################################################
-  colnames(dfPIR) <- cndfPIR
-  pir_large <- data.frame(hitIntron, hitIntronEvent, dfPIR, intPIRres)
-  fcoord <- paste(seqnames(jranges), 
-                start(jranges),
-                end(jranges) , sep=".")
-  rownames(pir_large) <- fcoord
-  return(pir_large)
-}
-######################################################################3
-.junctionsPSI_SUM <- function(df, 
-                            targets,
-                            pair)
-{
-  jratio <- function(x){
-    x[is.na(x)] <- 0 # we have to remove NAs
-    res <- x[1]/(x[1]+x[2])
-    return(res)
-  }
-  ############those sharing 3', 5', total etc#################
-  countsSt <- ncol(df)-nrow(targets)+1
-  jranges <- .createGRangesExpJunctions(rownames(df))
   
-  if (packageVersion("IRanges")<2.6) 
-  {
-    j.start <- findOverlaps(jranges, ignoreSelf=TRUE,
-                            ignoreRedundant=FALSE,type="start")
-  }
-  else
-  {
-    j.start <- findOverlaps(jranges, drop.self=TRUE,
-                        drop.redundant=FALSE,type="start")
+  # Get the counts of junctions
+  jcounts <- .extractCountColumns( df, targets )
+
+  # Convert junctions names to GRanges (the GRanges object do noy have the same
+  # order that the initial data ).
+  jranges <- sort( .createGRangesExpJunctions( rownames( df ) ) )
+
+  # Extract the junction that has no gaps
+  ungappedBams <- lapply( bam, function( x ) { x[ njunc( x ) == 0 , ] } ) 
+  
+  # Get counts for junction overlapping the exon1-intron region and intron-exon2
+  # region
+  e1i <- getExonIntronCounts( jranges, targets, ungappedBams, readLength , 
+      'e1i', cores = cores)
+  ie2 <- getExonIntronCounts( jranges, targets, ungappedBams, readLength , 
+      'ie2', cores = cores)  
+  
+  # Calculates the PIR value 
+  j1 <- .sumByCond( e1i,     targets )
+  j2 <- .sumByCond( ie2,     targets )
+  j3 <- .sumByCond( jcounts, targets )
+  pirValues <- ( j1 + j2 ) / ( j1 + j2 + 2 * j3 )
+  
+  
+  # Search junctions that overlaps exacly with annotated introns
+  intronBins <- featuresb( features )
+  
+  start( intronBins ) <- start( intronBins ) - 1
+  end( intronBins ) <- end( intronBins ) + 1
+
+  overlapped <- findOverlaps( jranges, intronBins, ignore.strand = TRUE, 
+      type="equal" )
+  
+  queryNames <- names( jranges[ queryHits( overlapped ) ] )
+  subjectNames <- names( intronBins[ subjectHits( overlapped ) ] )
+
+  # sort the names of the junctions-matching bins and the event type of those 
+  # bins by the order of the junction data in the GRanges object .
+  orderIndex <- match( names( jranges ), queryNames )
+  
+  hitIntron <- subjectNames[ orderIndex ]
+  
+  hitIntronEvent <- mcols( intronBins )[ subjectHits( overlapped ) , 
+      'event' ][ orderIndex ]
+
+  # Creates string representing genomic coordinates of each junction
+  genomicCoordinates <- paste( 
+      seqnames( jranges ), 
+      start( jranges ),
+      end( jranges ),
+      sep=".")
+  
+  # Creates result data.frame
+  # TODO: construir con do.call( cbind )
+  result <- do.call( cbind , 
+      list( hitIntron = hitIntron, 
+            hitIntronEvent = hitIntronEvent,
+            e1i, 
+            ie2,
+            jcounts,
+            pirValues ) )
+  rownames( result ) <- genomicCoordinates
+
+  return( result )
+
+}
+
+.junctionsPSI_SUM <- function( df, targets ) {
+  
+  # This function gets the complete set of all junctions and returns a data 
+  # frame containing information of junctions that shares its start or end.
+  # The result value is a data.frame that has :
+  # 1. the names of the junctions shared by each junction (the 'Hit' column of 
+  #    the data frame), 
+  # 2. the sums ( by sample ) of the shared junctions 
+  # 3. the junction ratio ( counts of given junction / sum of counts of shared junctions ).
+  getBoundarySharedData <- function(
+      allJunctionCounts,
+      junctionsGRanges, 
+      boundaryType = "start" ) {
+    
+    junctionNames <- rownames( allJunctionCounts )
+    
+    j.boundary <- findOverlaps( jranges, drop.self=TRUE, drop.redundant=FALSE, type=boundaryType)
+    
+    # Search for the names of the junctions that share the boundary
+    queryNames   <- names( jranges[ queryHits( j.boundary ) ] )
+    subjectNames <- names( jranges[ subjectHits( j.boundary ) ] )
+    sharedNames  <- data.frame( 
+        aggregate( subjectNames ~ queryNames, FUN = paste, collapse = ";" ) )
+    
+    # extract the counts of junctions 'indexed' by the name of the query junctions
+    junctionCounts <- data.frame( 
+        names = queryNames, 
+        .extractCountColumns( allJunctionCounts[ subjectNames, ], targets ),
+        row.names = NULL ) 
+    
+    # Sum the rows of the junctions that share the boundary
+    sharedRowSum <- data.frame( aggregate( . ~ names, data = junctionCounts, sum ) )
+    
+    rownames( sharedRowSum ) <- sharedRowSum$names
+    sharedRowSum <- .extractCountColumns( sharedRowSum, targets  )
+    
+    
+    # Creates an new empty data.frame to store the counts of summed counts 
+    # ordered by the original junction data frame
+    sharedRowSumOrdered <- data.frame( 
+        row.names = junctionNames, 
+        matrix( NA, 
+            nrow = nrow( allJunctionCounts ), 
+            ncol = ncol( sharedRowSum ) ) )
+    colnames( sharedRowSumOrdered ) <- colnames( sharedRowSum )
+    
+    orderIndex <- match( row.names( sharedRowSum ), junctionNames ) 
+    sharedRowSumOrdered[ orderIndex, ] <- sharedRowSum#OK
+    sharedRowSumOrdered[ is.na( sharedRowSumOrdered ) ] <- 0
+    
+    # Reorder shared names
+    orderIndex <- match( sharedNames$queryNames, junctionNames )
+    sharedNamesOrdered <- as.character( rep("-", nrow( sharedRowSumOrdered ) ) )
+    sharedNamesOrdered[ orderIndex ] <- sharedNames$subjectNames
+
+    # Calculates jratio
+    j1 <- .sumByCond( .extractCountColumns( allJunctionCounts, targets ), targets  )
+    j2 <- .sumByCond( sharedRowSumOrdered , targets  )
+    jratioResult <- j1 / ( j1 + j2 )
+    colnames( jratioResult ) <- paste( colnames( jratioResult ), boundaryType, sep="." )
+
+    result <- data.frame( sharedNamesOrdered, sharedRowSumOrdered, jratioResult  )
+ 
+    # Sets the name of the 'Hit' column in the result dataframe 
+    colnames( result ) [1] <- if ( boundaryType == 'start' ) 'StartHit' else 'EndHit'
+    
+    return( result )
     
   }
-  jjstart <- as.data.frame(j.start)
-  jjstart$queryHits <- names(jranges[jjstart$queryHits])
-  jjstart$subjectHits <- names(jranges[jjstart$subjectHits])
-  shareStart <- data.frame(aggregate(subjectHits ~ queryHits, data = jjstart, base::paste, collapse=";"))
-  #counts matrix
-  start <- ncol(df)-nrow(targets) +1 #ok
-  end <- ncol(df)#ok
-  #aca no hay cuentas solo recupero los counts usando el indexado de subjectHits
-  dfCountsStart <- data.frame(
-                            names=jjstart$queryHits, 
-                            df[jjstart$subjectHits,start:end],
-                            row.names=NULL) #recover counts
-  #tiene como names al query y como counts todos los subjects que dan con ese query. 
-  #en teoria podria haber mas de 1 sbject, por eso hace el aggregate-
-  #si es solo 1 hit deberian coincidir, cruzandose
-  #aca hace el agregate y tengo los counts de todas las junturas 
-  #que comparten start con esa menos ella
-  dfSumStart <- data.frame(aggregate(. ~ names, data = dfCountsStart, sum))
-  sumJ <- paste(colnames(dfSumStart), "jsum", sep=".")
-  colnames(dfSumStart) <- sumJ
-  rownames(dfSumStart) <- dfSumStart$names.jsum
-  dfSumStart$names.jsum <- NULL
-  #armo un nuevo data frame
-  dffStart <- data.frame(matrix(NA, nrow =  nrow(df), ncol = ncol(dfSumStart)) )
-  rownames(dffStart) <- rownames(df)
-  colnames(dffStart) <- colnames(dfSumStart)
-  mSumStart <- match(row.names(dfSumStart), row.names(dffStart)) 
-  #reordeno el dffSumStart de acuerdo al df
-  dffStart[mSumStart,] <- dfSumStart#OK
-  dffStart[is.na(dffStart)] <- 0
-  mStartHit <- match(shareStart$queryHits, row.names(dffStart))
-  #aca reacomodo el starthit con el indexado de dffStart
-  StartHit <- as.character(rep("-", nrow(dffStart)) )
-  StartHit[mStartHit] <- shareStart$subjectHits
-  ################################################
-  ratioStart <- data.frame(df[,countsSt:ncol(df)],
-                         dffStart)
-  colnames(ratioStart) <- rep(rownames(targets),2)
-  #aca hay que armar un df itnermedio con la suma por condicion:
-  ff <- factor(rep(targets$condition,2))
-  colnames(ratioStart) <- factor(paste(ff, rep(1:2,each=length(targets$condition))), 
-                               levels=paste(rep(pair, each=2 ), 1:2))
-  myfactor <- factor(paste(ff, rep(1:2,each=length(targets$condition))), 
-                   levels=paste(rep(pair, each=2 ), 1:2))
-  ####
-  dfSum <- t(apply(ratioStart, 1, function(x){tapply(as.numeric(x), 
-                                                   INDEX=myfactor, sum  )}))
-  myfactor <- factor(rep(unique(targets$condition),each=2), levels=pair)
-  #######################################
-  #solo este seria el df que hay que recuperar para una tabla resumida:
-  jratioStartRes <- t(apply(dfSum, 1, 
-                     function(x){tapply(as.numeric(x), 
-                                             INDEX=myfactor, 
-                                             jratio )}))
-  colnames(jratioStartRes) <- paste(colnames(jratioStartRes), "start", sep=".")
-  ################################################
-  if (packageVersion("IRanges")<2.6) 
-  {
-    j.end=findOverlaps(jranges, 
-                       ignoreSelf=TRUE,
-                       ignoreRedundant=FALSE,
-                       type="end")
-    
-  }
-    else
-  {
-    j.end=findOverlaps(jranges, 
-                     drop.self=TRUE,
-                     drop.redundant=FALSE,
-                     type="end")
-  }
-  jjend <- as.data.frame(j.end)
-  jjend$queryHits <- names(jranges[jjend$queryHits])
-  jjend$subjectHits <- names(jranges[jjend$subjectHits])
-  shareEnd <- data.frame(aggregate(subjectHits ~ queryHits, data = jjend, base::paste, collapse=";"))
-  dfCountsEnd <- data.frame( names=jjend$queryHits, 
-                          df[jjend$subjectHits,start:end],
-                          row.names=NULL) #recover counts
-  dfSumEnd <- data.frame(aggregate(. ~ names, data = dfCountsEnd, sum))   
-  sumJ <- paste(colnames(dfSumEnd), "jsum", sep=".")
-  colnames(dfSumEnd) <- sumJ
-  rownames(dfSumEnd) <- dfSumEnd$names.jsum
-  dfSumEnd$names.jsum <- NULL
-  dffEnd <- data.frame(matrix(NA, nrow =  nrow(df), ncol = ncol(dfSumEnd)) )
-  rownames(dffEnd) <- rownames(df)
-  colnames(dffEnd) <- colnames(dfSumEnd)
-  ########################################################################
-  mSumEnd <- match(row.names(dfSumEnd), row.names(dffEnd))
-  dffEnd[mSumEnd,] <- dfSumEnd
-  dffEnd[is.na(dffEnd)] <- 0
-  ########################################################################
-  mEndHit <- match(shareEnd$queryHits, row.names(dffEnd))
-  EndHit <- rep("-", nrow(dffEnd))
-  EndHit[mEndHit] <- shareEnd$subjectHits
-  ########################################################################
-  ratioEnd <- data.frame(df[,countsSt:ncol(df)],dffEnd)
-  ff <- rep(targets$condition,2)
-  colnames(ratioEnd) <- paste(ff, rep(1:2,each=length(targets$condition)))
-  myfactor <- factor(paste(ff, rep(1:2,each=length(targets$condition))), 
-                   levels=paste(rep(pair, each=2 ), 1:2))
-  dfSum <- t(apply(ratioEnd, 1, function(x){tapply(as.numeric(x), 
-                                                 INDEX=myfactor,
-                                                 sum  )}))
-  colnames(dfSum) <- rep(unique(targets$condition),each=2)
-  myfactor <- factor(rep(unique(targets$condition),each=2), levels=pair)
-  #########################################################################
-  jratioEndRes <- t(apply(dfSum, 1, function(x){tapply(as.numeric(x), 
-                                                     INDEX=myfactor, 
-                                                     jratio )}))
-  colnames(jratioEndRes) <- paste(colnames(jratioEndRes), "end", sep=".")
-  #########################################################################
-  #eventos putativos:
-  pAS <- rep("-", nrow(df))
-  pAS[StartHit!="-" & df$strand =="-" | EndHit!="-" & df$strand =="+"] <- "Alt5ss"
-  pAS[StartHit!="-" & df$strand =="+" | EndHit!="-" & df$strand =="-"] <- "Alt3ss"
-  pAS[StartHit!="-" & EndHit!="-"] <- "ES" #OK
-  ##########################################################################
-  psi_merge_large <- data.frame(df,                       
-                              StartHit,
-                              dffStart,
-                              jratioStartRes,
-                              EndHit,
-                              dffEnd,
-                              jratioEndRes,
-                              pAS)
-  return(psi_merge_large)
-  }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
+  
+  # Get names of the junctions
+  junctionNames <- rownames( df )
+  
+  # Create a Granges object from the names ( the names has the pattern:
+  # 'chromosome.start.end' )
+  jranges <- sort( .createGRangesExpJunctions( junctionNames ) )
+  
+  # Retrieve data from junctions that shares their starts
+  sharedStartData <- getBoundarySharedData( df, jranges, "start" )
+
+  # Retrieve data from junctions that shares their ends
+  sharedEndData <- getBoundarySharedData( df, jranges, "end" )
+  
+  # Assign putative events 
+#  pAS <- rep( "-", nrow( df ) )
+#  pAS[ ( sharedStartData[ , 1 ] != "-" & df$strand == "-" ) | ( sharedEndData[ , 1 ] != "-" & df$strand == "+" ) ] <- "Alt5ss"
+#  pAS[ ( sharedStartData[ , 1 ] != "-" & df$strand == "+" ) | ( sharedEndData[ , 1 ] != "-" & df$strand == "-" ) ] <- "Alt3ss"
+#  pAS[ sharedStartData[ , 1 ] != "-" & sharedEndData[ , 1 ] != "-"] <- "ES" 
+  
+  # TODO: construir con do.call( cbind, ... ) para evitar que aparezcan .1 y .2 
+  # en los nombre de las muestras y puedan filtrarse
+  result <- do.call( cbind, list (
+          df,
+          sharedStartData,
+          sharedEndData
+      #  , pAS )
+          ) )
+  
+  return( result )
+}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
