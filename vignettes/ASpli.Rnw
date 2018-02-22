@@ -423,7 +423,7 @@ counts <- readCounts (
     cores = 1, 
     readLength = 100L, 
     maxISize = 50000,
-    minAnchor = NULL )
+    minAnchor = 10 )
 @
 
 

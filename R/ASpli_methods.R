@@ -161,7 +161,7 @@ setMethod(
 setGeneric (
   name = "readCounts",
   def = function( features, bam,  targets, cores = 1, readLength, maxISize, 
-      minAnchor = NULL)
+      minAnchor = 10)
   standardGeneric("readCounts") )
 
 setMethod(
@@ -171,6 +171,7 @@ setMethod(
       maxISize, minAnchor = 10) {
 
     counts <- new(Class="ASpliCounts")
+    minAnchor <- if ( ! is.null(minAnchor) ) minAnchor else 10
     minA <- round( minAnchor * readLength / 100 )
     
     # Count Genes
