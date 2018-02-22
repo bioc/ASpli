@@ -3,7 +3,10 @@ CHANGES IN VERSION 1.5.1
 
 BUG FIXES
 
-    * readCounts supports identical gene names in different chromosomes.  
+    * readCounts supports identical gene names in different chromosomes.
+    
+    * Fixed default value for minAnchor argument of readCounts code, man page
+      and vignette.  
 
 CHANGES IN VERSION 1.3.12
 -------------------------
