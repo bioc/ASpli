@@ -76,38 +76,56 @@
   
 }
 
-.ovBinJunction<-function(features, jranges) {
-  annJunctions <- featuresj(features)
-  jname <- rep("-", length(jranges))
-  hitBin <- rep("-", length(jranges))
+.getGeneGRanges <- function( aspliFeatures ) {
+  
+  feature <- featuresg( aspliFeatures )
+  
+  # When a gene is two or more chromosomes, geneChr contains a list with
+  # all the chromosomes and and breaks when tries to create the GRanges
+  first <- function( x ) {x[1]} 
+  
+  # Search junctions within genes
+  unlistedFeatures <- unlist(feature)
+  
+  geneAndChr <- paste( names(unlistedFeatures) , as.character( seqnames(unlistedFeatures)), sep="_" )
+  geneChr <- aggregate( as.data.frame(seqnames(unlistedFeatures)), by = list(geneAndChr), FUN = first )[,2]
+  geneStarts <- aggregate( as.data.frame(start(unlistedFeatures)), by = list(geneAndChr), FUN = min)[,2]
+  geneEnds <- aggregate( as.data.frame(end(unlistedFeatures)), by = list(geneAndChr), FUN = max)[,2]
+  strand <- aggregate( as.data.frame(strand(unlistedFeatures)), by = list(geneAndChr), FUN = first)[,2]
+  geneCoordinates <- rep( feature@elementMetadata$gene_coordinates ,table(names(unlistedFeatures)))
+  geneCoordinates <- aggregate( geneCoordinates, by = list(geneAndChr), FUN = first)[,2]
+  symbols <- rep( feature@elementMetadata$symbol ,table(names(unlistedFeatures)))
+  symbols <- aggregate( symbols, by = list(geneAndChr), FUN = first)[,2]
+  geneNames <- aggregate( as.data.frame(names(unlistedFeatures),stringsAsFactors=FALSE) , by = list(geneAndChr), FUN = first )[,2]
+  
+  genes <- GRanges(
+      seqnames = geneChr ,
+      strand = strand,
+      ranges = IRanges(geneStarts,geneEnds), 
+      gene_coordinates = geneCoordinates,
+      symbol=symbols )
+  
+  mcols(genes)$names <- geneNames
+  
+  return ( genes )
+}
+
+.getJunctionOverlapGeneData <- function(jranges, genes) {
+  
   hitGen <- rep("-", length(jranges))
   hitGenStrand <- rep("*", length(jranges))
   gene_coordinates <- rep("-", length(jranges))
   ambiguos <- rep("-", length(jranges))
-  j_within_bin <- rep("-", length(jranges))
-  ##############nuevos#####################
-  feature <- featuresg(features)
-  geneStarts <- sapply(start(feature),min)
-  geneEnds <- sapply(end(feature),max)
-  geneChr<-sapply(seqnames(feature),unique)
-  strand <- min(strand(feature))
-  strand[strand==1] <- "+"
-  strand[strand==2] <- "-"
-  genes <- GRanges(seqnames=geneChr,
-      strand=strand,
-      ranges=IRanges(geneStarts,geneEnds), 
-      gene_coordinates=feature@elementMetadata$gene_coordinates,
-      symbol=feature@elementMetadata$symbol)
-  names(genes) <- names(feature)
+  symbol <- rep("-", length(jranges))    
+  
   overGene <- findOverlaps(jranges, genes, type="within")
-  overGeneDF <- as.data.frame(overGene)#get a df
+  overGeneDF <- as.data.frame(overGene)
   posJrange <- overGeneDF$queryHits 
-  #replace index numbers by names
   posGene <- overGeneDF$subjectHits
-  #replace index numbers by names; posGene[1:10]
   overGeneDF$queryHits <- names(jranges)[as.numeric(overGeneDF$queryHits)]
-  overGeneDF$subjectHits <- names(genes)[as.numeric(overGeneDF$subjectHits)]
+  overGeneDF$subjectHits <- mcols(genes)$names[as.numeric(overGeneDF$subjectHits)]
   table <- table(overGeneDF$queryHits)
+
   
   # BUG FIX: aggregate fails with 0-rows dfCountsStart. 
   if ( nrow( overGeneDF  ) > 0 ) {
@@ -120,45 +138,45 @@
     colnames( ttG )[2:ncol(ttG)] <- colnames( overGeneDF )
   }
   
-  #ttG <- data.frame(aggregate(subjectHits ~ queryHits, data = overGeneDF, paste, collapse=";"))
-  
-  dd0 <- match(ttG$queryHits,names(jranges))
+  dd0 <- match(ttG$queryHits, names(jranges))
   hitGen[dd0] <- ttG$subjectHits
-  dd <- match(ttG$queryHits,names(table))
+  dd <- match(ttG$queryHits, names(table) )
   ttG$undef <- table[dd]
-  ttG$tag <- rep("-",nrow(ttG))
+  ttG$tag <- rep("-", nrow(ttG))
   ttG$tag[ttG$undef>1] <- "yes"
+  
   ambiguos[dd0] <- ttG$tag
-  ################################################
-  hitGen[posJrange] <- names(genes[posGene])
-  #remplazo usando el indice de la juntura, el nombre del gen
+  
+  hitGen[posJrange] <-  mcols(genes)$names[posGene]
   hitGen[-posJrange] <- "noHit"
   hitGenStrand[posJrange] <- as.character(strand(genes)[posGene])
-  gene_coordinates[posJrange] <- genes@elementMetadata$gene_coordinates[posGene] 
-  #short coord viene del objeto genes
-  #######################################################################
+  gene_coordinates[posJrange] <- mcols(genes)$gene_coordinates[posGene] 
+  symbol[posJrange] <- as.character(genes@elementMetadata$symbol[posGene])
+  
+  return( list( ambiguos, hitGen, hitGenStrand, gene_coordinates, symbol ) )
+}
+
+.getJunctionMatchingBins <- function( features, jranges ) {
+  hitBin <- rep("-", length(jranges))
+  annJunctions <- featuresj(features)
   overJ <- findOverlaps(jranges, annJunctions, type="equal") #identify annotated junctions
   overJDF <- as.data.frame(overJ) #get a df
   namesJ <- as.numeric(overJDF[,1])  #get index of jrangs that hit against annJunctions
   namesAnnJ <- as.numeric(overJDF[,2]) #get index of annJunctions thta hit against jranges
-  jname[namesJ] <- names(jranges[namesJ])
+  #jname[namesJ] <- names(jranges[namesJ])
   hitBin[namesJ] <- names(annJunctions[namesAnnJ]) #ok, metadata vector
   hitBin[-namesJ] <- "noHit" #ok,  metadata vector. 
-  #name of the annotated junction  in the positon of the experimental one
-  #Identify which gene contain the junction. 
-  #In case I have not hit against annotated junction, this is a very useful
-  #information
-  ##########spanning exons bins
-  #3 useful information about which bins the junctions span. 
-  #any krahit is considered # aca esta el problema
-  exonsBins <- featuresb(features)[featuresb(features)@elementMetadata$feature=="E",]
+  return(hitBin)
+}
+
+.getJunctionSpanningBins <- function( jranges, exonBins) {
   over <- findOverlaps(jranges, exonsBins)
   overDF <- as.data.frame(over)
   namesJ <- as.numeric(overDF[,1])
   overDF[,1] <- names(jranges[namesJ])
   namesBins <- as.numeric(overDF[,2])
   overDF[,2] <- names(exonsBins[namesBins])
-
+  
   
   # BUG FIX: aggregate fails with 0-rows dfCountsStart. 
   if ( nrow( overDF  ) > 0 ) {
@@ -171,11 +189,14 @@
     colnames( tt )[2:ncol(tt)] <- colnames( overDF )
   }
   
-  
   span <- rep("-", length(jranges))
-  te <- match(names(jranges), tt$queryHits) #ok
-  span <- tt$subjectHits[te]
-  #####################################################################
+  te <- match(names(jranges), tt$queryHits)
+  span[ ! is.na(te) ] <- tt$subjectHits[te][ ! is.na(te) ]
+  return(span)
+}
+
+.getJunctionWithinBins <- function(jranges, exonsBins) {
+  j_within_bin <- rep("-", length(jranges))
   overJunctionWithinBins <- findOverlaps(jranges, exonsBins, type="within")
   if (length (overJunctionWithinBins ) > 0) {
     overJunctionWithinBinsDF <- as.data.frame(overJunctionWithinBins)
@@ -183,14 +204,42 @@
     namesB <- as.numeric(overJunctionWithinBinsDF[,2])
     overJunctionWithinBinsDF[,1] <- names(jranges[namesJ])
     overJunctionWithinBinsDF[,2] <- names(exonsBins[namesB])
-    agtt <- data.frame(aggregate(subjectHits ~ queryHits,
+    agtt <- data.frame( aggregate( subjectHits ~ queryHits,
             data = overJunctionWithinBinsDF, paste, collapse=";")) 
-    tw <- match(names(jranges), agtt$queryHits) #ok;
-    j_within_bin <- agtt$subjectHits[tw]
+    tw <- match(names(jranges), agtt$queryHits) 
+    j_within_bin[ ! is.na(tw) ] <- agtt$subjectHits[tw][ ! is.na(tw) ]
   }
-  symbol <- rep("-", length(jranges))    
-  symbol[posJrange] <- as.character(genes@elementMetadata$symbol[posGene])
-  mcols(jranges) <- append(mcols(jranges), DataFrame(hitBin=hitBin, 
+  return( j_within_bin )
+}
+
+.ovBinJunction <- function( features, jranges ) {
+  
+  #jname <- rep("-", length(jranges))
+
+  # Creates GRanges for genes, including repeating genes in different
+  # chromosomes
+  genes <- .getGeneGRanges( features )
+  
+  # Looks for data of junction overlapping genes
+  ovGene <- .getJunctionOverlapGeneData( jranges, genes )
+  ambiguos <- ovGene[[1]]
+  hitGen <- ovGene[[2]]
+  hitGenStrand <- ovGene[[3]]
+  gene_coordinates <- ovGene[[4]]
+  symbol <- ovGene[[5]]
+  
+  # Search junction equal to annotated junctions
+  hitBin <- .getJunctionMatchingBins(features, jranges)
+  
+  # Search junctions spanning bins
+  exonsBins <- featuresb(features)[featuresb(features)@elementMetadata$feature=="E",]
+  span <- .getJunctionSpanningBins(jranges, exonBins )
+  
+  # Search junctions within exons!
+  j_within_bin <- .getJunctionWithinBins(jranges, exonsBins)
+
+  mcols(jranges) <- append( mcols(jranges), DataFrame(
+          hitBin=hitBin, 
           hitGen=hitGen, 
           hitGenStrand=hitGenStrand,
           gene_coordinates=gene_coordinates,
@@ -200,7 +249,7 @@
           symbol=symbol))
   return(jranges)
 }  
-##########################################################
+
 .counterJunctions <- function(features, bam, cores, maxISize) {
   if (is.null(cores) ) {
     ujunctions <- lapply (bam, function(x)    {  
@@ -223,17 +272,19 @@
         })
   }  
   #here I have unique elements of all the junctiosn
-  jranges <- unique(unlist(GRangesList(unlist(ujunctions))))
+  jranges <- unique( unlist( GRangesList( unlist( ujunctions ) ) ) )
+  
+  # Filter junctions by Intron size
   maxWidth <-  maxISize+2
   jranges <- jranges[width(jranges)<= maxISize]
+  
   #Here I summarize hits agains the element
   fcoord <- paste(seqnames(jranges), 
       start(jranges),
       end(jranges) , sep="." )
   jranges@ranges@NAMES <- fcoord
-  #########################################
-  jcounts<-lapply(bam, function(x)
-      {
+
+  jcounts <- lapply(bam, function(x) {
         junctions <- unlist(junctions(x) )
         strand(junctions)<- "*"
         start(junctions) <- start(junctions)-1
@@ -242,12 +293,11 @@
         jc <- data.frame(row.names=names(jranges), count)
         return(jc)
       })
-  df <- do.call("cbind", jcounts); head(df)
+  
+  df <- do.call("cbind", jcounts)
   colnames(df) <- names(jcounts)
-  #desde aca la bifurcacion:parte critica!
 
   jranges <- .ovBinJunction(features, jranges)
-
   
   jrdf <- data.frame(
       as.data.frame(jranges@elementMetadata$hitBin), 
@@ -259,6 +309,7 @@
       as.data.frame(jranges@elementMetadata$bin_spanned),
       as.data.frame(jranges@elementMetadata$j_within_bin),
       row.names=names(jranges)  )
+  
   colnames(jrdf) <- c("junction", 
       "gene", 
       "strand",
@@ -275,4 +326,3 @@
   aa$Row.names <- NULL
   return(aa)
 }
-################################################################
