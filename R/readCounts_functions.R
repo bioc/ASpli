@@ -169,7 +169,7 @@
   return(hitBin)
 }
 
-.getJunctionSpanningBins <- function( jranges, exonBins) {
+.getJunctionSpanningBins <- function( jranges, exonsBins) {
   over <- findOverlaps(jranges, exonsBins)
   overDF <- as.data.frame(over)
   namesJ <- as.numeric(overDF[,1])
@@ -233,7 +233,7 @@
   
   # Search junctions spanning bins
   exonsBins <- featuresb(features)[featuresb(features)@elementMetadata$feature=="E",]
-  span <- .getJunctionSpanningBins(jranges, exonBins )
+  span <- .getJunctionSpanningBins(jranges, exonsBins )
   
   # Search junctions within exons!
   j_within_bin <- .getJunctionWithinBins(jranges, exonsBins)
