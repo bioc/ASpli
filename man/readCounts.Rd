@@ -10,7 +10,7 @@
 
 \usage{
   readCounts( features, bam, targets, cores = 1, readLength,
-                 maxISize, minAnchor = NULL)
+                 maxISize, minAnchor = 10)
 }
 
 \arguments{
