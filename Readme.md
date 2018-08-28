@@ -29,8 +29,9 @@ and complex experimental designs involving multiple experimental conditions.
 ASpli is available at Bioconductor site and can be downloaded using
 **biocLite()**:
 
-    source("https://www.bioconductor.org/biocLite.R")
-    biocLite("ASpli")
+    if (!requireNamespace("BiocManager", quietly=TRUE))
+        install.packages("BiocManager")
+    BiocManager::install("ASpli")
     library(ASpli)
 
  

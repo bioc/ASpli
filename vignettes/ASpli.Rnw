@@ -60,8 +60,9 @@ and complex experimental designs involving multiple experimental conditions.
 ASpli is available at Bioconductor site and can be downloaded using
 \texttt{biocLite()}:
 <<installation, echo=TRUE, eval=FALSE>>=
-source("https://www.bioconductor.org/biocLite.R")
-biocLite("ASpli")
+if (!requireNamespace("BiocManager", quietly=TRUE))
+    install.packages("BiocManager")
+BiocManager::install("ASpli")
 @
 %<<loadASpli, echo=TRUE, eval=TRUE>>=
 <<loadASpli, echo=TRUE, eval=FALSE>>=
