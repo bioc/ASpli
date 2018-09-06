@@ -58,7 +58,7 @@ and complex experimental designs involving multiple experimental conditions.
 
 \subsection{Installation}
 ASpli is available at Bioconductor site and can be downloaded using
-\texttt{biocLite()}:
+\texttt{BiocManager::install()}:
 <<installation, echo=TRUE, eval=FALSE>>=
 if (!requireNamespace("BiocManager", quietly=TRUE))
     install.packages("BiocManager")
@@ -69,7 +69,7 @@ BiocManager::install("ASpli")
 library(ASpli)
 @
  
-\texttt{biocLite()} will take care of installing all the packages that ASpli 
+\texttt{BiocManager::install()} will take care of installing all the packages that ASpli 
 depends on e.g. edgeR, GenomicFeatures, GenomicRanges, GenomicAlignments, Gviz, 
 and other R package required. Some packages depend on operating system
 packages, like \texttt{curl}, that are not installed automatically, and should
