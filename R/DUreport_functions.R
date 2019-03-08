@@ -529,6 +529,7 @@ return (dfBin)
   
   if( justTwoConditions & ! forceGLM ){
     if (verbose) message("  Running exact test")
+    er   <- estimateDisp( er )
     capture.output( er   <- estimateDisp( er ) )
     pair <- which( contrast != 0 )
     
