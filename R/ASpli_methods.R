@@ -30,6 +30,18 @@ setClass( Class = "ASpliDU",
         genes = "data.frame",
         bins = "data.frame",
         junctions = "data.frame" ))
+
+setClass( Class = "ASpliJDU",
+          representation = representation(
+            localec = "data.frame",
+            localej = "data.frame",
+            anchorc = "data.frame",
+            anchorj = "data.frame",
+            jir     = "data.frame",
+            jes     = "data.frame",
+            jalt    = "data.frame",
+            contrast= "numeric"))
+
 # ---------------------------------------------------------------------------- #
 
 # ---------------------------------------------------------------------------- #
@@ -602,6 +614,38 @@ setMethod(
           forceGLM ) 
     }
 )
+
+setGeneric( name = "junctionDUreportExt",
+            def = function (asd, 
+                            targets, 
+                            minAvgCounts              = 5, 
+                            contrast                  = NULL,
+                            filterWithContrasted      = FALSE,
+                            runUniformityTest         = FALSE,
+                            mergedBams                = NULL,
+                            maxPValForUniformityCheck = 0.2
+            ) standardGeneric("junctionDUreportExt") )
+
+
+setMethod(
+  f = "junctionDUreportExt",
+  signature = "ASpliAS",
+  definition = function (
+    asd,
+    targets,
+    minAvgCounts              = 5, 
+    contrast                  = NULL,
+    filterWithContrasted      = FALSE,
+    runUniformityTest         = FALSE,
+    mergedBams                = NULL,
+    maxPValForUniformityCheck = 0.2
+  ) {
+    
+    .junctionDUreport2( asd, targets, minAvgCounts, contrast, 
+                       filterWithContrasted, runUniformityTest, mergedBams, maxPValForUniformityCheck ) 
+  }
+)
+
     
 setMethod( f = 'subset',
     signature = 'ASpliCounts',

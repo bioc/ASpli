@@ -11,8 +11,10 @@ import(BiocStyle)
 import(GenomicAlignments)
 importFrom( "grDevices", "dev.off", "png", "rgb", "bmp", "col2rgb", "dev.new", 
             "jpeg", "pdf", "tiff")
-importFrom("stats", "aggregate", "formula", "p.adjust", "model.matrix")
+importFrom("stats", "aggregate", "formula", "p.adjust", "model.matrix", "setNames")
 importFrom("graphics", "axis", "barplot", "legend", "lines", "par","plot", "title")
+importFrom("igraph", "graph_from_edgelist", "clusters")
+importFrom("limma", "strsplit2")
 importFrom(parallel, mclapply)
 import(S4Vectors)
 import(AnnotationDbi)
@@ -56,12 +58,14 @@ exportMethods(
     "plotGenomicRegions",
     "subset",
     "mergeBinDUAS",
-    "filterDU"
+    "filterDU",
+    "junctionDUreportExt"
     
 )
 exportClasses(
     "ASpliAS",
     "ASpliCounts",
     "ASpliDU",
-    "ASpliFeatures" 
+    "ASpliFeatures",
+    "ASpliJDU"
 )
