@@ -58,14 +58,10 @@
   
   # Create an ASpliDU object.
   # 
-  du       <- DUreport( counts, targets )
+  du       <- DUreport.norm( counts, targets )
   
   # Verify if du contains results for genes and bins.
   containsGenesAndBins( du )
-  containsJunctions( du )
-
-  # Append junction results  
-  du       <- junctionDUreport( counts, targets, appendTo = du )
 
   # Verify if du contains results for genes and bins.
   containsJunctions( du )

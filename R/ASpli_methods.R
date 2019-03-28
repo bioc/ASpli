@@ -501,37 +501,78 @@ setMethod(
 # TODO:  Es necesario agregar todos los parametros con valores por default en
 # la firma del metodo ? 
 setGeneric (
-    name = "DUreport",
+    name = "DUreport.norm",
     def = function( counts, 
         targets, 
         minGenReads  = 10,
         minBinReads  = 5,
         minRds = 0.05,
-        offset = FALSE,
-        offsetAggregateMode = c( "geneMode", "binMode" )[1],
-        offsetUseFitGeneX = TRUE,
         contrast = NULL,
         forceGLM = FALSE,
         ignoreExternal = TRUE,
         ignoreIo = TRUE, 
         ignoreI = FALSE,
         filterWithContrasted = FALSE,
-        verbose = FALSE
-      ) standardGeneric("DUreport") )
+        verbose = FALSE,
+        threshold = 5
+      ) standardGeneric("DUreport.norm") )
 
 #setGeneric (
 #  name = "DUreport_DEXSeq",
 #  def = function ( counts, ... ) standardGeneric("DUreport_DEXSeq") )
 
 setMethod(
-  f = "DUreport",
+  f = "DUreport.norm",
+  signature = "ASpliCounts",
+  definition = function( counts, 
+                         targets, 
+                         minGenReads  = 10,
+                         minBinReads  = 5,
+                         minRds = 0.05,
+                         contrast = NULL,
+                         forceGLM = FALSE,
+                         ignoreExternal = TRUE,
+                         ignoreIo = TRUE, 
+                         ignoreI = FALSE,
+                         filterWithContrasted = FALSE,
+                         verbose = FALSE,
+                         threshold = 5
+  ) { 
+    offset = FALSE
+    offsetAggregateMode = c( "geneMode", "binMode" )[1]
+    offsetUseFitGeneX = TRUE    
+    .DUreport( counts, targets, minGenReads, minBinReads, minRds, offset, 
+               offsetAggregateMode, offsetUseFitGeneX, contrast, forceGLM,
+               ignoreExternal, ignoreIo, ignoreI, filterWithContrasted, verbose, threshold  )
+  }
+)
+
+setGeneric (
+  name = "DUreport.offset",
+  def = function( counts, 
+                  targets, 
+                  minGenReads  = 10,
+                  minBinReads  = 5,
+                  minRds = 0.05,
+                  offsetAggregateMode = c( "geneMode", "binMode" )[1],
+                  offsetUseFitGeneX = TRUE,
+                  contrast = NULL,
+                  forceGLM = FALSE,
+                  ignoreExternal = TRUE,
+                  ignoreIo = TRUE, 
+                  ignoreI = FALSE,
+                  filterWithContrasted = FALSE,
+                  verbose = FALSE
+  ) standardGeneric("DUreport.offset") )
+
+setMethod(
+  f = "DUreport.offset",
   signature = "ASpliCounts",
   definition = function( counts, 
       targets, 
       minGenReads  = 10,
       minBinReads  = 5,
       minRds = 0.05,
-      offset = FALSE,
       offsetAggregateMode = c( "geneMode", "binMode" )[1],
       offsetUseFitGeneX = TRUE,
       contrast = NULL,
@@ -542,21 +583,22 @@ setMethod(
       filterWithContrasted = FALSE,
       verbose = FALSE
     ) { 
+      offset = TRUE
       .DUreport( counts, targets, minGenReads, minBinReads, minRds, offset, 
           offsetAggregateMode, offsetUseFitGeneX, contrast, forceGLM,
         ignoreExternal, ignoreIo, ignoreI, filterWithContrasted, verbose  )
   }
 )
 
-setGeneric( name = 'DUreportBinSplice',
+setGeneric( name = 'binDUreport',
     def = function( counts, targets, minGenReads  = 10, minBinReads = 5, 
         minRds = 0.05, contrast = NULL, forceGLM = FALSE,  
         ignoreExternal = TRUE, ignoreIo = TRUE, ignoreI = FALSE, 
         filterWithContrasted = FALSE, verbose = TRUE ) 
-      standardGeneric( 'DUreportBinSplice'))
+      standardGeneric( 'binDUreport'))
 
 setMethod( 
-    f = 'DUreportBinSplice',
+    f = 'binDUreport',
     signature = 'ASpliCounts',
     definition = function( counts, 
 			targets, 
@@ -575,47 +617,8 @@ setMethod(
           filterWithContrasted, verbose = TRUE ) 
     })
 
+
 setGeneric( name = "junctionDUreport",
-    def = function (  counts, 
-        targets, 
-        appendTo = NULL, 
-        minGenReads = 10,
-        minRds = 0.05,
-        threshold = 5,
-        offset   = FALSE,
-        offsetUseFitGeneX = TRUE,
-        contrast = NULL,
-        forceGLM = FALSE 
-        ) standardGeneric("junctionDUreport") )
-
-  
-setMethod(
-    f = "junctionDUreport",
-    signature = "ASpliCounts",
-    definition = function ( 
-        counts, 
-        targets, 
-        appendTo = NULL,
-        minGenReads = 10,
-        minRds = 0.05,
-        threshold = 5,
-        offset = FALSE,
-        offsetUseFitGeneX = TRUE,
-        contrast = NULL,
-        forceGLM = FALSE 
-        # -------------------------------------------------------------------- #
-        # Comment to disable priorcounts usage in bin normalization 
-        # , priorCounts = 0 
-        # -------------------------------------------------------------------- #
-        ) {
-      
-      .junctionDUreport( counts, targets, appendTo,  minGenReads,  minRds, 
-          threshold, offset, offsetUseFitGeneX, contrast, 
-          forceGLM ) 
-    }
-)
-
-setGeneric( name = "junctionDUreportExt",
             def = function (asd, 
                             targets, 
                             minAvgCounts              = 5, 
@@ -624,11 +627,11 @@ setGeneric( name = "junctionDUreportExt",
                             runUniformityTest         = FALSE,
                             mergedBams                = NULL,
                             maxPValForUniformityCheck = 0.2
-            ) standardGeneric("junctionDUreportExt") )
+            ) standardGeneric("junctionDUreport") )
 
 
 setMethod(
-  f = "junctionDUreportExt",
+  f = "junctionDUreport",
   signature = "ASpliAS",
   definition = function (
     asd,
@@ -641,7 +644,7 @@ setMethod(
     maxPValForUniformityCheck = 0.2
   ) {
     
-    .junctionDUreport2( asd, targets, minAvgCounts, contrast, 
+    .junctionDUreportExt( asd, targets, minAvgCounts, contrast, 
                        filterWithContrasted, runUniformityTest, mergedBams, maxPValForUniformityCheck ) 
   }
 )

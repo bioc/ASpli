@@ -1,6 +1,6 @@
-\name{DUreport}
+\name{DUreport.offset}
 
-\alias{DUreport}
+\alias{DUreport.offset}
 
 \title{
   Differential gene expression and differential bin usage estimation
@@ -13,12 +13,11 @@
 }
 
 \usage{
-  DUreport( counts, 
+  DUreport.offset( counts, 
             targets, 
             minGenReads = 10, 
             minBinReads = 5,
             minRds = 0.05, 
-            offset = FALSE, 
             offsetAggregateMode =  c( "geneMode", "binMode" )[1],
             offsetUseFitGeneX = TRUE,
             contrast = NULL, 
@@ -134,7 +133,7 @@
                           maxISize = 50000 )
   
   # Calculate differential usage of genes and bins
-  du       <- DUreport( counts, targets )
+  du       <- DUreport.offset( counts, targets )
 
   # Export results  
   writeDU( du = du, output.dir = "only_du" )

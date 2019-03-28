@@ -6,7 +6,7 @@
 
 \alias{ASpliJDU}
 \alias{ASpliJDU-class}
-\alias{junctionsDU,ASpliJDU-method}
+\alias{junctionsDUreport,ASpliJDU-method}
 
 \title{Class \code{"ASpliJDU"}}
 

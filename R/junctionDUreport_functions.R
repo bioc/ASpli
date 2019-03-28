@@ -1,4 +1,4 @@
-.junctionDUreport2 <- function(
+.junctionDUreportExt <- function(
     asd, 
     targets, 
     minAvgCounts              = 5, 
@@ -82,8 +82,8 @@
     jPIR$Uniformity       <- rep(NA, nrow(jPIR)) 
   }
 
-  
-  jdu@anchorj           <- jPIR[, c("cluster", "log.mean", "logFC", "P.Value", "FDR", "Uniformity")]
+  #Sacamos "cluster" de anchorj 
+  jdu@anchorj           <- jPIR[, c("log.mean", "logFC", "P.Value", "FDR", "Uniformity")]
   jdu@anchorc           <- ltsp[["cluster"]][,!colnames(ltsp[["cluster"]])%in%"size"]
   
 

@@ -89,7 +89,7 @@
                           maxISize = 50000 )
   
   # Calculate differential usage of genes and bins
-  du <- DUreport( counts, targets , contrast = c(1,-1,-1,1))
+  du <- DUreport.norm( counts, targets , contrast = c(1,-1,-1,1))
   
   # Calculate PSI / PIR for bins and junction.
   as <- AsDiscover( counts, targets, features, bams, readLength = 100, 

@@ -10,7 +10,7 @@
   sample. This function generates a simple name for each unique condition 
   resulting from the combination of all experimental factors. The order of the 
   conditions given by \code{getConditions} is the same that in \code{contrast} 
-  argument of \code{DUreport} function. }
+  argument of \code{DUreport.norm} function. }
 
 \usage{
   getConditions( targets )
@@ -32,7 +32,8 @@
 }
 
 \seealso{
-  \code{\link{DUreport}}, 
+  \code{\link{DUreport.norm}},
+  \code{\link{DUreport.offset}} 
 }
 
 \examples{

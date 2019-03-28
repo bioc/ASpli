@@ -14,9 +14,9 @@
 \alias{countsg<-,ASpliCounts,data.frame-method}
 \alias{countsie2<-,ASpliCounts,data.frame-method}
 \alias{countsj<-,ASpliCounts,data.frame-method}
-\alias{junctionDUreport,ASpliCounts-method}
-\alias{DUreportBinSplice,ASpliCounts-method}
-\alias{DUreport,ASpliCounts-method}
+\alias{binDUreport,ASpliCounts-method}
+\alias{DUreport.norm,ASpliCounts-method}
+\alias{DUreport.offset,ASpliCounts-method}
 \alias{plotBins,ASpliCounts-method}
 \alias{rdsb,ASpliCounts-method}
 \alias{rdsg,ASpliCounts-method}

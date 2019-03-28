@@ -91,9 +91,8 @@ An object of class ASpliAS
                           maxISize = 50000 )
   
   # Calculate differential usage of genes, bins and junctions 
-  du       <- DUreport( counts, targets )
-  du       <- junctionDUreport( counts, targets, appendTo = du)
-  
+  du       <- DUreport.norm( counts, targets )
+
   # Calculate PSI / PIR for bins and junction.
   as       <- AsDiscover( counts, targets, features, bams, readLength = 100, 
                           threshold = 5, cores = 1 )
