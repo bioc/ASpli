@@ -87,7 +87,7 @@
                           maxISize = 50000 )
   
   # Calculate differential usage of junctions only 
-  du       <- DUreport( counts, targets )
+  du       <- DUreport.norm( counts, targets )
   
   # Filter by FDR
   duFiltered1 <- filterDU( du, what=c('genes','bins'), 
@@ -101,7 +101,8 @@
 }
 
 \seealso{
-  \code{\link{DUreport}},
+  \code{\link{DUreport.norm}},
+  \code{\link{DUreport.offset}},
   \code{\link{junctionDUreport}},
-  \code{\link{DUreportBinSplice}},
+  \code{\link{binDUreport}},
 }

@@ -32,5 +32,6 @@
 \seealso{ 
   \code{ \link{AsDiscover}}, 
   \code{ \link{binGenome}},
-  \code{ \link{DUreport}}
+  \code{ \link{DUreport.norm}},
+  \code{ \link{DUreport.offset}}
 }

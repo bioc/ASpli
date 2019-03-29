@@ -14,4 +14,4 @@
 
 \author{ Estefania Mancini, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz  }
 
-\seealso{ \code{ \link{AsDiscover}, \link{binGenome},\link{DUreport} } }
+\seealso{ \code{ \link{AsDiscover}, \link{binGenome},\link{DUreport.norm}, \link{DUreport.offset} } }

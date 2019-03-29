@@ -23,7 +23,8 @@ import(grid)
 exportMethods(
     "AsDiscover",
     "binGenome",
-    "DUreport",
+    "DUreport.norm",
+    "DUreport.offset",
     "writeAS",
     "writeCounts",
     "writeDU",
@@ -49,7 +50,7 @@ exportMethods(
     "genesDE",
     "binsDU",
     "junctionsDU",
-    "DUreportBinSplice",
+    "binDUreport",
     "show",
     "junctionDUreport",
     "containsGenesAndBins",
@@ -58,9 +59,7 @@ exportMethods(
     "plotGenomicRegions",
     "subset",
     "mergeBinDUAS",
-    "filterDU",
-    "junctionDUreportExt"
-    
+    "filterDU"
 )
 exportClasses(
     "ASpliAS",

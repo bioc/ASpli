@@ -13,7 +13,8 @@
     ignoreIo = TRUE, 
     ignoreI = FALSE,
     filterWithContrasted = FALSE,
-    verbose = FALSE
+    verbose = FALSE,
+    threshold = 5
     # ---------------------------------------------------------------------- #
     # Comment to disable priorcounts usage in bin normalization 
     # , priorCounts = 0 
@@ -49,6 +50,11 @@
                        verbose ) 
   # ------------------------------------------------------------------------ #
   
+  #Adds junctionDUreport if offset is FALSE
+  if(offset == FALSE) du <- .junctionDUreport(counts = counts, targets = targets, appendTo = du, 
+                                              minGenReads = minGenReads, minRds = minRds, threshold = threshold,
+                                              contrast = contrast, forceGLM = forceGLM)
+
   return( du )
 }
 

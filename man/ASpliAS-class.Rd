@@ -20,7 +20,7 @@
 \alias{junctionsPSI<-,ASpliAS,data.frame-method}
 \alias{subset,ASpliAS-method}
 \alias{writeAS,ASpliAS-method}
-\alias{junctionDUreportExt,ASpliAS-method}
+\alias{junctionDUreport,ASpliAS-method}
 
 \title{Class \code{"ASpliAS"}}
 

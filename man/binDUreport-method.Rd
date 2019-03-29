@@ -1,6 +1,6 @@
-\name{DUreportBinSplice}
+\name{binDUreport}
 
-\alias{DUreportBinSplice}
+\alias{binDUreport}
 
 \title{
   Differential gene expression and differential bin usage estimation
@@ -13,7 +13,7 @@
 }
 
 \usage{
-  DUreportBinSplice( counts, 
+  binDUreport( counts, 
                      targets, 
                      minGenReads = 10, 
                      minBinReads = 5,
@@ -119,7 +119,7 @@
                           maxISize = 50000 )
   
   # Calculate differential usage of genes and bins
-  du       <- DUreportBinSplice( counts, targets )
+  du       <- binDUreport( counts, targets )
 
   # Export results  
   writeDU( du = du, output.dir = "only_du" )
