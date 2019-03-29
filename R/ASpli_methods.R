@@ -42,6 +42,12 @@ setClass( Class = "ASpliJDU",
             jalt    = "data.frame",
             contrast= "numeric"))
 
+setClass( Class = "ASpliMergedReports",
+          representation = representation(
+            binbased    = "data.frame",
+            localebased = "data.frame",
+            anchorbased = "data.frame"))
+
 # ---------------------------------------------------------------------------- #
 
 # ---------------------------------------------------------------------------- #
@@ -646,6 +652,25 @@ setMethod(
     
     .junctionDUreportExt( asd, targets, minAvgCounts, contrast, 
                        filterWithContrasted, runUniformityTest, mergedBams, maxPValForUniformityCheck ) 
+  }
+)
+
+
+setGeneric( name = "mergeReports",
+            def = function (bdu, 
+                            jdu
+            ) standardGeneric("mergeReports") )
+
+
+setMethod(
+  f = "mergeReports",
+  signature = "ASpliDU",
+  definition = function (
+    bdu,
+    jdu
+  ) {
+    
+    .mergeReports( bdu, jdu ) 
   }
 )
 
