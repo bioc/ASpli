@@ -486,3 +486,155 @@
   return(Uniformity)
   
 }
+
+.mergeReports <- function(bdu, jdu){
+  
+  #Sanity check
+  if(class(bdu) != "ASpliDU"){
+    stop("bdu must be an ASpliDU object, try running binDUreport first") 
+  }
+  if(class(jdu) != "ASpliJDU"){
+    stop("jdu must be an ASpliJDU object, try running junctionDUreport first") 
+  }
+  
+  mr <- new( Class="ASpliMergedReports" )
+  
+  #Mergin bin based junctions
+  jir                    <- jdu@jir
+  jir$event              <- NA
+  jir$dPSI               <- NA
+  jir                    <- jir[, c("event", "J3", "logFC", "log.mean", "pvalue", "bin.fdr", "dPIR", "dPSI", "Uniformity")]
+  colnames(jir)[c(6, 9)] <- c("junction.fdr", "uniformity")
+  #jir$bin                <- rownames(jir)
+  
+  jes                    <- jdu@jes
+  jes$uniformity         <- NA
+  jes$dPIR               <- NA
+  jes                    <- jes[, c("event", "J3", "logFC", "log.mean", "pvalue", "bin.fdr", "dPIR", "dPSI", "uniformity")]
+  colnames(jes)[6]       <- "junction.fdr"
+  #jes$bin                <- rownames(jes)
+  
+  jalt                   <- jdu@jalt
+  jalt$uniformity        <- NA
+  jalt$dPIR              <- NA
+  jalt                   <- jalt[, c("event", "J3", "logFC", "log.mean", "pvalue", "bin.fdr", "dPIR", "dPSI", "uniformity")]
+  colnames(jalt)[6]      <- "junction.fdr"
+  #jalt$bin               <- rownames(jalt)
+  
+  j                      <- data.table(rbind(jir, jes, jalt), keep.rownames = T)
+  bins                   <- data.table(bdu@bins, keep.rownames = T)
+  mr@binbased            <- merge(bins, j, by="rn", all=T)
+  
+  ########################################
+  localej  <- jdu@localej
+  junctions <- strsplit2(rownames(localej), "[.]")
+  seqnames <- junctions[, 1]
+  start    <- as.numeric(junctions[, 2])
+  end      <- as.numeric(junctions[, 3])
+  
+  grjunctions <- GRanges(seqnames, IRanges(start, end), strand="*")
+  
+  seqnames <- strsplit2(bdu@bins$gene_coordinates, "[:]")[, 1]
+  start    <- bdu@bins$start
+  end      <- bdu@bins$end
+  
+  grbines      <- GRanges(seqnames, IRanges(start, end), strand="*")
+  
+  overlap      <- data.frame(findOverlaps(grbines, grjunctions))
+  
+  bins <- bdu@bins
+  colnames(bins)[10] <- "bin.logFC"
+  
+  junctionbased_junctions <- data.table(bin=rownames(bins)[overlap$queryHits], bins[overlap$queryHits, ], 
+                                        J3 = rownames(jdu@localej)[overlap$subjectHits], jdu@localej[overlap$subjectHits, ])
+  
+  bins                   <- data.table(bins[!rownames(bins) %in% junctionbased_junctions$bin, ], keep.rownames = T)
+  colnames(bins)[1]      <- "bin"
+  
+  junctionbased_junctions <- rbindlist(list(junctionbased_junctions, bins), use.names = T, fill = T)
+  
+  junctions               <- data.table(jdu@localej[!rownames(jdu@localej) %in% junctionbased_junctions$J3, ], keep.rownames = T)
+  colnames(junctions)[1]  <- "J3"
+  
+  junctionbased_junctions <- rbindlist(list(junctionbased_junctions, junctions), use.names = T, fill = T)
+  
+  colnames(junctionbased_junctions) <- c("bin", "feature", "event", "locus", "locus_overlap", "symbol", "gene_coordinates", "bin.start", "bin.end",
+                                         "bin.length", "bin.logFC", "bin.pvalue", "bin.fdr", "junction", "junction.cluster", "junction.log.mean",
+                                         "junction.logFC", "junction.pvalue", "junction.fdr")
+  
+  junctionbased_junctions$junction.cluster <- as.character(junctionbased_junctions$junction.cluster)
+  
+  #bins <- data.table(bdu@bins[rownames(bdu@bins) %in% junctionbased_junctions$bin, ], keep.rownames = T)
+  #completo <- rbindlist(junctionbased_junctions, bins, use.names = T, fill = T)
+  
+  localec <- data.table(jdu@localec, keep.rownames = T)
+  colnames(localec) <- c("rn", "cluster.size", "cluster.LR", "cluster.pvalue", "cluster.fdr")
+  fulldt <- merge(junctionbased_junctions, localec, by.x = "junction.cluster", by.y = "rn", all = T)
+  
+  fulldt <- fulldt[, 
+                   c("bin", "feature", "event", "locus", "locus_overlap", "symbol", "gene_coordinates", 
+                     "bin.start", "bin.end",
+                     "bin.length", "bin.logFC", "bin.pvalue", "bin.fdr", "junction", 
+                     "junction.log.mean",
+                     "junction.logFC", "junction.pvalue", "junction.fdr", "junction.cluster", 
+                     "cluster.size", "cluster.LR", "cluster.pvalue", "cluster.fdr")
+                   ]
+  
+  mr@localebased <- fulldt[order(fulldt$bin.fdr, fulldt$junction.fdr, fulldt$cluster.fdr), ]
+  
+  
+  ########################################
+  anchorj  <- jdu@anchorj
+  junctions <- strsplit2(rownames(anchorj), "[.]")
+  seqnames <- junctions[, 1]
+  start    <- as.numeric(junctions[, 2])
+  end      <- as.numeric(junctions[, 3])
+  
+  grjunctions <- GRanges(seqnames, IRanges(start, end), strand="*")
+  
+  seqnames <- strsplit2(bdu@bins$gene_coordinates, "[:]")[, 1]
+  start    <- bdu@bins$start
+  end      <- bdu@bins$end
+  
+  grbines      <- GRanges(seqnames, IRanges(start, end), strand="*")
+  
+  overlap      <- data.frame(findOverlaps(grbines, grjunctions))
+  
+  bins <- bdu@bins
+  colnames(bins)[10] <- "bin.logFC"
+  
+  junctionbased_junctions <- data.table(bin=rownames(bins)[overlap$queryHits], bins[overlap$queryHits, ], 
+                                        J3 = rownames(jdu@anchorj)[overlap$subjectHits], jdu@anchorj[overlap$subjectHits, ])
+  
+  bins                   <- data.table(bins[!rownames(bins) %in% junctionbased_junctions$bin, ], keep.rownames = T)
+  colnames(bins)[1]      <- "bin"
+  
+  junctionbased_junctions <- rbindlist(list(junctionbased_junctions, bins), use.names = T, fill = T)
+  
+  junctions               <- data.table(jdu@anchorj[!rownames(jdu@anchorj) %in% junctionbased_junctions$J3, ], keep.rownames = T)
+  colnames(junctions)[1]  <- "J3"
+  
+  junctionbased_junctions <- rbindlist(list(junctionbased_junctions, junctions), use.names = T, fill = T)
+  
+  colnames(junctionbased_junctions) <- c("bin", "feature", "event", "locus", "locus_overlap", "symbol", "gene_coordinates", "bin.start", "bin.end",
+                                         "bin.length", "bin.logFC", "bin.pvalue", "bin.fdr", "junction", "junction.log.mean",
+                                         "junction.logFC", "junction.pvalue", "junction.fdr", "junction.uniformity")
+  
+  #bins <- data.table(bdu@bins[rownames(bdu@bins) %in% junctionbased_junctions$bin, ], keep.rownames = T)
+  #completo <- rbindlist(junctionbased_junctions, bins, use.names = T, fill = T)
+  
+  anchorc <- data.table(jdu@anchorc, keep.rownames = T)
+  colnames(anchorc) <- c("rn", "cluster.LR", "cluster.pvalue", "cluster.fdr")
+  fulldt <- merge(junctionbased_junctions, anchorc, by.x = "junction", by.y = "rn", all = T)
+  
+  fulldt <- fulldt[, 
+                   c("bin", "feature", "event", "locus", "locus_overlap", "symbol", "gene_coordinates", 
+                     "bin.start", "bin.end",
+                     "bin.length", "bin.logFC", "bin.pvalue", "bin.fdr", "junction", 
+                     "junction.log.mean",
+                     "junction.logFC", "junction.pvalue", "junction.fdr", "junction.uniformity", 
+                     "cluster.LR", "cluster.pvalue", "cluster.fdr")
+                   ]
+  
+  mr@anchorbased <- fulldt[order(fulldt$bin.fdr, fulldt$junction.fdr, fulldt$cluster.fdr), ]  
+}

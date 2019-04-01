@@ -15,6 +15,7 @@ importFrom("stats", "aggregate", "formula", "p.adjust", "model.matrix", "setName
 importFrom("graphics", "axis", "barplot", "legend", "lines", "par","plot", "title")
 importFrom("igraph", "graph_from_edgelist", "clusters")
 importFrom("limma", "strsplit2")
+importFrom("data.table", "data.table", "rbindlist")
 importFrom(parallel, mclapply)
 import(S4Vectors)
 import(AnnotationDbi)
@@ -59,12 +60,14 @@ exportMethods(
     "plotGenomicRegions",
     "subset",
     "mergeBinDUAS",
-    "filterDU"
+    "filterDU",
+    "mergeReports"
 )
 exportClasses(
     "ASpliAS",
     "ASpliCounts",
     "ASpliDU",
     "ASpliFeatures",
-    "ASpliJDU"
+    "ASpliJDU",
+    "ASpliMergedReports"
 )

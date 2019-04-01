@@ -17,6 +17,7 @@
 \alias{mergeBinDUAS,ASpliDU,ASpliAS-method}
 \alias{containsGenesAndBins,ASpliDU-method}
 \alias{containsJunctions,ASpliDU-method}
+\alias{mergeReports,ASpliDU-method}
 
 \title{Class \code{"ASpliDU"}}
 
