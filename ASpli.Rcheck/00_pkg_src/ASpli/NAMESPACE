@@ -1,0 +1,73 @@
+exportPattern("^[[:alpha:]]+")
+import(methods)
+import(utils)
+import(BiocGenerics)
+import(IRanges)
+import(GenomicRanges)
+import(GenomicFeatures)
+import(edgeR)
+import(Rsamtools)
+import(BiocStyle)
+import(GenomicAlignments)
+importFrom( "grDevices", "dev.off", "png", "rgb", "bmp", "col2rgb", "dev.new", 
+            "jpeg", "pdf", "tiff")
+importFrom("stats", "aggregate", "formula", "p.adjust", "model.matrix", "setNames")
+importFrom("graphics", "axis", "barplot", "legend", "lines", "par","plot", "title")
+importFrom("igraph", "graph_from_edgelist", "clusters")
+importFrom("limma", "strsplit2")
+importFrom("data.table", "data.table", "rbindlist")
+importFrom(parallel, mclapply)
+import(S4Vectors)
+import(AnnotationDbi)
+import(Gviz)
+import(grid)
+exportMethods(
+    "AsDiscover",
+    "binGenome",
+    "DUreport.norm",
+    "DUreport.offset",
+    "writeAS",
+    "writeCounts",
+    "writeDU",
+    "writeRds",
+    "rds",
+    "readCounts",
+    "featuresg",
+    "featuresb",
+    "featuresj",
+    "countsg",
+    "countsb",
+    "countsj",
+    "countse1i",
+    "countsie2",
+    "rdsg",
+    "rdsb",
+    "irPIR",
+    "altPSI",
+    "esPSI",
+    "joint",
+    "junctionsPIR",
+    "junctionsPSI",
+    "genesDE",
+    "binsDU",
+    "junctionsDU",
+    "binDUreport",
+    "show",
+    "junctionDUreport",
+    "containsGenesAndBins",
+    "containsJunctions",
+    "plotBins",
+    "plotGenomicRegions",
+    "subset",
+    "mergeBinDUAS",
+    "filterDU",
+    "mergeReports"
+)
+exportClasses(
+    "ASpliAS",
+    "ASpliCounts",
+    "ASpliDU",
+    "ASpliFeatures",
+    "ASpliJDU",
+    "ASpliMergedReports"
+)

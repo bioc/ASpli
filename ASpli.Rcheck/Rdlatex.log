@@ -1,0 +1,667 @@
+Hmm ... looks like a package
+
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2015/dev/Debian) (preloaded format=pdflatex)
+ restricted \write18 enabled.
+entering extended mode
+LaTeX2e <2014/05/01>
+Babel <3.9l> and hyphenation patterns for 79 languages loaded.
+(./Rd2.tex
+(/usr/share/texlive/texmf-dist/tex/latex/base/book.cls
+Document Class: book 2014/09/29 v1.4h Standard LaTeX document class
+(/usr/share/texlive/texmf-dist/tex/latex/base/bk10.clo))
+(/home/arabinov/R-3.4.1-cairo/share/texmf/tex/latex/Rd.sty
+(/usr/share/texlive/texmf-dist/tex/latex/base/ifthen.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/longtable.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/bm.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/base/alltt.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/verbatim.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/url/url.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/base/textcomp.sty
+(/usr/share/texlive/texmf-dist/tex/latex/base/ts1enc.def))
+(/usr/share/texlive/texmf-dist/tex/latex/base/fontenc.sty
+(/usr/share/texlive/texmf-dist/tex/latex/base/t1enc.def))
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/times.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/inconsolata/zi4.sty
+`inconsolata-zi4' v1.05, 2014/06/22 Text macros for Inconsolata (msharpe)
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/keyval.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/color.sty
+(/usr/share/texlive/texmf-dist/tex/latex/latexconfig/color.cfg)
+(/usr/share/texlive/texmf-dist/tex/latex/pdftex-def/pdftex.def
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/infwarerr.sty)
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/ltxcmds.sty)))
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/hyperref.sty
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/hobsub-hyperref.sty
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/hobsub-generic.sty))
+(/usr/share/texlive/texmf-dist/tex/generic/ifxetex/ifxetex.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/oberdiek/auxhook.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/oberdiek/kvoptions.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/pd1enc.def)
+(/usr/share/texlive/texmf-dist/tex/latex/latexconfig/hyperref.cfg))
+
+Package hyperref Message: Driver (autodetected): hpdftex.
+
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/hpdftex.def
+(/usr/share/texlive/texmf-dist/tex/latex/oberdiek/rerunfilecheck.sty))
+
+Package hyperref Warning: Option `hyperindex' has already been used,
+(hyperref)                setting the option has no effect on input line 366.
+
+
+Package hyperref Warning: Option `pagebackref' has already been used,
+(hyperref)                setting the option has no effect on input line 366.
+
+) (/usr/share/texlive/texmf-dist/tex/latex/base/makeidx.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/base/inputenc.sty
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def
+(/usr/share/texlive/texmf-dist/tex/latex/base/t1enc.dfu)
+(/usr/share/texlive/texmf-dist/tex/latex/base/ot1enc.dfu)
+(/usr/share/texlive/texmf-dist/tex/latex/base/omsenc.dfu)
+(/usr/share/texlive/texmf-dist/tex/latex/base/ts1enc.dfu))
+(/usr/share/texlive/texmf-dist/tex/latex/base/latin1.def))
+Writing index file Rd2.idx
+No file Rd2.aux.
+(/usr/share/texlive/texmf-dist/tex/latex/base/ts1cmr.fd)
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/t1ptm.fd)
+(/usr/share/texlive/texmf-dist/tex/context/base/supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+) (/usr/share/texlive/texmf-dist/tex/latex/hyperref/nameref.sty
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/gettitlestring.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/inconsolata/t1zi4.fd)
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/t1phv.fd)
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [1{/var/lib/texmf/fonts
+/map/pdftex/updmap/pdftex.map}]
+Overfull \hbox (110.91833pt too wide) in alignment at lines 68--68
+ [] [] 
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/ts1ptm.fd)
+(/usr/share/texlive/texmf-dist/tex/latex/inconsolata/ts1zi4.fd) [2]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [3]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [4] [5]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [6]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def)
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [7]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def)
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [8]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def)
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [9]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [10] [11]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [12] [13]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def)
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [14]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [15]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [16] [17] [18]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [19]
+Overfull \hbox (5.76932pt too wide) in paragraph at lines 1237--1247
+\T1/zi4/m/n/10 offsetAggregateMode \T1/ptm/m/n/10 is 'gen-eMode' and op-tion \T
+1/zi4/m/n/10 offsetUseFitGeneX \T1/ptm/m/n/10 is TRUE,
+
+Overfull \hbox (43.02792pt too wide) in paragraph at lines 1237--1247
+\T1/ptm/m/n/10 a gen-er-al-ized lin-ear model is used to cre-ate the off-set ma
+-trix. When \T1/zi4/m/n/10 offsetAggregateMode
+
+Overfull \hbox (36.62906pt too wide) in paragraph at lines 1237--1247
+\T1/ptm/m/n/10 gen-er-ated by adding a prior count to the gene count ma-trix. W
+hen \T1/zi4/m/n/10 offsetAggregateMode
+[20] (/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [21] [22]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [23]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def)
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [24] [25]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [26]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [27]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [28]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [29]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [30] [31]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def)
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [32]
+Overfull \hbox (11.5394pt too wide) in paragraph at lines 2037--2040
+[][][]\T1/zi4/m/n/10 junctionDUreport[][][]\T1/ptm/m/n/10 , [][]\T1/zi4/m/n/10 
+binDUreport[][][]\T1/ptm/m/n/10 , [][]\T1/zi4/m/n/10 ASpliMergedReports[][][] \
+T1/ptm/m/n/10 Ac-ces-sors: [][]\T1/zi4/m/n/10 junctionsDU[][][] \T1/ptm/m/n/10 
+Ex-port: [][]\T1/zi4/m/n/10 writeDU[][][] 
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [33] [34]
+Overfull \hbox (7.24757pt too wide) in paragraph at lines 2156--2158
+[]\T1/ptm/m/n/10 A list of named op-tions to be passed to the graphic de-vice s
+e-lected in \T1/zi4/m/n/10 outfileType 
+[35]
+Underfull \vbox (badness 10000) has occurred while \output is active [36]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def)
+Overfull \hbox (7.78088pt too wide) in paragraph at lines 2262--2262
+ []    \T1/zi4/m/n/10 annotationCol = \TS1/zi4/m/n/10 '\T1/zi4/m/n/10 black\TS1
+/zi4/m/n/10 '\T1/zi4/m/n/10 , annotationFill = \TS1/zi4/m/n/10 '\T1/zi4/m/n/10 
+gray\TS1/zi4/m/n/10 '\T1/zi4/m/n/10 , annotationColTitle = \TS1/zi4/m/n/10 '\T1
+/zi4/m/n/10 black\TS1/zi4/m/n/10 '\T1/zi4/m/n/10 ,[] 
+[37] [38] [39] (/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [40]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [41]
+Overfull \hbox (1.45015pt too wide) in paragraph at lines 2578--2586
+[]\T1/ptm/m/n/10 Accesors: [][]\T1/zi4/m/n/10 countsg[][][]\T1/ptm/m/n/10 , [][
+]\T1/zi4/m/n/10 countsb[][][]\T1/ptm/m/n/10 , [][]\T1/zi4/m/n/10 countsj[][][]\
+T1/ptm/m/n/10 , [][]\T1/zi4/m/n/10 countse1i[][][]\T1/ptm/m/n/10 , [][]\T1/zi4/
+m/n/10 countsie2[][][]\T1/ptm/m/n/10 , [][]\T1/zi4/m/n/10 rdsg[][][]\T1/ptm/m/n
+/10 , [][]\T1/zi4/m/n/10 rdsb[][][]\T1/ptm/m/n/10 , Ex-port: [][]\T1/zi4/m/n/10
+ writeCounts[][][] 
+[42] (/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def)
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [43] [44]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def)
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [45]
+No file Rd2.ind.
+[46] (./Rd2.aux)
+
+Package rerunfilecheck Warning: File `Rd2.out' has changed.
+(rerunfilecheck)                Rerun to get outlines right
+(rerunfilecheck)                or use package `bookmark'.
+
+ )
+(see the transcript file for additional information)pdfTeX warning (dest): name
+{Rfn.tiff} has been referenced but does not exist, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.jpeg} has been referenced but does not exist, r
+eplaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.bmp} has been referenced but does not exist, re
+placed by a fixed one
+
+pdfTeX warning (dest): name{Rfn.png} has been referenced but does not exist, re
+placed by a fixed one
+
+pdfTeX warning (dest): name{Rfn.pdf} has been referenced but does not exist, re
+placed by a fixed one
+
+pdfTeX warning (dest): name{Rfn.Devices} has been referenced but does not exist
+, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.edgeR} has been referenced but does not exist, 
+replaced by a fixed one
+
+{/usr/share/texlive/texmf-dist/fonts/enc/dvips/inconsolata/i4-ts1.enc}{/usr/sha
+re/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc}{/usr/share/texlive/texmf-dis
+t/fonts/enc/dvips/inconsolata/i4-t1-0.enc}</usr/share/texlive/texmf-dist/fonts/
+type1/public/inconsolata/Inconsolata-zi4r.pfb></usr/share/texlive/texmf-dist/fo
+nts/type1/urw/helvetic/uhvr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/ur
+w/times/utmb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.
+pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share
+/texlive/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
+Output written on Rd2.pdf (46 pages, 161054 bytes).
+Transcript written on Rd2.log.
+This is makeindex, version 2.15 [TeX Live 2015/dev] (kpathsea + Thai support).
+Scanning input file Rd2.idx....done (286 entries accepted, 0 rejected).
+Sorting entries.....done (2443 comparisons).
+Generating output file Rd2.ind....done (504 lines written, 0 warnings).
+Output written in Rd2.ind.
+Transcript written in Rd2.ilg.
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2015/dev/Debian) (preloaded format=pdflatex)
+ restricted \write18 enabled.
+entering extended mode
+LaTeX2e <2014/05/01>
+Babel <3.9l> and hyphenation patterns for 79 languages loaded.
+(./Rd2.tex
+(/usr/share/texlive/texmf-dist/tex/latex/base/book.cls
+Document Class: book 2014/09/29 v1.4h Standard LaTeX document class
+(/usr/share/texlive/texmf-dist/tex/latex/base/bk10.clo))
+(/home/arabinov/R-3.4.1-cairo/share/texmf/tex/latex/Rd.sty
+(/usr/share/texlive/texmf-dist/tex/latex/base/ifthen.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/longtable.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/bm.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/base/alltt.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/verbatim.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/url/url.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/base/textcomp.sty
+(/usr/share/texlive/texmf-dist/tex/latex/base/ts1enc.def))
+(/usr/share/texlive/texmf-dist/tex/latex/base/fontenc.sty
+(/usr/share/texlive/texmf-dist/tex/latex/base/t1enc.def))
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/times.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/inconsolata/zi4.sty
+`inconsolata-zi4' v1.05, 2014/06/22 Text macros for Inconsolata (msharpe)
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/keyval.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/color.sty
+(/usr/share/texlive/texmf-dist/tex/latex/latexconfig/color.cfg)
+(/usr/share/texlive/texmf-dist/tex/latex/pdftex-def/pdftex.def
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/infwarerr.sty)
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/ltxcmds.sty)))
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/hyperref.sty
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/hobsub-hyperref.sty
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/hobsub-generic.sty))
+(/usr/share/texlive/texmf-dist/tex/generic/ifxetex/ifxetex.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/oberdiek/auxhook.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/oberdiek/kvoptions.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/pd1enc.def)
+(/usr/share/texlive/texmf-dist/tex/latex/latexconfig/hyperref.cfg))
+
+Package hyperref Message: Driver (autodetected): hpdftex.
+
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/hpdftex.def
+(/usr/share/texlive/texmf-dist/tex/latex/oberdiek/rerunfilecheck.sty))
+
+Package hyperref Warning: Option `hyperindex' has already been used,
+(hyperref)                setting the option has no effect on input line 366.
+
+
+Package hyperref Warning: Option `pagebackref' has already been used,
+(hyperref)                setting the option has no effect on input line 366.
+
+) (/usr/share/texlive/texmf-dist/tex/latex/base/makeidx.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/base/inputenc.sty
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def
+(/usr/share/texlive/texmf-dist/tex/latex/base/t1enc.dfu)
+(/usr/share/texlive/texmf-dist/tex/latex/base/ot1enc.dfu)
+(/usr/share/texlive/texmf-dist/tex/latex/base/omsenc.dfu)
+(/usr/share/texlive/texmf-dist/tex/latex/base/ts1enc.dfu))
+(/usr/share/texlive/texmf-dist/tex/latex/base/latin1.def))
+Writing index file Rd2.idx
+(./Rd2.aux) (/usr/share/texlive/texmf-dist/tex/latex/base/ts1cmr.fd)
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/t1ptm.fd)
+(/usr/share/texlive/texmf-dist/tex/context/base/supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+) (/usr/share/texlive/texmf-dist/tex/latex/hyperref/nameref.sty
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/gettitlestring.sty))
+(./Rd2.out) (./Rd2.out)
+(/usr/share/texlive/texmf-dist/tex/latex/inconsolata/t1zi4.fd)
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/t1phv.fd) (./Rd2.toc [1{/var/li
+b/texmf/fonts/map/pdftex/updmap/pdftex.map}])
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def)
+Overfull \hbox (110.91833pt too wide) in alignment at lines 68--68
+ [] [] 
+[2] (/usr/share/texlive/texmf-dist/tex/latex/psnfss/ts1ptm.fd)
+(/usr/share/texlive/texmf-dist/tex/latex/inconsolata/ts1zi4.fd) [3]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [4]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [5] [6]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def)
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [7]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [8]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def)
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [9]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def)
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [10]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [11] [12]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [13] [14]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def)
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [15]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [16]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [17] [18] [19]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [20]
+Overfull \hbox (5.76932pt too wide) in paragraph at lines 1237--1247
+\T1/zi4/m/n/10 offsetAggregateMode \T1/ptm/m/n/10 is 'gen-eMode' and op-tion \T
+1/zi4/m/n/10 offsetUseFitGeneX \T1/ptm/m/n/10 is TRUE,
+
+Overfull \hbox (43.02792pt too wide) in paragraph at lines 1237--1247
+\T1/ptm/m/n/10 a gen-er-al-ized lin-ear model is used to cre-ate the off-set ma
+-trix. When \T1/zi4/m/n/10 offsetAggregateMode
+
+Overfull \hbox (36.62906pt too wide) in paragraph at lines 1237--1247
+\T1/ptm/m/n/10 gen-er-ated by adding a prior count to the gene count ma-trix. W
+hen \T1/zi4/m/n/10 offsetAggregateMode
+[21] (/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [22] [23]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [24]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def)
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [25] [26]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [27]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [28]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [29]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [30]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [31] [32]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def)
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [33]
+Overfull \hbox (11.5394pt too wide) in paragraph at lines 2037--2040
+[][][]\T1/zi4/m/n/10 junctionDUreport[][][]\T1/ptm/m/n/10 , [][]\T1/zi4/m/n/10 
+binDUreport[][][]\T1/ptm/m/n/10 , [][]\T1/zi4/m/n/10 ASpliMergedReports[][][] \
+T1/ptm/m/n/10 Ac-ces-sors: [][]\T1/zi4/m/n/10 junctionsDU[][][] \T1/ptm/m/n/10 
+Ex-port: [][]\T1/zi4/m/n/10 writeDU[][][] 
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [34] [35]
+Overfull \hbox (7.24757pt too wide) in paragraph at lines 2156--2158
+[]\T1/ptm/m/n/10 A list of named op-tions to be passed to the graphic de-vice s
+e-lected in \T1/zi4/m/n/10 outfileType 
+[36]
+Underfull \vbox (badness 10000) has occurred while \output is active [37]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def)
+Overfull \hbox (7.78088pt too wide) in paragraph at lines 2262--2262
+ []    \T1/zi4/m/n/10 annotationCol = \TS1/zi4/m/n/10 '\T1/zi4/m/n/10 black\TS1
+/zi4/m/n/10 '\T1/zi4/m/n/10 , annotationFill = \TS1/zi4/m/n/10 '\T1/zi4/m/n/10 
+gray\TS1/zi4/m/n/10 '\T1/zi4/m/n/10 , annotationColTitle = \TS1/zi4/m/n/10 '\T1
+/zi4/m/n/10 black\TS1/zi4/m/n/10 '\T1/zi4/m/n/10 ,[] 
+[38] [39] [40] (/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [41]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [42]
+Overfull \hbox (1.45015pt too wide) in paragraph at lines 2578--2586
+[]\T1/ptm/m/n/10 Accesors: [][]\T1/zi4/m/n/10 countsg[][][]\T1/ptm/m/n/10 , [][
+]\T1/zi4/m/n/10 countsb[][][]\T1/ptm/m/n/10 , [][]\T1/zi4/m/n/10 countsj[][][]\
+T1/ptm/m/n/10 , [][]\T1/zi4/m/n/10 countse1i[][][]\T1/ptm/m/n/10 , [][]\T1/zi4/
+m/n/10 countsie2[][][]\T1/ptm/m/n/10 , [][]\T1/zi4/m/n/10 rdsg[][][]\T1/ptm/m/n
+/10 , [][]\T1/zi4/m/n/10 rdsb[][][]\T1/ptm/m/n/10 , Ex-port: [][]\T1/zi4/m/n/10
+ writeCounts[][][] 
+[43] (/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def)
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [44] [45]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def)
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [46] (./Rd2.ind
+[47]
+
+LaTeX Font Warning: Font shape `T1/zi4/m/it' undefined
+(Font)              using `T1/zi4/m/n' instead on input line 10.
+
+
+Overfull \hbox (60.8567pt too wide) in paragraph at lines 24--26
+[]\T1/zi4/m/it/10 anchorbased<-,ASpliMergedReports,data.frame-method 
+
+Overfull \hbox (45.8567pt too wide) in paragraph at lines 99--101
+[]\T1/zi4/m/it/10 binbased<-,ASpliMergedReports,data.frame-method 
+[48]
+Overfull \hbox (5.8567pt too wide) in paragraph at lines 142--144
+[]\T1/zi4/m/it/10 countsb<-,ASpliCounts,data.frame-method 
+
+Overfull \hbox (15.8567pt too wide) in paragraph at lines 151--153
+[]\T1/zi4/m/it/10 countse1i<-,ASpliCounts,data.frame-method 
+
+Overfull \hbox (5.8567pt too wide) in paragraph at lines 160--162
+[]\T1/zi4/m/it/10 countsg<-,ASpliCounts,data.frame-method 
+
+Overfull \hbox (15.8567pt too wide) in paragraph at lines 169--171
+[]\T1/zi4/m/it/10 countsie2<-,ASpliCounts,data.frame-method 
+
+Overfull \hbox (5.8567pt too wide) in paragraph at lines 178--180
+[]\T1/zi4/m/it/10 countsj<-,ASpliCounts,data.frame-method 
+
+Overfull \hbox (10.8567pt too wide) in paragraph at lines 225--227
+[]\T1/zi4/m/it/10 featuresb<-,ASpliFeatures,GRanges-method 
+
+Overfull \hbox (30.8567pt too wide) in paragraph at lines 234--236
+[]\T1/zi4/m/it/10 featuresg<-,ASpliFeatures,GRangesList-method 
+
+Overfull \hbox (10.8567pt too wide) in paragraph at lines 243--245
+[]\T1/zi4/m/it/10 featuresj<-,ASpliFeatures,GRanges-method 
+[49]
+Overfull \hbox (5.8567pt too wide) in paragraph at lines 329--331
+[]\T1/zi4/m/it/10 junctionsDU<-,ASpliDU,data.frame-method 
+
+Overfull \hbox (10.8567pt too wide) in paragraph at lines 341--343
+[]\T1/zi4/m/it/10 junctionsPIR<-,ASpliAS,data.frame-method 
+
+Overfull \hbox (10.8567pt too wide) in paragraph at lines 351--353
+[]\T1/zi4/m/it/10 junctionsPSI<-,ASpliAS,data.frame-method 
+
+Overfull \hbox (60.8567pt too wide) in paragraph at lines 363--365
+[]\T1/zi4/m/it/10 localebased<-,ASpliMergedReports,data.frame-method 
+
+Overfull \hbox (5.8567pt too wide) in paragraph at lines 388--390
+[]\T1/zi4/m/it/10 mergedReports,ASpliMergedReports-method 
+
+Overfull \hbox (5.8567pt too wide) in paragraph at lines 402--404
+[]\T1/zi4/m/it/10 plotGenomicRegions,ASpliFeatures-method 
+[50] [51]) (./Rd2.aux)
+
+Package rerunfilecheck Warning: File `Rd2.out' has changed.
+(rerunfilecheck)                Rerun to get outlines right
+(rerunfilecheck)                or use package `bookmark'.
+
+
+LaTeX Font Warning: Some font shapes were not available, defaults substituted.
+
+ )
+(see the transcript file for additional information)pdfTeX warning (dest): name
+{Rfn.tiff} has been referenced but does not exist, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.jpeg} has been referenced but does not exist, r
+eplaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.bmp} has been referenced but does not exist, re
+placed by a fixed one
+
+pdfTeX warning (dest): name{Rfn.png} has been referenced but does not exist, re
+placed by a fixed one
+
+pdfTeX warning (dest): name{Rfn.pdf} has been referenced but does not exist, re
+placed by a fixed one
+
+pdfTeX warning (dest): name{Rfn.Devices} has been referenced but does not exist
+, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.edgeR} has been referenced but does not exist, 
+replaced by a fixed one
+
+{/usr/share/texlive/texmf-dist/fonts/enc/dvips/inconsolata/i4-ts1.enc}{/usr/sha
+re/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc}{/usr/share/texlive/texmf-dis
+t/fonts/enc/dvips/inconsolata/i4-t1-0.enc}</usr/share/texlive/texmf-dist/fonts/
+type1/public/inconsolata/Inconsolata-zi4r.pfb></usr/share/texlive/texmf-dist/fo
+nts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/ty
+pe1/urw/helvetic/uhvr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/time
+s/utmb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></
+usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texli
+ve/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
+Output written on Rd2.pdf (51 pages, 190617 bytes).
+Transcript written on Rd2.log.
+This is makeindex, version 2.15 [TeX Live 2015/dev] (kpathsea + Thai support).
+Scanning input file Rd2.idx....done (286 entries accepted, 0 rejected).
+Sorting entries.....done (2443 comparisons).
+Generating output file Rd2.ind....done (504 lines written, 0 warnings).
+Output written in Rd2.ind.
+Transcript written in Rd2.ilg.
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2015/dev/Debian) (preloaded format=pdflatex)
+ restricted \write18 enabled.
+entering extended mode
+LaTeX2e <2014/05/01>
+Babel <3.9l> and hyphenation patterns for 79 languages loaded.
+(./Rd2.tex
+(/usr/share/texlive/texmf-dist/tex/latex/base/book.cls
+Document Class: book 2014/09/29 v1.4h Standard LaTeX document class
+(/usr/share/texlive/texmf-dist/tex/latex/base/bk10.clo))
+(/home/arabinov/R-3.4.1-cairo/share/texmf/tex/latex/Rd.sty
+(/usr/share/texlive/texmf-dist/tex/latex/base/ifthen.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/longtable.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/bm.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/base/alltt.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/verbatim.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/url/url.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/base/textcomp.sty
+(/usr/share/texlive/texmf-dist/tex/latex/base/ts1enc.def))
+(/usr/share/texlive/texmf-dist/tex/latex/base/fontenc.sty
+(/usr/share/texlive/texmf-dist/tex/latex/base/t1enc.def))
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/times.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/inconsolata/zi4.sty
+`inconsolata-zi4' v1.05, 2014/06/22 Text macros for Inconsolata (msharpe)
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/keyval.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/color.sty
+(/usr/share/texlive/texmf-dist/tex/latex/latexconfig/color.cfg)
+(/usr/share/texlive/texmf-dist/tex/latex/pdftex-def/pdftex.def
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/infwarerr.sty)
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/ltxcmds.sty)))
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/hyperref.sty
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/hobsub-hyperref.sty
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/hobsub-generic.sty))
+(/usr/share/texlive/texmf-dist/tex/generic/ifxetex/ifxetex.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/oberdiek/auxhook.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/oberdiek/kvoptions.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/pd1enc.def)
+(/usr/share/texlive/texmf-dist/tex/latex/latexconfig/hyperref.cfg))
+
+Package hyperref Message: Driver (autodetected): hpdftex.
+
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/hpdftex.def
+(/usr/share/texlive/texmf-dist/tex/latex/oberdiek/rerunfilecheck.sty))
+
+Package hyperref Warning: Option `hyperindex' has already been used,
+(hyperref)                setting the option has no effect on input line 366.
+
+
+Package hyperref Warning: Option `pagebackref' has already been used,
+(hyperref)                setting the option has no effect on input line 366.
+
+) (/usr/share/texlive/texmf-dist/tex/latex/base/makeidx.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/base/inputenc.sty
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def
+(/usr/share/texlive/texmf-dist/tex/latex/base/t1enc.dfu)
+(/usr/share/texlive/texmf-dist/tex/latex/base/ot1enc.dfu)
+(/usr/share/texlive/texmf-dist/tex/latex/base/omsenc.dfu)
+(/usr/share/texlive/texmf-dist/tex/latex/base/ts1enc.dfu))
+(/usr/share/texlive/texmf-dist/tex/latex/base/latin1.def))
+Writing index file Rd2.idx
+(./Rd2.aux) (/usr/share/texlive/texmf-dist/tex/latex/base/ts1cmr.fd)
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/t1ptm.fd)
+(/usr/share/texlive/texmf-dist/tex/context/base/supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+) (/usr/share/texlive/texmf-dist/tex/latex/hyperref/nameref.sty
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/gettitlestring.sty))
+(./Rd2.out) (./Rd2.out)
+(/usr/share/texlive/texmf-dist/tex/latex/inconsolata/t1zi4.fd)
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/t1phv.fd) (./Rd2.toc [1{/var/li
+b/texmf/fonts/map/pdftex/updmap/pdftex.map}])
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def)
+Overfull \hbox (110.91833pt too wide) in alignment at lines 68--68
+ [] [] 
+[2] (/usr/share/texlive/texmf-dist/tex/latex/psnfss/ts1ptm.fd)
+(/usr/share/texlive/texmf-dist/tex/latex/inconsolata/ts1zi4.fd) [3]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [4]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [5] [6]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def)
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [7]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [8]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def)
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [9]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def)
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [10]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [11] [12]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [13] [14]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def)
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [15]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [16]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [17] [18] [19]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [20]
+Overfull \hbox (5.76932pt too wide) in paragraph at lines 1237--1247
+\T1/zi4/m/n/10 offsetAggregateMode \T1/ptm/m/n/10 is 'gen-eMode' and op-tion \T
+1/zi4/m/n/10 offsetUseFitGeneX \T1/ptm/m/n/10 is TRUE,
+
+Overfull \hbox (43.02792pt too wide) in paragraph at lines 1237--1247
+\T1/ptm/m/n/10 a gen-er-al-ized lin-ear model is used to cre-ate the off-set ma
+-trix. When \T1/zi4/m/n/10 offsetAggregateMode
+
+Overfull \hbox (36.62906pt too wide) in paragraph at lines 1237--1247
+\T1/ptm/m/n/10 gen-er-ated by adding a prior count to the gene count ma-trix. W
+hen \T1/zi4/m/n/10 offsetAggregateMode
+[21] (/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [22] [23]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [24]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def)
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [25] [26]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [27]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [28]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [29]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [30]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [31] [32]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def)
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [33]
+Overfull \hbox (11.5394pt too wide) in paragraph at lines 2037--2040
+[][][]\T1/zi4/m/n/10 junctionDUreport[][][]\T1/ptm/m/n/10 , [][]\T1/zi4/m/n/10 
+binDUreport[][][]\T1/ptm/m/n/10 , [][]\T1/zi4/m/n/10 ASpliMergedReports[][][] \
+T1/ptm/m/n/10 Ac-ces-sors: [][]\T1/zi4/m/n/10 junctionsDU[][][] \T1/ptm/m/n/10 
+Ex-port: [][]\T1/zi4/m/n/10 writeDU[][][] 
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [34] [35]
+Overfull \hbox (7.24757pt too wide) in paragraph at lines 2156--2158
+[]\T1/ptm/m/n/10 A list of named op-tions to be passed to the graphic de-vice s
+e-lected in \T1/zi4/m/n/10 outfileType 
+[36]
+Underfull \vbox (badness 10000) has occurred while \output is active [37]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def)
+Overfull \hbox (7.78088pt too wide) in paragraph at lines 2262--2262
+ []    \T1/zi4/m/n/10 annotationCol = \TS1/zi4/m/n/10 '\T1/zi4/m/n/10 black\TS1
+/zi4/m/n/10 '\T1/zi4/m/n/10 , annotationFill = \TS1/zi4/m/n/10 '\T1/zi4/m/n/10 
+gray\TS1/zi4/m/n/10 '\T1/zi4/m/n/10 , annotationColTitle = \TS1/zi4/m/n/10 '\T1
+/zi4/m/n/10 black\TS1/zi4/m/n/10 '\T1/zi4/m/n/10 ,[] 
+[38] [39] [40] (/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [41]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [42]
+Overfull \hbox (1.45015pt too wide) in paragraph at lines 2578--2586
+[]\T1/ptm/m/n/10 Accesors: [][]\T1/zi4/m/n/10 countsg[][][]\T1/ptm/m/n/10 , [][
+]\T1/zi4/m/n/10 countsb[][][]\T1/ptm/m/n/10 , [][]\T1/zi4/m/n/10 countsj[][][]\
+T1/ptm/m/n/10 , [][]\T1/zi4/m/n/10 countse1i[][][]\T1/ptm/m/n/10 , [][]\T1/zi4/
+m/n/10 countsie2[][][]\T1/ptm/m/n/10 , [][]\T1/zi4/m/n/10 rdsg[][][]\T1/ptm/m/n
+/10 , [][]\T1/zi4/m/n/10 rdsb[][][]\T1/ptm/m/n/10 , Ex-port: [][]\T1/zi4/m/n/10
+ writeCounts[][][] 
+[43] (/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def)
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [44] [45]
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def)
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [46] (./Rd2.ind
+[47]
+
+LaTeX Font Warning: Font shape `T1/zi4/m/it' undefined
+(Font)              using `T1/zi4/m/n' instead on input line 10.
+
+
+Overfull \hbox (60.8567pt too wide) in paragraph at lines 24--26
+[]\T1/zi4/m/it/10 anchorbased<-,ASpliMergedReports,data.frame-method 
+
+Overfull \hbox (45.8567pt too wide) in paragraph at lines 99--101
+[]\T1/zi4/m/it/10 binbased<-,ASpliMergedReports,data.frame-method 
+[48]
+Overfull \hbox (5.8567pt too wide) in paragraph at lines 142--144
+[]\T1/zi4/m/it/10 countsb<-,ASpliCounts,data.frame-method 
+
+Overfull \hbox (15.8567pt too wide) in paragraph at lines 151--153
+[]\T1/zi4/m/it/10 countse1i<-,ASpliCounts,data.frame-method 
+
+Overfull \hbox (5.8567pt too wide) in paragraph at lines 160--162
+[]\T1/zi4/m/it/10 countsg<-,ASpliCounts,data.frame-method 
+
+Overfull \hbox (15.8567pt too wide) in paragraph at lines 169--171
+[]\T1/zi4/m/it/10 countsie2<-,ASpliCounts,data.frame-method 
+
+Overfull \hbox (5.8567pt too wide) in paragraph at lines 178--180
+[]\T1/zi4/m/it/10 countsj<-,ASpliCounts,data.frame-method 
+
+Overfull \hbox (10.8567pt too wide) in paragraph at lines 225--227
+[]\T1/zi4/m/it/10 featuresb<-,ASpliFeatures,GRanges-method 
+
+Overfull \hbox (30.8567pt too wide) in paragraph at lines 234--236
+[]\T1/zi4/m/it/10 featuresg<-,ASpliFeatures,GRangesList-method 
+
+Overfull \hbox (10.8567pt too wide) in paragraph at lines 243--245
+[]\T1/zi4/m/it/10 featuresj<-,ASpliFeatures,GRanges-method 
+[49]
+Overfull \hbox (5.8567pt too wide) in paragraph at lines 329--331
+[]\T1/zi4/m/it/10 junctionsDU<-,ASpliDU,data.frame-method 
+
+Overfull \hbox (10.8567pt too wide) in paragraph at lines 341--343
+[]\T1/zi4/m/it/10 junctionsPIR<-,ASpliAS,data.frame-method 
+
+Overfull \hbox (10.8567pt too wide) in paragraph at lines 351--353
+[]\T1/zi4/m/it/10 junctionsPSI<-,ASpliAS,data.frame-method 
+
+Overfull \hbox (60.8567pt too wide) in paragraph at lines 363--365
+[]\T1/zi4/m/it/10 localebased<-,ASpliMergedReports,data.frame-method 
+
+Overfull \hbox (5.8567pt too wide) in paragraph at lines 388--390
+[]\T1/zi4/m/it/10 mergedReports,ASpliMergedReports-method 
+[50]
+Overfull \hbox (5.8567pt too wide) in paragraph at lines 402--404
+[]\T1/zi4/m/it/10 plotGenomicRegions,ASpliFeatures-method 
+[51]) (./Rd2.aux)
+
+LaTeX Font Warning: Some font shapes were not available, defaults substituted.
+
+ )
+(see the transcript file for additional information)pdfTeX warning (dest): name
+{Rfn.tiff} has been referenced but does not exist, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.jpeg} has been referenced but does not exist, r
+eplaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.bmp} has been referenced but does not exist, re
+placed by a fixed one
+
+pdfTeX warning (dest): name{Rfn.png} has been referenced but does not exist, re
+placed by a fixed one
+
+pdfTeX warning (dest): name{Rfn.pdf} has been referenced but does not exist, re
+placed by a fixed one
+
+pdfTeX warning (dest): name{Rfn.Devices} has been referenced but does not exist
+, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.edgeR} has been referenced but does not exist, 
+replaced by a fixed one
+
+{/usr/share/texlive/texmf-dist/fonts/enc/dvips/inconsolata/i4-ts1.enc}{/usr/sha
+re/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc}{/usr/share/texlive/texmf-dis
+t/fonts/enc/dvips/inconsolata/i4-t1-0.enc}</usr/share/texlive/texmf-dist/fonts/
+type1/public/inconsolata/Inconsolata-zi4r.pfb></usr/share/texlive/texmf-dist/fo
+nts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/ty
+pe1/urw/helvetic/uhvr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/time
+s/utmb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></
+usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texli
+ve/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
+Output written on Rd2.pdf (51 pages, 191256 bytes).
+Transcript written on Rd2.log.
+Saving output to ‘ASpli-manual.pdf’ ...
+Done
+You may want to clean up by 'rm -rf /tmp/RtmpbdFbXf/Rd2pdf74262e06d642'

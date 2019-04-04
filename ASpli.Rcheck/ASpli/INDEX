@@ -1,0 +1,45 @@
+ASpli-package           Analysis of alternative splicing using RNAseq
+ASpliAS-class           Class '"ASpliAS"'
+ASpliCounts             Class '"ASpliCounts"'
+ASpliCounts-class       Class '"ASpliCounts"'
+ASpliDU-class           Class '"ASpliDU"'
+ASpliFeatures-class     Class '"ASpliFeatures"'
+ASpliJDU-class          Class '"ASpliJDU"'
+ASpliMergedReports-class
+                        Class '"ASpliMergedReports"'
+AsDiscover              Report PSI and PIR using experimental junctions
+DUreport.norm           Differential gene expression and differential
+                        bin usage estimation
+DUreport.offset         Differential gene expression and differential
+                        bin usage estimation
+altPSI                  Accessors for ASpliAS object
+anchorc                 Accessors for ASpliJDU object
+aspliASexample          Example Aspli objects
+binDUreport             Differential gene expression and differential
+                        bin usage estimation
+binGenome               Feature coordinates extraction
+binGenome-methods       Feature coordinates extraction
+binbased                Accessors for ASpliMergedReport object
+containsJunctions       Examine ASpliDU objects
+countsb                 Accessors for ASpliCounts object
+featuresb               Accessors for ASpliFeatures object
+filterDU                Filtering ASpliDU objects
+genesDE                 Accessors for ASpliDU object
+getConditions           Retrieve condition names from a targets data
+                        frame.
+junctionDUreport        Differential junction usage estimation
+loadBAM                 Load BAM files
+mergeBinDUAS            Differential usage of bins and PSI/PIR.
+mergeReports            Differential junction usage estimation.
+                        COMPLETAR
+plotBins                Draw plots of gene counts, bin counts, PSI/PIR
+                        value, inclusion and exclusion junctions for
+                        selected bins.
+plotGenomicRegions      Create genomic regions coverage plots
+rds                     Read density of gene and bins
+readCounts              Summarize read overlaps
+show-methods            Display a summary of data contained in
+                        ASpliObjects
+subsetBams              Subset ASpli objects
+writeRds                Write results
+writeRds-methods        Write results
