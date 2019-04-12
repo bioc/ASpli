@@ -11,7 +11,7 @@
 # Subset a dataframe to contain only the columns that matchs the samples in the
 # targets. That columns are the ones with the count data.
 .extractCountColumns <- function ( aDataframe, targets ) {
-  result <- aDataframe[ , match( row.names(targets), colnames( aDataframe ) ) ]
+  result <- aDataframe[ , match( row.names(targets), colnames( aDataframe ) ) , F]
   colnames( result ) <- as.character( row.names(targets) )
   return( result )
 }
