@@ -367,15 +367,20 @@ setMethod(
           as@junctionsPIR <- cbind(as@junctionsPIR, junctionsPIR[, 3:6])
         }
       }
-      if(ntargets > 1){
-        junctions.order <- c(1, 2, 
-                             seq(from=3, to=ncol(as@junctionsPIR), by=4),
-                             seq(from=4, to=ncol(as@junctionsPIR), by=4),
-                             seq(from=5, to=ncol(as@junctionsPIR), by=4),
-                             seq(from=6, to=ncol(as@junctionsPIR), by=4))
-        as@junctionsPIR <- as@junctionsPIR[, junctions.order]
-        colnames(as@junctionsPIR) <- strsplit2(colnames(as@junctionsPIR), "[.]")[, 1]
-      }
+      junctions.order <- c(1, 2, 
+                           seq(from=3, to=ncol(as@junctionsPIR), by=4),
+                           seq(from=4, to=ncol(as@junctionsPIR), by=4),
+                           seq(from=5, to=ncol(as@junctionsPIR), by=4))
+      as@junctionsPIR <- as@junctionsPIR[, junctions.order]
+      colnames(as@junctionsPIR) <- strsplit2(colnames(as@junctionsPIR), "[.]")[, 1]
+      inicio_j1 <- 3
+      inicio_j2 <- inicio_j1+nrow(targets)
+      inicio_j3 <- inicio_j2+nrow(targets)
+      j1 <- .sumByCond( as@junctionsPIR[, inicio_j1:(inicio_j1+nrow(targets)-1)],     targets )
+      j2 <- .sumByCond( as@junctionsPIR[, inicio_j2:(inicio_j2+nrow(targets)-1)],     targets )
+      j3 <- .sumByCond( as@junctionsPIR[, inicio_j3:(inicio_j3+nrow(targets)-1)],     targets )
+      pirValues <- ( j1 + j2 ) / ( j1 + j2 + 2 * j3 )
+      as@junctionsPIR <- cbind(as@junctionsPIR, pirValues)
     }else{
       
       junctionsPIR <- .junctionsDiscover( df=jcounts, 
@@ -761,7 +766,9 @@ setMethod(
 
 setGeneric( name = "mergeReports",
             def = function (bdu, 
-                            jdu
+                            jdu,
+                            maxBinFDR = 0.2, 
+                            maxJunctionFDR = 0.2
             ) standardGeneric("mergeReports") )
 
 
@@ -770,10 +777,12 @@ setMethod(
   signature = "ASpliDU",
   definition = function (
     bdu,
-    jdu
+    jdu, 
+    maxBinFDR = 0.2, 
+    maxJunctionFDR = 0.2
   ) {
     
-    .mergeReports( bdu, jdu ) 
+    .mergeReports( bdu, jdu, maxBinFDR = 0.2, maxJunctionFDR = 0.2 ) 
   }
 )
 
