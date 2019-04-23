@@ -40,3 +40,5 @@ and other R package required. Some packages depend on operating system
 packages, like **curl**, that are not installed automatically, and should
 be installed by the user.
 
+Changes
+
