@@ -94,21 +94,21 @@ setGeneric( name =  "irPIR<-", def = function( x, value ) standardGeneric("irPIR
 setReplaceMethod( f = "irPIR", signature = c("ASpliAS",'data.frame'), 
     definition = function( x, value ){ x@irPIR <- value; return( x ) } )       
 
-setGeneric( name =  "altPSI", def = function( x ) standardGeneric("altPSI"))
-setMethod(f = "altPSI", signature = "ASpliAS", 
-    definition = function( x ) { x@altPSI })
+setGeneric( name =  "altPIN", def = function( x ) standardGeneric("altPIN"))
+setMethod(f = "altPIN", signature = "ASpliAS", 
+    definition = function( x ) { x@altPIN })
 
-setGeneric( name =  "altPSI<-", def = function( x, value ) standardGeneric("altPSI<-"))
-setReplaceMethod( f = "altPSI", signature = c("ASpliAS","data.frame"), 
-    definition = function( x, value ) { x@altPSI <- value; return( x ) })
+setGeneric( name =  "altPIN<-", def = function( x, value ) standardGeneric("altPIN<-"))
+setReplaceMethod( f = "altPIN", signature = c("ASpliAS","data.frame"), 
+    definition = function( x, value ) { x@altPIN <- value; return( x ) })
 
-setGeneric( name = "esPSI", def = function( x ) standardGeneric("esPSI"))
-setMethod( f = "esPSI", signature = "ASpliAS",
-    definition = function( x ) { x@esPSI })
+setGeneric( name = "esPIN", def = function( x ) standardGeneric("esPIN"))
+setMethod( f = "esPIN", signature = "ASpliAS",
+    definition = function( x ) { x@esPIN })
 
-setGeneric( name = "esPSI<-", def = function( x, value ) standardGeneric("esPSI<-"))
-setReplaceMethod( f = "esPSI", signature = c("ASpliAS","data.frame"),
-    definition = function( x, value ) { x@esPSI <- value; return( x ) })
+setGeneric( name = "esPIN<-", def = function( x, value ) standardGeneric("esPIN<-"))
+setReplaceMethod( f = "esPIN", signature = c("ASpliAS","data.frame"),
+    definition = function( x, value ) { x@esPIN <- value; return( x ) })
 
 setGeneric( name = "junctionsPIR", def = function( x ) standardGeneric("junctionsPIR"))
 setMethod( f ="junctionsPIR", signature = "ASpliAS", 
@@ -118,13 +118,13 @@ setGeneric( name = "junctionsPIR<-", def = function( x, value ) standardGeneric(
 setReplaceMethod( f ="junctionsPIR", signature = c("ASpliAS","data.frame"), 
     definition = function( x, value){ x@junctionsPIR <- value; return( x ) })
 
-setGeneric( name = "junctionsPSI", def = function( x ) standardGeneric("junctionsPSI"))
-setMethod( f = "junctionsPSI", signature = "ASpliAS",
-    definition = function( x ){ x@junctionsPSI } )
+setGeneric( name = "junctionsPJU", def = function( x ) standardGeneric("junctionsPJU"))
+setMethod( f = "junctionsPJU", signature = "ASpliAS",
+    definition = function( x ){ x@junctionsPJU } )
 
-setGeneric( name = "junctionsPSI<-", def = function( x, value ) standardGeneric("junctionsPSI<-"))
-setReplaceMethod( f = "junctionsPSI", signature = c("ASpliAS","data.frame"),
-    definition = function( x, value ){ x@junctionsPSI <- value; return( x )} )
+setGeneric( name = "junctionsPJU<-", def = function( x, value ) standardGeneric("junctionsPJU<-"))
+setReplaceMethod( f = "junctionsPJU", signature = c("ASpliAS","data.frame"),
+    definition = function( x, value ){ x@junctionsPJU <- value; return( x )} )
 
 setGeneric( name = "joint", def = function( x ) standardGeneric("joint") )
 setMethod( f = "joint", signature = "ASpliAS", 
@@ -201,18 +201,18 @@ setMethod( 'show', 'ASpliAS', function( object )  {
       cat("IR PIR: ", 
           dim(object@irPIR)[1], "intron bins analysed.",
           "Access using irPIR(object)", "\n")
-      cat("ES PSI:", 
-          dim(object@esPSI)[1], "exon bins analysed.",
-          " Access using esPSI(object)", "\n")
-      cat("AltSS PSI:", 
-          dim(object@altPSI)[1], "exon bins analysed.",
-          " Access using altPSI(object)", "\n")
+      cat("ES PIN:", 
+          dim(object@esPIN)[1], "exon bins analysed.",
+          " Access using esPIN(object)", "\n")
+      cat("AltSS PIN:", 
+          dim(object@altPIN)[1], "exon bins analysed.",
+          " Access using altPIN(object)", "\n")
       cat("Junctions PIR:", 
           dim(object@junctionsPIR)[1], "junctions analysed.",
           "Access using junctionsPIR(object)", "\n")
-      cat("Junctions PSI:", 
-          dim(object@junctionsPSI)[1], "junctions analysed.",
-          "Access using junctionsPSI(object)")
+      cat("Junctions PJU:", 
+          dim(object@junctionsPJU)[1], "junctions analysed.",
+          "Access using junctionsPJU(object)")
     })
 
 setMethod('show', 'ASpliDU', function( object ) {
@@ -232,16 +232,94 @@ setMethod('show', 'ASpliDU', function( object ) {
             "Access using junctionsDU(object)")
       }
     })
+
+setMethod('show', 'ASpliJDU', function( object ) {
+  cat("Object of class", class(object),"\n")
+  
+  cat("Locale Junctions:", 
+      nrow(localej(object)), "junctions.",
+      "Access using localej(object)", "\n")
+
+  cat("Locale Clusters:", 
+      nrow(localec(object)), "clusters",
+      "Access using localec(object)", "\n")
+  
+  cat("Anchor Junctions:", 
+      nrow(anchorj(object)), "junctions.",
+      "Access using anchorj(object)", "\n")
+  
+  cat("Anchor Clusters:", 
+      nrow(anchorc(object)), "clusters",
+      "Access using anchorc(object)", "\n")
+  
+  cat("Intron Retention Junctions:", 
+      nrow(jir(object)), "junctions.",
+      "Access using jir(object)", "\n")
+  
+  cat("Exon Skipping Junctions:", 
+      nrow(jes(object)), "junctions.",
+      "Access using jes(object)", "\n")
+  
+  cat("Alternative Splicing Junctions:", 
+      nrow(jalt(object)), "junctions.",
+      "Access using jalt(object)", "\n")
+})
+
 setMethod( 'show', 'ASpliMergedReports', function( object ) {
+  
+  # my_table    <- function(data, jcol="junction"){
+  #   binNA       <- is.na(data$bin.fdr)
+  #   junctionNA  <- is.na(data$junction.fdr)
+  #   
+  #   binNNA      <- data[!binNA, ]
+  #   binNA       <- data[binNA, ]
+  #   junctionNNA <- data[!junctionNA, ]
+  #   junctionNA  <- data[junctionNA, ]
+  #   
+  #   binT      <- binNNA$bin.fdr < 0.05
+  #   binF      <- unique(binNNA[!binT, colnames(data) == jcol])
+  #   binT      <- unique(binNNA[binT, colnames(data) == jcol])
+  #   
+  #   if("cluster.fdr" %in% colnames(data)){
+  #     junctionT <- junctionNNA$junction.fdr < 0.05 | junctionNNA$cluster.fdr < 0.05
+  #   }else{
+  #     junctionT <- junctionNNA$junction.fdr < 0.05
+  #   }
+  #   junctionF <- unique(junctionNNA[!junctionT, colnames(data) == jcol])
+  #   junctionT <- unique(junctionNNA[junctionT, colnames(data) == jcol])
+  #   
+  #   binNA     <- unique(binNA[, colnames(data) == jcol])
+  #   binNNA    <- unique(binNNA[, colnames(data) == jcol])
+  #   
+  #   junctionNA  <- unique(junctionNA[, colnames(data) == jcol])
+  #   junctionNNA <- unique(junctionNNA[, colnames(data) == jcol])
+  #   
+  #   m         <- matrix(c(length(intersect(binF, junctionF)), 
+  #                         length(intersect(binF, junctionT)), 
+  #                         length(intersect(binF, junctionNA)), 
+  #                         length(intersect(binT, junctionF)), 
+  #                         length(intersect(binT, junctionT)),
+  #                         length(intersect(binT, junctionNA)),
+  #                         length(intersect(binNA, junctionF)),
+  #                         length(intersect(binNA, junctionT)),
+  #                         length(intersect(binNA, junctionNA))),
+  #                       nrow=3, ncol=3, byrow=T)
+  #   rownames(m) <- c("Bin F", "Bin T", "Bin <NA>")                           
+  #   colnames(m) <- c("Junction F", "Junction T", "Junction <NA>")
+  #   return(m)
+  # }
   cat("Object of class", class(object),"\n")
   cat("Locale based (fdr < 0.05): \n") 
-  print(table(bins = localebased(object)$bin.fdr < 0.05, junctions_or_clusters = localebased(object)$junction.fdr < 0.05 | localebased(object)$cluster.fdr < 0.05,useNA="always"))
+  print(table(localebased(object), useNA = "always"))
+  
   cat("Access using localebased(object)\n\n")
   cat("Anchor based (fdr < 0.05): \n")
-  print(table(bins = anchorbased(object)$bin.fdr < 0.05, junctions_or_clusters = anchorbased(object)$junction.fdr < 0.05 | anchorbased(object)$cluster.fdr < 0.05,useNA="always"))
+  print(table(anchorbased(object), useNA = "always"))
+  
   cat("Access using anchorbased(object)\n\n")
   cat("Bin based (fdr < 0.05): \n") 
-  print(table(bins = binbased(object)$bin.fdr < 0.05, junctions = binbased(object)$junction.fdr < 0.05,useNA="always"))
+  print(table(binbased(object), useNA = "always"))
+  
   cat("Access using binbased(object)\n\n")  
 })
 # ---------------------------------------------------------------------------- #

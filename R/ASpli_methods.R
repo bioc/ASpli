@@ -14,22 +14,25 @@ setClass( Class = "ASpliCounts",
             e1i.counts = "data.frame", 
             ie2.counts = "data.frame",
             gene.rd = "data.frame",
-            bin.rd = "data.frame"))
+            bin.rd = "data.frame", 
+            targets = "data.frame"))
 
 setClass( Class="ASpliAS",
           representation = representation(
             irPIR = "data.frame",
-            altPSI = "data.frame",
-            esPSI = "data.frame",
+            altPIN = "data.frame",
+            esPIN = "data.frame",
             junctionsPIR = "data.frame",
-            junctionsPSI = "data.frame",
-            join = "data.frame") )
+            junctionsPJU = "data.frame",
+            join = "data.frame", 
+            targets = "data.frame") )
 
 setClass( Class = "ASpliDU",
           representation = representation(
             genes = "data.frame",
             bins = "data.frame",
-            junctions = "data.frame" ))
+            junctions = "data.frame",
+            contrast = "numeric" ))
 
 setClass( Class = "ASpliJDU",
           representation = representation(
@@ -171,7 +174,47 @@ setMethod(
     
     counts@gene.rd <- gene.rd
     counts@bin.rd <- rdfinalb
+    counts@targets <- targets
     return(counts)
+  }
+)
+
+# gbCounts is a wrapper around readCounts for improved legibility
+setGeneric (
+  name = "gbCounts",
+  def = function( features, bam=NULL, targets, cores = 1, readLength, maxISize, 
+                  minAnchor = 10)
+    standardGeneric("gbCounts") )
+
+setMethod(
+  f = "gbCounts",
+  signature = "ASpliFeatures",
+  definition = function( features, bam=NULL, targets, cores = 1, readLength,  
+                         maxISize, minAnchor = 10) {
+    return(readCounts( features, bam=NULL, targets, cores = 1, readLength, maxISize, minAnchor = 10))
+  }
+)
+
+# jCounts is a wrapper around AsDiscover for improved legibility
+setGeneric (
+  name= "jCounts",
+  def = function( counts, 
+                  features, 
+                  bam = NULL, 
+                  readLength, 
+                  threshold = 5, 
+                  cores = 1 ) standardGeneric("jCounts") )
+
+setMethod(
+  f = "jCounts",
+  signature = "ASpliCounts",
+  definition = function( counts, 
+                         features, 
+                         bam = NULL, 
+                         readLength, 
+                         threshold = 5, 
+                         cores = 1 ) {
+    return(AsDiscover( counts, features, bam = NULL, readLength, threshold = 5, cores = 1 ))
   }
 )
 
@@ -311,7 +354,6 @@ setMethod(
 setGeneric (
   name= "AsDiscover",
   def = function( counts, 
-                  targets, 
                   features, 
                   bam = NULL, 
                   readLength, 
@@ -322,14 +364,16 @@ setMethod(
   f = "AsDiscover",
   signature = "ASpliCounts",
   definition = function( counts, 
-                         targets, 
                          features, 
                          bam = NULL, 
                          readLength, 
                          threshold = 5, 
                          cores = 1 ) {
     
+    targets <- counts@targets
+    
     as  <- new(Class = "ASpliAS")
+    as@targets <- targets
     
     df0 <- countsj(counts)[ countsj(counts)$multipleHit == "-", ]
     df0 <- df0[ df0$gene != "noHit" , ]
@@ -342,8 +386,8 @@ setMethod(
     
     # Junctions PSI:
     junctionsPSI    <- .junctionsPSI_SUM( df0, targets )
-    as@junctionsPSI <- junctionsPSI
-    message("Junctions PSI completed")
+    as@junctionsPJU <- junctionsPSI
+    message("Junctions PJU completed")
     
     # Junctions PIR:
     if(is.null(bam)) {
@@ -515,8 +559,8 @@ setMethod(
       .extractCountColumns( altJ3, targets ), 
       altPsiValues )
     
-    message("Junctions AltSS PSI completed")
-    altPSI( as ) <- result
+    message("Junctions AltSS PIN completed")
+    altPIN( as ) <- result
     # ---------------------------------------------------------------------- #
     
     # ---------------------------------------------------------------------- #
@@ -552,14 +596,14 @@ setMethod(
       .extractCountColumns( esJ3, targets ),
       esPsiValues )
     
-    message("Junctions ES PSI completed")
+    message("Junctions ES PIN completed")
     
-    esPSI( as ) <- result
+    esPIN( as ) <- result
     # ---------------------------------------------------------------------- #
     
     # TODO: joint podria ser un getter, pero no es necesario mantener toda
     # esta data repetida
-    joint( as ) <- rbind( altPSI( as ), esPSI( as ), irPIR( as ) )
+    joint( as ) <- rbind( altPIN( as ), esPIN( as ), irPIR( as ) )
     
     return( as )
     
@@ -704,18 +748,17 @@ setMethod(
   }
 )
 
-setGeneric( name = 'binDUreport',
-            def = function( counts, targets, minGenReads  = 10, minBinReads = 5, 
+setGeneric( name = 'gbDUreport',
+            def = function( counts, minGenReads  = 10, minBinReads = 5, 
                             minRds = 0.05, contrast = NULL, forceGLM = FALSE,  
                             ignoreExternal = TRUE, ignoreIo = TRUE, ignoreI = FALSE, 
                             filterWithContrasted = FALSE, verbose = TRUE ) 
-              standardGeneric( 'binDUreport'))
+              standardGeneric( 'gbDUreport'))
 
 setMethod( 
-  f = 'binDUreport',
+  f = 'gbDUreport',
   signature = 'ASpliCounts',
   definition = function( counts, 
-                         targets, 
                          minGenReads  = 10, 
                          minBinReads = 5,
                          minRds = 0.05, 
@@ -726,54 +769,54 @@ setMethod(
                          ignoreI = FALSE, 
                          filterWithContrasted = FALSE,
                          verbose = TRUE ) {
-    .DUreportBinSplice( counts, targets, minGenReads, minBinReads, minRds, 
+    .DUreportBinSplice( counts, minGenReads, minBinReads, minRds, 
                         contrast, forceGLM, ignoreExternal, ignoreIo, ignoreI, 
                         filterWithContrasted, verbose = TRUE ) 
   })
 
 
-setGeneric( name = "junctionDUreport",
+setGeneric( name = "jDUreport",
             def = function (asd, 
-                            targets, 
                             minAvgCounts              = 5, 
                             contrast                  = NULL,
                             filterWithContrasted      = FALSE,
                             runUniformityTest         = FALSE,
                             mergedBams                = NULL,
-                            maxPValForUniformityCheck = 0.2
-            ) standardGeneric("junctionDUreport") )
+                            maxPValForUniformityCheck = 0.2,
+                            strongFilter              = FALSE
+            ) standardGeneric("jDUreport") )
 
 
 setMethod(
-  f = "junctionDUreport",
+  f = "jDUreport",
   signature = "ASpliAS",
   definition = function (
     asd,
-    targets,
     minAvgCounts              = 5, 
     contrast                  = NULL,
     filterWithContrasted      = FALSE,
     runUniformityTest         = FALSE,
     mergedBams                = NULL,
-    maxPValForUniformityCheck = 0.2
+    maxPValForUniformityCheck = 0.2,
+    strongFilter              = FALSE
   ) {
     
-    .junctionDUreportExt( asd, targets, minAvgCounts, contrast, 
-                          filterWithContrasted, runUniformityTest, mergedBams, maxPValForUniformityCheck ) 
+    .junctionDUreportExt( asd, minAvgCounts, contrast, 
+                          filterWithContrasted, runUniformityTest, mergedBams, maxPValForUniformityCheck, strongFilter ) 
   }
 )
 
 
-setGeneric( name = "mergeReports",
+setGeneric( name = "splicingReport",
             def = function (bdu, 
                             jdu,
                             maxBinFDR = 0.2, 
                             maxJunctionFDR = 0.2
-            ) standardGeneric("mergeReports") )
+            ) standardGeneric("splicingReport") )
 
 
 setMethod(
-  f = "mergeReports",
+  f = "splicingReport",
   signature = "ASpliDU",
   definition = function (
     bdu,

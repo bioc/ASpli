@@ -138,7 +138,6 @@
 
 .DUreportBinSplice <- function (  
     counts, 
-    targets, 
     minGenReads  = 10,
     minBinReads  = 5,
     minRds = 0.05,
@@ -150,9 +149,11 @@
     filterWithContrasted = FALSE,
 	verbose = TRUE) {
  
+  targets <- counts@targets
+  
   # Create result object                   
   du <- new( Class="ASpliDU" )
-  
+  du@contrast <- contrast
   # Generate conditions combining experimental factors
   targets <- .condenseTargetsConditions( targets ) 
   
