@@ -310,15 +310,15 @@ setMethod( 'show', 'ASpliMergedReports', function( object ) {
   # }
   cat("Object of class", class(object),"\n")
   cat("Locale based (fdr < 0.05): \n") 
-  print(table(localebased(object), useNA = "always"))
+  print(table(localebased(object)$bin.fdr < 0.05, (localebased(object)$junction.fdr < 0.05 | localebased(object)$cluster.fdr < 0.05), useNA = "always"))
   
   cat("Access using localebased(object)\n\n")
   cat("Anchor based (fdr < 0.05): \n")
-  print(table(anchorbased(object), useNA = "always"))
+  print(table(anchorbased(object)$bin.fdr < 0.05, (anchorbased(object)$junction.fdr < 0.05 | anchorbased(object)$cluster.fdr < 0.05), useNA = "always"))
   
   cat("Access using anchorbased(object)\n\n")
   cat("Bin based (fdr < 0.05): \n") 
-  print(table(binbased(object), useNA = "always"))
+  print(table(binbased(object)$bin.fdr < 0.05, binbased(object)$junction.fdr < 0.05, useNA = "always"))
   
   cat("Access using binbased(object)\n\n")  
 })

@@ -569,7 +569,7 @@
   #Mergin bin based junctions
   jir                    <- jir(jdu)
   jir$event              <- NA
-  jir$dPSI               <- NA
+  jir$dPIN               <- NA
   jir                    <- jir[, c("event", "J3", "multiplicity", "logFC", "log.mean", "pvalue", "FDR", "dPIR", "dPIN", "Uniformity", colnames(jir)[grep("counts", colnames(jir))])]
   colnames(jir)[c(7, 10)] <- c("junction.fdr", "uniformity")
   #jir$bin                <- rownames(jir)
