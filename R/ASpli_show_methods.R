@@ -82,6 +82,10 @@ setMethod( f = "rdsb", signature = "ASpliCounts",
 setGeneric( name = "rdsb<-", def = function( x, value ) standardGeneric("rdsb<-") )
 setReplaceMethod( f = "rdsb", signature = c("ASpliCounts","data.frame"), 
     definition = function( x, value ){ x@bin.rd <- value; return ( x )})
+
+setGeneric( name = "condition.order", def = function( x ) standardGeneric("condition.order") )
+setMethod( f = "condition.order", signature = "ASpliCounts", 
+           definition = function( x ){ x@condition.order })
 # ---------------------------------------------------------------------------- #
 
 # ---------------------------------------------------------------------------- #

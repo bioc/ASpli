@@ -15,7 +15,8 @@ setClass( Class = "ASpliCounts",
             ie2.counts = "data.frame",
             gene.rd = "data.frame",
             bin.rd = "data.frame", 
-            targets = "data.frame"))
+            targets = "data.frame",
+            condition.order = "character"))
 
 setClass( Class="ASpliAS",
           representation = representation(
@@ -175,6 +176,8 @@ setMethod(
     counts@gene.rd <- gene.rd
     counts@bin.rd <- rdfinalb
     counts@targets <- targets
+    group                  <- .condenseTargetsConditions(targets)$condition
+    counts@condition.order <- levels(factor( group, unique( group ), ordered = TRUE ))
     return(counts)
   }
 )
@@ -921,6 +924,47 @@ setMethod(
     }
   }
 )
+
+setGeneric( name = "writeJDU", 
+            def = function ( jdu, output.dir="jdu"  ) standardGeneric( "writeJDU" ) )
+
+setMethod(
+  f = "writeJDU",
+  signature = "ASpliJDU",
+  definition = function( jdu, output.dir="jdu" ) {
+    
+    file.exists( output.dir ) || dir.create( output.dir )
+    output.dir <- paste(output.dir, paste(names(jdu@contrast)[jdu@contrast != 0], collapse="-"), sep="/")
+    file.exists( output.dir ) || dir.create( output.dir )
+    
+    for(slotName in slotNames(jdu)){
+      # Export Genes  
+      write.table( slot(jdu, slotName), paste(output.dir, paste0(slotName, ".txt"), sep="/"), sep = "\t", quote = FALSE, col.names = NA, row.names = TRUE )
+    }
+    
+  }
+)
+
+setGeneric( name = "writeSplicingReport", 
+            def = function ( sr, output.dir="sr"  ) standardGeneric( "writeSplicingReport" ) )
+
+setMethod(
+  f = "writeSplicingReport",
+  signature = "ASpliSplicingReport",
+  definition = function( sr, output.dir="sr" ) {
+    
+    file.exists( output.dir ) || dir.create( output.dir )
+    #output.dir <- paste(output.dir, paste(names(jdu@contrast)[jdu@contrast != 0], collapse="-"), sep="/")
+    #file.exists( output.dir ) || dir.create( output.dir )
+    
+    for(slotName in slotNames(sr)){
+      # Export Genes  
+      write.table( slot(sr, slotName), paste(output.dir, paste0(slotName, ".txt"), sep="/"), sep = "\t", quote = FALSE, col.names = T, row.names = F )
+    }
+    
+  }
+)
+
 
 setGeneric( name = 'mergeBinDUAS',
             def = function( du, as, targets, contrast = NULL  ) 
