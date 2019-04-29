@@ -61,7 +61,7 @@ exportMethods(
     "subset",
     "mergeBinDUAS",
     "filterDU",
-    "spliceReport"
+    "splicingReport"
 )
 exportClasses(
     "ASpliAS",

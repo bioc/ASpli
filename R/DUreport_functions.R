@@ -899,7 +899,7 @@ return (dfBin)
       
       #filter lowcount genes
       # TODO: Los datos que llegan aca ya estan filtrados por low counts usando
-      # los filtros de ASpli. ¿ Es necesario incluir este filtro ?
+      # los filtros de ASpli. Es necesario incluir este filtro ?
 #      keep <- rowSums(cpm(yg)>1) >= 2
 #      yg <- yg[keep, , keep.lib.sizes=FALSE]
       
@@ -918,7 +918,7 @@ return (dfBin)
       rownames( maux ) <- rownames( dfGen )
     }
   } else {
-    # TODO: ¿ Es necesario vectorizar esto ?
+    # TODO:  Es necesario vectorizar esto ?
     if ( verbose ) message( "  Using binMode for offset matrix")     
     
     if ( "junction" %in% colnames( df ) ) {
