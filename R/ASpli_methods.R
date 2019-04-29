@@ -45,7 +45,7 @@ setClass( Class = "ASpliJDU",
             jalt    = "data.frame",
             contrast= "numeric"))
 
-setClass( Class = "ASpliMergedReports",
+setClass( Class = "ASpliSplicingReport",
           representation = representation(
             binbased    = "data.frame",
             localebased = "data.frame",
@@ -825,7 +825,7 @@ setMethod(
     maxJunctionFDR = 0.2
   ) {
     
-    .mergeReports( bdu, jdu, maxBinFDR = 0.2, maxJunctionFDR = 0.2 ) 
+    .splicingReport( bdu, jdu, maxBinFDR = 0.2, maxJunctionFDR = 0.2 ) 
   }
 )
 

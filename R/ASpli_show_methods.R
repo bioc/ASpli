@@ -265,7 +265,7 @@ setMethod('show', 'ASpliJDU', function( object ) {
       "Access using jalt(object)", "\n")
 })
 
-setMethod( 'show', 'ASpliMergedReports', function( object ) {
+setMethod( 'show', 'ASpliSplicingReport', function( object ) {
   
   # my_table    <- function(data, jcol="junction"){
   #   binNA       <- is.na(data$bin.fdr)
@@ -505,29 +505,29 @@ setReplaceMethod( f = "jalt", signature = c("ASpliJDU","data.frame"),
 
 #
 # ---------------------------------------------------------------------------- #
-# Getters and Setters for ASpliMergedReports
+# Getters and Setters for ASpliSplicingReport
 setGeneric( name = "binbased", def = function( x ) standardGeneric("binbased"))
-setMethod( f = "binbased", signature = "ASpliMergedReports", 
+setMethod( f = "binbased", signature = "ASpliSplicingReport", 
            definition = function( x ){ x@binbased })
 
 setGeneric( name = "binbased<-", def = function( x, value ) standardGeneric("binbased<-"))
-setReplaceMethod( f = "binbased", signature = c("ASpliMergedReports","data.frame"), 
+setReplaceMethod( f = "binbased", signature = c("ASpliSplicingReport","data.frame"), 
                   definition = function( x,value ){ x@binbased <- value; return( x )})
 
 setGeneric( name = "localebased", def = function( x ) standardGeneric("localebased"))
-setMethod( f = "localebased", signature = "ASpliMergedReports", 
+setMethod( f = "localebased", signature = "ASpliSplicingReport", 
            definition = function( x ){ x@localebased })
 
 setGeneric( name = "localebased<-", def = function( x, value ) standardGeneric("localebased<-"))
-setReplaceMethod( f = "localebased", signature = c("ASpliMergedReports","data.frame"), 
+setReplaceMethod( f = "localebased", signature = c("ASpliSplicingReport","data.frame"), 
                   definition = function( x,value ){ x@localebased <- value; return( x )})
 
 setGeneric( name = "anchorbased", def = function( x ) standardGeneric("anchorbased"))
-setMethod( f = "anchorbased", signature = "ASpliMergedReports", 
+setMethod( f = "anchorbased", signature = "ASpliSplicingReport", 
            definition = function( x ){ x@anchorbased })
 
 setGeneric( name = "anchorbased<-", def = function( x, value ) standardGeneric("anchorbased<-"))
-setReplaceMethod( f = "anchorbased", signature = c("ASpliMergedReports","data.frame"), 
+setReplaceMethod( f = "anchorbased", signature = c("ASpliSplicingReport","data.frame"), 
                   definition = function( x,value ){ x@anchorbased <- value; return( x )})
 
 # ---------------------------------------------------------------------------- #

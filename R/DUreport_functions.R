@@ -898,7 +898,7 @@ return (dfBin)
                      genes  = data.frame( locus = rownames(countData) ) )
       
       #filter lowcount genes
-      # TODO: Los datos que llegan acá ya están filtrados por low counts usando
+      # TODO: Los datos que llegan aca ya estan filtrados por low counts usando
       # los filtros de ASpli. ¿ Es necesario incluir este filtro ?
 #      keep <- rowSums(cpm(yg)>1) >= 2
 #      yg <- yg[keep, , keep.lib.sizes=FALSE]
