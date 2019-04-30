@@ -18,6 +18,7 @@
     \item{\code{ie2.counts}}{}
     \item{\code{gene.rd}}{}
     \item{\code{bin.rd}}{}
+    \item{\code{condition.order}}{}
   }
 }
 \author{ Estefania Mancini, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz}

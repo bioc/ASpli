@@ -17,7 +17,7 @@
 \alias{mergeBinDUAS,ASpliDU,ASpliAS-method}
 \alias{containsGenesAndBins,ASpliDU-method}
 \alias{containsJunctions,ASpliDU-method}
-\alias{mergeReports,ASpliDU-method}
+\alias{splicingReport,ASpliDU-method}
 
 \title{Class \code{"ASpliDU"}}
 
@@ -30,6 +30,7 @@
     \item{\code{genes}}{}
     \item{\code{bins}}{}
     \item{\code{junctions}}{}
+    \item{\code{contrast}}{}
   }
 }
 

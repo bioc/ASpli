@@ -119,70 +119,70 @@
 
   # Create a transcript DB from gff/gtf annotation file.
   # Warnings in this examples can be ignored. 
-  library(GenomicFeatures)
-  genomeTxDb <- makeTxDbFromGFF( system.file('extdata','genes.mini.gtf', 
-                                 package="ASpli") )
+  #library(GenomicFeatures)
+  #genomeTxDb <- makeTxDbFromGFF( system.file('extdata','genes.mini.gtf', 
+  #                               package="ASpli") )
   
   # Create an ASpliFeatures object from TxDb
-  features <- binGenome( genomeTxDb )
+  #features <- binGenome( genomeTxDb )
   
   # Define bam files, sample names and experimental factors for targets.
-  bamFileNames <- c( "A_C_0.bam", "A_C_1.bam", "A_C_2.bam", 
-                     "A_D_0.bam", "A_D_1.bam", "A_D_2.bam",
-                     "B_C_0.bam", "B_C_1.bam", "B_C_2.bam", 
-                     "B_D_0.bam", "B_D_1.bam", "B_D_2.bam" )
+  #bamFileNames <- c( "A_C_0.bam", "A_C_1.bam", "A_C_2.bam", 
+  #                   "A_D_0.bam", "A_D_1.bam", "A_D_2.bam",
+  #                   "B_C_0.bam", "B_C_1.bam", "B_C_2.bam", 
+  #                   "B_D_0.bam", "B_D_1.bam", "B_D_2.bam" )
                      
-  targets <- data.frame( 
-               row.names = paste0('Sample_',c(1:12)),
-               bam = system.file( 'extdata', bamFileNames, package="ASpli" ),
-               factor1 = c( 'A','A','A','A','A','A','B','B','B','B','B','B'),
-               factor2 = c( 'C','C','C','D','D','D','C','C','C','D','D','D') )
+  #targets <- data.frame( 
+  #             row.names = paste0('Sample_',c(1:12)),
+  #             bam = system.file( 'extdata', bamFileNames, package="ASpli" ),
+  #             factor1 = c( 'A','A','A','A','A','A','B','B','B','B','B','B'),
+  #             factor2 = c( 'C','C','C','D','D','D','C','C','C','D','D','D') )
   
   # Load reads from bam files
-  bams <- loadBAM( targets )
+  #bams <- loadBAM( targets )
   
   # Read counts from bam files
-  counts   <- readCounts( features, bams, targets, cores = 1, readLength = 100, 
-                          maxISize = 50000 )
+  #counts   <- readCounts( features, bams, targets, cores = 1, readLength = 100, 
+  #                        maxISize = 50000 )
   
   # Calculate differential usage of genes, bins and junctions 
-  du       <- DUreport.norm( counts, targets , contrast = c(1,-1,-1,1))
+  #du       <- DUreport.norm( counts, targets , contrast = c(1,-1,-1,1))
 
   # Calculate PSI / PIR for bins and junction.
-  as       <- AsDiscover( counts, targets, features, bams, readLength = 100, 
-                          threshold = 5, cores = 1 )
+  #as       <- AsDiscover( counts, targets, features, bams, readLength = 100, 
+  #                        threshold = 5, cores = 1 )
   
   # Plot bin data. Factor2 is the main factor for graphic representation in
   # this example as it is the first in factorsAndValues argument.
   # This makes a bar plot comparing four conditions, grouped by factor1.
-  plotBins( counts, as, 'GENE03:E002', 
-    factorsAndValues = list( 
-      factor2 = c('C','D'), 
-      factor1 = c('A','B') ),
-    las.x = 1,
-    legendAtSide = TRUE,
-    useHCColors = TRUE,   
-    targets = targets,
-    barWidth = 0.95,
-    innerMargins = c( 2.1, 4.1, 1.1, 1.1 ) )
+  #plotBins( counts, as, 'GENE03:E002', 
+  #  factorsAndValues = list( 
+  #    factor2 = c('C','D'), 
+  #    factor1 = c('A','B') ),
+  #  las.x = 1,
+  #  legendAtSide = TRUE,
+  #  useHCColors = TRUE,   
+  #  targets = targets,
+  #  barWidth = 0.95,
+  #  innerMargins = c( 2.1, 4.1, 1.1, 1.1 ) )
     
     
   # Redefine targets  
-  targets <- data.frame( 
-               row.names = paste0('Sample_',c(1:12)),
-               bam = system.file( 'extdata', bamFileNames, package="ASpli" ),
-               factor1 = c( 'A','A','B','B','C','C','D','D','E','E','F','F') )
+  #targets <- data.frame( 
+  #             row.names = paste0('Sample_',c(1:12)),
+  #             bam = system.file( 'extdata', bamFileNames, package="ASpli" ),
+  #             factor1 = c( 'A','A','B','B','C','C','D','D','E','E','F','F') )
   
-  as       <- AsDiscover( counts, targets, features, bams, readLength = 100, 
-                          threshold = 5, cores = 1 )
+  #as       <- AsDiscover( counts, targets, features, bams, readLength = 100, 
+  #                        threshold = 5, cores = 1 )
   
   # This makes a line plot for six conditions, grouped by factor1.                       
-  plotBins( counts, as, 'GENE03:E002', 
-    factorsAndValues = list( 
-      factor1 = c('A','B','C','D','E','F') ),
-    las.x = 1,
-    legendAtSide = FALSE,
-    targets = targets,
-    innerMargins = c( 2.1, 4.1, 1.1, 1.1 ) )                        
+  #plotBins( counts, as, 'GENE03:E002', 
+  #  factorsAndValues = list( 
+  #    factor1 = c('A','B','C','D','E','F') ),
+  #  las.x = 1,
+  #  legendAtSide = FALSE,
+  #  targets = targets,
+  #  innerMargins = c( 2.1, 4.1, 1.1, 1.1 ) )                        
   
 }

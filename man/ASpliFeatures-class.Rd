@@ -9,6 +9,7 @@
 \alias{featuresg,ASpliFeatures-method}
 \alias{featuresj,ASpliFeatures-method}
 \alias{readCounts,ASpliFeatures-method}
+\alias{gbCounts,ASpliFeatures-method}
 \alias{plotGenomicRegions,ASpliFeatures-method}
 \alias{featuresb<-,ASpliFeatures,GRanges-method}
 \alias{featuresg<-,ASpliFeatures,GRangesList-method}

@@ -20,7 +20,9 @@
 \alias{jir<-,ASpliJDU,data.frame-method}
 \alias{jes<-,ASpliJDU,data.frame-method}
 \alias{jalt<-,ASpliJDU,data.frame-method}
-\alias{junctionsDUreport,ASpliJDU-method}
+\alias{jDUreport,ASpliJDU-method}
+\alias{show,ASpliJDU-method}
+\alias{writeJDU,ASpliJDU-method}
 
 \title{Class \code{"ASpliJDU"}}
 

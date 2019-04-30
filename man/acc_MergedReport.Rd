@@ -1,4 +1,4 @@
-\name{MergedReports accessors}
+\name{splicingReport accessors}
 \alias{binbased}
 \alias{binbased<-}
 \alias{localebased}
@@ -7,9 +7,9 @@
 \alias{anchorbased<-}
 
 
-\title{Accessors for ASpliMergedReport object}
+\title{Accessors for ASpliSplicingReport object}
 
-\description{ Accessors for ASpliMergedReport object }
+\description{ Accessors for ASpliSplicingReport object }
 \usage{ 
   binbased( x )
   localebased( x )
@@ -17,7 +17,7 @@
 }
 
 \arguments{
-  \item{ x }{ An ASpliMergedReport object }
+  \item{ x }{ An ASpliSplicingReport object }
 }
 
 \value{ Returns dataframes }
