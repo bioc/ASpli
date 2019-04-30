@@ -1,6 +1,6 @@
-\name{junctionDUreport}
+\name{jDUreport}
 
-\alias{junctionDUreport}
+\alias{jDUreport}
 
 \title{
   Differential junction usage estimation
@@ -10,22 +10,19 @@
 }
 
 \usage{
-  junctionDUreport(asd, 
-                    targets, 
-                    minAvgCounts              = 5, 
-                    contrast                  = NULL,
-                    filterWithContrasted      = FALSE,
-                    runUniformityTest         = FALSE,
-                    mergedBams                = NULL,
-                    maxPValForUniformityCheck = 0.2)
+  jDUreport(asd, 
+            minAvgCounts              = 5, 
+            contrast                  = NULL,
+            filterWithContrasted      = FALSE,
+            runUniformityTest         = FALSE,
+            mergedBams                = NULL,
+            maxPValForUniformityCheck = 0.2,
+            strongFilter              = FALSE)
 }
 
 \arguments{
   \item{asd}{ 
     An object of class \code{ASpliAS}
-  }
-  \item{targets}{
-    A dataframe containing sample, bam and experimental factor columns.
   }
   \item{minAvgCounts}{ 
     Minimum average counts for filtering.
@@ -45,6 +42,9 @@
   \item{maxPValForUniformityCheck}{
     To speed up uniformity test only check junctions with pval < maxPValForUniformityCheck
   } 
+  \item{strongFilter}{
+    Use only junctions that passed filters for clustering
+  }   
 }
 
 \value{ 
@@ -55,12 +55,7 @@
 }
 
 \examples{
-  # Create a transcript DB from gff/gtf annotation file.
-  # Warnings in this examples can be ignored.
-  
-  #as <- new("ASpliAS")
-  #targets <- 1
-  #a <- junctionDUreportExt(as, targets)
+
   
 }
 

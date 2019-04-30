@@ -147,10 +147,10 @@ subsetTargets <- function( targets, select, removeRedundantExpFactors = FALSE ) 
   
   irPIR( nas ) <- irPIR( x )[ , binsFilter ]
   colnames( irPIR( nas ) ) <- binColNames[ binsFilter ]
-  altPSI( nas ) <- altPSI( x )[ , binsFilter ]
-  colnames( altPSI( nas ) ) <- binColNames[ binsFilter ]
-  esPSI( nas ) <- esPSI( x )[ , binsFilter ]
-  colnames( esPSI( nas ) ) <- binColNames[ binsFilter ]
+  altPIN( nas ) <- altPIN( x )[ , binsFilter ]
+  colnames( altPIN( nas ) ) <- binColNames[ binsFilter ]
+  esPIN( nas ) <- esPIN( x )[ , binsFilter ]
+  colnames( esPIN( nas ) ) <- binColNames[ binsFilter ]
   joint( nas ) <- joint( x )[ , binsFilter ]
   colnames( joint( nas ) ) <- binColNames[ binsFilter ]
   
@@ -165,14 +165,14 @@ subsetTargets <- function( targets, select, removeRedundantExpFactors = FALSE ) 
   
   # Junction PIR filter
 
-  jpsiNames <- colnames( junctionsPSI( x ) )
+  jpsiNames <- colnames( junctionsPJU( x ) )
   jpsiNames <- sub( "(.start$)|(.end$)", "", jpsiNames )
   
   jpsiFilter <- createMask( jpsiNames, sampleNames, getConditions( targets ),
       acceptedSamples, acceptedConditions )
 
-  junctionsPSI( nas ) <- junctionsPSI( x )[ , jpsiFilter ] 
-  colnames( junctionsPSI( nas ) ) <- jpsiNames[ jpsiFilter ]
+  junctionsPJU( nas ) <- junctionsPJU( x )[ , jpsiFilter ] 
+  colnames( junctionsPJU( nas ) ) <- jpsiNames[ jpsiFilter ]
   
   return( nas )
   

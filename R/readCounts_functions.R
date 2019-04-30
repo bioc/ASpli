@@ -101,7 +101,7 @@
   
   aggregate_first <- function (data, by){
     data <- data.table(d=data, b=by) 
-    ans  <- data[,list(A = first(d)), by = 'b']
+    ans  <- data[,list(A = first('d')), by = 'b']
     return(ans$A)
   }
   

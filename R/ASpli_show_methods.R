@@ -427,8 +427,8 @@ setMethod(
     suppressWarnings( writeDU( du, output.dir ) )
     
     # Export as+du table
-    colnames( irPIR( as ) ) <- colnames( altPSI( as ) )
-    conP <- rbind( altPSI(as), esPSI(as), irPIR(as) )
+    colnames( irPIR( as ) ) <- colnames( altPIN( as ) )
+    conP <- rbind( altPIN(as), esPIN(as), irPIR(as) )
     ii   <- match( rownames( binsDU( du ) ), row.names(conP) )
     bins.join <- data.frame( binsDU(du), conP[ii,])
     bins.join$feature <- NULL

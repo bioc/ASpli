@@ -29,6 +29,8 @@ exportMethods(
     "writeAS",
     "writeCounts",
     "writeDU",
+    "writeJDU",
+    "writeSplicingReport",
     "writeRds",
     "rds",
     "gbCounts",

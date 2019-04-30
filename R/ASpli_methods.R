@@ -644,15 +644,15 @@ setMethod(
     }
     
     # Export exons
-    write.table( altPSI(as), exonsFilePSI, sep="\t", quote=FALSE, col.names=NA)
-    write.table( esPSI(as), exonsFileES, sep="\t", quote=FALSE, col.names=NA)
+    write.table( altPIN(as), exonsFilePSI, sep="\t", quote=FALSE, col.names=NA)
+    write.table( esPIN(as), exonsFileES, sep="\t", quote=FALSE, col.names=NA)
     
     # Export Introns
     write.table( irPIR(as), intronsFile, sep="\t", quote=FALSE, col.names=NA)
     
     # Export Junctions
     write.table(junctionsPIR(as), junctionsFilePIR, sep="\t", quote=FALSE, col.names=NA)
-    write.table(junctionsPSI(as), junctionsFilePSI, sep="\t", quote=FALSE, col.names=NA)
+    write.table(junctionsPJU(as), junctionsFilePSI, sep="\t", quote=FALSE, col.names=NA)
     
     # Export AS discovery table
     write.table( joint(as), asDiscoverFile, sep="\t", quote=FALSE, col.names=NA)

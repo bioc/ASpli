@@ -1,4 +1,0 @@
-	event	J1	Sample_1	Sample_2	Sample_3	Sample_4	Sample_5	Sample_6	J2	Sample_1	Sample_2	Sample_3	Sample_4	Sample_5	Sample_6	J3	Sample_1	Sample_2	Sample_3	Sample_4	Sample_5	Sample_6	C	D
-GENE02:E002	ES	reference.1250.1301	60	64	67	10	12	12	reference.1400.1601	47	49	51	10	11	12	reference.1250.1601	27	26	22	76	71	87	0.692622950819672	0.125233644859813
-GENE09:E003	-	reference.8250.8351	19	18	12	4	8	5	reference.8450.8601	17	20	19	34	32	13	NA	NA	NA	NA	NA	NA	NA	1	1
-GENE07:E003	ES*	reference.6250.6351	32	28	29	35	34	29	reference.6450.6601	48	48	49	45	52	62	reference.6250.6601	35	25	23	16	15	8	0.585	0.767164179104478
