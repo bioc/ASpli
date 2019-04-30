@@ -1,17 +1,17 @@
 \name{AS accessors}
 
-\alias{altPSI}
-\alias{esPSI}
+\alias{altPIN}
+\alias{esPIN}
 \alias{irPIR}
 \alias{joint}
 \alias{junctionsPIR}
-\alias{junctionsPSI}
-\alias{altPSI<-}
-\alias{esPSI<-}
+\alias{junctionsPJU}
+\alias{altPIN<-}
+\alias{esPIN<-}
 \alias{irPIR<-}
 \alias{joint<-}
 \alias{junctionsPIR<-}
-\alias{junctionsPSI<-}
+\alias{junctionsPJU<-}
 
 \title{ Accessors for ASpliAS object }
 
@@ -20,12 +20,12 @@ into an ASpliAS object is not a typical task and must be done with care, because
 it can affect the integrity of the object. }
 
 \usage{
-altPSI( x )
-esPSI( x )
+altPIN( x )
+esPIN( x )
 irPIR( x )
 joint( x )
 junctionsPIR( x )
-junctionsPSI( x )
+junctionsPJU( x )
 }
 
 \arguments{
@@ -39,25 +39,25 @@ junctionsPSI( x )
 
 # Accessing data tables from an ASpliAS object
 
-as <- aspliASexample()
+#as <- aspliASexample()
 
-ap <- altPSI(as)
-ep <- esPSI(as)
-ip <- irPIR(as)
-j  <- joint(as)
-jpi <- junctionsPIR(as)
-jps <- junctionsPSI(as)
+#ap <- altPIN(as)
+#ep <- esPIN(as)
+#ip <- irPIR(as)
+#j  <- joint(as)
+#jpi <- junctionsPIR(as)
+#jps <- junctionsPJU(as)
 
 # Setting data tables to an ASpliAS object
 
-as2 <- new( 'ASpliAS' )
+#as2 <- new( 'ASpliAS' )
 
-altPSI( as2 )  <- ap
-esPSI( as2 )  <- ep
-irPIR( as2 )  <- ip
-joint( as2 )  <- j
-junctionsPIR( as2 )  <- jpi
-junctionsPSI( as2 )  <- jps
+#altPIN( as2 )  <- ap
+#esPIN( as2 )  <- ep
+#irPIR( as2 )  <- ip
+#joint( as2 )  <- j
+#junctionsPIR( as2 )  <- jpi
+#junctionsPJU( as2 )  <- jps
 
 }
 

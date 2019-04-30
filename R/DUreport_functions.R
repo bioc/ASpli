@@ -138,7 +138,6 @@
 
 .DUreportBinSplice <- function (  
     counts, 
-    targets, 
     minGenReads  = 10,
     minBinReads  = 5,
     minRds = 0.05,
@@ -150,9 +149,11 @@
     filterWithContrasted = FALSE,
 	verbose = TRUE) {
  
+  targets <- counts@targets
+  
   # Create result object                   
   du <- new( Class="ASpliDU" )
-  
+  du@contrast <- contrast
   # Generate conditions combining experimental factors
   targets <- .condenseTargetsConditions( targets ) 
   
@@ -897,8 +898,8 @@ return (dfBin)
                      genes  = data.frame( locus = rownames(countData) ) )
       
       #filter lowcount genes
-      # TODO: Los datos que llegan acá ya están filtrados por low counts usando
-      # los filtros de ASpli. ¿ Es necesario incluir este filtro ?
+      # TODO: Los datos que llegan aca ya estan filtrados por low counts usando
+      # los filtros de ASpli. Es necesario incluir este filtro ?
 #      keep <- rowSums(cpm(yg)>1) >= 2
 #      yg <- yg[keep, , keep.lib.sizes=FALSE]
       
@@ -917,7 +918,7 @@ return (dfBin)
       rownames( maux ) <- rownames( dfGen )
     }
   } else {
-    # TODO: ¿ Es necesario vectorizar esto ?
+    # TODO:  Es necesario vectorizar esto ?
     if ( verbose ) message( "  Using binMode for offset matrix")     
     
     if ( "junction" %in% colnames( df ) ) {

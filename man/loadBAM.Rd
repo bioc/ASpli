@@ -28,15 +28,15 @@
 \examples{
 
   # Define bam files, sample names and experimental factors for targets.
-  bamFileNames <- c( "A_C_0.bam", "A_C_1.bam", "A_C_2.bam", 
-                     "A_D_0.bam", "A_D_1.bam", "A_D_2.bam" )
+  #bamFileNames <- c( "A_C_0.bam", "A_C_1.bam", "A_C_2.bam", 
+  #                   "A_D_0.bam", "A_D_1.bam", "A_D_2.bam" )
   
-  targets <- data.frame( 
-               row.names = paste0('Sample_',c(1:6)),
-               bam = system.file( 'extdata', bamFileNames, package="ASpli" ),
-               factor1 = c( 'C','C','C','D','D','D') )
+  #targets <- data.frame( 
+  #             row.names = paste0('Sample_',c(1:6)),
+  #             bam = system.file( 'extdata', bamFileNames, package="ASpli" ),
+  #             factor1 = c( 'C','C','C','D','D','D') )
                
   # Load reads from bam files
-  bams <- loadBAM( targets )
+  #bams <- loadBAM( targets )
   
 }

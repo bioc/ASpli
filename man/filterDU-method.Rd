@@ -64,45 +64,45 @@
 
  # Create a transcript DB from gff/gtf annotation file.
   # Warnings in this examples can be ignored. 
-  library(GenomicFeatures)
-  genomeTxDb <- makeTxDbFromGFF( system.file('extdata','genes.mini.gtf', 
-                                 package="ASpli") )
+  #library(GenomicFeatures)
+  #genomeTxDb <- makeTxDbFromGFF( system.file('extdata','genes.mini.gtf', 
+  #                               package="ASpli") )
   
   # Create an ASpliFeatures object from TxDb
-  features <- binGenome( genomeTxDb )
+  #features <- binGenome( genomeTxDb )
   
   # Define bam files, sample names and experimental factors for targets.
-  bamFileNames <- c( "A_C_0.bam", "A_C_1.bam", "A_C_2.bam", 
-                     "A_D_0.bam", "A_D_1.bam", "A_D_2.bam" )
-  targets <- data.frame( 
-               row.names = paste0('Sample_',c(1:6)),
-               bam = system.file( 'extdata', bamFileNames, package="ASpli" ),
-               factor1 = c( 'C','C','C','D','D','D') )
+  #bamFileNames <- c( "A_C_0.bam", "A_C_1.bam", "A_C_2.bam", 
+  #                   "A_D_0.bam", "A_D_1.bam", "A_D_2.bam" )
+  #targets <- data.frame( 
+  #             row.names = paste0('Sample_',c(1:6)),
+  #             bam = system.file( 'extdata', bamFileNames, package="ASpli" ),
+  #             factor1 = c( 'C','C','C','D','D','D') )
   
   # Load reads from bam files
-  bams <- loadBAM( targets )
+  #bams <- loadBAM( targets )
   
   # Read counts from bam files
-  counts   <- readCounts( features, bams, targets, cores = 1, readLength = 100, 
-                          maxISize = 50000 )
+  #counts   <- readCounts( features, bams, targets, cores = 1, readLength = 100, 
+  #                        maxISize = 50000 )
   
   # Calculate differential usage of junctions only 
-  du       <- DUreport.norm( counts, targets )
+  #du       <- DUreport.norm( counts, targets )
   
   # Filter by FDR
-  duFiltered1 <- filterDU( du, what=c('genes','bins'), 
-     fdr = 0.01 )
+  #duFiltered1 <- filterDU( du, what=c('genes','bins'), 
+  #   fdr = 0.01 )
 
 
   # Filter by logFC, only those that were up-regulated 
-  duFiltered2 <- filterDU( du, what=c('genes','bins'), 
-     logFC = log( 1.5, 2 ),  absLogFC = FALSE )
+  #duFiltered2 <- filterDU( du, what=c('genes','bins'), 
+  #   logFC = log( 1.5, 2 ),  absLogFC = FALSE )
 
 }
 
 \seealso{
   \code{\link{DUreport.norm}},
   \code{\link{DUreport.offset}},
-  \code{\link{junctionDUreport}},
-  \code{\link{binDUreport}},
+  \code{\link{jDUreport}},
+  \code{\link{gbDUreport}},
 }

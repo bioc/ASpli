@@ -22,16 +22,18 @@ import(AnnotationDbi)
 import(Gviz)
 import(grid)
 exportMethods(
-    "AsDiscover",
+    "jCounts",
     "binGenome",
     "DUreport.norm",
     "DUreport.offset",
     "writeAS",
     "writeCounts",
     "writeDU",
+    "writeJDU",
+    "writeSplicingReport",
     "writeRds",
     "rds",
-    "readCounts",
+    "gbCounts",
     "featuresg",
     "featuresb",
     "featuresj",
@@ -43,17 +45,17 @@ exportMethods(
     "rdsg",
     "rdsb",
     "irPIR",
-    "altPSI",
-    "esPSI",
+    "altPIN",
+    "esPIN",
     "joint",
     "junctionsPIR",
-    "junctionsPSI",
+    "junctionsPJU",
     "genesDE",
     "binsDU",
     "junctionsDU",
-    "binDUreport",
+    "gbDUreport",
     "show",
-    "junctionDUreport",
+    "jDUreport",
     "containsGenesAndBins",
     "containsJunctions",
     "plotBins",
@@ -61,7 +63,7 @@ exportMethods(
     "subset",
     "mergeBinDUAS",
     "filterDU",
-    "mergeReports"
+    "splicingReport"
 )
 exportClasses(
     "ASpliAS",
@@ -69,5 +71,5 @@ exportClasses(
     "ASpliDU",
     "ASpliFeatures",
     "ASpliJDU",
-    "ASpliMergedReports"
+    "ASpliSplicingReport"
 )

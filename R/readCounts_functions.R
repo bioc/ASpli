@@ -1,8 +1,10 @@
 
 .counterGenes <- function( reads, feature, cores = 1 ) {
   
-  hits <- mclapply( reads, mc.cores = cores, function( x ) { 
-        countOverlaps( feature, x, ignore.strand = TRUE ) 
+  hits <- lapply( reads, function( x ) { 
+        co <- countOverlaps( feature, x, ignore.strand = TRUE ) 
+        gc()
+        return(co)
       } )  
   
   # Create result dataframe
@@ -27,8 +29,10 @@
 
 .counterBin <- function( reads, feature, genes, cores = 1  ) { 
   
-  hits <- mclapply( reads, mc.cores=cores, function(x) {
-        countOverlaps( feature, x, ignore.strand = TRUE)
+  hits <- lapply( reads, function(x) {
+        co <- countOverlaps( feature, x, ignore.strand = TRUE)
+        gc()
+        return(co)
       } )
   
   # Create result dataframe
@@ -54,8 +58,10 @@
   
   ungapped <- lapply( reads, function(x) { x[ njunc( x ) == 0 , ] } )
   
-  hits <- mclapply( ungapped, mc.cores=cores, function(x) { 
-        countOverlaps( feature, x, ignore.strand = TRUE,  minoverlap = l) 
+  hits <- lapply( ungapped, function(x) { 
+        co <- countOverlaps( feature, x, ignore.strand = TRUE,  minoverlap = l) 
+        gc()
+        return(co)
       })  
   
   jbinToGeneIndex <- match( feature@elementMetadata$locus, rownames(genes) )
@@ -82,22 +88,50 @@
   
   # When a gene is two or more chromosomes, geneChr contains a list with
   # all the chromosomes and and breaks when tries to create the GRanges
-  first <- function( x ) {x[1]} 
+  #first <- function( x ) {x[1]} 
+  
+  #AR20190410 Changed the lines that used aggregate with first for this function to improve performance.
+  #Its slowlier than aggregate but doesnt use as much memory so its fastest in the long run
+  #aggregate_first <- function( data, by){
+  #  af<-sapply(unique(by), function(s){
+  #    data[by == s][1]
+  #  })
+  #  return(af)
+  #}
+  
+  aggregate_first <- function (data, by){
+    data <- data.table(d=data, b=by) 
+    ans  <- data[,list(A = first('d')), by = 'b']
+    return(ans$A)
+  }
   
   # Search junctions within genes
   unlistedFeatures <- unlist(feature)
   
   geneAndChr <- paste( names(unlistedFeatures) , as.character( seqnames(unlistedFeatures)), sep="_" )
-  geneChr <- aggregate( as.data.frame(seqnames(unlistedFeatures)), by = list(geneAndChr), FUN = first )[,2]
+  #geneChr2 <- aggregate( as.data.frame(seqnames(unlistedFeatures)), by = list(geneAndChr), FUN = first )[,2]
+  geneChr <- aggregate_first( as.data.frame(seqnames(unlistedFeatures))[, 1], by = geneAndChr)
+  
   geneStarts <- aggregate( as.data.frame(start(unlistedFeatures)), by = list(geneAndChr), FUN = min)[,2]
   geneEnds <- aggregate( as.data.frame(end(unlistedFeatures)), by = list(geneAndChr), FUN = max)[,2]
-  strand <- aggregate( as.data.frame(strand(unlistedFeatures)), by = list(geneAndChr), FUN = first)[,2]
-  geneCoordinates <- rep( feature@elementMetadata$gene_coordinates ,table(names(unlistedFeatures)))
-  geneCoordinates <- aggregate( geneCoordinates, by = list(geneAndChr), FUN = first)[,2]
-  symbols <- rep( feature@elementMetadata$symbol ,table(names(unlistedFeatures)))
-  symbols <- aggregate( symbols, by = list(geneAndChr), FUN = first)[,2]
-  geneNames <- aggregate( as.data.frame(names(unlistedFeatures),stringsAsFactors=FALSE) , by = list(geneAndChr), FUN = first )[,2]
+  #strand <- aggregate( as.data.frame(strand(unlistedFeatures)), by = list(geneAndChr), FUN = first)[,2]
+  strand <- aggregate_first( as.data.frame(strand(unlistedFeatures))[, 1], by = geneAndChr)
   
+  geneCoordinates <- rep( feature@elementMetadata$gene_coordinates ,table(names(unlistedFeatures)))
+
+  #geneCoordinates <- aggregate( geneCoordinates, by = list(geneAndChr), FUN = first)[,2]
+  geneCoordinates <- aggregate_first( geneCoordinates, by = geneAndChr)
+  
+  #geneCoordinates <- aggregate( geneCoordinates, by = list(geneAndChr), FUN = first)[,2]
+  
+  symbols <- rep( feature@elementMetadata$symbol ,table(names(unlistedFeatures)))
+  #symbols <- aggregate( symbols, by = list(geneAndChr), FUN = first)[,2]
+  symbols <- aggregate_first( symbols, by = geneAndChr)
+  
+  #geneNames <- aggregate( as.data.frame(names(unlistedFeatures),stringsAsFactors=FALSE)[, 1] , by = geneAndChr, FUN = first)[, 2]
+  geneNames <- aggregate_first( as.data.frame(names(unlistedFeatures),stringsAsFactors=FALSE)[, 1] , by = geneAndChr)
+  
+
   genes <- GRanges(
       seqnames = geneChr ,
       strand = strand,
@@ -251,26 +285,27 @@
 }  
 
 .counterJunctions <- function(features, bam, cores, maxISize) {
-  if (is.null(cores) ) {
+  #if (is.null(cores) ) {
     ujunctions <- lapply (bam, function(x)    {  
           junctions <- unlist(junctions(x) )
           strand(junctions) <- "*"
           start(junctions) <- start(junctions)-1
           end(junctions) <- end(junctions)+1
           ujunctions <- unique(junctions)
+          gc()
           return(ujunctions)   
         } )
-  } else {
-    ujunctions <- mclapply(bam, mc.cores=cores, function(x) {
-          junctions <- unlist(junctions(x) )
-          strand(junctions) <- "*"
-          start(junctions) <- start(junctions)-1
-          end(junctions) <- end(junctions)+1
-          ujunctions <- unique(junctions)
-          return(ujunctions)
-          
-        })
-  }  
+  #} else {
+    #  ujunctions <- lapply(bam, function(x) {
+    #      junctions <- unlist(junctions(x) )
+    #      strand(junctions) <- "*"
+    #      start(junctions) <- start(junctions)-1
+    #      end(junctions) <- end(junctions)+1
+    #      ujunctions <- unique(junctions)
+    #      return(ujunctions)
+    #      
+    #    })
+    #}  
   #here I have unique elements of all the junctiosn
   jranges <- unique( unlist( GRangesList( unlist( ujunctions ) ) ) )
   
@@ -291,6 +326,7 @@
         end(junctions) <- end(junctions)+1
         count <- countMatches(jranges, junctions)    
         jc <- data.frame(row.names=names(jranges), count)
+        gc()
         return(jc)
       })
   

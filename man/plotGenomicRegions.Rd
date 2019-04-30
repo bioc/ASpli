@@ -158,54 +158,54 @@
 \examples{
   # Create a transcript DB from gff/gtf annotation file.
   # Warnings in this examples can be ignored. 
-  library(GenomicFeatures)
-  genomeTxDb <- makeTxDbFromGFF( system.file('extdata','genes.mini.gtf', 
-                                 package="ASpli") )
+  #library(GenomicFeatures)
+  #genomeTxDb <- makeTxDbFromGFF( system.file('extdata','genes.mini.gtf', 
+  #                               package="ASpli") )
   
   # Create an ASpliFeatures object from TxDb
-  features <- binGenome( genomeTxDb )
+  #features <- binGenome( genomeTxDb )
   
   # Define bam files, sample names and experimental factors for targets.
-  bamFileNames <- c( "A_C_0.bam", "A_C_1.bam", "A_C_2.bam", 
-                     "A_D_0.bam", "A_D_1.bam", "A_D_2.bam" )
-  targets <- data.frame( 
-               row.names = paste0('Sample_',c(1:6)),
-               bam = system.file( 'extdata', bamFileNames, package="ASpli" ),
-               factor1 = c( 'C','C','C','D','D','D'),
-               stringsAsFactors = FALSE )
+  #bamFileNames <- c( "A_C_0.bam", "A_C_1.bam", "A_C_2.bam", 
+  #                   "A_D_0.bam", "A_D_1.bam", "A_D_2.bam" )
+  #targets <- data.frame( 
+  #             row.names = paste0('Sample_',c(1:6)),
+  #             bam = system.file( 'extdata', bamFileNames, package="ASpli" ),
+  #             factor1 = c( 'C','C','C','D','D','D'),
+  #             stringsAsFactors = FALSE )
   
   # Plot a single bin to a window
-  plotGenomicRegions( 
-    features, 
-    'GENE01:E002', 
-    genomeTxDb, 
-    targets, 
-    sashimi = FALSE,
-    colors = '#AA4444', 
-    annotationHeight = 0.1, 
-    tempFolder = 'tmp', 
-    verbose = TRUE , 
-    avoidReMergeBams = FALSE, 
-    useTransparency = FALSE ) 
-    
+  #plotGenomicRegions( 
+  #  features, 
+  #  'GENE01:E002', 
+  #  genomeTxDb, 
+  #  targets, 
+  #  sashimi = FALSE,
+  #  colors = '#AA4444', 
+  #  annotationHeight = 0.1, 
+  #  tempFolder = 'tmp', 
+  #  verbose = TRUE , 
+  #  avoidReMergeBams = FALSE, 
+  #  useTransparency = FALSE ) 
+  #  
   # plot two bins to pdf files.
-  plotGenomicRegions( 
-    features, c( 'GENE01:E002', 'GENE02:E002' ), 
-    genomeTxDb, 
-    targets, 
-    layout = matrix( c( 'C', 'D'), ncol = 1),
-    colors = matrix( c( '#663243', '#363273'), ncol = 1),
-    plotTitles = matrix( c( 'C condition', 'D condition'), ncol = 1),
-    sashimi = FALSE,
-    mainFontSize = 12,
-    annotationHeight = 0.1, 
-    tempFolder = 'tmp', 
-    verbose = TRUE , 
-    avoidReMergeBams = FALSE, 
-    useTransparency = TRUE,
-    outfolder = '.',
-    outfileType = 'pdf',
-    deviceOpt = list( height = 6, width = 5, paper = 'a4r' ) ) 
+  #plotGenomicRegions( 
+  #  features, c( 'GENE01:E002', 'GENE02:E002' ), 
+  #  genomeTxDb, 
+  #  targets, 
+  #  layout = matrix( c( 'C', 'D'), ncol = 1),
+  #  colors = matrix( c( '#663243', '#363273'), ncol = 1),
+  #  plotTitles = matrix( c( 'C condition', 'D condition'), ncol = 1),
+  #  sashimi = FALSE,
+  #  mainFontSize = 12,
+  #  annotationHeight = 0.1, 
+  #  tempFolder = 'tmp', 
+  #  verbose = TRUE , 
+  #  avoidReMergeBams = FALSE, 
+  #  useTransparency = TRUE,
+  #  outfolder = '.',
+  #  outfileType = 'pdf',
+  #  deviceOpt = list( height = 6, width = 5, paper = 'a4r' ) ) 
 }
 
 \seealso{

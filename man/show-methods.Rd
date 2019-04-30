@@ -6,6 +6,8 @@
 \alias{show,ASpliCounts-method}
 \alias{show,ASpliDU-method}
 \alias{show,ASpliFeatures-method}
+\alias{show,ASpliMergedReports-method}
+
 
 \title{ Display a summary of data contained in ASpliObjects }
 

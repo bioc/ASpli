@@ -6,7 +6,23 @@
 
 \alias{ASpliJDU}
 \alias{ASpliJDU-class}
-\alias{junctionsDUreport,ASpliJDU-method}
+\alias{anchorc,ASpliJDU-method}
+\alias{anchorj,ASpliJDU-method}
+\alias{localec,ASpliJDU-method}
+\alias{localej,ASpliJDU-method}
+\alias{jir,ASpliJDU-method}
+\alias{jes,ASpliJDU-method}
+\alias{jalt,ASpliJDU-method}
+\alias{anchorc<-,ASpliJDU,data.frame-method}
+\alias{anchorj<-,ASpliJDU,data.frame-method}
+\alias{localec<-,ASpliJDU,data.frame-method}
+\alias{localej<-,ASpliJDU,data.frame-method}
+\alias{jir<-,ASpliJDU,data.frame-method}
+\alias{jes<-,ASpliJDU,data.frame-method}
+\alias{jalt<-,ASpliJDU,data.frame-method}
+\alias{jDUreport,ASpliJDU-method}
+\alias{show,ASpliJDU-method}
+\alias{writeJDU,ASpliJDU-method}
 
 \title{Class \code{"ASpliJDU"}}
 

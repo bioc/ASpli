@@ -40,16 +40,16 @@
 }
 
 \examples{
-  as <- aspliASexample()
-  bams <- aspliBamsExample()
-  counts <- aspliCountsExample()
-  du1 <- aspliDUexample1()
-  du2 <- aspliDUexample2()
-  bamfiles <- aspliExampleBamList()
-  gtffile <- aspliExampleGTF()
-  features <- aspliFeaturesExample()
-  jdu <- aspliJunctionDUexample()
-  targets <-aspliTargetsExample()
+  #as <- aspliASexample()
+  #bams <- aspliBamsExample()
+  #counts <- aspliCountsExample()
+  #du1 <- aspliDUexample1()
+  #du2 <- aspliDUexample2()
+  #bamfiles <- aspliExampleBamList()
+  #gtffile <- aspliExampleGTF()
+  #features <- aspliFeaturesExample()
+  #jdu <- aspliJunctionDUexample()
+  #targets <-aspliTargetsExample()
 }
 
 

@@ -1,13 +1,15 @@
 .junctionDUreportExt <- function(
     asd, 
-    targets, 
     minAvgCounts              = 5, 
     contrast                  = NULL,
     filterWithContrasted      = FALSE,
     runUniformityTest         = FALSE,
     mergedBams                = NULL,
-    maxPValForUniformityCheck = 0.2
+    maxPValForUniformityCheck = 0.2,
+    strongFilter              = FALSE
   ){
+  
+  targets <- asd@targets
   
   # Generate conditions combining experimental factors
   if(!"condition" %in% colnames(targets)){
@@ -25,10 +27,10 @@
   jdu@contrast <- setNames(contrast, getConditions(targets))
   
   ##############
-  #junctionsPSI#
+  #junctionsPJU#
   ##############
-  message("Runing junctionsPSI test")
-  data                  <- asd@junctionsPSI
+  message("Running junctionsPJU test")
+  data                  <- junctionsPJU(asd)
   start_J1              <- grep("StartHit", colnames(data)) + 1
   start_J2              <- grep("EndHit", colnames(data)) + 1
   start_J3              <- 9
@@ -39,24 +41,43 @@
   J1                    <- as.character(data$StartHit[rownames(data) %in% rownames(junctions_of_interest)])
   J2                    <- as.character(data$EndHit[rownames(data) %in% rownames(junctions_of_interest)])
   J3                    <- rownames(junctions_of_interest)
-  clusters              <- .makeClusters(J1, J2, J3)
+  clusters              <- .makeClusters(J1, J2, J3, strongFilter)
   
   countData             <- .makeCountDataWithClusters(data[names(clusters$membership),start_J3:end_J3], clusters)
   
   ltsp                  <- .binsJDUWithDiffSplice(countData, targets, contrast)
   
   jPSI                  <- ltsp[["junction"]]
-  jPSI$log.mean         <- log2(rowMeans(countData[rownames(jPSI), rownames(targets)[targets$condition %in% getConditions(targets)[contrast != 0]]]))
+  mean.counts           <- rowMeans(countData[rownames(jPSI), rownames(targets)[targets$condition %in% getConditions(targets)[contrast != 0]]])
+  jPSI$log.mean         <- log2(mean.counts)
   
-  jdu@localej           <- jPSI[, c("cluster", "log.mean", "logFC", "P.Value", "FDR")]
-  jdu@localec           <- ltsp[["cluster"]]
+  mean.counts.per.condition     <- sapply(getConditions(targets)[contrast != 0], function(i){return(rowMeans(countData[rownames(jPSI), rownames(targets)[targets$condition %in% i]]))})
+  participation                 <- aggregate(mean.counts.per.condition ~ jPSI$cluster, FUN = function(r){return(rowSums(t(r)))})
+  rownames(participation)       <- participation$cluster
+  participation                 <- participation[jPSI$cluster, -1]
+  participation                 <- mean.counts.per.condition/participation
+  participation                 <- apply(participation, 1, max)
+  
+  jPSI                  <- jPSI[, c("cluster", "log.mean", "logFC", "P.Value", "FDR")]
+  jPSI$annotated        <- ifelse(data[rownames(jPSI), "junction"] != "noHit", "Yes", "No")
+  jPSI$participation    <- participation
+  colnames(jPSI)        <- c("cluster", "log.mean", "logFC", "pvalue", "FDR", "annotated", "participation")
+  
+  
+  jPSI                  <- cbind(jPSI, counts=mean.counts.per.condition)
+  
+  localej(jdu)          <- jPSI
+
+  ltsp                  <- ltsp[["cluster"]]
+  colnames(ltsp)        <- c("size", "cluster.LR", "pvalue", "FDR")
+  localec(jdu)          <- ltsp
             
   
   ##############
   #junctionsPIR# 
   ##############
-  message("Runing junctionsPIR test")
-  data                  <- asd@junctionsPIR
+  message("Running junctionsPIR test")
+  data                  <- junctionsPIR(asd)
   start_J1              <- 3
   start_J2              <- 3+nrow(targets)
   start_J3              <- 3+2*nrow(targets)
@@ -69,8 +90,10 @@
   jPIR                  <- ltsp[["junction"]]
   jPIR                  <- jPIR[-(grep("[.][1-2]$", rownames(jPIR))), ] #Saco las junturas que no son J3
   jPIR$P.Value          <- p.adjust(jPIR$P.Value, "fdr") #Vuelvo a calcular los fdr solo sobre las junturas J3
-  jPIR$log.mean         <- log2(rowMeans(countData[rownames(jPIR), rownames(targets)[targets$condition %in% getConditions(targets)[contrast != 0]]]))
+  mean.counts           <- rowMeans(countData[rownames(jPIR), rownames(targets)[targets$condition %in% getConditions(targets)[contrast != 0]]])
+  jPIR$log.mean         <- log2(mean.counts)
   
+
   #Corremos Uniformity solamente sobre los elementos con menor pvalue
   data_unif             <- data[rownames(jPIR), getConditions(targets)]
   data_unif$pvalue      <- jPIR$P.Value
@@ -83,15 +106,28 @@
   }
 
   #Sacamos "cluster" de anchorj 
-  jdu@anchorj           <- jPIR[, c("log.mean", "logFC", "P.Value", "FDR", "Uniformity")]
-  jdu@anchorc           <- ltsp[["cluster"]][,!colnames(ltsp[["cluster"]])%in%"size"]
-  
+  jPIR      <- cbind(jPIR, countsJ1 = sapply(getConditions(targets)[contrast != 0], function(i){return(rowMeans(Js$J1[paste0(rownames(jPIR), ".1"), rownames(targets)[targets$condition %in% i]]))}))
+  jPIR      <- cbind(jPIR, countsJ2 = sapply(getConditions(targets)[contrast != 0], function(i){return(rowMeans(Js$J2[paste0(rownames(jPIR), ".2"), rownames(targets)[targets$condition %in% i]]))}))
+  jPIR      <- cbind(jPIR, countsJ3 = sapply(getConditions(targets)[contrast != 0], function(i){return(rowMeans(Js$J3[rownames(jPIR), rownames(targets)[targets$condition %in% i]]))}))
+  participation      <- jPIR[, grep("countsJ3", colnames(jPIR))]/(jPIR[, grep("countsJ1", colnames(jPIR))] + jPIR[, grep("countsJ2", colnames(jPIR))] + jPIR[, grep("countsJ3", colnames(jPIR))])
+  jPIR$participation <- apply(participation, 1, max)
 
+  
+  jPIR$annotated        <- ifelse(!is.na(data[rownames(jPIR), "hitIntron"]), "Yes", "No")
+  jPIR                  <- jPIR[, c("log.mean", "logFC", "P.Value", "FDR", "Uniformity", "participation", "annotated", colnames(jPIR)[grep("counts", colnames(jPIR))])]
+
+  colnames(jPIR)        <- c("log.mean", "logFC", "pvalue", "FDR", "Uniformity", "participation", "annotated", colnames(jPIR)[grep("counts", colnames(jPIR))])
+           
+  anchorj(jdu)          <- jPIR
+  ltsp                  <- ltsp[["cluster"]][,!colnames(ltsp[["cluster"]])%in%"size"]
+  colnames(ltsp)        <- c("cluster.LR", "pvalue", "FDR")
+  anchorc(jdu)          <- ltsp
+  
   #######
   #irPIR#
   #######
-  message("Runing irPIR test")
-  data                  <- asd@irPIR
+  message("Running irPIR test")
+  data                  <- irPIR(asd)
   start_J1              <- grep("J1", colnames(data)) + 1
   start_J2              <- grep("J2", colnames(data)) + 1
   start_J3              <- grep("J3", colnames(data)) + 1
@@ -119,19 +155,32 @@
     jirPIR$Uniformity     <- rep(NA, nrow(jirPIR))
   }
 
+  
   jirPIR$J3             <- data[rownames(jirPIR), "J3"] 
   jirPIR                <- jirPIR[, c("J3", "logFC", "log.mean", "pvalue", "bin.fdr", "Uniformity")]
   
   dpir                  <- irPIR(asd)[rownames(jirPIR),getConditions(targets)]
   jirPIR$dPIR           <- apply(dpir,1,function(x){sum(x*contrast)}) 
-  jdu@jir               <- jirPIR
-
+  colnames(jirPIR)      <- c("J3", "logFC", "log.mean", "pvalue", "FDR", "Uniformity","dPIR")
+  jirPIR$multiplicity   <- "No"
+  jirPIR$multiplicity[grep(";", jirPIR$J3)] <- "Yes"
+  
+  #Sacamos "cluster" de anchorj 
+  jirPIR        <- cbind(jirPIR, countsJ1 = sapply(getConditions(targets)[contrast != 0], function(i){return(rowMeans(Js$J1[paste0(rownames(jirPIR), ".1"), rownames(targets)[targets$condition %in% i]]))}))
+  jirPIR        <- cbind(jirPIR, countsJ2 = sapply(getConditions(targets)[contrast != 0], function(i){return(rowMeans(Js$J2[paste0(rownames(jirPIR), ".2"), rownames(targets)[targets$condition %in% i]]))}))
+  jirPIR        <- cbind(jirPIR, countsJ3 = sapply(getConditions(targets)[contrast != 0], function(i){return(rowMeans(Js$J3[rownames(jirPIR), rownames(targets)[targets$condition %in% i]]))}))
+  
+  #jirPIR$dPIR   <- apply(jirPIR,1,function(x){sum(x*contrast)}) 
+  #participation        <- jirPIR$countsJ3/(jirPIR$countsJ1 + jirPIR$countsJ2 + jirPIR$countsJ3)
+  #jirPIR$participation <- apply(participation, 1, max)
+  
+  jir(jdu)              <- jirPIR
   
   ########
   #ES PSI#
   ########
-  message("Runing esPSI test")
-  data                  <- asd@esPSI
+  message("Running esPIN test")
+  data                  <- esPIN(asd)
   start_J1              <- grep("J1", colnames(data)) + 1
   start_J2              <- grep("J2", colnames(data)) + 1
   start_J3              <- grep("J3", colnames(data)) + 1
@@ -152,15 +201,24 @@
   jesPSI$J3             <- data[rownames(jesPSI), "J3"]
   jesPSI                <- jesPSI[, c("event", "J3", "logFC", "log.mean", "pvalue", "bin.fdr")]
   
-  dpsi                  <- esPSI(asd)[rownames(jesPSI),getConditions(targets)]
+  dpsi                  <- esPIN(asd)[rownames(jesPSI),getConditions(targets)]
   jesPSI$dPSI           <- apply(dpsi,1,function(x){sum(x*contrast)}) 
-  jdu@jes               <- jesPSI
+  colnames(jesPSI)      <- c("event", "J3", "logFC", "log.mean", "pvalue", "FDR", "dPIN")
+  jesPSI$multiplicity        <- "No"
+  jesPSI$multiplicity[grep(";", jesPSI$J3)] <- "Yes"
   
+  jesPSI      <- cbind(jesPSI, countsJ1 = sapply(getConditions(targets)[contrast != 0], function(i){return(rowMeans(Js$J1[paste0(rownames(jesPSI), ".1"), rownames(targets)[targets$condition %in% i]]))}))
+  jesPSI      <- cbind(jesPSI, countsJ2 = sapply(getConditions(targets)[contrast != 0], function(i){return(rowMeans(Js$J2[paste0(rownames(jesPSI), ".2"), rownames(targets)[targets$condition %in% i]]))}))
+  jesPSI      <- cbind(jesPSI, countsJ3 = sapply(getConditions(targets)[contrast != 0], function(i){return(rowMeans(Js$J3[rownames(jesPSI), rownames(targets)[targets$condition %in% i]]))}))
+  
+  jes(jdu)              <- jesPSI
+  
+    
   #########
   #ALT PSI#
   #########
-  message("Runing altPSI test")
-  data                  <- asd@altPSI
+  message("Running altPIN test")
+  data                  <- altPIN(asd)
   start_J1              <- grep("J1", colnames(data)) + 1
   start_J2              <- grep("J2", colnames(data)) + 1
   start_J3              <- grep("J3", colnames(data)) + 1
@@ -181,9 +239,18 @@
   jaltPSI               <- jaltPSI[, c("event", "J3", "logFC", "log.mean", "pvalue", "bin.fdr")]
   
   
-  dpsi                  <- altPSI(asd)[rownames(jaltPSI),getConditions(targets)]
+  dpsi                  <- altPIN(asd)[rownames(jaltPSI),getConditions(targets)]
   jaltPSI$dPSI          <- apply(dpsi,1,function(x){sum(x*contrast)}) 
-  jdu@jalt              <- jaltPSI
+  colnames(jaltPSI)     <- c("event", "J3", "logFC", "log.mean", "pvalue", "FDR", "dPIN")
+  jaltPSI$multiplicity        <- "No"
+  jaltPSI$multiplicity[grep(";", jaltPSI$J3)] <- "Yes"
+
+  
+  jaltPSI      <- cbind(jaltPSI, countsJ1 = sapply(getConditions(targets)[contrast != 0], function(i){return(rowMeans(Js$J1[paste0(rownames(jaltPSI), ".1"), rownames(targets)[targets$condition %in% i]]))}))
+  jaltPSI      <- cbind(jaltPSI, countsJ2 = sapply(getConditions(targets)[contrast != 0], function(i){return(rowMeans(Js$J2[paste0(rownames(jaltPSI), ".2"), rownames(targets)[targets$condition %in% i]]))}))
+  jaltPSI      <- cbind(jaltPSI, countsJ3 = sapply(getConditions(targets)[contrast != 0], function(i){return(rowMeans(Js$J3[rownames(jaltPSI), rownames(targets)[targets$condition %in% i]]))}))
+
+  jalt(jdu)             <- jaltPSI
   
   return(jdu)
 }
@@ -487,154 +554,3 @@
   
 }
 
-.mergeReports <- function(bdu, jdu){
-  
-  #Sanity check
-  if(class(bdu) != "ASpliDU"){
-    stop("bdu must be an ASpliDU object, try running binDUreport first") 
-  }
-  if(class(jdu) != "ASpliJDU"){
-    stop("jdu must be an ASpliJDU object, try running junctionDUreport first") 
-  }
-  
-  mr <- new( Class="ASpliMergedReports" )
-  
-  #Mergin bin based junctions
-  jir                    <- jdu@jir
-  jir$event              <- NA
-  jir$dPSI               <- NA
-  jir                    <- jir[, c("event", "J3", "logFC", "log.mean", "pvalue", "bin.fdr", "dPIR", "dPSI", "Uniformity")]
-  colnames(jir)[c(6, 9)] <- c("junction.fdr", "uniformity")
-  #jir$bin                <- rownames(jir)
-  
-  jes                    <- jdu@jes
-  jes$uniformity         <- NA
-  jes$dPIR               <- NA
-  jes                    <- jes[, c("event", "J3", "logFC", "log.mean", "pvalue", "bin.fdr", "dPIR", "dPSI", "uniformity")]
-  colnames(jes)[6]       <- "junction.fdr"
-  #jes$bin                <- rownames(jes)
-  
-  jalt                   <- jdu@jalt
-  jalt$uniformity        <- NA
-  jalt$dPIR              <- NA
-  jalt                   <- jalt[, c("event", "J3", "logFC", "log.mean", "pvalue", "bin.fdr", "dPIR", "dPSI", "uniformity")]
-  colnames(jalt)[6]      <- "junction.fdr"
-  #jalt$bin               <- rownames(jalt)
-  
-  j                      <- data.table(rbind(jir, jes, jalt), keep.rownames = T)
-  bins                   <- data.table(bdu@bins, keep.rownames = T)
-  mr@binbased            <- merge(bins, j, by="rn", all=T)
-  
-  ########################################
-  localej  <- jdu@localej
-  junctions <- strsplit2(rownames(localej), "[.]")
-  seqnames <- junctions[, 1]
-  start    <- as.numeric(junctions[, 2])
-  end      <- as.numeric(junctions[, 3])
-  
-  grjunctions <- GRanges(seqnames, IRanges(start, end), strand="*")
-  
-  seqnames <- strsplit2(bdu@bins$gene_coordinates, "[:]")[, 1]
-  start    <- bdu@bins$start
-  end      <- bdu@bins$end
-  
-  grbines      <- GRanges(seqnames, IRanges(start, end), strand="*")
-  
-  overlap      <- data.frame(findOverlaps(grbines, grjunctions))
-  
-  bins <- bdu@bins
-  colnames(bins)[10] <- "bin.logFC"
-  
-  junctionbased_junctions <- data.table(bin=rownames(bins)[overlap$queryHits], bins[overlap$queryHits, ], 
-                                        J3 = rownames(jdu@localej)[overlap$subjectHits], jdu@localej[overlap$subjectHits, ])
-  
-  bins                   <- data.table(bins[!rownames(bins) %in% junctionbased_junctions$bin, ], keep.rownames = T)
-  colnames(bins)[1]      <- "bin"
-  
-  junctionbased_junctions <- rbindlist(list(junctionbased_junctions, bins), use.names = T, fill = T)
-  
-  junctions               <- data.table(jdu@localej[!rownames(jdu@localej) %in% junctionbased_junctions$J3, ], keep.rownames = T)
-  colnames(junctions)[1]  <- "J3"
-  
-  junctionbased_junctions <- rbindlist(list(junctionbased_junctions, junctions), use.names = T, fill = T)
-  
-  colnames(junctionbased_junctions) <- c("bin", "feature", "event", "locus", "locus_overlap", "symbol", "gene_coordinates", "bin.start", "bin.end",
-                                         "bin.length", "bin.logFC", "bin.pvalue", "bin.fdr", "junction", "junction.cluster", "junction.log.mean",
-                                         "junction.logFC", "junction.pvalue", "junction.fdr")
-  
-  junctionbased_junctions$junction.cluster <- as.character(junctionbased_junctions$junction.cluster)
-  
-  #bins <- data.table(bdu@bins[rownames(bdu@bins) %in% junctionbased_junctions$bin, ], keep.rownames = T)
-  #completo <- rbindlist(junctionbased_junctions, bins, use.names = T, fill = T)
-  
-  localec <- data.table(jdu@localec, keep.rownames = T)
-  colnames(localec) <- c("rn", "cluster.size", "cluster.LR", "cluster.pvalue", "cluster.fdr")
-  fulldt <- merge(junctionbased_junctions, localec, by.x = "junction.cluster", by.y = "rn", all = T)
-  
-  fulldt <- fulldt[, 
-                   c("bin", "feature", "event", "locus", "locus_overlap", "symbol", "gene_coordinates", 
-                     "bin.start", "bin.end",
-                     "bin.length", "bin.logFC", "bin.pvalue", "bin.fdr", "junction", 
-                     "junction.log.mean",
-                     "junction.logFC", "junction.pvalue", "junction.fdr", "junction.cluster", 
-                     "cluster.size", "cluster.LR", "cluster.pvalue", "cluster.fdr")
-                   ]
-  
-  mr@localebased <- fulldt[order(fulldt$bin.fdr, fulldt$junction.fdr, fulldt$cluster.fdr), ]
-  
-  
-  ########################################
-  anchorj  <- jdu@anchorj
-  junctions <- strsplit2(rownames(anchorj), "[.]")
-  seqnames <- junctions[, 1]
-  start    <- as.numeric(junctions[, 2])
-  end      <- as.numeric(junctions[, 3])
-  
-  grjunctions <- GRanges(seqnames, IRanges(start, end), strand="*")
-  
-  seqnames <- strsplit2(bdu@bins$gene_coordinates, "[:]")[, 1]
-  start    <- bdu@bins$start
-  end      <- bdu@bins$end
-  
-  grbines      <- GRanges(seqnames, IRanges(start, end), strand="*")
-  
-  overlap      <- data.frame(findOverlaps(grbines, grjunctions))
-  
-  bins <- bdu@bins
-  colnames(bins)[10] <- "bin.logFC"
-  
-  junctionbased_junctions <- data.table(bin=rownames(bins)[overlap$queryHits], bins[overlap$queryHits, ], 
-                                        J3 = rownames(jdu@anchorj)[overlap$subjectHits], jdu@anchorj[overlap$subjectHits, ])
-  
-  bins                   <- data.table(bins[!rownames(bins) %in% junctionbased_junctions$bin, ], keep.rownames = T)
-  colnames(bins)[1]      <- "bin"
-  
-  junctionbased_junctions <- rbindlist(list(junctionbased_junctions, bins), use.names = T, fill = T)
-  
-  junctions               <- data.table(jdu@anchorj[!rownames(jdu@anchorj) %in% junctionbased_junctions$J3, ], keep.rownames = T)
-  colnames(junctions)[1]  <- "J3"
-  
-  junctionbased_junctions <- rbindlist(list(junctionbased_junctions, junctions), use.names = T, fill = T)
-  
-  colnames(junctionbased_junctions) <- c("bin", "feature", "event", "locus", "locus_overlap", "symbol", "gene_coordinates", "bin.start", "bin.end",
-                                         "bin.length", "bin.logFC", "bin.pvalue", "bin.fdr", "junction", "junction.log.mean",
-                                         "junction.logFC", "junction.pvalue", "junction.fdr", "junction.uniformity")
-  
-  #bins <- data.table(bdu@bins[rownames(bdu@bins) %in% junctionbased_junctions$bin, ], keep.rownames = T)
-  #completo <- rbindlist(junctionbased_junctions, bins, use.names = T, fill = T)
-  
-  anchorc <- data.table(jdu@anchorc, keep.rownames = T)
-  colnames(anchorc) <- c("rn", "cluster.LR", "cluster.pvalue", "cluster.fdr")
-  fulldt <- merge(junctionbased_junctions, anchorc, by.x = "junction", by.y = "rn", all = T)
-  
-  fulldt <- fulldt[, 
-                   c("bin", "feature", "event", "locus", "locus_overlap", "symbol", "gene_coordinates", 
-                     "bin.start", "bin.end",
-                     "bin.length", "bin.logFC", "bin.pvalue", "bin.fdr", "junction", 
-                     "junction.log.mean",
-                     "junction.logFC", "junction.pvalue", "junction.fdr", "junction.uniformity", 
-                     "cluster.LR", "cluster.pvalue", "cluster.fdr")
-                   ]
-  
-  mr@anchorbased <- fulldt[order(fulldt$bin.fdr, fulldt$junction.fdr, fulldt$cluster.fdr), ]  
-}
