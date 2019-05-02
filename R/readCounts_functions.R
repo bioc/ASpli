@@ -100,8 +100,9 @@
   #}
   
   aggregate_first <- function (data, by){
+    d = b = NULL # due to NSE notes in R CMD check
     data <- data.table(d=data, b=by) 
-    ans  <- data[,list(A = first('d')), by = 'b']
+    ans  <- data[,list(A = first(d)), by = b]
     return(ans$A)
   }
   
