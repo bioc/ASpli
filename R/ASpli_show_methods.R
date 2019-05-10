@@ -216,7 +216,7 @@ setMethod( 'show', 'ASpliAS', function( object )  {
           "Access using junctionsPIR(object)", "\n")
       cat("Junctions PJU:", 
           dim(object@junctionsPJU)[1], "junctions analysed.",
-          "Access using junctionsPJU(object)")
+          "Access using junctionsPJU(object)", "\n")
     })
 
 setMethod('show', 'ASpliDU', function( object ) {
@@ -233,7 +233,7 @@ setMethod('show', 'ASpliDU', function( object ) {
       if ( containsJunctions( object ) ) {
         cat("Junctions DU:", 
             dim(object@junctions)[1],"junctions analysed.",
-            "Access using junctionsDU(object)")
+            "Access using junctionsDU(object)", "\n")
       }
     })
 
@@ -256,7 +256,7 @@ setMethod('show', 'ASpliJDU', function( object ) {
       nrow(anchorc(object)), "clusters",
       "Access using anchorc(object)", "\n")
   
-  cat("Intron Retention Junctions:", 
+  cat("Intron Retention Junctions:",
       nrow(jir(object)), "junctions.",
       "Access using jir(object)", "\n")
   
@@ -312,19 +312,30 @@ setMethod( 'show', 'ASpliSplicingReport', function( object ) {
   #   colnames(m) <- c("Junction F", "Junction T", "Junction <NA>")
   #   return(m)
   # }
+  
+  integratedSignals <- integrateSignals(object)
   cat("Object of class", class(object),"\n")
-  cat("Locale based (fdr < 0.05): \n") 
-  print(table(localebased(object)$bin.fdr < 0.05, (localebased(object)$junction.fdr < 0.05 | localebased(object)$cluster.fdr < 0.05), useNA = "always"))
   
+  cat("Locale based: \n") 
+  cat("De novo junctions: ", sum(is.na(integratedSignals$feature[integratedSignals$jl == 1])), "\n")
+  cat("Annotated features:\n")
+  print(table(integratedSignals[integratedSignals$jl == 1,c("feature","bin.event")]))
   cat("Access using localebased(object)\n\n")
-  cat("Anchor based (fdr < 0.05): \n")
-  print(table(anchorbased(object)$bin.fdr < 0.05, (anchorbased(object)$junction.fdr < 0.05 | anchorbased(object)$cluster.fdr < 0.05), useNA = "always"))
-  
+  #print(table(bin=localebased(object)$bin.fdr < 0.05, junction=(localebased(object)$junction.fdr < 0.05 | localebased(object)$cluster.fdr < 0.05), useNA = "always"))
+    
+  cat("Anchor based: \n")
+  cat("De novo junctions: ", sum(is.na(integratedSignals$feature[integratedSignals$ja == 1])), "\n")
+  cat("Annotated features:\n")
+  print(table(integratedSignals[integratedSignals$ja == 1,c("feature","bin.event")]))
   cat("Access using anchorbased(object)\n\n")
-  cat("Bin based (fdr < 0.05): \n") 
-  print(table(binbased(object)$bin.fdr < 0.05, binbased(object)$junction.fdr < 0.05, useNA = "always"))
-  
+  #print(table(bin=anchorbased(object)$bin.fdr < 0.05, junction=(anchorbased(object)$junction.fdr < 0.05 | anchorbased(object)$cluster.fdr < 0.05), useNA = "always"))  
+
+  cat("Bin based: \n") 
+  cat("Annotated features:\n")  
+  print(table(integratedSignals[integratedSignals$b == 1,c("feature","bin.event")]))
+  #print(table(bin=binbased(object)$bin.fdr < 0.05, junction=binbased(object)$junction.fdr < 0.05, useNA = "always"))
   cat("Access using binbased(object)\n\n")  
+  
 })
 # ---------------------------------------------------------------------------- #
 

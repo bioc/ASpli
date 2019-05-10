@@ -9,6 +9,7 @@ import(edgeR)
 import(Rsamtools)
 import(BiocStyle)
 import(GenomicAlignments)
+import(UpSetR)
 importFrom( "grDevices", "dev.off", "png", "rgb", "bmp", "col2rgb", "dev.new", 
             "jpeg", "pdf", "tiff")
 importFrom("stats", "aggregate", "formula", "p.adjust", "model.matrix", "setNames")
@@ -17,6 +18,7 @@ importFrom("igraph", "graph_from_edgelist", "clusters")
 importFrom("limma", "strsplit2")
 importFrom("data.table", "data.table", "rbindlist")
 importFrom(parallel, mclapply)
+importFrom("tidyr", "replace_na")
 import(S4Vectors)
 import(AnnotationDbi)
 import(Gviz)
@@ -63,7 +65,8 @@ exportMethods(
     "subset",
     "mergeBinDUAS",
     "filterDU",
-    "splicingReport"
+    "splicingReport",
+    "integrateSignals"
 )
 exportClasses(
     "ASpliAS",

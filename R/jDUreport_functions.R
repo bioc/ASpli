@@ -95,14 +95,14 @@
   
 
   #Corremos Uniformity solamente sobre los elementos con menor pvalue
-  data_unif             <- data[rownames(jPIR), getConditions(targets)]
+  data_unif             <- data[rownames(jPIR), getConditions(targets)[contrast != 0]]
   data_unif$pvalue      <- jPIR$P.Value
   
   if(runUniformityTest){
     message("Testing uniformity in junctionsPIR")
-    jPIR$Uniformity       <- .testUniformity(data_unif, mergedBams, maxPValForUniformityCheck, targets)
+    jPIR$NonUniformity       <- .testUniformity(data_unif, mergedBams, maxPValForUniformityCheck, targets, contrast)
   }else{
-    jPIR$Uniformity       <- rep(NA, nrow(jPIR)) 
+    jPIR$NonUniformity       <- rep(NA, nrow(jPIR)) 
   }
 
   #Sacamos "cluster" de anchorj 
@@ -114,9 +114,9 @@
 
   
   jPIR$annotated        <- ifelse(!is.na(data[rownames(jPIR), "hitIntron"]), "Yes", "No")
-  jPIR                  <- jPIR[, c("log.mean", "logFC", "P.Value", "FDR", "Uniformity", "participation", "annotated", colnames(jPIR)[grep("counts", colnames(jPIR))])]
+  jPIR                  <- jPIR[, c("log.mean", "logFC", "P.Value", "FDR", "NonUniformity", "participation", "annotated", colnames(jPIR)[grep("counts", colnames(jPIR))])]
 
-  colnames(jPIR)        <- c("log.mean", "logFC", "pvalue", "FDR", "Uniformity", "participation", "annotated", colnames(jPIR)[grep("counts", colnames(jPIR))])
+  colnames(jPIR)        <- c("log.mean", "logFC", "pvalue", "FDR", "NonUniformity", "participation", "annotated", colnames(jPIR)[grep("counts", colnames(jPIR))])
            
   anchorj(jdu)          <- jPIR
   ltsp                  <- ltsp[["cluster"]][,!colnames(ltsp[["cluster"]])%in%"size"]
@@ -144,24 +144,24 @@
   jirPIR$log.mean       <- log2(rowMeans(countData[rownames(jirPIR), rownames(targets)[targets$condition %in% getConditions(targets)[contrast != 0]]]))
 
 
-  data_unif             <- data[rownames(jirPIR), getConditions(targets)]
+  data_unif             <- data[rownames(jirPIR), getConditions(targets)[contrast != 0]]
   rownames(data_unif)   <- data[rownames(jirPIR), "J3"]
   data_unif$pvalue      <- jirPIR$pvalue
   
   if(runUniformityTest){
     message("Testing uniformity in irPIR")
-    jirPIR$Uniformity     <- .testUniformity(data_unif, mergedBams, maxPValForUniformityCheck, targets)
+    jirPIR$NonUniformity     <- .testUniformity(data_unif, mergedBams, maxPValForUniformityCheck, targets, contrast)
   }else{
-    jirPIR$Uniformity     <- rep(NA, nrow(jirPIR))
+    jirPIR$NonUniformity     <- rep(NA, nrow(jirPIR))
   }
 
   
   jirPIR$J3             <- data[rownames(jirPIR), "J3"] 
-  jirPIR                <- jirPIR[, c("J3", "logFC", "log.mean", "pvalue", "bin.fdr", "Uniformity")]
+  jirPIR                <- jirPIR[, c("J3", "logFC", "log.mean", "pvalue", "bin.fdr", "NonUniformity")]
   
   dpir                  <- irPIR(asd)[rownames(jirPIR),getConditions(targets)]
   jirPIR$dPIR           <- apply(dpir,1,function(x){sum(x*contrast)}) 
-  colnames(jirPIR)      <- c("J3", "logFC", "log.mean", "pvalue", "FDR", "Uniformity","dPIR")
+  colnames(jirPIR)      <- c("J3", "logFC", "log.mean", "pvalue", "FDR", "NonUniformity","dPIR")
   jirPIR$multiplicity   <- "No"
   jirPIR$multiplicity[grep(";", jirPIR$J3)] <- "Yes"
   
@@ -501,7 +501,8 @@
   data, 
   mergedBams,
   maxPValForUniformityCheck,
-  targets
+  targets,
+  contrast
 ){
   
   if(is.null(mergedBams)){
@@ -513,7 +514,7 @@
     return(rep(NA, length=nrow(data))) 
   }
 
-  ii                    <- rownames(data)[data$pvalue < maxPValForUniformityCheck]
+  ii                   <- rownames(data)[data$pvalue < maxPValForUniformityCheck]
   Uniformity           <- rep(NA, length=nrow(data))
   names(Uniformity)    <- rownames(data)
   
@@ -521,28 +522,31 @@
   Uniformity[ii] <- sapply(ii, function(p){
     #if(i %% 100 == 0) print(paste(i/length(elementos), "%"))
     i <<- i + 1
-    print(i/length(ii))
+    if(i %% 10 == 0){
+      message(paste0("Uniformity test: ", round(i/length(ii)*100), "% completed"))
+    }
     #reader <- bamReader(mergedBams[2], idx=TRUE)
     
     #reader <- readers[[which.max(data[p, getConditions(targets)])]]
     pp      <- strsplit2(p, "[.]")[1, ]
-    ad <- system(paste0("samtools depth -r ", paste0(pp[1], ":", (as.numeric(pp[2])-10), "-",  (as.numeric(pp[3])+10)), " ", mergedBams[which.max(data[p, getConditions(targets)])]), intern = T)
-    ad <- as.numeric(strsplit2(ad, "\t")[, 3])
-    #if(refid[pp[1]] < 5){
-    #for(i in 1:100){
-    #reader  <- bamReader(mergedBams[which.max(data[p, getConditions(targets)])], idx=TRUE)
-    #brange  <- bamRange(reader,c(refid[pp[1]],(as.numeric(pp[2])-10), (as.numeric(pp[3])+10)), complex = FALSE)
-    #brange  <- bamRange(reader,c(0, 10, 10000))
-    #ad      <- alignDepth(brange)
-    #bamClose(reader)
-    #}
-    
-    b      <- sd(ad[11:(length(ad)-12)])
-    a      <- mean(c(ad[1:10], ad[(length(ad)-11):length(ad)]))
-    return(b/a)
-    #}else{
-    #  return(NA)
-    #}
+    ad <- system(paste0("samtools depth -r ", paste0(pp[1], ":", (as.numeric(pp[2])-10), "-",  (as.numeric(pp[3])+10)), " ", mergedBams[which.max(data[p, getConditions(targets)[contrast != 0]])]), intern = T)
+    if(length(ad) > 0){
+      ad <- as.numeric(strsplit2(ad, "\t")[, 3])
+      #if(refid[pp[1]] < 5){
+      #for(i in 1:100){
+      #reader  <- bamReader(mergedBams[which.max(data[p, getConditions(targets)])], idx=TRUE)
+      #brange  <- bamRange(reader,c(refid[pp[1]],(as.numeric(pp[2])-10), (as.numeric(pp[3])+10)), complex = FALSE)
+      #brange  <- bamRange(reader,c(0, 10, 10000))
+      #ad      <- alignDepth(brange)
+      #bamClose(reader)
+      #}
+      
+      b      <- sd(ad[11:(length(ad)-12)])
+      a      <- mean(c(ad[1:10], ad[(length(ad)-11):length(ad)]))
+      return(b/a)
+    }else{
+      return(NA)
+    }
     #bamClose(reader)
   })
   
