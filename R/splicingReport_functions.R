@@ -16,20 +16,20 @@
   jir$event              <- NA
   jir$dPIN               <- NA
   jir                    <- jir[, c("event", "J3", "multiplicity", "logFC", "log.mean", "pvalue", "FDR", "dPIR", "dPIN", "NonUniformity", colnames(jir)[grep("counts", colnames(jir))])]
-  colnames(jir)[c(7, 10)] <- c("junction.fdr", "uniformity")
+  colnames(jir)[c(7, 10)] <- c("junction.fdr", "nonuniformity")
   #jir$bin                <- rownames(jir)
   
   jes                    <- jes(jdu)
-  jes$uniformity         <- NA
+  jes$nonuniformity      <- NA
   jes$dPIR               <- NA
-  jes                    <- jes[, c("event", "J3", "multiplicity", "logFC", "log.mean", "pvalue", "FDR", "dPIR", "dPIN", "uniformity", colnames(jes)[grep("counts", colnames(jes))])]
+  jes                    <- jes[, c("event", "J3", "multiplicity", "logFC", "log.mean", "pvalue", "FDR", "dPIR", "dPIN", "nonuniformity", colnames(jes)[grep("counts", colnames(jes))])]
   colnames(jes)[7]       <- "junction.fdr"
   #jes$bin                <- rownames(jes)
   
   jalt                   <- jalt(jdu)
-  jalt$uniformity        <- NA
+  jalt$nonuniformity     <- NA
   jalt$dPIR              <- NA
-  jalt                   <- jalt[, c("event", "J3", "multiplicity", "logFC", "log.mean", "pvalue", "FDR", "dPIR", "dPIN", "uniformity", colnames(jalt)[grep("counts", colnames(jalt))])]
+  jalt                   <- jalt[, c("event", "J3", "multiplicity", "logFC", "log.mean", "pvalue", "FDR", "dPIR", "dPIN", "nonuniformity", colnames(jalt)[grep("counts", colnames(jalt))])]
   colnames(jalt)[7]      <- "junction.fdr"
   #jalt$bin               <- rownames(jalt)
   
@@ -193,7 +193,7 @@
 # para la senial de junturas soporte de bin coverage se usan criterios basados en dPIN/dPI y 
 # adicionalmente es posible usar, o no, el valor de fdr asociado a la juntura J3
 # 
-.integrateSignals<-function(sr = NULL, asd = NULL, bin.fdr=0.05,unif=0.1,dPIN=0.05,dPIR=0.05,j.fdr=0.05,j.particip=0.1,usepvalBJS=FALSE,bjs.fdr=0.1){
+.integrateSignals<-function(sr = NULL, asd = NULL, bin.fdr=0.05,unif=0.1,dPIN=0.05,dPIR=0.05,j.fdr=0.05,j.particip=0.1,usepvalBJS=FALSE,bjs.fdr=0.1, otherSources = NULL){
   
   if(class(sr) != "ASpliSplicingReport"){
     stop("sr must be an ASpliSplicingReport object") 
@@ -202,7 +202,7 @@
   #bines significativos y uniformes
   b  <- sr@binbased
   b  <- b[!is.na(b$start), ]
-  b  <- b[ replace_na(b$bin.fdr < bin.fdr, FALSE) & (is.na(b$junction.dPIR) | replace_na(b$junction.uniformity < unif, FALSE)),]
+  b  <- b[ replace_na(b$bin.fdr < bin.fdr, FALSE) & (is.na(b$junction.dPIR) | replace_na(b$junction.nonuniformity < unif, FALSE)),]
   start   = as.numeric(b$start)#aggregate(start ~ cluster, data=b, FUN=min)
   end     = as.numeric(b$end)#aggregate(end ~ cluster, data=b, FUN=max)
   seqnames = strsplit2(b$gene_coordinates, ":")[, 1]
@@ -217,11 +217,11 @@
   if(usepvalBJS){
     b  <- b[ b$junction.fdr < bjs.fdr &
                (replace_na(abs(b$junction.dPIN) > dPIN, FALSE) | 
-                  (replace_na(abs(b$junction.dPIR) > dPIR, FALSE) & replace_na(b$junction.uniformity < unif, FALSE))), ]
+                  (replace_na(abs(b$junction.dPIR) > dPIR, FALSE) & replace_na(b$junction.nonuniformity < unif, FALSE))), ]
     
   }else{  
     b  <- b[replace_na(abs(b$junction.dPIN) > dPIN, FALSE) | 
-              (replace_na(abs(b$junction.dPIR) > dPIR, FALSE) & replace_na(b$junction.uniformity < unif, FALSE)), ]
+              (replace_na(abs(b$junction.dPIR) > dPIR, FALSE) & replace_na(b$junction.nonuniformity < unif, FALSE)), ]
   }
   start   = as.numeric(b$start)#aggregate(start ~ cluster, data=b, FUN=min)
   end     = as.numeric(b$end)#aggregate(end ~ cluster, data=b, FUN=max)
@@ -244,7 +244,7 @@
   b <- sr@anchorbased
   b <- b[(replace_na(b$bin.fdr < bin.fdr, FALSE) | replace_na(b$junction.fdr < j.fdr, FALSE)) & 
            replace_na(b$junction.participation > j.particip, FALSE) & 
-           replace_na(b$junction.uniformity < unif, FALSE), ]
+           replace_na(b$junction.nonuniformity < unif, FALSE), ]
   aux <- strsplit2(b$junction, "[.]")
   start   = as.numeric(aux[, 2])#aggregate(start ~ cluster, data=b, FUN=min)
   end     = as.numeric(aux[, 3])#aggregate(end ~ cluster, data=b, FUN=max)
@@ -254,6 +254,7 @@
   anchorbased <- GRanges(seqnames, IRanges(start, end), strand, tipo)
   
   laux  <- list(b=binbased,bjs=binsupport,jl=localebased,ja=anchorbased)
+  if(class(otherSources) == "GRanges") laux$otherSources = otherSources
   lover <- list()
   for(i in seq_along(laux)){
     for(j in (i+1):length(laux)){
@@ -274,6 +275,7 @@
   
   overlaps     <- rbindlist(lover, use.names = F)
   overlaps_aux <- data.table(region=character(), b=numeric(), bjs=numeric(), ja=numeric(), jl=numeric())
+  if(class(otherSources) == "GRanges") overlaps_aux$otherSources = numeric()
   for(i in unique(c(overlaps$b, overlaps$bjs))){
     j <- c(i, overlaps$bjs[overlaps$b == i], overlaps$b[overlaps$bjs == i])
     d <- data.table(region = i,
@@ -281,28 +283,53 @@
                     bjs=as.numeric(length(grep("bjs.", j,fixed=TRUE)) > 0),
                     ja=as.numeric(length(grep("ja.", j,fixed=TRUE)) > 0),
                     jl=as.numeric(length(grep("jl.", j,fixed=TRUE)) > 0))
+    if(class(otherSources) == "GRanges") d$otherSources = as.numeric(length(grep("otherSources.", j,fixed=TRUE)) > 0)
     overlaps_aux <- rbindlist(list(overlaps_aux, d))
   }
   
   #junction anchorBased que no tienen overlap con otra clase de eventos
-  d <- data.table(region = setdiff(paste0("ja.", (1:length(anchorbased))), overlaps_aux$region[grep("ja.", overlaps_aux$region,fixed=TRUE)]),
-                  b=0,bjs=0,ja=1,jl=0)
-  overlaps_aux <- rbindlist(list(overlaps_aux, d))
+  nooverlap <- setdiff(paste0("ja.", (1:length(anchorbased))), overlaps_aux$region[grep("ja.", overlaps_aux$region,fixed=TRUE)])
+  if(length(nooverlap) > 0){
+    d <- data.table(region = nooverlap,
+                    b=0,bjs=0,ja=1,jl=0)
+    if(class(otherSources) == "GRanges") d$otherSources = 0    
+    overlaps_aux <- rbindlist(list(overlaps_aux, d))
+  }  
   
   #junction localeBased que no tienen overlap con otra clase de eventos
-  d <- data.table(region = setdiff(paste0("jl.", (1:length(localebased))), overlaps_aux$region[grep("jl.", overlaps_aux$region,fixed=TRUE)]),
-                  b=0,bjs=0,ja=0,jl=1)
-  overlaps_aux <- rbindlist(list(overlaps_aux, d))
-  
+  nooverlap <- setdiff(paste0("jl.", (1:length(localebased))), overlaps_aux$region[grep("jl.", overlaps_aux$region,fixed=TRUE)])
+  if(length(nooverlap) > 0){
+    d <- data.table(region = nooverlap,
+                    b=0,bjs=0,ja=0,jl=1)
+    if(class(otherSources) == "GRanges") d$otherSources = 0
+    overlaps_aux <- rbindlist(list(overlaps_aux, d))
+  }
   #bin based que no tienen overlap con otra clase de eventos
-  d <- data.table(region = setdiff(paste0("b.", (1:length(binbased))), overlaps_aux$region[grep("b.", overlaps_aux$region,fixed=TRUE)]),
-                  b=1,bjs=0,ja=0,jl=0)
-  overlaps_aux <- rbindlist(list(overlaps_aux, d))
-  
+  nooverlap <- setdiff(paste0("b.", (1:length(binbased))), overlaps_aux$region[grep("b.", overlaps_aux$region,fixed=TRUE)])
+  if(length(nooverlap) > 0){
+    d <- data.table(region = nooverlap,
+                    b=1,bjs=0,ja=0,jl=0)
+    if(class(otherSources) == "GRanges") d$otherSources = 0
+    overlaps_aux <- rbindlist(list(overlaps_aux, d))
+  }
   #junction bin support que no tienen overlap con otra clase de eventos
-  d <- data.table(region = setdiff(paste0("bjs.", (1:length(binbased))), overlaps_aux$region[grep("bjs.", overlaps_aux$region,fixed=TRUE)]),
-                  b=0,bjs=1,ja=0,jl=0)
-  overlaps_aux <- rbindlist(list(overlaps_aux, d))
+  nooverlap <- setdiff(paste0("bjs.", (1:length(binbased))), overlaps_aux$region[grep("bjs.", overlaps_aux$region,fixed=TRUE)])
+  if(length(nooverlap) > 0){
+    d <- data.table(region = nooverlap,
+                    b=0,bjs=1,ja=0,jl=0)
+    if(class(otherSources) == "GRanges") d$otherSources = 0
+    overlaps_aux <- rbindlist(list(overlaps_aux, d))
+  }
+  
+  #Other sources que no tienen overlap con otra clase de eventos
+  if(class(otherSources) == "GRanges"){
+    nooverlap <- setdiff(paste0("otherSources.", (1:length(otherSources))), overlaps_aux$region[grep("otherSources.", overlaps_aux$region,fixed=TRUE)])
+    if(length(nooverlap) > 0){
+      d <- data.table(region = nooverlap,
+                      b=0,bjs=0,ja=0,jl=0, otherSources = 1)
+      overlaps_aux <- rbindlist(list(overlaps_aux, d))
+    }
+  }
   
   i <- grep("ja.", overlaps_aux$region,fixed=TRUE)
   L <- as.data.frame(anchorbased[as.numeric(strsplit2(overlaps_aux$region[i], "ja.")[, 2])])
@@ -319,6 +346,12 @@
   i <- grep("bjs.", overlaps_aux$region,fixed=TRUE)
   L <- as.data.frame(binsupport[as.numeric(strsplit2(overlaps_aux$region[i], "bjs.")[, 2])])
   overlaps_aux$region[i] <- paste0("Chr", L$seqnames, ":", L$start, "-", L$end)
+  
+  if(class(otherSources) == "GRanges"){
+    i <- grep("otherSources.", overlaps_aux$region,fixed=TRUE)
+    L <- as.data.frame(otherSources[as.numeric(strsplit2(overlaps_aux$region[i], "otherSources.")[, 2])])
+    overlaps_aux$region[i] <- paste0("Chr", L$seqnames, ":", L$start, "-", L$end)
+  }
   
   
   #corregi rango de junturas para buscar bounderies de intrones, pero se reporta

@@ -842,16 +842,17 @@ setGeneric( name = "integrateSignals",
                             j.fdr=0.05,
                             j.particip=0.1,
                             usepvalBJS=FALSE,
-                            bjs.fdr=0.1
+                            bjs.fdr=0.1,
+                            otherSources = NULL
             ) standardGeneric("integrateSignals") )
 
 
 setMethod(
   f = "integrateSignals",
-  signature = "ASpliDU",
+  signature = "ASpliSplicingReport",
   definition = function (
     sr=NULL,
-    asd = NULL, 
+    asd = NULL,
     bin.fdr=0.05,
     unif=0.1,
     dPIN=0.05,
@@ -859,9 +860,10 @@ setMethod(
     j.fdr=0.05,
     j.particip=0.1,
     usepvalBJS=FALSE,
-    bjs.fdr=0.1
+    bjs.fdr=0.1,
+    otherSources = NULL
   ) {
-    .integrateSignals(sr, asd, bin.fdr, unif, dPIN, dPIR, j.fdr, j.particip, usepvalBJS, bjs.fdr) 
+    .integrateSignals(sr, asd, bin.fdr, unif, dPIN, dPIR, j.fdr, j.particip, usepvalBJS, bjs.fdr, otherSources) 
   }
 )
 
