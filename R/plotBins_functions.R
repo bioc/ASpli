@@ -465,8 +465,15 @@
 # colnames(reportes$col_23_pcp_23@binbased)[21]   <- "junction.nonuniformity"
 # colnames(reportes$col_23_pcp_23@anchorbased)[7] <- "junction.nonuniformity"
 
-#region=NULL;iss;counts;f;mergedBAMs;exones=NULL;genePlot=TRUE;zoomRegion=1.5;chrMap=NULL;hCov=0.7;hJun=0.3;useLog=FALSE
-.plotSplicingPattern<-function(region=NULL,iss,counts,f,mergedBAMs,exones=NULL,genePlot=TRUE,zoomRegion=1.5,chrMap=NULL,hCov=0.7,hJun=0.3,useLog=FALSE){
+#region=NULL;exones=NULL;genePlot=TRUE;zoomRegion=1.5;chrMap=NULL;hCov=0.7;hJun=0.3;useLog=FALSE
+#bamFiles <- c("col0_16.star.bam","pcp_16.star.bam")
+#mergedBAMs <- data.frame(bam=bamFiles,condition=c("col_16","pcp_16"))
+#region <- iss$region[1]
+#iss <- integrateSignals(sr, asd)
+#chrMap <- as.character(1:5)
+#names(chrMap) <- paste0("Chr",1:5)
+#.plotSplicingPattern(region, iss, counts, f, mergedBAMs, sr, exones, chrMap = chrMap)
+.plotSplicingPattern<-function(region=NULL,iss,counts,f,mergedBAMs,sr,exones=NULL,genePlot=TRUE,zoomRegion=1.5,chrMap=NULL,hCov=0.7,hJun=0.3,useLog=FALSE){
   
   greg <- region
   nConditions <- nrow(mergedBAMs)
@@ -549,6 +556,8 @@
   
   #Transcriptos
   if(!is.null(exones)){
+    transcriptGene<-strsplit2(names(exones),".",fixed=TRUE)[,1]
+    
     ig<-which(transcriptGene%in%geneName)
     tex <- exones[ig]
     tex <- tex[order(names(tex))]
@@ -583,9 +592,10 @@
   
   if(is.null(exones)){
     plot(0,typ="n",xlim=c(start(bins[1]),end(bins[nbines])),ylim=c(-.5,.5),axes=FALSE,xlab="",ylab="")
-    lines(c(start(bins[1]),end(bins[nbines])),c(ycollapsed,ycollapsed),col="gray")
-    rect(start(bins)[iE],ycollapsed-.45,end(bins)[iE],ycollapsed+.45,col="white")
   }
+  lines(c(start(bins[1]),end(bins[nbines])),c(ycollapsed,ycollapsed),col="gray")
+  rect(start(bins)[iE],ycollapsed-.45,end(bins)[iE],ycollapsed+.45,col="white")
+
   
   #bines diferenciales
   if(FALSE){
@@ -687,11 +697,10 @@
   
   
   for(icond in 1:nConditions){
-    ppath <- "/home/ariel/Projects/RNAseq/Marcelo/PCP/03_STAR/mergedBAMS/"
-    
+    #ppath <- "/home/ariel/Projects/RNAseq/Marcelo/PCP/03_STAR/mergedBAMS/"
     ad <- system(paste0("samtools depth -r ",
                         paste0(chrMap[aspli.chr],":",zroi[1],"-",zroi[2]," "),
-                        paste0(ppath,bamFiles[icond])), intern = T)
+                        bamFiles[icond]), intern = T)
     ad <- matrix(as.numeric(strsplit2(ad,"\t")),ncol=3)
     yylim <- range(ad[,3])
     
