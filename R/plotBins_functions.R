@@ -453,7 +453,295 @@
 }
 
 
+#-------------------------------------------------
+#Plot splicing pattern
+#-------------------------------------------------
+# colnames(reportes$col_16_pcp_16@binbased)[21]   <- "junction.nonuniformity"
+# colnames(reportes$col_16_pcp_16@anchorbased)[7] <- "junction.nonuniformity"
+# colnames(reportes$col_23_col_16@binbased)[21]   <- "junction.nonuniformity"
+# colnames(reportes$col_23_col_16@anchorbased)[7] <- "junction.nonuniformity"
+# colnames(reportes$pcp_23_pcp_16@binbased)[21]   <- "junction.nonuniformity"
+# colnames(reportes$pcp_23_pcp_16@anchorbased)[7] <- "junction.nonuniformity"
+# colnames(reportes$col_23_pcp_23@binbased)[21]   <- "junction.nonuniformity"
+# colnames(reportes$col_23_pcp_23@anchorbased)[7] <- "junction.nonuniformity"
 
+#region=NULL;iss;counts;f;mergedBAMs;exones=NULL;genePlot=TRUE;zoomRegion=1.5;chrMap=NULL;hCov=0.7;hJun=0.3;useLog=FALSE
+.plotSplicingPattern<-function(region=NULL,iss,counts,f,mergedBAMs,exones=NULL,genePlot=TRUE,zoomRegion=1.5,chrMap=NULL,hCov=0.7,hJun=0.3,useLog=FALSE){
+  
+  greg <- region
+  nConditions <- nrow(mergedBAMs)
+  
+  if(is.null(region)) warning("Out.\n")
+  iiss  <- iss[iss$region %in% greg,]
+  
+  #encuentra x: GRanges para graficar
+  if(!genePlot){
+    
+    #nombre de cromosoma en aspli
+    aspli.chr <- strsplit2(iiss$region,":")[1]
+    
+    #nombre de cromosomas en features
+    features.chr<-levels(seqnames(featuresb(f))@values)
+    
+    if(is.na(match(aspli.chr,features.chr))){
+      if(is.null(chrMap)){
+        warning(paste("No se pudo mapear nombres de cromosomas.",
+                      "\n aspli.chr=",aspli.chr,
+                      "\n features.chr=",paste(features.chr,collapse="/")))
+      }else{
+        chr <- features.chr[match(chrMap[aspli.chr],features.chr)]
+      }
+    }else{
+      chr <- aspli.chr
+    }
+    
+    #si hay una J3 != NA la uso para definir el rango
+    if(!is.na(iiss$J3)){
+      #si J3 se movio en un cluster, uso el cluster para definir el rango
+      #  if(iiss$jl==1){
+      #    #TODO
+      #  }else{
+      roi   <- as.numeric(strsplit2(as.character(iiss$J3),".",fixed=TRUE)[2:3])
+      #  }
+    }else{
+      roi   <- as.numeric(strsplit2(strsplit2(iiss$region,":")[2],"-"))
+    }
+    delta <- roi[2]-roi[1]
+    
+    zroi  <- c(roi[1]-delta*zoomRegion/2 , roi[2]+delta*zoomRegion/2)
+    zdelta<-zroi[2]-zroi[1]
+    
+    gr    <- as(paste0(chr,":",zroi[1],"-",zroi[2]),"GRanges")
+    hits  <- findOverlaps(gr,featuresb(f))
+    bins     <-featuresb(f)[subjectHits(hits)]
+    
+    
+  }else{
+    geneName<-iiss[,"locus"]
+    
+    #identifico coordenadas de biones ebinsonicos
+    #iE <- which(mcols(featuresb(f))$locus%in%geneName & mcols(featuresb(f))$feature=="E"
+    iE <- which(mcols(featuresb(f))$locus%in%geneName)
+    if(length(iE)==0){
+      warning("Something terribly wrong happened...No annotation data
+              for",geneName,"was found!\n")
+      return()
+    }
+    bins <- featuresb(f)[iE,]
+    bins <- bins[mcols(bins)$feature!="Io",]
+    
+    zroi <- roi <- c(start(bins)[1],end(bins)[length(bins)])
+  }
+  
+  if(is.null(exones)){
+    hh <- c(rep(c(hCov,hJun)/nConditions,nConditions),0.1)
+    hh <- hh/sum(hh)
+  }else{
+    hh <- c(rep(c(hCov,hJun)/nConditions,nConditions),(hCov+hJun)/nConditions)
+    hh <- hh/sum(hh)
+  }
+  layout(matrix((2*nConditions+1):1,(2*nConditions+1),1),height=hh)
+  par(mar=c(1, 4.1, 1, 2.1))
+  
+  
+  rownames(mergedBAMs)<-mergedBAMs[,1]
+  
+  
+  #Transcriptos
+  if(!is.null(exones)){
+    ig<-which(transcriptGene%in%geneName)
+    tex <- exones[ig]
+    tex <- tex[order(names(tex))]
+    
+    limExones<-unlist(lapply(tex,function(x){
+      return(c(start(x),end(x)))
+    }))
+    
+    plot(0,typ="n",xlim=range(limExones),ylim=c(0,length(tex)+3),axes=FALSE,xlab="",ylab="")
+    
+    if(length(tex)>1){
+      for(itex in 1:length(tex)){
+        bbins <- tex[[itex]]
+        y<-length(tex)-(itex-1)
+        lines(c(start(bbins[1]),end(bbins[length(bbins)])),c(y,y),col="gray")
+        rect(start(bbins),y-.3,end(bbins),y+0.3,col="white")
+        
+      }
+    }
+    ycollapsed <- length(tex)+2
+  }else{
+    ycollapsed <- 0
+  }
+  
+  
+  #bines del genoma anotado
+  iE   <- mcols(bins)$feature=="E"
+  iroi <- (start(bins)>=roi[1] & start(bins)<roi[2])
+  
+  nbines <- length(bins)
+  delta <- end(bins[nbines])-start(bins[1])
+  
+  if(is.null(exones)){
+    plot(0,typ="n",xlim=c(start(bins[1]),end(bins[nbines])),ylim=c(-.5,.5),axes=FALSE,xlab="",ylab="")
+    lines(c(start(bins[1]),end(bins[nbines])),c(ycollapsed,ycollapsed),col="gray")
+    rect(start(bins)[iE],ycollapsed-.45,end(bins)[iE],ycollapsed+.45,col="white")
+  }
+  
+  #bines diferenciales
+  if(FALSE){
+    ss <- iss[iss$region==greg,]
+    if(ss$b==1){
+      if(ss$feature=="I"){
+        lines(c(start(bins[ss$bin]),end(bins[ss$bin])),c(0,0),col="orange",lwd=3)
+      }else{
+        rect(start(bins[ss$bin]),-1,end(bins[ss$bin]),1,col="orange",border=NA)
+      }
+    }
+  }else{
+    #que bines diferenciales hay en la region?
+    iE<-which(names(bins)%in%iss$bin)
+    if(length(iE)>0){
+      for(iie in seq_along(iE)){
+        if(mcols(bins)$feature[iE[iie]]=="I"){
+          lines(c(start(bins[iE[iie]]),end(bins[iE[iie]])),c(ycollapsed,ycollapsed),col="orange",lwd=3)
+        }else{
+          rect(start(bins[iE[iie]]),ycollapsed-.45,end(bins[iE[iie]]),ycollapsed+.45,col="orange",border=NA)
+        }
+      }
+    }
+  }
+  
+  
+  
+  
+  
+  # junturas
+  # dibujo todas las junturas de la region de interes zroi,
+  # deberia trabajar con jdu...que tiene todas las analizadas, pero por ahora uso anchorage(sr)
+  # para diseniar el ploteado
+  aspli.chr <- strsplit2(iiss$region,":")[1]
+  gr    <- as(paste0(chrMap[aspli.chr],":",zroi[1],"-",zroi[2]),"GRanges")
+  
+  js <- unique(anchorbased(sr)$junction)
+  aux <- strsplit2(js,".",fixed=TRUE)
+  ijs <-which(aux[,1]==chrMap[aspli.chr] &
+                as.numeric(aux[,2])>=zroi[1] &
+                as.numeric(aux[,2])<=zroi[2])
+  nj<-0
+  jcoords<-c()
+  if(length(ijs)>0){
+    jcoords          <- matrix(as.numeric(aux[ijs,]),ncol=3)
+    rownames(jcoords)<-js[ijs]
+    nj               <- nrow(jcoords)
+    
+    if(FALSE){
+      iasr <- match(rownames(jcoords),anchorbased(sr)$junction)
+      anchorbased(sr)[iasr,]
+    }
+  }
+  
+  
+  #analizo si alguna locale no aparece...la agrego
+  js <- unique(localebased(sr)$junction)
+  aux <- strsplit2(js,".",fixed=TRUE)
+  ijs <-which(aux[,1]==chrMap[aspli.chr] &
+                as.numeric(aux[,2])>=zroi[1] &
+                as.numeric(aux[,2])<=zroi[2])
+  if(length(ijs)>0){
+    jcoords2          <- matrix(as.numeric(aux[ijs,]),ncol=3)
+    rownames(jcoords2)<-js[ijs]
+    nj2               <- nrow(jcoords2)
+    idiff<-setdiff(rownames(jcoords2),rownames(jcoords))
+    if(length(idiff)>0){
+      rnames <- c(rownames(jcoords),idiff)
+      jcoords<- rbind(jcoords,jcoords2[idiff,])
+      rownames(jcoords)<-rnames
+      nj     <- nj + length(idiff)
+      
+      #TODO jclusters
+      #ilsr <- match(rownames(jcoords),localebased(sr)$junction)
+      #jclus <- unique(localebased(sr)[ilsr,"junction.cluster"])
+      
+      
+    }
+  }
+  
+  if(nj>0){
+    abline(v=unique(c(jcoords[,2],jcoords[,3])),col="gray",lty=3)
+    
+    #paneles
+    #cuento junturas por condicion
+    x<-countsj(counts)[rownames(jcoords),]
+    mjsum <-c()
+    for(ifila in 1:nrow(x)){
+      jsum<-c()
+      for(ccond in counts@condition.order){
+        icols<-grep(ccond,colnames(x))
+        jsum <- c(jsum,sum(x[ifila,icols]))
+      }
+      mjsum<-rbind(mjsum,jsum)
+    }
+    colnames(mjsum)<-counts@condition.order
+    rownames(mjsum)<-rownames(x)
+  }
+  
+  
+  for(icond in 1:nConditions){
+    ppath <- "/home/ariel/Projects/RNAseq/Marcelo/PCP/03_STAR/mergedBAMS/"
+    
+    ad <- system(paste0("samtools depth -r ",
+                        paste0(chrMap[aspli.chr],":",zroi[1],"-",zroi[2]," "),
+                        paste0(ppath,bamFiles[icond])), intern = T)
+    ad <- matrix(as.numeric(strsplit2(ad,"\t")),ncol=3)
+    yylim <- range(ad[,3])
+    
+    
+    
+    #panel junturas
+    plot(0,typ="n",xlim=c(start(bins[1]),end(bins[nbines])),ylim=c(1,nj+1),axes=FALSE,xlab="",ylab="")
+    if(nj>0){
+      jcounts <- mjsum[,mergedBAMs[icond,2]]
+      ww <- jcounts/max(jcounts)*3
+      
+      abline(v=unique(c(jcoords[,2],jcoords[,3])),col="lightgray",lty=3)
+      for(ij in 1:nj){
+        lines(jcoords[ij,2:3],rep(ij,2),lwd=ww[ij])
+        points(jcoords[ij,2:3],rep(ij,2),pch=18)
+        text(mean(jcoords[ij,2:3]),ij,jcounts[ij],pos=3)
+        
+      }
+    }
+    
+    #coverage
+    if(useLog){
+      plot(0.01,typ="n",xlim=c(start(bins[1]),end(bins[nbines])),ylim=yylim,axes=FALSE,xlab="",ylab="",log="y")
+    }else{
+      plot(0,typ="n",xlim=c(start(bins[1]),end(bins[nbines])),ylim=yylim,axes=FALSE,xlab="",ylab="")
+    }
+    polygon(c(ad[1,2],ad[,2],ad[nrow(ad),2]), c(0.01,ad[,3],0.01)
+            ,border=NA,col=topo.colors(nConditions,0.5)[icond],fillOddEven = TRUE)
+    lines(c(ad[1,2],ad[,2],ad[nrow(ad),2]),  c(0.01,ad[,3],0.01),
+          col=topo.colors(nConditions,0.7)[icond])
+    text(ad[1,2],0.01,paste0("[0-",max(ad[,3]),"]"),cex=1.2,adj=c(-.25,-.5))
+    
+    if(nj>0)abline(v=unique(c(jcoords[,2],jcoords[,3])),col="lightgray",lty=3)
+    
+    
+  }
+  mtext(paste(iiss$locus,iiss$region),line=-.5)
+  
+  
+}
+
+
+#plotSplicingPattern(region,iss,counts,f=features,mergedBAMs,genePlot=TRUE,chrMap=chrMap)
+#plotSplicingPattern(region,iss,counts,f=features,mergedBAMs,exones,genePlot=TRUE,chrMap=chrMap)
+
+
+#for(i in 1:length(iss$region)){
+#  plotSplicingPattern(region=iss$region[i],iss,counts,f=features,mergedBAMs,exones,genePlot=TRUE,chrMap=chrMap,useLog=FALSE)
+#  readline("Press <ENTER>")
+#}
 
 
 

@@ -22,6 +22,7 @@ importFrom("tidyr", "replace_na")
 import(S4Vectors)
 import(AnnotationDbi)
 import(Gviz)
+import(DT)
 import(grid)
 exportMethods(
     "jCounts",
@@ -66,7 +67,8 @@ exportMethods(
     "mergeBinDUAS",
     "filterDU",
     "splicingReport",
-    "integrateSignals"
+    "integrateSignals",
+    "exportIntegratedSignals"
 )
 exportClasses(
     "ASpliAS",

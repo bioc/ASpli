@@ -198,6 +198,7 @@
 # por ejemplo, jl y que se solapa con un bin en al menos 3 pares de bases, aparece con soporte en bjs y en jl, mientras que si se solapa
 # con b, solamente de coverage, aparece con b y jl. Las junturas que aparecen reportadas al final son las que aparecen en el bin en caso
 # de tratarse de una región meramente "binica" o son la región en caso de venir de ja o jl.
+#bin.fdr=0.05;unif=0.1;dPIN=0.05;dPIR=0.05;j.fdr=0.05;j.particip=0.1;usepvalBJS=FALSE;bjs.fdr=0.1; otherSources = NULL
 .integrateSignals<-function(sr = NULL, asd = NULL, bin.fdr=0.05,unif=0.1,dPIN=0.05,dPIR=0.05,j.fdr=0.05,j.particip=0.1,usepvalBJS=FALSE,bjs.fdr=0.1, otherSources = NULL){
   
   if(class(sr) != "ASpliSplicingReport"){
@@ -407,7 +408,7 @@
       }
     })
     aa$locus[!is.na(regiones)] <- regiones[!is.na(regiones)]
+    aa <- aa[, c(1, 11, 2:10)]
   }
-  aa <- aa[, c(1, 11, 2:10)]
   return(aa)
 }
