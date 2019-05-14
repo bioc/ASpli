@@ -273,7 +273,7 @@
       }else{
         ttype<-"equal"
       }
-      taux           <- as.data.table(findOverlaps(laux[[i]],laux[[j]],type=ttype, minoverlap = 3))
+      taux           <- as.data.table(suppressWarnings(findOverlaps(laux[[i]],laux[[j]],type=ttype, minoverlap = 3)))
       if(nrow(taux) > 0){
         taux[,queryHits:=paste(names(laux)[i],queryHits,sep=".")]
         taux[,subjectHits:=paste(names(laux)[j],subjectHits,sep=".")]
