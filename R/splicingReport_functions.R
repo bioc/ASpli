@@ -192,7 +192,12 @@
 #
 # para la senial de junturas soporte de bin coverage se usan criterios basados en dPIN/dPI y 
 # adicionalmente es posible usar, o no, el valor de fdr asociado a la juntura J3
-# 
+# Acá lo que hacemos es ver el overlap entre regiones que tienen señales diferentes. Para el caso del overlap entre 
+# b o bjs y cualquier otro, usamos cualquier overlap, mientras que para el overlap entre ja y jl tienen que ser las mismas regiones
+# Además, filtramos las ja y jl por junction.fdr unicamente. De esa forma, una región que tiene una juntura con uso diferencial, 
+# por ejemplo, jl y que se solapa con un bin en al menos 3 pares de bases, aparece con soporte en bjs y en jl, mientras que si se solapa
+# con b, solamente de coverage, aparece con b y jl. Las junturas que aparecen reportadas al final son las que aparecen en el bin en caso
+# de tratarse de una región meramente "binica" o son la región en caso de venir de ja o jl.
 .integrateSignals<-function(sr = NULL, asd = NULL, bin.fdr=0.05,unif=0.1,dPIN=0.05,dPIR=0.05,j.fdr=0.05,j.particip=0.1,usepvalBJS=FALSE,bjs.fdr=0.1, otherSources = NULL){
   
   if(class(sr) != "ASpliSplicingReport"){
@@ -230,8 +235,9 @@
   tipo    = rep("binbased", times=length(seqnames))
   binsupport <- GRanges(seqnames, IRanges(start, end), strand, tipo)
   
+  
   b <- sr@localebased
-  b <- b[(replace_na(b$bin.fdr < bin.fdr, FALSE) | replace_na(b$junction.fdr < j.fdr, FALSE)) & 
+  b <- b[replace_na(b$junction.fdr < j.fdr, FALSE) & 
            replace_na(b$junction.participation > j.particip, FALSE), ]
   aux <- strsplit2(b$junction, "[.]")
   start   = as.numeric(aux[, 2])#aggregate(start ~ cluster, data=b, FUN=min)
@@ -241,8 +247,9 @@
   tipo    = rep("localebased", times=length(aux[, 1]))
   localebased <- GRanges(seqnames, IRanges(start, end), strand, tipo)
   
+  
   b <- sr@anchorbased
-  b <- b[(replace_na(b$bin.fdr < bin.fdr, FALSE) | replace_na(b$junction.fdr < j.fdr, FALSE)) & 
+  b <- b[replace_na(b$junction.fdr < j.fdr, FALSE) & 
            replace_na(b$junction.participation > j.particip, FALSE) & 
            replace_na(b$junction.nonuniformity < unif, FALSE), ]
   aux <- strsplit2(b$junction, "[.]")
@@ -265,11 +272,13 @@
       }else{
         ttype<-"equal"
       }
-      taux           <- as.data.table(findOverlaps(laux[[i]],laux[[j]],type=ttype))
-      taux[,queryHits:=paste(names(laux)[i],queryHits,sep=".")]
-      taux[,subjectHits:=paste(names(laux)[j],subjectHits,sep=".")]
-      colnames(taux) <- names(laux)[c(i,j)]
-      lover[[saux]]           <-  taux
+      taux           <- as.data.table(findOverlaps(laux[[i]],laux[[j]],type=ttype, minoverlap = 3))
+      if(nrow(taux) > 0){
+        taux[,queryHits:=paste(names(laux)[i],queryHits,sep=".")]
+        taux[,subjectHits:=paste(names(laux)[j],subjectHits,sep=".")]
+        colnames(taux) <- names(laux)[c(i,j)]
+        lover[[saux]]           <-  taux
+      }
     }
   }  
   
@@ -369,14 +378,20 @@
   #matcheo rango con bin
   roi  <- overlaps_aux[,region]
   rroi <- unlist(lapply(strsplit(roi,":",fixed=TRUE),function(x){return(x[2])}))
+  binbased(sr)
   ii<-match(rroi,paste0(binbased(sr)$start,"-",binbased(sr)$end))
   # table(is.na(ii))
-  table(binbased(sr)[ii,2:3])
+  #table(binbased(sr)[ii,2:3])
   
   aa <- binbased(sr)[ii,c(1:3,7:8,13)]
   aa <- cbind(aa[,-c(4,5)],binreg=paste(aa$start,aa$end,sep="-"))
   
-  aa<-cbind(overlaps_aux,aa)
+  aa <-cbind(overlaps_aux,aa)
+  roi <- gsub("[Chr]", "", roi)
+  roi <- gsub("[:]", ".", roi)
+  roi <- gsub("[-]", ".", roi)
+  aa$J3 <- as.character(aa$J3)
+  aa$J3[is.na(aa$J3)] <- roi[is.na(aa$J3)]
   
   if(class(asd) == "ASpliAS"){
     aa$locus <- strsplit2(aa$bin, ":")[, 1]
@@ -393,6 +408,6 @@
     })
     aa$locus[!is.na(regiones)] <- regiones[!is.na(regiones)]
   }
-  
+  aa <- aa[, c(1, 11, 2:10)]
   return(aa)
 }
