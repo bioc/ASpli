@@ -473,13 +473,66 @@
 #chrMap <- as.character(1:5)
 #names(chrMap) <- paste0("Chr",1:5)
 #.plotSplicingPattern(region, iss, counts, f, mergedBAMs, sr, exones, chrMap = chrMap)
-.plotSplicingPattern<-function(region=NULL,iss,counts,f,mergedBAMs,sr,exones=NULL,genePlot=TRUE,zoomRegion=1.5,chrMap=NULL,hCov=0.7,hJun=0.3,useLog=FALSE){
+.countJbyCondition<-function(jcoords,counts){
+  x<-countsj(counts)[rownames(jcoords),]
+  mjsum <-c()
+  for(ifila in 1:nrow(x)){
+    jsum<-c()
+    for(ccond in counts@condition.order){
+      icols<-grep(ccond,colnames(x))
+      jsum <- c(jsum,sum(x[ifila,icols]))
+    }
+    mjsum<-rbind(mjsum,jsum)
+  }
+  colnames(mjsum)<-counts@condition.order
+  rownames(mjsum)<-rownames(x)
+  return(mjsum)
+} 
+
+
+# region: coordenadas genomicas de una region de interes (e.g. Chr1:1054200-1054285). 
+#         Debe ser elegida a partid del objeto iss (ver abajo)
+# iss   : objeto obtenido a partir de integrateSplicingSignals
+# counts: ASpliCounts object
+# f     : ASpliFeatures object
+# mergedBAMs: data frame con dos columnas: full_path_file_name_bam_file condition (compatible con nomenclatura de aspli)
+# sr    : ASpliSplicingReport object
+# exones: si GRangesList object que contiene GRanges de bines para cada transcripto del genoma. 
+#         si es NULL no se plotea estructura de variantes
+# genePlot: si TRUE se grafica el esquema de splicing de la region en el contexto del gen al cual pertenece
+#           si FALSE se centra la figura en la region
+# jCompletelyIncluded: si TRUE solo se grafican junturas no diferenciales que esten completamente incluidas en la region de ploteo
+#                      si FALSE se grafican junturas no diferenciales que overlapeen con la region de ploteo
+# zoomRegion: factor para magnificar el area ploteada centrada en la region de interes
+# chrMap    : vector nombrado que permite mapear nombres de cromosomas *utilizados en la denofinicion de region) en aquellos 
+#             utilizados en bams
+# 
+# chrMap <- 1:5
+# names(chrMap) <- c("Chr1", "Chr2", "Chr3", "Chr4", "Chr5")
+# mergedBams <- c("/xdata1/porcupine_data/STAR/mergedBAMS/col0_16.star.bam",
+#                 "/xdata1/porcupine_data/STAR/mergedBAMS/col0_23.star.bam",
+#                 "/xdata1/porcupine_data/STAR/mergedBAMS/pcp_16.star.bam",
+#                 "/xdata1/porcupine_data/STAR/mergedBAMS/pcp_23.star.bam")
+# mergedBAMs <- data.frame(full_path_file_name_bam_file = mergedBams, condition = c("col_16", "col_23", "pcp_16", "pcp_23"))
+#.plotSplicingPattern(region, iss, counts, f, mergedBAMs, sr, chrMap = chrMap)
+
+.plotSplicingPattern<-function(region=NULL,iss,counts,f,mergedBAMs,sr,exones=NULL,genePlot=TRUE,jCompletelyIncluded=TRUE,
+                              zoomRegion=1.5,chrMap=NULL,useLog=FALSE,tcex=1){
+  
+  #alturas relativas de paneles de coverage y junturas
+  hCov=0.7
+  hJun=0.3
   
   greg <- region
   nConditions <- nrow(mergedBAMs)
   
-  if(is.null(region)) warning("Out.\n")
   iiss  <- iss[iss$region %in% greg,]
+  if(nrow(iiss)==0){
+    warning("No valid region provided. Out.\n")
+    return()
+  }
+  
+  geneName<-iiss[,"locus"]
   
   #encuentra x: GRanges para graficar
   if(!genePlot){
@@ -502,17 +555,20 @@
       chr <- aspli.chr
     }
     
+    roi   <- as.numeric(strsplit2(strsplit2(iiss$region,":")[2],"-"))
     #si hay una J3 != NA la uso para definir el rango
     if(!is.na(iiss$J3)){
       #si J3 se movio en un cluster, uso el cluster para definir el rango
       #  if(iiss$jl==1){
       #    #TODO
       #  }else{
-      roi   <- as.numeric(strsplit2(as.character(iiss$J3),".",fixed=TRUE)[2:3])
+      roiJ3   <- as.numeric(strsplit2(as.character(iiss$J3),".",fixed=TRUE)[2:3])
       #  }
-    }else{
-      roi   <- as.numeric(strsplit2(strsplit2(iiss$region,":")[2],"-"))
+      
+      roi[1] <- min(roi,roiJ3)
+      roi[2] <- max(roi,roiJ3)
     }
+    
     delta <- roi[2]-roi[1]
     
     zroi  <- c(roi[1]-delta*zoomRegion/2 , roi[2]+delta*zoomRegion/2)
@@ -520,11 +576,16 @@
     
     gr    <- as(paste0(chr,":",zroi[1],"-",zroi[2]),"GRanges")
     hits  <- findOverlaps(gr,featuresb(f))
-    bins     <-featuresb(f)[subjectHits(hits)]
+    bins  <-featuresb(f)[subjectHits(hits)]
     
+    bins  <- bins[mcols(bins)$feature!="Io",]
+    
+    #redefino la zoomedroi en base a los bines que overlapeaban la zroi original
+    delta <- max(end(bins))-min(start(bins))
+    #zroi  <- c(start(bins)[1]-delta*zoomRegion/2 , end(bins)[length(bins)]+delta*zoomRegion/2)
+    zroi  <- c(start(bins)[1], end(bins)[length(bins)])
     
   }else{
-    geneName<-iiss[,"locus"]
     
     #identifico coordenadas de biones ebinsonicos
     #iE <- which(mcols(featuresb(f))$locus%in%geneName & mcols(featuresb(f))$feature=="E"
@@ -540,6 +601,7 @@
     zroi <- roi <- c(start(bins)[1],end(bins)[length(bins)])
   }
   
+  #Armado del layout
   if(is.null(exones)){
     hh <- c(rep(c(hCov,hJun)/nConditions,nConditions),0.1)
     hh <- hh/sum(hh)
@@ -547,14 +609,15 @@
     hh <- c(rep(c(hCov,hJun)/nConditions,nConditions),(hCov+hJun)/nConditions)
     hh <- hh/sum(hh)
   }
-  layout(matrix((2*nConditions+1):1,(2*nConditions+1),1),height=hh)
-  par(mar=c(1, 4.1, 1, 2.1))
+  #layout(matrix(c((2*nConditions+1):1,rep(2*nConditions+2,2*nConditions),2*nConditions+3),ncol=2),width=c(0.8,.2),height=hh)
+  layout(matrix(c((2*nConditions+1):1,rep(1+2*nConditions+1:nConditions,each=2),(3*nConditions+2)),ncol=2),width=c(0.8,.2),height=hh)
   
+  par(mar=c(.5, 1.1, .5, 1.1))
   
   rownames(mergedBAMs)<-mergedBAMs[,1]
   
   
-  #Transcriptos
+  # Si hay exones...dibujo variantes
   if(!is.null(exones)){
     transcriptGene<-strsplit2(names(exones),".",fixed=TRUE)[,1]
     
@@ -568,12 +631,12 @@
     
     plot(0,typ="n",xlim=range(limExones),ylim=c(0,length(tex)+3),axes=FALSE,xlab="",ylab="")
     
-    if(length(tex)>1){
+    if(length(tex)>1 | !genePlot){
       for(itex in 1:length(tex)){
         bbins <- tex[[itex]]
         y<-length(tex)-(itex-1)
         lines(c(start(bbins[1]),end(bbins[length(bbins)])),c(y,y),col="gray")
-        rect(start(bbins),y-.3,end(bbins),y+0.3,col="white")
+        rect(start(bbins),y-.3,end(bbins),y+0.3,col=rgb(.7,.7,.7),border="black")
         
       }
     }
@@ -582,8 +645,7 @@
     ycollapsed <- 0
   }
   
-  
-  #bines del genoma anotado
+  # Bines del genoma anotado que overlapean con el roi
   iE   <- mcols(bins)$feature=="E"
   iroi <- (start(bins)>=roi[1] & start(bins)<roi[2])
   
@@ -595,7 +657,16 @@
   }
   lines(c(start(bins[1]),end(bins[nbines])),c(ycollapsed,ycollapsed),col="gray")
   rect(start(bins)[iE],ycollapsed-.45,end(bins)[iE],ycollapsed+.45,col="white")
-
+  
+  #remarco la roi original
+  xroi   <- as.numeric(strsplit2(strsplit2(iiss$region,":")[2],"-"))
+  lines(xroi,rep(ycollapsed-.6,2),col="black",lwd=3)
+  
+  #grafico el zoom
+  if(!genePlot){
+    lines(c(start(bins[1]),par("usr")[1]),c(ycollapsed+.45,par("usr")[4]),lty=1,col="gray")
+    lines(c(end(bins[nbines]),par("usr")[2]),c(ycollapsed+.45,par("usr")[4]),lty=1,col="gray")
+  }
   
   #bines diferenciales
   if(FALSE){
@@ -609,117 +680,222 @@
     }
   }else{
     #que bines diferenciales hay en la region?
-    iE<-which(names(bins)%in%iss$bin)
+    iE<-which(names(bins)%in%iiss$bin)
     if(length(iE)>0){
       for(iie in seq_along(iE)){
         if(mcols(bins)$feature[iE[iie]]=="I"){
           lines(c(start(bins[iE[iie]]),end(bins[iE[iie]])),c(ycollapsed,ycollapsed),col="orange",lwd=3)
         }else{
-          rect(start(bins[iE[iie]]),ycollapsed-.45,end(bins[iE[iie]]),ycollapsed+.45,col="orange",border=NA)
+          if(iiss$b==1 & iiss$bjs==0) cc <- "orange"
+          if(iiss$b==1 & iiss$bjs==1) cc <- "red"
+          if(iiss$b==0 & iiss$bjs==1) cc <- "yellow"
+          rect(start(bins[iE[iie]]),ycollapsed-.45,end(bins[iE[iie]]),ycollapsed+.45,col=cc,border=NA)
         }
       }
     }
   }
   
+  lines(par("usr")[1:2],rep(ycollapsed-1,each=2),lty=2,col="gray")
   
-  
-  
-  
-  # junturas
-  # dibujo todas las junturas de la region de interes zroi,
-  # deberia trabajar con jdu...que tiene todas las analizadas, pero por ahora uso anchorage(sr)
-  # para diseniar el ploteado
+  # Junturas
+  jcount1<-jcount2<-jcount0<-nj0<-nj1<-nj2<-0
   aspli.chr <- strsplit2(iiss$region,":")[1]
-  gr    <- as(paste0(chrMap[aspli.chr],":",zroi[1],"-",zroi[2]),"GRanges")
   
+  #que junturas estan dentro de la zona?
+  jsplit <- strsplit2(rownames(junctionsPJU(asd)),".",fixed=TRUE)
+  if(jCompletelyIncluded){
+    ijsplit <- which(jsplit[,1]==chrMap[aspli.chr] & as.numeric(jsplit[,2])>=zroi[1] & as.numeric(jsplit[,3])<=zroi[2])
+  }else{
+    ijsplit <- which(jsplit[,1]==chrMap[aspli.chr] & 
+                       ((as.numeric(jsplit[,2])>=zroi[1] & as.numeric(jsplit[,2])<=zroi[2]) |
+                          (as.numeric(jsplit[,3])>=zroi[1] & as.numeric(jsplit[,3])<=zroi[2])) )
+  }
+  
+  if(length(ijsplit)>0){ 
+    jcoords0 <- data.frame(chr=as.numeric(jsplit[ijsplit,1]),
+                           start=as.numeric(jsplit[ijsplit,2]),
+                           end=as.numeric(jsplit[ijsplit,3]))
+    rownames(jcoords0)<-rownames(junctionsPJU(asd))[ijsplit]
+    nj0               <- nrow(jcoords0)                       
+  }
+  
+  # busco anchor junctions
   js <- unique(anchorbased(sr)$junction)
   aux <- strsplit2(js,".",fixed=TRUE)
-  ijs <-which(aux[,1]==chrMap[aspli.chr] &
-                as.numeric(aux[,2])>=zroi[1] &
-                as.numeric(aux[,2])<=zroi[2])
-  nj<-0
-  jcoords<-c()
+  # ijs <-which(aux[,1]==chrMap[aspli.chr] &
+  #               as.numeric(aux[,2])>=zroi[1] &
+  #               as.numeric(aux[,2])<=zroi[2])  #ACA HAbia un error!
+  if(jCompletelyIncluded){
+    ijs <- which(aux[,1]==chrMap[aspli.chr] & as.numeric(aux[,2])>=zroi[1] & as.numeric(aux[,3])<=zroi[2])
+  }else{
+    ijs <- which(aux[,1]==chrMap[aspli.chr] & 
+                   ((as.numeric(aux[,2])>=zroi[1] & as.numeric(aux[,2])<=zroi[2]) |
+                      (as.numeric(aux[,3])>=zroi[1] & as.numeric(aux[,3])<=zroi[2])) )
+  }
+  jcoords1<-c()
   if(length(ijs)>0){
-    jcoords          <- matrix(as.numeric(aux[ijs,]),ncol=3)
-    rownames(jcoords)<-js[ijs]
-    nj               <- nrow(jcoords)
+    jcoords1          <- matrix(as.numeric(aux[ijs,]),ncol=3)
+    rownames(jcoords1)<-js[ijs]
+    nj1               <- nrow(jcoords1)
     
-    if(FALSE){
-      iasr <- match(rownames(jcoords),anchorbased(sr)$junction)
-      anchorbased(sr)[iasr,]
+    #saco del grupo gris junturas anchor
+    iout<-rownames(jcoords0)%in%rownames(jcoords1)
+    if(sum(iout)>0){
+      jcoords0<-jcoords0[!iout,]
+      nj0 <- nj0 - sum(iout)
     }
   }
   
-  
-  #analizo si alguna locale no aparece...la agrego
+  #analizo locale 
   js <- unique(localebased(sr)$junction)
   aux <- strsplit2(js,".",fixed=TRUE)
-  ijs <-which(aux[,1]==chrMap[aspli.chr] &
-                as.numeric(aux[,2])>=zroi[1] &
-                as.numeric(aux[,2])<=zroi[2])
+  # ijs <-which(aux[,1]==chrMap[aspli.chr] &
+  #               as.numeric(aux[,2])>=zroi[1] &
+  #               as.numeric(aux[,2])<=zroi[2]) #ACA HAbia un error!
+  if(jCompletelyIncluded){
+    ijs <- which(aux[,1]==chrMap[aspli.chr] & as.numeric(aux[,2])>=zroi[1] & as.numeric(aux[,3])<=zroi[2])
+  }else{
+    ijs <- which(aux[,1]==chrMap[aspli.chr] & 
+                   ((as.numeric(aux[,2])>=zroi[1] & as.numeric(aux[,2])<=zroi[2]) |
+                      (as.numeric(aux[,3])>=zroi[1] & as.numeric(aux[,3])<=zroi[2])) )
+  }
+  jcoords2<-c()
   if(length(ijs)>0){
     jcoords2          <- matrix(as.numeric(aux[ijs,]),ncol=3)
     rownames(jcoords2)<-js[ijs]
     nj2               <- nrow(jcoords2)
-    idiff<-setdiff(rownames(jcoords2),rownames(jcoords))
-    if(length(idiff)>0){
-      rnames <- c(rownames(jcoords),idiff)
-      jcoords<- rbind(jcoords,jcoords2[idiff,])
-      rownames(jcoords)<-rnames
-      nj     <- nj + length(idiff)
-      
-      #TODO jclusters
-      #ilsr <- match(rownames(jcoords),localebased(sr)$junction)
-      #jclus <- unique(localebased(sr)[ilsr,"junction.cluster"])
-      
-      
-    }
-  }
-  
-  if(nj>0){
-    abline(v=unique(c(jcoords[,2],jcoords[,3])),col="gray",lty=3)
     
-    #paneles
-    #cuento junturas por condicion
-    x<-countsj(counts)[rownames(jcoords),]
-    mjsum <-c()
-    for(ifila in 1:nrow(x)){
-      jsum<-c()
-      for(ccond in counts@condition.order){
-        icols<-grep(ccond,colnames(x))
-        jsum <- c(jsum,sum(x[ifila,icols]))
-      }
-      mjsum<-rbind(mjsum,jsum)
+    #saco del grupo gris junturas locale
+    iout<-rownames(jcoords0)%in%rownames(jcoords2)
+    if(sum(iout)>0){
+      jcoords0<-jcoords0[!iout,]
+      nj0 <- nj0 - sum(iout)
     }
-    colnames(mjsum)<-counts@condition.order
-    rownames(mjsum)<-rownames(x)
   }
   
   
+  
+  #si detecto locale o anchor lo marco  
+  if(nj1>0) abline(v=unique(c(jcoords1[,2],jcoords1[,3])),col="lightblue",lty=3)
+  if(nj2>0) abline(v=unique(c(jcoords2[,2],jcoords2[,3])),col="lightgreen",lty=3)
+  
+  #dibujo paneles por condicion: junturas y coverage en la region de interes
   for(icond in 1:nConditions){
-    #ppath <- "/home/ariel/Projects/RNAseq/Marcelo/PCP/03_STAR/mergedBAMS/"
     ad <- system(paste0("samtools depth -r ",
                         paste0(chrMap[aspli.chr],":",zroi[1],"-",zroi[2]," "),
-                        bamFiles[icond]), intern = T)
+                        mergedBAMs[icond, 1]), intern = T)
     ad <- matrix(as.numeric(strsplit2(ad,"\t")),ncol=3)
     yylim <- range(ad[,3])
+    
+    nrep <- table(counts@targets$condition)[mergedBAMs[icond,2]]
+    #me quedo con las que pasan un filtro de minima   
+    jjcoords0<-jcoords0
+    if(nj0>0){
+      jcount0 <- .countJbyCondition(jcoords0,counts)[,mergedBAMs[icond,2],drop=FALSE]
+      jok     <- rownames(jcount0)[jcount0>5*nrep]
+      nj0     <- length(jok)
+      if(nj0>0)  jjcoords0  <- jcoords0[jok,,drop=FALSE]
+    }
+    
+    jjcoords1<-jcoords1
+    if(nj1>0){
+      jcount1 <- .countJbyCondition(jcoords1,counts)[,mergedBAMs[icond,2],drop=FALSE]
+      #   jok     <- rownames(jcount1)[jcount1>5*nrep]
+      #   nj1     <- length(jok)
+      #   if(nj1>0)  jjcoords1  <- jcoords1[jok,,drop=FALSE]
+    }
+    
+    jjcoords2<-jcoords2
+    if(nj2>0){
+      jcount2 <- .countJbyCondition(jcoords2,counts)[,mergedBAMs[icond,2],drop=FALSE]
+      #   jok     <- rownames(jcount2)[jcount2>5*nrep]
+      #   nj2     <- length(jok)
+      #   if(nj2>0)  jjcoords2  <- jcoords2[jok,,drop=FALSE]
+    }
+    
     
     
     
     #panel junturas
-    plot(0,typ="n",xlim=c(start(bins[1]),end(bins[nbines])),ylim=c(1,nj+1),axes=FALSE,xlab="",ylab="")
-    if(nj>0){
-      jcounts <- mjsum[,mergedBAMs[icond,2]]
-      ww <- jcounts/max(jcounts)*3
-      
-      abline(v=unique(c(jcoords[,2],jcoords[,3])),col="lightgray",lty=3)
-      for(ij in 1:nj){
-        lines(jcoords[ij,2:3],rep(ij,2),lwd=ww[ij])
-        points(jcoords[ij,2:3],rep(ij,2),pch=18)
-        text(mean(jcoords[ij,2:3]),ij,jcounts[ij],pos=3)
+    if(FALSE){
+      plot(0,typ="n",xlim=c(start(bins[1]),end(bins[nbines])),ylim=c(1,nj0+nj1+nj2+3),axes=FALSE,xlab="",ylab="")
+      jmaxcount <- max(c(jcount0,jcount1,jcount2))
+      if(nj0>0){
+        jcounts <- jcount0
+        jcoords <- jjcoords0
+        ww <- jcounts/jmaxcount*3
+        for(ij in 1:nj0){
+          lines(jcoords[ij,2:3],rep(ij,2),lwd=ww[rownames(jcoords)[ij],1],col="lightgray")
+          points(jcoords[ij,2:3],rep(ij,2),pch=18,cex=0.5,col="lightgray")
+        }
+      }
+      if(nj1>0){
+        jcounts <- jcount1
+        jcoords <- jjcoords1
+        ww <- jcounts/jmaxcount*3
         
+        abline(v=unique(c(jcoords[,2],jcoords[,3])),col="lightblue",lty=3)
+        for(ij in 1:nj1){
+          lines(jcoords[ij,2:3],rep(nj0+ij,2),lwd=ww[rownames(jcoords)[ij],1],col="lightblue")
+          points(jcoords[ij,2:3],rep(nj0+ij,2),pch=18,cex=0.5,col="lightblue")
+          text(mean(as.numeric(jcoords[ij,2:3])),nj0+ij,jcounts[ij],pos=3,cex=0.8)
+        }
+      }
+      if(nj2>0){
+        jcounts <- jcount2
+        jcoords <- jjcoords2
+        ww <- jcounts/jmaxcount*3
+        
+        abline(v=unique(c(jcoords[,2],jcoords[,3])),col="lightgreen",lty=3)
+        for(ij in 1:nj2){
+          lines(jcoords[ij,2:3],rep(nj0+nj1+ij,2),lwd=ww[rownames(jcoords)[ij],1],col="lightgreen")
+          points(jcoords[ij,2:3],rep(nj0+nj1+ij,2),pch=18,cex=0.5,col="lightgreen")
+          text(mean(as.numeric(jcoords[ij,2:3])),nj0+nj1+ij,jcounts[ij],pos=3,cex=0.8)
+        }
       }
     }
+    
+    #plot(0,typ="n",xlim=c(start(bins[1]),end(bins[nbines])),ylim=c(1,nj0+nj1+nj2+3),axes=FALSE,xlab="",ylab="")
+    plot(0,typ="n",xlim=c(start(bins[1]),end(bins[nbines])),ylim=c(1,nj0+nj1+nj2+3),axes=FALSE,xlab="",ylab="")
+    jmaxcount <- max(c(jcount0,jcount1,jcount2))
+    if(nj0>0){
+      jcounts <- jcount0
+      jcoords <- jjcoords0
+      ww <- jcounts/jmaxcount*3
+      for(ij in 1:nj0){
+        lines(jcoords[ij,2:3],rep(ij,2),lwd=ww[rownames(jcoords)[ij],1],col="lightgray")
+        points(jcoords[ij,2:3],rep(ij,2),pch=18,cex=0.5,col="lightgray")
+      }
+    }
+    if(nj1>0){
+      jcounts <- jcount1
+      jcoords <- jjcoords1
+      ww <- jcounts/jmaxcount*3
+      
+      abline(v=unique(c(jcoords[,2],jcoords[,3])),col="lightblue",lty=3)
+      for(ij in 1:nj1){
+        #yij <- nj0+ij
+        yij <- ij * (nj0+nj1+nj2)/(nj1+nj2)
+        lines(jcoords[ij,2:3],rep(yij,2),lwd=ww[rownames(jcoords)[ij],1],col="lightblue")
+        points(jcoords[ij,2:3],rep(yij,2),pch=18,cex=0.5,col="lightblue")
+        text(mean(as.numeric(jcoords[ij,2:3])),yij,jcounts[ij],pos=3,cex=1.5)
+      }
+    }
+    if(nj2>0){
+      jcounts <- jcount2
+      jcoords <- jjcoords2
+      ww <- jcounts/jmaxcount*3
+      
+      abline(v=unique(c(jcoords[,2],jcoords[,3])),col="lightgreen",lty=3)
+      for(ij in 1:nj2){
+        #yij <- nj0+nj1+ij
+        yij <- (nj1+ij)* (nj0+nj1+nj2)/(nj1+nj2)
+        lines(jcoords[ij,2:3],rep(yij,2),lwd=ww[rownames(jcoords)[ij],1],col="lightgreen")
+        points(jcoords[ij,2:3],rep(yij,2),pch=18,cex=0.5,col="lightgreen")
+        text(mean(as.numeric(jcoords[ij,2:3])),yij,jcounts[ij],pos=3,cex=1.5)
+      }
+    }
+    
     
     #coverage
     if(useLog){
@@ -728,32 +904,85 @@
       plot(0,typ="n",xlim=c(start(bins[1]),end(bins[nbines])),ylim=yylim,axes=FALSE,xlab="",ylab="")
     }
     polygon(c(ad[1,2],ad[,2],ad[nrow(ad),2]), c(0.01,ad[,3],0.01)
-            ,border=NA,col=topo.colors(nConditions,0.5)[icond],fillOddEven = TRUE)
+            ,border=NA,col=topo.colors(nConditions,1)[icond],fillOddEven = TRUE)
     lines(c(ad[1,2],ad[,2],ad[nrow(ad),2]),  c(0.01,ad[,3],0.01),
-          col=topo.colors(nConditions,0.7)[icond])
+          col=topo.colors(nConditions,1)[icond])
     text(ad[1,2],0.01,paste0("[0-",max(ad[,3]),"]"),cex=1.2,adj=c(-.25,-.5))
     
-    if(nj>0)abline(v=unique(c(jcoords[,2],jcoords[,3])),col="lightgray",lty=3)
+    if(nj1>0)abline(v=unique(c(jcoords1[,2],jcoords1[,3])),col="lightblue",lty=3)
+    if(nj2>0)abline(v=unique(c(jcoords2[,2],jcoords2[,3])),col="lightgreen",lty=3)
+    
+    #remarco la roi original
+    if(icond==1){
+      xroi   <- as.numeric(strsplit2(strsplit2(iiss$region,":")[2],"-"))
+      lines(xroi,rep(par("usr")[3],2),col="black",lwd=3)
+      # rect(xroi[1],par("usr")[3],xroi[2],par("usr")[3]+diff(par("usr")[4:3])*.1,col="black",density=2)
+    }  
+  }
+  mtext(paste(iiss$locus,iiss$region),line=-.5,cex=0.8)
+  
+  
+  #vamos por el texto:
+  # Junturas Anchor
+  plot(1,axes=FALSE,type="n",xlab="",ylab="")
+  if(iiss$ja==1){
+    col1 <- c( "junction","junction.annotated","junction.fdr","junction.nonuniformity","junction.participation","cluster.fdr","dPIR")
+    a1 <- sr@anchorbased[sr@anchorbased$junction%in%iiss$J3,col1]
+    if(nrow(a1)>0){
+      a1[col1[3:7]]<-signif(a1[col1[3:7]],2)
+      a1<-cbind(names(a1),t(a1))
+      a1<-apply(a1,1,function(x){return(paste(x,collapse=": "))})
+      names(a1)<- c("junction","annotated","j.fdr","non-unif","participation","cluster.fdr","D_PIR")
+      a1<-paste("  ",a1,sep = "")
+      a1<-c("Junction Anchorage:",a1)
+      legend("topleft",a1,cex=tcex,bty="n",inset=0.02) 
+      
+      # a2 <- sr@anchorbased[sr@anchorbased$junction%in%iiss$J3,8+c(6,4,2,5,3,1)]*nrep
+      # a2 <- cbind(names(a2),t(a2))
+      # a2 <- apply(a2,1,function(x){return(paste(x,collapse=": "))})
+      # a2<-paste("  ",a2,sep = "")
+      
+      # legend("bottomleft",a2,cex=tcex,bty="n",inset=0.02)
+    }else{
+      a1<-c("Junction Anchorage:","  no J3 passed the filter.")
+      legend("topleft",a1,cex=tcex,bty="n",inset=0.02)   
+    }
+  }
+  
+  # Junturas locale
+  plot(1,axes=FALSE,type="n",xlab="",ylab="")
+  if(iiss$jl==1){
+    col1 <- c( "junction","junction.annotated","junction.fdr","junction.participation","cluster.fdr")
+    a1 <- sr@localebased[sr@localebased$junction%in%iiss$J3,col1]
+    a1[col1[3:5]]<-signif(a1[col1[3:5]],2)
+    a1<-cbind(names(a1),t(a1))
+    a1<-apply(a1,1,function(x){return(paste(x,collapse=": "))})
+    names(a1)<- c("junction","annotated","j.fdr","participation","cluster.fdr")
+    a1<-paste("  ",a1,sep = "")
+    a1<-c("Junction Locale:",a1)
+    
+    legend("topleft",a1,cex=tcex,bty="n",inset=0.02) 
     
     
   }
-  mtext(paste(iiss$locus,iiss$region),line=-.5)
+  
+  # bin info
+  plot(1,axes=FALSE,type="n",xlab="",ylab="")
+  if(iiss$b==1 | iiss$bjs==1){
+    col1 <- c( "bin","bin.fdr","junction.dPIR","junction.dPIN")
+    a1 <- sr@binbased[sr@binbased$bin%in%iiss$bin,col1]
+    a1[col1[2:4]]<-signif(a1[col1[2:4]],2)
+    names(a1)<-c("bin","bin.fdr","D_PIR","D_PIN")
+    a1<-cbind(names(a1),t(a1))
+    a1<-apply(a1,1,function(x){return(paste(x,collapse=": "))})
+    a1<-paste("  ",a1,sep = "")
+    a1<-c("Bin:",a1)
+    legend("topleft",a1,cex=tcex,bty="n",inset=0.02) 
+    
+  }
   
   
 }
-
-
-#plotSplicingPattern(region,iss,counts,f=features,mergedBAMs,genePlot=TRUE,chrMap=chrMap)
-#plotSplicingPattern(region,iss,counts,f=features,mergedBAMs,exones,genePlot=TRUE,chrMap=chrMap)
-
-
-#for(i in 1:length(iss$region)){
-#  plotSplicingPattern(region=iss$region[i],iss,counts,f=features,mergedBAMs,exones,genePlot=TRUE,chrMap=chrMap,useLog=FALSE)
-#  readline("Press <ENTER>")
-#}
-
-
-
 
 
 
