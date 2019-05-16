@@ -192,10 +192,10 @@
 # adicionalmente es posible usar, o no, el valor de fdr asociado a la juntura J3
 # Aca lo que hacemos es ver el overlap entre regiones que tienen seniales diferentes. Para el caso del overlap entre 
 # b o bjs y cualquier otro, usamos cualquier overlap, mientras que para el overlap entre ja y jl tienen que ser las mismas regiones
-# Ademas, filtramos las ja y jl por junction.fdr unicamente. De esa forma, una region que tiene una juntura con uso diferencial, 
+# Ademas, filtramos las ja y jl por junction.fdr unicamente. De esa forma, una región que tiene una juntura con uso diferencial, 
 # por ejemplo, jl y que se solapa con un bin en al menos 3 pares de bases, aparece con soporte en bjs y en jl, mientras que si se solapa
 # con b, solamente de coverage, aparece con b y jl. Las junturas que aparecen reportadas al final son las que aparecen en el bin en caso
-# de tratarse de una region meramente "binica" o son la region en caso de venir de ja o jl.
+# de tratarse de una región meramente "binica" o son la región en caso de venir de ja o jl.
 .integrateSignals<-function(sr = NULL, asd = NULL, bin.fdr=0.05,unif=0.1,dPIN=0.05,dPIR=0.05,j.fdr=0.05,j.particip=0.1,usepvalBJS=FALSE,bjs.fdr=0.1, otherSources = NULL){
   
   if(class(sr) != "ASpliSplicingReport"){
@@ -442,10 +442,35 @@
       aa$locus[!is.na(regiones)] <- regiones[!is.na(regiones)]
       aa <- aa[, c(1, 11, 2:10)]
     }
+    aa$bpval <- 1
+    aa$apval <- 1
+    aa$lpval <- 1
+    for(b in 1:nrow(aa)){
+      if(aa$b[b] != 0){
+        i <- which(binbased(sr)$bin == aa$bin[b])
+        if(length(i) > 0){
+          aa$bpval[b] <- binbased(sr)$bin.pvalue[i[1]]
+        }
+      }
+      if(aa$ja[b] != 0){
+        i <- which(anchorbased(sr)$junction == aa$J3[b])
+        if(length(i) > 0){
+          aa$apval[b] <- anchorbased(sr)$junction.pvalue[i[1]]
+        }
+      }
+      if(aa$jl[b] != 0){
+        i <- which(localebased(sr)$junction == aa$J3[b])
+        if(length(i) > 0){
+          aa$lpval[b] <- localebased(sr)$junction.pvalue[i[1]]
+        }
+      }          
+    }    
   }else{
     aa <- data.table(region = character(), locus = character(), b = numeric(), bjs = numeric(), ja = numeric(),
                      jl = numeric(), bin = character(), feature = character(), bin.event = character(),
                      J3 = character(), binreg = character())
   }
+  
+
   return(aa)
 }

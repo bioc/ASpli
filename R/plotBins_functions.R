@@ -781,6 +781,9 @@
   
   #dibujo paneles por condicion: junturas y coverage en la region de interes
   for(icond in 1:nConditions){
+    # print(paste0("samtools depth -r ",
+    #              paste0(chrMap[aspli.chr],":",zroi[1],"-",zroi[2]," "),
+    #              mergedBAMs[icond, 1]))
     ad <- system(paste0("samtools depth -r ",
                         paste0(chrMap[aspli.chr],":",zroi[1],"-",zroi[2]," "),
                         mergedBAMs[icond, 1]), intern = T)
