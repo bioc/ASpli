@@ -538,7 +538,12 @@
   if(!genePlot){
     
     #nombre de cromosoma en aspli
-    aspli.chr <- strsplit2(strsplit2(iiss$region,":")[1], "Chr")[2]
+    aspli.chr <- strsplit2(strsplit2(iiss$region,":")[1], "Chr")
+    if(ncol(aspli.chr) == 2){
+      aspli.chr <- aspli.chr[, 2]
+    }else{
+      aspli.chr <- aspli.chr[, 1]
+    }
     
     #nombre de cromosomas en features
     features.chr<-levels(seqnames(featuresb(f))@values)
@@ -699,7 +704,12 @@
   
   # Junturas
   jcount1<-jcount2<-jcount0<-nj0<-nj1<-nj2<-0
-  aspli.chr <- strsplit2(strsplit2(iiss$region,":")[1], "Chr")[2]
+  aspli.chr <- strsplit2(strsplit2(iiss$region,":")[1], "Chr")
+  if(ncol(aspli.chr) == 2){
+    aspli.chr <- aspli.chr[, 2]
+  }else{
+    aspli.chr <- aspli.chr[, 1]
+  }
   
   #que junturas estan dentro de la zona?
   jsplit <- strsplit2(rownames(junctionsPJU(asd)),".",fixed=TRUE)

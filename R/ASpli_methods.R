@@ -4,7 +4,8 @@ setClass( Class = "ASpliFeatures",
           representation = representation(
             genes = "GRangesList",
             bins = "GRanges",
-            junctions = "GRanges"))
+            junctions = "GRanges",
+            transcriptExons = "GRangesList"))
 
 setClass( Class = "ASpliCounts",
           representation = representation(
@@ -142,9 +143,12 @@ setMethod(
                                  junctions, logTo )
     fullT <- c(exons.introns,intron.orig)
     
+    transcriptExons <- exonsBy(genome, use.names=TRUE)
+    
     features@genes <- genes.by.exons
     features@bins <- fullT
     features@junctions <- junctions
+    features@transcriptExons <- transcriptExons
     
     return( features ) 
   })
@@ -1009,38 +1013,6 @@ setMethod( f = 'mergeBinDUAS',
            definition = function( du, as, targets, contrast = NULL  ) {
              .mergeBinDUAS( du, as, targets, contrast ) } )
 
-setGeneric( name = "exportCounts", 
-            def = function ( counts, output.dir="counts"  ) standardGeneric( "exportCounts" ) )
-
-setMethod(
-  f = "exportCounts",
-  signature = "ASpliCounts",
-  definition = function( counts, output.dir="counts" ) {
-    
-    file.exists( output.dir ) || dir.create( output.dir )
-    
-    
-    for(s in slotNames(counts)){
-      b <- slot(counts, s)
-      if(class(b) %in% c("data.frame", "data.table")){
-        y <- datatable(b,
-                       escape = TRUE,
-                       filter ="top",
-                       extensions = 'Buttons',
-                       options = list(dom = 'lfrtBip',
-                                      buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),
-                                      columnDefs = list(
-                                        #  list(visible = FALSE, targets = c(0, 2, 3)),
-                                        list(orderable = FALSE, className =
-                                               'details-control', targets = 1)
-                                      )
-                       ))    
-        saveWidget(y, file = paste0(getwd(), "/", output.dir, "/", s, "Report.html"))
-        browseURL(paste0(getwd(), "/", output.dir, "/", s, "Report.html"))
-      }
-    }    
-  }
-)
 
 setGeneric( name = "exportSplicingReports", 
             def = function ( sr, output.dir="sr"  ) standardGeneric( "exportSplicingReports" ) )
@@ -1055,17 +1027,31 @@ setMethod(
     
     for(s in slotNames(sr)){
       b <- slot(sr, s)
+      if(s == "binbased"){
+          b$feature <- as.factor(b$feature)
+          b$bin.event <- as.factor(b$bin.event)
+          b[, c(10:12, 15:ncol(b))] <- apply(b[, c(10:12, 15:ncol(b))], 2, function(s){return(signif(as.numeric(s), digits = 4))})
+      }
+      titulo <- paste('ASpli:', s)
       y <- datatable(b,
                      escape = TRUE,
                      filter ="top",
-                     extensions = 'Buttons',
+                     extensions = c('Buttons', 'Scroller', 'KeyTable'), 
                      options = list(dom = 'lfrtBip',
-                                    buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),
+                                    buttons = c('copy', 'csv', 'excel', 'pdf', 'print', I('colvis')),
                                     columnDefs = list(
                                       #  list(visible = FALSE, targets = c(0, 2, 3)),
                                       list(orderable = FALSE, className =
                                              'details-control', targets = 1)
-                                    )
+                                    ),
+                                    deferRender = TRUE,
+                                    scrollY = 600,
+                                    scrollX = TRUE,
+                                    scroller = TRUE,
+                                    keys = TRUE
+                     ),   caption = htmltools::tags$caption(
+                       style = 'caption-side: top; text-align: left;',
+                       htmltools::h1(titulo)
                      ))    
       suppressWarnings(saveWidget(y, file = paste0(getwd(), "/", output.dir, "/", s, "Report.html")))
       browseURL(paste0(getwd(), "/", output.dir, "/", s, "Report.html"))
@@ -1120,18 +1106,20 @@ setMethod(
     is[,jl:=as.factor(jl)]
     is[,feature:=as.factor(feature)]
     is[,bin.event:=as.factor(bin.event)]
-    
+    is[,bpval:=signif(as.numeric(bpval), 4)]
+    is[,lpval:=signif(as.numeric(lpval), 4)]
+    is[,apval:=signif(as.numeric(apval), 4)]
     chrMap <- as.character(1:5)
     names(chrMap) <- paste0("Chr",1:5)
     
     message("Generating graphs...")
-    if(!is.numeric(ntop)){
+    if(!is.numeric(ntop) | ntop < 1){
       ntop <- length(is$region)
     }
     for(i in 1:ntop){
       r <- is$region[i]
-      if(i %% floor(ntop/10) == 0){
-        message(paste0(signif(i/floor(ntop/10)*10, 2), "% completed"))
+      if(i %% 10 == 0){
+        message(paste0(signif(i/ntop, 2), "% completed"))
       }
       tryCatch({
         png(width = 1400, height=700, filename = paste0(getwd(), "/", output.dir, "/img/", r, "_gene.png"))
@@ -1148,23 +1136,29 @@ setMethod(
         
       })
     }
-    
+    titulo <- "ASpli: integrated signals"
     y <- datatable(cbind(' ' = '&oplus;',is[1:ntop,c("region", "locus", "b", "bjs", "ja", "jl", "bin", "feature", "bpval", "lpval", "apval")]),
               escape = -2,
               filter ="top",
-              extensions = 'Buttons',
+              fillContainer = F,
+              extensions = c('Buttons', 'KeyTable'), 
               options = list(dom = 'lfrtBip',
-                             buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),
+                             buttons = c('copy', 'csv', 'excel', 'pdf', 'print', I('colvis')),
                              columnDefs = list(
                                #  list(visible = FALSE, targets = c(0, 2, 3)),
                                list(orderable = FALSE, className =
                                       'details-control', targets = 1)
-                             )
+                             ),
+                             keys = TRUE
+              ),   caption = htmltools::tags$caption(
+                style = 'caption-side: top; text-align: left;',
+                htmltools::h1(titulo)
               ),
               callback = JS("
+            table.order([10, 'asc']).draw();
             table.column(1).nodes().to$().css({cursor: 'pointer'});
             var format = function(d) {
-             return '<div><img src=\"img/' + d[2] + '_gene.png\" height=\"700\"></img></div><div><img src=\"img/' + d[2] + '.png\" height=\"700\"></img></div>';
+             return '<div><h4>Gene view</h4></br><img src=\"img/' + d[2] + '_gene.png\" height=\"700\"></img></div><div></br></div><div><h4>Region view</h4></br><img src=\"img/' + d[2] + '.png\" height=\"700\"></img></div>';
             };
             table.on('click', 'td.details-control', function() {
                var td = $(this), row = table.row(td.closest('tr'));

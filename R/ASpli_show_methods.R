@@ -23,6 +23,14 @@ setMethod( f = "featuresb",signature = "ASpliFeatures",
 setGeneric( name = "featuresb<-", def = function( x, value ) standardGeneric("featuresb<-"))
 setReplaceMethod( f = "featuresb",signature = c( "ASpliFeatures","GRanges" ),
    definition = function( x, value ){ x@bins <- value; return( x ) } )
+
+setGeneric( name = "transcriptExons", def = function( x ) standardGeneric("transcriptExons"))
+setMethod( f = "transcriptExons",signature = "ASpliFeatures",
+           definition = function( x ){ x@transcriptExons })
+
+setGeneric( name = "transcriptExons<-", def = function( x, value ) standardGeneric("transcriptExons<-"))
+setReplaceMethod( f = "transcriptExons",signature = c( "ASpliFeatures","GRangesList" ),
+                  definition = function( x, value ){ x@transcriptExons <- value; return( x ) } )
 # ---------------------------------------------------------------------------- #
 
 # ---------------------------------------------------------------------------- #
@@ -86,6 +94,10 @@ setReplaceMethod( f = "rdsb", signature = c("ASpliCounts","data.frame"),
 setGeneric( name = "condition.order", def = function( x ) standardGeneric("condition.order") )
 setMethod( f = "condition.order", signature = "ASpliCounts", 
            definition = function( x ){ x@condition.order })
+
+setGeneric( name = "targets", def = function( x ) standardGeneric("targets") )
+setMethod( f = "targets", signature = "ASpliCounts", 
+           definition = function( x ){ x@targets })
 # ---------------------------------------------------------------------------- #
 
 # ---------------------------------------------------------------------------- #

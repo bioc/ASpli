@@ -21,9 +21,11 @@
       start = geneStarts ,
       end = geneEnds , 
       length = geneWidths , 
-      effective_length = effectiveGeneLength , 
-      hits )
-  
+      effective_length = effectiveGeneLength)
+  #Le ponemos los hits despues porque si los nombres empiezan con un numero se rompen los nombres de las columnas
+  for(i in 1:length(hits)){
+    result[, names(hits)[i]] <- hits[[i]]
+  }
   return(result)
 }
 
@@ -42,8 +44,12 @@
   result <- data.frame( feature@elementMetadata[c ('feature', 'event', 'locus',
               'locus_overlap', 'symbol')], 
       geneCoordinates, 
-      as.data.frame( feature@ranges )[ ,c("start", "end", "width")],
-      hits)
+      as.data.frame( feature@ranges )[ ,c("start", "end", "width")])
+  
+  #Le ponemos los hits despues porque si los nombres empiezan con un numero se rompen los nombres de las columnas
+  for(i in 1:length(hits)){
+    result[, names(hits)[i]] <- hits[[i]]
+  }
   
   colnames(result)[1:9] <- c( "feature","event","locus","locus_overlap","symbol",
       "gene_coordinates","start","end","length" )
@@ -71,8 +77,13 @@
   result <- data.frame(
       feature@elementMetadata[ c( 'event', 'locus', 'locus_overlap', 'symbol') ], 
       gene_coordinates, 
-      as.data.frame(feature@ranges),  
-      hits)
+      as.data.frame(feature@ranges))
+  
+  #Le ponemos los hits despues porque si los nombres empiezan con un numero se rompen los nombres de las columnas
+  for(i in 1:length(hits)){
+    result[, names(hits)[i]] <- hits[[i]]
+  }
+  
   result$names <- NULL
   
   colnames(result)[1:8] <- c( "event", "locus", "locus_overlap", "symbol",
