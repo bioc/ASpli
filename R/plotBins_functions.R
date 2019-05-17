@@ -517,7 +517,7 @@
 #.plotSplicingPattern(region, iss, counts, f, mergedBAMs, sr, chrMap = chrMap)
 
 .plotSplicingPattern<-function(region=NULL,iss,counts,f,mergedBAMs,sr,exones=NULL,genePlot=TRUE,jCompletelyIncluded=TRUE,
-                              zoomRegion=1.5,chrMap=NULL,useLog=FALSE,tcex=1){
+                              zoomRegion=1.5,useLog=FALSE,tcex=1){
   
   #alturas relativas de paneles de coverage y junturas
   hCov=0.7
@@ -538,7 +538,7 @@
   if(!genePlot){
     
     #nombre de cromosoma en aspli
-    aspli.chr <- strsplit2(iiss$region,":")[1]
+    aspli.chr <- strsplit2(strsplit2(iiss$region,":")[1], "Chr")[2]
     
     #nombre de cromosomas en features
     features.chr<-levels(seqnames(featuresb(f))@values)
@@ -549,7 +549,7 @@
                       "\n aspli.chr=",aspli.chr,
                       "\n features.chr=",paste(features.chr,collapse="/")))
       }else{
-        chr <- features.chr[match(chrMap[aspli.chr],features.chr)]
+        chr <- features.chr[match(aspli.chr,features.chr)]
       }
     }else{
       chr <- aspli.chr
@@ -699,14 +699,14 @@
   
   # Junturas
   jcount1<-jcount2<-jcount0<-nj0<-nj1<-nj2<-0
-  aspli.chr <- strsplit2(iiss$region,":")[1]
+  aspli.chr <- strsplit2(strsplit2(iiss$region,":")[1], "Chr")[2]
   
   #que junturas estan dentro de la zona?
   jsplit <- strsplit2(rownames(junctionsPJU(asd)),".",fixed=TRUE)
   if(jCompletelyIncluded){
-    ijsplit <- which(jsplit[,1]==chrMap[aspli.chr] & as.numeric(jsplit[,2])>=zroi[1] & as.numeric(jsplit[,3])<=zroi[2])
+    ijsplit <- which(jsplit[,1]==aspli.chr & as.numeric(jsplit[,2])>=zroi[1] & as.numeric(jsplit[,3])<=zroi[2])
   }else{
-    ijsplit <- which(jsplit[,1]==chrMap[aspli.chr] & 
+    ijsplit <- which(jsplit[,1]==aspli.chr & 
                        ((as.numeric(jsplit[,2])>=zroi[1] & as.numeric(jsplit[,2])<=zroi[2]) |
                           (as.numeric(jsplit[,3])>=zroi[1] & as.numeric(jsplit[,3])<=zroi[2])) )
   }
@@ -722,13 +722,13 @@
   # busco anchor junctions
   js <- unique(anchorbased(sr)$junction)
   aux <- strsplit2(js,".",fixed=TRUE)
-  # ijs <-which(aux[,1]==chrMap[aspli.chr] &
+  # ijs <-which(aux[,1]==aspli.chr &
   #               as.numeric(aux[,2])>=zroi[1] &
   #               as.numeric(aux[,2])<=zroi[2])  #ACA HAbia un error!
   if(jCompletelyIncluded){
-    ijs <- which(aux[,1]==chrMap[aspli.chr] & as.numeric(aux[,2])>=zroi[1] & as.numeric(aux[,3])<=zroi[2])
+    ijs <- which(aux[,1]==aspli.chr & as.numeric(aux[,2])>=zroi[1] & as.numeric(aux[,3])<=zroi[2])
   }else{
-    ijs <- which(aux[,1]==chrMap[aspli.chr] & 
+    ijs <- which(aux[,1]==aspli.chr & 
                    ((as.numeric(aux[,2])>=zroi[1] & as.numeric(aux[,2])<=zroi[2]) |
                       (as.numeric(aux[,3])>=zroi[1] & as.numeric(aux[,3])<=zroi[2])) )
   }
@@ -749,13 +749,13 @@
   #analizo locale 
   js <- unique(localebased(sr)$junction)
   aux <- strsplit2(js,".",fixed=TRUE)
-  # ijs <-which(aux[,1]==chrMap[aspli.chr] &
+  # ijs <-which(aux[,1]==aspli.chr &
   #               as.numeric(aux[,2])>=zroi[1] &
   #               as.numeric(aux[,2])<=zroi[2]) #ACA HAbia un error!
   if(jCompletelyIncluded){
-    ijs <- which(aux[,1]==chrMap[aspli.chr] & as.numeric(aux[,2])>=zroi[1] & as.numeric(aux[,3])<=zroi[2])
+    ijs <- which(aux[,1]==aspli.chr & as.numeric(aux[,2])>=zroi[1] & as.numeric(aux[,3])<=zroi[2])
   }else{
-    ijs <- which(aux[,1]==chrMap[aspli.chr] & 
+    ijs <- which(aux[,1]==aspli.chr & 
                    ((as.numeric(aux[,2])>=zroi[1] & as.numeric(aux[,2])<=zroi[2]) |
                       (as.numeric(aux[,3])>=zroi[1] & as.numeric(aux[,3])<=zroi[2])) )
   }
@@ -782,10 +782,10 @@
   #dibujo paneles por condicion: junturas y coverage en la region de interes
   for(icond in 1:nConditions){
     # print(paste0("samtools depth -r ",
-    #              paste0(chrMap[aspli.chr],":",zroi[1],"-",zroi[2]," "),
+    #              paste0(aspli.chr,":",zroi[1],"-",zroi[2]," "),
     #              mergedBAMs[icond, 1]))
     ad <- system(paste0("samtools depth -r ",
-                        paste0(chrMap[aspli.chr],":",zroi[1],"-",zroi[2]," "),
+                        paste0(aspli.chr,":",zroi[1],"-",zroi[2]," "),
                         mergedBAMs[icond, 1]), intern = T)
     ad <- matrix(as.numeric(strsplit2(ad,"\t")),ncol=3)
     yylim <- range(ad[,3])

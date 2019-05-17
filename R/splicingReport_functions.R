@@ -205,6 +205,10 @@
     stop("sr must be an ASpliSplicingReport object") 
   }
   
+  if(class(asd) != "ASpliAS"){
+    stop("asd must be an ASpliAS object") 
+  }
+  
   #bines significativos y uniformes
   b  <- sr@binbased
   b  <- b[!is.na(b$start), ]
@@ -467,7 +471,12 @@
           aa$lpval[b] <- localebased(sr)$junction.pvalue[i[1]]
         }
       }          
-    }    
+    }  
+    aa <- aa[order(aa$bpval), ]
+    r <- strsplit2(unique(aa$region), "Chr")[, 2]
+    chr <- strsplit2(r, ":")[, 1]
+    chr <- sapply(chr, function(s){return(is.na(suppressWarnings(as.numeric(s))))})
+    aa$region[chr] <- r[chr] 
   }else{
     aa <- data.table(region = character(), locus = character(), b = numeric(), bjs = numeric(), ja = numeric(),
                      jl = numeric(), bin = character(), feature = character(), bin.event = character(),
