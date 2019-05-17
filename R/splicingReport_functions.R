@@ -188,14 +188,17 @@
 #
 # b: bin coverage signal / bjs: bin junction support signal / ja: junction anchor / jl: junction locale
 #
+#
 # para la senial de junturas soporte de bin coverage se usan criterios basados en dPIN/dPI y 
 # adicionalmente es posible usar, o no, el valor de fdr asociado a la juntura J3
 # Aca lo que hacemos es ver el overlap entre regiones que tienen seniales diferentes. Para el caso del overlap entre 
 # b o bjs y cualquier otro, usamos cualquier overlap, mientras que para el overlap entre ja y jl tienen que ser las mismas regiones
-# Ademas, filtramos las ja y jl por junction.fdr unicamente. De esa forma, una región que tiene una juntura con uso diferencial, 
+#
+# Ademas, filtramos las ja y jl por junction.fdr unicamente. De esa forma, una region que tiene una juntura con uso diferencial, 
 # por ejemplo, jl y que se solapa con un bin en al menos 3 pares de bases, aparece con soporte en bjs y en jl, mientras que si se solapa
 # con b, solamente de coverage, aparece con b y jl. Las junturas que aparecen reportadas al final son las que aparecen en el bin en caso
-# de tratarse de una región meramente "binica" o son la región en caso de venir de ja o jl.
+# de tratarse de una region meramente "binica" o son la region en caso de venir de ja o jl.
+
 .integrateSignals<-function(sr = NULL, asd = NULL, bin.fdr=0.05,unif=0.1,dPIN=0.05,dPIR=0.05,j.fdr=0.05,j.particip=0.1,usepvalBJS=FALSE,bjs.fdr=0.1, otherSources = NULL){
   
   if(class(sr) != "ASpliSplicingReport"){
