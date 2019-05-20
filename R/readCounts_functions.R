@@ -26,6 +26,10 @@
   for(i in 1:length(hits)){
     result[, names(hits)[i]] <- hits[[i]]
   }
+  
+  #ACH 20190520: reassure rownames are not lost
+  rownames(result) <- names(hits[[1]])
+  
   return(result)
 }
 
