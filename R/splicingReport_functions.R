@@ -434,20 +434,22 @@
     aa$J3[is.na(aa$J3)] <- roi[is.na(aa$J3)]
     
     if(class(asd) == "ASpliAS"){
-      aa$locus <- strsplit2(aa$bin, ":")[, 1]
-      regiones <- gsub("[Chr]", "", aa$region)
-      regiones <- gsub("[:]", ".", regiones)
-      regiones <- gsub("[-]", ".", regiones)
-      regiones <- sapply(regiones, function(r){
-        i <- rownames(asd@junctionsPJU) == r
-        if(sum(i) > 0){
-          return(as.character(asd@junctionsPJU$symbol[i]))
-        }else{
-          return(NA) 
-        }
-      })
-      aa$locus[!is.na(regiones)] <- regiones[!is.na(regiones)]
-      aa <- aa[, c(1, 11, 2:10)]
+      if(nrow(asd@junctionsPJU) > 0){
+        aa$locus <- strsplit2(aa$bin, ":")[, 1]
+        regiones <- gsub("[Chr]", "", aa$region)
+        regiones <- gsub("[:]", ".", regiones)
+        regiones <- gsub("[-]", ".", regiones)
+        regiones <- sapply(regiones, function(r){
+          i <- rownames(asd@junctionsPJU) == r
+          if(sum(i) > 0){
+            return(as.character(asd@junctionsPJU$symbol[i]))
+          }else{
+            return(NA) 
+          }
+        })
+        aa$locus[!is.na(regiones)] <- regiones[!is.na(regiones)]
+        aa <- aa[, c(1, 11, 2:10)]
+      }
     }
     aa$bpval <- 1
     aa$apval <- 1

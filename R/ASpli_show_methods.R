@@ -325,7 +325,7 @@ setMethod( 'show', 'ASpliSplicingReport', function( object ) {
   #   return(m)
   # }
   
-  integratedSignals <- integrateSignals(object)
+  integratedSignals <- integrateSignals(object, asd = new(Class = "ASpliAS"))
   cat("Object of class", class(object),"\n")
   
   cat("Locale based: \n") 

@@ -24,16 +24,48 @@
 }
 
 # create the names of the conditions of a targets by their factors
-.condenseTargetsConditions <- function ( targets ) {
+.condenseTargetsConditions <- function ( targets, collapse = "_" ) {
   if( ! "condition" %in% colnames( targets ) ) {
     targets <- data.frame( 
         targets, 
-        condition = apply( targets[ , -1 , drop = FALSE] ,1 ,paste,collapse="_"),
+        condition = apply( targets[ , -1 , drop = FALSE] ,1 ,paste, collapse = collapse),
         stringsAsFactors = FALSE)
     
   }
   return( targets )
 }
+
+# create the names of samples
+.generateSamplesNames <- function ( targets, collapse = "_" ) {
+  
+  #Auxiliary functions
+  is.sequential <- function(x){
+    all(diff(x) == diff(x)[1])
+  }
+  
+  my.make.unique <- function(s, sep = "_"){
+    tab <- unique(s)
+    tab <- setNames(rep(1, length(tab)), tab)
+    sapply(s, function(ss){
+      sss <- paste(ss, tab[ss], sep = sep)
+      tab[ss] <<- tab[ss] + 1
+      return(sss)
+    })
+  }
+  
+  #Do we need to generate the names or do they already exist? If they dont exists, they are a sequence of numbers from 1 to nrow(targets)
+  r <- suppressWarnings(as.numeric(rownames(targets)))
+  if(all(!is.na(r))){
+    if(is.sequential(r)){
+      if( ! "condition" %in% colnames( targets ) ) {
+        targets <- .condenseTargetsConditions( targets, collapse )
+      }      
+      rownames(targets) <- my.make.unique(targets$condition, sep = collapse)      
+    }
+  }
+  return( targets )
+}
+
 
 # This function sums counts of a data frame by condition.
 # The conditions are given in the targets data.frame.
