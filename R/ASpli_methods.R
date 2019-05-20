@@ -189,16 +189,16 @@ setMethod(
 # gbCounts is a wrapper around readCounts for improved legibility
 setGeneric (
   name = "gbCounts",
-  def = function( features, bam=NULL, targets, cores = 1, readLength, maxISize, 
+  def = function( features, bam=NULL, targets, cores = 1, minReadLength, maxISize, 
                   minAnchor = 10)
     standardGeneric("gbCounts") )
 
 setMethod(
   f = "gbCounts",
   signature = "ASpliFeatures",
-  definition = function( features, bam=NULL, targets, cores = 1, readLength,  
+  definition = function( features, bam=NULL, targets, cores = 1, minReadLength,  
                          maxISize, minAnchor = 10) {
-    return(readCounts( features, bam=NULL, targets, cores = 1, readLength, maxISize, minAnchor = 10))
+    return(readCounts( features, bam=NULL, targets, cores = 1, minReadLength, maxISize, minAnchor = 10))
   }
 )
 
@@ -208,7 +208,7 @@ setGeneric (
   def = function( counts, 
                   features, 
                   bam = NULL, 
-                  readLength, 
+                  minReadLength, 
                   threshold = 5, 
                   cores = 1 ) standardGeneric("jCounts") )
 
@@ -218,24 +218,24 @@ setMethod(
   definition = function( counts, 
                          features, 
                          bam = NULL, 
-                         readLength, 
+                         minReadLength, 
                          threshold = 5, 
                          cores = 1 ) {
-    return(AsDiscover( counts, features, bam = NULL, readLength, threshold = 5, cores = 1 ))
+    return(AsDiscover( counts, features, bam = NULL, minReadLength, threshold = 5, cores = 1 ))
   }
 )
 
 # readCounts
 setGeneric (
   name = "readCounts",
-  def = function( features, bam=NULL, targets, cores = 1, readLength, maxISize, 
+  def = function( features, bam=NULL, targets, cores = 1, minReadLength, maxISize, 
                   minAnchor = 10)
     standardGeneric("readCounts") )
 
 setMethod(
   f = "readCounts",
   signature = "ASpliFeatures",
-  definition = function( features, bam=NULL, targets, cores = 1, readLength,  
+  definition = function( features, bam=NULL, targets, cores = 1, minReadLength,  
                          maxISize, minAnchor = 10) {
     
     
@@ -244,7 +244,7 @@ setMethod(
     
     #Minimal anchors
     minAnchor <- if ( ! is.null(minAnchor) ) minAnchor else 10
-    minA <- round( minAnchor * readLength / 100 )
+    minA <- round( minAnchor * minReadLength / 100 )
     ptm <- proc.time()
     if(is.null(bam)) {
       ntargets <- nrow(targets)
@@ -289,9 +289,9 @@ setMethod(
       
       # Count exon1 - intron regions
       e1i <- introns
-      start( e1i ) <- start( introns ) - ( readLength - minA )
-      end( e1i )   <- start( introns ) + ( readLength - minA )
-      e1i.hits     <- .counterJbin(bam, e1i, gene.hits, cores, readLength)
+      start( e1i ) <- start( introns ) - ( minReadLength - minA )
+      end( e1i )   <- start( introns ) + ( minReadLength - minA )
+      e1i.hits     <- .counterJbin(bam, e1i, gene.hits, cores, minReadLength)
       if(ncol(counts@e1i.counts) == 0){
         counts@e1i.counts <- e1i.hits
       }else{
@@ -302,9 +302,9 @@ setMethod(
       
       # Count intron - exon2 regions
       ie2 <- introns
-      start( ie2 ) <- end( introns ) - ( readLength - minA )
-      end( ie2 )   <- end( introns ) + ( readLength - minA )
-      ie2.hits     <- .counterJbin( bam, ie2, gene.hits, cores, readLength )
+      start( ie2 ) <- end( introns ) - ( minReadLength - minA )
+      end( ie2 )   <- end( introns ) + ( minReadLength - minA )
+      ie2.hits     <- .counterJbin( bam, ie2, gene.hits, cores, minReadLength )
       if(ncol(counts@ie2.counts) == 0){
         counts@ie2.counts <- ie2.hits
       }else{
@@ -363,7 +363,7 @@ setGeneric (
   def = function( counts, 
                   features, 
                   bam = NULL, 
-                  readLength, 
+                  minReadLength, 
                   threshold = 5, 
                   cores = 1 ) standardGeneric("AsDiscover") )
 
@@ -373,7 +373,7 @@ setMethod(
   definition = function( counts, 
                          features, 
                          bam = NULL, 
-                         readLength, 
+                         minReadLength, 
                          threshold = 5, 
                          cores = 1 ) {
     
@@ -407,7 +407,7 @@ setMethod(
           junctionsPIR <- .junctionsDiscover( df=jcounts, 
                                               bam, 
                                               cores = cores , 
-                                              readLength, 
+                                              minReadLength, 
                                               targets[target, ], 
                                               features )        
         }
@@ -416,6 +416,7 @@ setMethod(
           as@junctionsPIR <- junctionsPIR
         }else{
           as@junctionsPIR <- cbind(as@junctionsPIR, junctionsPIR[, 3:6])
+          colnames(as@junctionsPIR)[(ncol(as@junctionsPIR)-3):ncol(as@junctionsPIR)] <- colnames(junctionsPIR)[3:6]
         }
       }
       junctions.order <- c(1, 2, 
@@ -423,7 +424,7 @@ setMethod(
                            seq(from=4, to=ncol(as@junctionsPIR), by=4),
                            seq(from=5, to=ncol(as@junctionsPIR), by=4))
       as@junctionsPIR <- as@junctionsPIR[, junctions.order]
-      colnames(as@junctionsPIR) <- strsplit2(colnames(as@junctionsPIR), "[.]")[, 1]
+      colnames(as@junctionsPIR)[c(-2,-1)] <- rep(rownames(targets), times=3)#strsplit2(colnames(as@junctionsPIR), "[.]")[, 1]
       inicio_j1 <- 3
       inicio_j2 <- inicio_j1+nrow(targets)
       inicio_j3 <- inicio_j2+nrow(targets)
@@ -437,7 +438,7 @@ setMethod(
       junctionsPIR <- .junctionsDiscover( df=jcounts, 
                                           bam, 
                                           cores = cores , 
-                                          readLength, 
+                                          minReadLength, 
                                           targets, 
                                           features ) 
       as@junctionsPIR <- junctionsPIR
@@ -790,7 +791,7 @@ setGeneric( name = "jDUreport",
                             runUniformityTest         = FALSE,
                             mergedBams                = NULL,
                             maxPValForUniformityCheck = 0.2,
-                            strongFilter              = FALSE
+                            strongFilter              = TRUE
             ) standardGeneric("jDUreport") )
 
 
@@ -805,7 +806,7 @@ setMethod(
     runUniformityTest         = FALSE,
     mergedBams                = NULL,
     maxPValForUniformityCheck = 0.2,
-    strongFilter              = FALSE
+    strongFilter              = TRUE
   ) {
     
     .junctionDUreportExt( asd, minAvgCounts, contrast, 
