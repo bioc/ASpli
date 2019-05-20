@@ -1088,15 +1088,6 @@ setMethod(
       stop("features must be an ASpliFeatures object")
     }
 
-    if(class(exons) != "GRangesList"){
-      stop("exons must be a GRangesList object")
-    }
-    
-    if(is.null(chrMap)){
-      stop("chrMap must map chromosomes to bam chromosomes")
-    }
-    
-        
     file.exists( output.dir ) || dir.create( output.dir )
     file.exists( paste0(output.dir, "/img") ) || dir.create( paste0(output.dir, "/img") )
 
@@ -1128,10 +1119,10 @@ setMethod(
       }
       tryCatch({
         png(width = 1400, height=700, filename = paste0(getwd(), "/", output.dir, "/img/", r, "_gene.png"))
-        .plotSplicingPattern(r, is, counts, features, mergedBams, sr, exons = transcriptExons(features), genePlot = TRUE, jCompletelyIncluded, zoomRegion, useLog, tcex)
+        .plotSplicingPattern(r, is, counts, features, mergedBams, sr, exones = transcriptExons(features), genePlot = TRUE, jCompletelyIncluded, zoomRegion, useLog, tcex)
         dev.off()
         png(width = 1400, height=700, filename = paste0(getwd(), "/", output.dir, "/img/", r, ".png"))
-        .plotSplicingPattern(r, is, counts, features, mergedBams, sr, exons = transcriptExons(features), genePlot = FALSE, jCompletelyIncluded, zoomRegion, useLog, tcex)
+        .plotSplicingPattern(r, is, counts, features, mergedBams, sr, exones = transcriptExons(features), genePlot = FALSE, jCompletelyIncluded, zoomRegion, useLog, tcex)
         dev.off()
       }, warning = function(warning_condition) {
           message(warning_condition)        
