@@ -93,6 +93,9 @@
   colnames(result)[1:8] <- c( "event", "locus", "locus_overlap", "symbol",
       "gene_coordinates", "start", "end", "length" )
   
+  #ACH 20190520: reassure rownames are not lost
+  rownames(result) <- names(hits[[1]])
+  
   return(result)
   
 }
