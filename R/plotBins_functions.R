@@ -479,8 +479,8 @@
   for(ifila in 1:nrow(x)){
     jsum<-c()
     for(ccond in counts@condition.order){
-      icols<-grep(ccond,colnames(x))
-      jsum <- c(jsum,sum(x[ifila,icols]))
+      cnames <- rownames(targets(counts))[which(targets(counts)$condition%in%ccond)]
+      jsum <- c(jsum,sum(x[ifila,cnames]))
     }
     mjsum<-rbind(mjsum,jsum)
   }
@@ -721,14 +721,7 @@
                           (as.numeric(jsplit[,3])>=zroi[1] & as.numeric(jsplit[,3])<=zroi[2])) )
   }
   
-  if(length(ijsplit)>0){ 
-    jcoords0 <- data.frame(chr=as.numeric(jsplit[ijsplit,1]),
-                           start=as.numeric(jsplit[ijsplit,2]),
-                           end=as.numeric(jsplit[ijsplit,3]))
-    rownames(jcoords0)<-rownames(junctionsPJU(asd))[ijsplit]
-    nj0               <- nrow(jcoords0)                       
-  }
-  
+
   # busco anchor junctions
   js <- unique(anchorbased(sr)$junction)
   aux <- strsplit2(js,".",fixed=TRUE)
@@ -783,6 +776,17 @@
     }
   }
   
+  # junturas en la region que no son anchor ni locale
+  jcoords0<-c()
+  if(length(ijsplit)>0){ 
+    jcoords0 <- data.frame(chr=as.numeric(jsplit[ijsplit,1]),
+                           start=as.numeric(jsplit[ijsplit,2]),
+                           end=as.numeric(jsplit[ijsplit,3]))
+    rownames(jcoords0)<-rownames(junctionsPJU(asd))[ijsplit]
+    
+    jcoords0 <- jcoords0[!rownames(jcoords0)%in%unique(c(rownames(jcoords1),rownames(jcoords2))),]
+    nj0               <- nrow(jcoords0)                       
+  }
   
   
   #si detecto locale o anchor lo marco  
@@ -826,9 +830,7 @@
       #   if(nj2>0)  jjcoords2  <- jcoords2[jok,,drop=FALSE]
     }
     
-    
-    
-    
+
     #panel junturas
     if(FALSE){
       plot(0,typ="n",xlim=c(start(bins[1]),end(bins[nbines])),ylim=c(1,nj0+nj1+nj2+3),axes=FALSE,xlab="",ylab="")
@@ -869,7 +871,13 @@
     }
     
     #plot(0,typ="n",xlim=c(start(bins[1]),end(bins[nbines])),ylim=c(1,nj0+nj1+nj2+3),axes=FALSE,xlab="",ylab="")
-    plot(0,typ="n",xlim=c(start(bins[1]),end(bins[nbines])),ylim=c(1,nj0+nj1+nj2+3),axes=FALSE,xlab="",ylab="")
+    
+    njlevels <- nj0+nj1+nj2+3
+    
+    j12      <- intersect(rownames(jcoords1),rownames(jcoords2))
+    njlevels <- nj0+nj1+nj2-length(j12)+3
+    
+    plot(0,typ="n",xlim=c(start(bins[1]),end(bins[nbines])),ylim=c(1,njlevels),axes=FALSE,xlab="",ylab="")
     jmaxcount <- max(c(jcount0,jcount1,jcount2))
     if(nj0>0){
       jcounts <- jcount0
@@ -880,35 +888,82 @@
         points(jcoords[ij,2:3],rep(ij,2),pch=18,cex=0.5,col="lightgray")
       }
     }
-    if(nj1>0){
-      jcounts <- jcount1
-      jcoords <- jjcoords1
+    
+    if(njlevels-nj0>3){
+      jcounts <- rbind(jcount1,jcount2[!rownames(jcount2)%in%j12,,drop=FALSE])
+      jcoords <- rbind(jcoords1,jcoords2[!rownames(jcoords2)%in%j12,,drop=FALSE])
+      
+      ccolor  <- rep("lightgreen",nrow(jcounts))
+      names(ccolor)<-rownames(jcounts)
+      ccolor[rownames(jcount2)]<-"lightblue"
+      ccolor[j12]<-"lightred"
+      
       ww <- jcounts/jmaxcount*3
       
       abline(v=unique(c(jcoords[,2],jcoords[,3])),col="lightblue",lty=3)
-      for(ij in 1:nj1){
+      for(ij in 1:length(ccolor)){
         #yij <- nj0+ij
-        yij <- ij * (nj0+nj1+nj2)/(nj1+nj2)
-        lines(jcoords[ij,2:3],rep(yij,2),lwd=ww[rownames(jcoords)[ij],1],col="lightblue")
-        points(jcoords[ij,2:3],rep(yij,2),pch=18,cex=0.5,col="lightblue")
+        yij  <- ij * njlevels/(nj1+nj2-length(j12))
+        lines(jcoords[ij,2:3],rep(yij,2),lwd=ww[rownames(jcoords)[ij],1],col=ccolor[ij])
+        points(jcoords[ij,2:3],rep(yij,2),pch=18,cex=0.5,col=ccolor[ij])
         text(mean(as.numeric(jcoords[ij,2:3])),yij,jcounts[ij],pos=3,cex=1.5)
       }
-    }
-    if(nj2>0){
-      jcounts <- jcount2
-      jcoords <- jjcoords2
-      ww <- jcounts/jmaxcount*3
       
-      abline(v=unique(c(jcoords[,2],jcoords[,3])),col="lightgreen",lty=3)
-      for(ij in 1:nj2){
-        #yij <- nj0+nj1+ij
-        yij <- (nj1+ij)* (nj0+nj1+nj2)/(nj1+nj2)
-        lines(jcoords[ij,2:3],rep(yij,2),lwd=ww[rownames(jcoords)[ij],1],col="lightgreen")
-        points(jcoords[ij,2:3],rep(yij,2),pch=18,cex=0.5,col="lightgreen")
-        text(mean(as.numeric(jcoords[ij,2:3])),yij,jcounts[ij],pos=3,cex=1.5)
-      }
     }
-    
+    # 
+    # if(nj1-length(j12)>0){
+    #   iok<-which(!rownames(jcount1)%in%j12)
+    #   if(length(iok)>0){ 
+    #     jcounts <- jcount1[iok,]
+    #     jcoords <- jjcoords1[iok,]
+    #     ww <- jcounts/jmaxcount*3
+    #     
+    #     abline(v=unique(c(jcoords[,2],jcoords[,3])),col="lightblue",lty=3)
+    #     for(ij in 1:nj1){
+    #       #yij <- nj0+ij
+    #       yij <- ij * njlevels/(nj1+nj2-length(j12))
+    #       lines(jcoords[ij,2:3],rep(yij,2),lwd=ww[rownames(jcoords)[ij],1],col="lightblue")
+    #       points(jcoords[ij,2:3],rep(yij,2),pch=18,cex=0.5,col="lightblue")
+    #       text(mean(as.numeric(jcoords[ij,2:3])),yij,jcounts[ij],pos=3,cex=1.5)
+    #     }
+    #   }
+    # }
+    # 
+    # if(nj2-length(j12)>0){
+    #   iok<-which(!rownames(jcount2)%in%j12)
+    #   if(length(iok)>0){ 
+    #     
+    #     jcounts <- jcount2[iok,]
+    #     jcoords <- jjcoords2[iok,]
+    #     ww <- jcounts/jmaxcount*3
+    #     
+    #     abline(v=unique(c(jcoords[,2],jcoords[,3])),col="lightgreen",lty=3)
+    #     for(ij in 1:nj2){
+    #       #yij <- nj0+nj1+ij
+    #       yij <- (nj1-length(j12)+ij)*  njlevels/(nj1+nj2-length(j12))
+    #       lines(jcoords[ij,2:3],rep(yij,2),lwd=ww[rownames(jcoords)[ij],1],col="lightgreen")
+    #       points(jcoords[ij,2:3],rep(yij,2),pch=18,cex=0.5,col="lightgreen")
+    #       text(mean(as.numeric(jcoords[ij,2:3])),yij,jcounts[ij],pos=3,cex=1.5)
+    #     }
+    #   }
+    # }
+    # 
+    # if(length(j12)>0){
+    #   
+    #   jcounts <- jcount2[j12,]
+    #   jcoords <- jjcoords2[j12,]
+    #   ww <- jcounts/jmaxcount*3
+    #   
+    #   abline(v=unique(c(jcoords[,2],jcoords[,3])),col="lightgreen",lty=3)
+    #   for(ij in seq_along(j12)){
+    #     #yij <- nj0+nj1+ij
+    #     yij <- (nj1-length(j12)+ij)*  njlevels/(nj1+nj2-length(j12))
+    #     lines(jcoords[ij,2:3],rep(yij,2),lwd=ww[rownames(jcoords)[ij],1],col="lightgreen")
+    #     points(jcoords[ij,2:3],rep(yij,2),pch=18,cex=0.5,col="lightgreen")
+    #     text(mean(as.numeric(jcoords[ij,2:3])),yij,jcounts[ij],pos=3,cex=1.5)
+    #   }
+    # }
+    # 
     
     #coverage
     if(useLog){
