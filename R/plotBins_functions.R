@@ -867,16 +867,22 @@
     }
     
     if(njlevels-nj0>3){
-      jcounts<-rbind(jcount1,jcount2)
-      jcoords <- rbind(jcoords1,jcoords2)
-      if(length(j12)>0){
-       jcounts <- rbind(jcount1,jcount2[!rownames(jcount2)%in%j12,,drop=FALSE])
-       jcoords <- rbind(jcoords1,jcoords2[!rownames(jcoords2)%in%j12,,drop=FALSE])
+      jcounts<-c()
+      if(nj1>0) jcounts<-jcount1
+      if(nj2>0){
+          if(length(j12)>0){
+            jcounts<-rbind(jcounts,jcount2[!rownames(jcount2)%in%j12,,drop=FALSE])
+          }else{  
+           jcounts<-rbind(jcounts,jcount2)
+          }
       }
+      jcoords <- t(apply(cbind(rownames(jcounts,jcounts)),1,function(x){as.numeric(strsplit2(x,"[.]"))}))
+      rownames(jcoords)<-rownames(jcounts)
+    
       ccolor  <- rep("lightgreen",nrow(jcounts))
       names(ccolor)<-rownames(jcounts)
-      ccolor[rownames(jcount2)]<-"lightblue"
-      ccolor[j12]<-"lightred"
+      if(nj2>0) ccolor[rownames(jcount2)]<-"lightblue"
+      if(length(j12)>0) ccolor[j12]<-"orange"
       
       ww <- jcounts/jmaxcount*3
       
