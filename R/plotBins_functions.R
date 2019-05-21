@@ -867,9 +867,12 @@
     }
     
     if(njlevels-nj0>3){
-      jcounts <- rbind(jcount1,jcount2[!rownames(jcount2)%in%j12,,drop=FALSE])
-      jcoords <- rbind(jcoords1,jcoords2[!rownames(jcoords2)%in%j12,,drop=FALSE])
-      
+      jcounts<-rbind(jcount1,jcount2)
+      jcoords <- rbind(jcoords1,jcoords2)
+      if(length(j12)>0){
+       jcounts <- rbind(jcount1,jcount2[!rownames(jcount2)%in%j12,,drop=FALSE])
+       jcoords <- rbind(jcoords1,jcoords2[!rownames(jcoords2)%in%j12,,drop=FALSE])
+      }
       ccolor  <- rep("lightgreen",nrow(jcounts))
       names(ccolor)<-rownames(jcounts)
       ccolor[rownames(jcount2)]<-"lightblue"
