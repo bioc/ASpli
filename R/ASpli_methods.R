@@ -347,6 +347,7 @@ setMethod(
     for(s in c("junction", "gene", "strand", "multipleHit", "symbol", "gene_coordinates", "bin_spanned", "j_within_bin")){
       counts@junction.counts[, s] <- as.factor(counts@junction.counts[, s])
     }
+    colnames(counts@junction.counts)[9:ncol(counts@junction.counts)] <- rownames(targets)
     junctions.order <- sort(rownames(counts@junction.counts))
     junctions.order <- strsplit2(junctions.order, "[.]")
     junctions.order <- GRanges(seqnames=junctions.order[, 1], IRanges(start=as.numeric(junctions.order[, 2]), end=as.numeric(junctions.order[, 3])))
@@ -463,6 +464,7 @@ setMethod(
     
     # get exclusion junction counts, and make and index to ordered by ic
     dfe1e2 <- .e1e2JPIR( intranges, jcounts, targets )
+    colnames(dfe1e2)[c(-1,-2)] <- rownames(targets)
     indexOrder <- match( dfe1e2$jbin, rownames( ic ) )
     
     # Get counts of inclusion junctions
@@ -550,7 +552,10 @@ setMethod(
     altJ1 <- getAlternativeSS( dfstart , events )
     altJ2 <- getAlternativeSS( dfend , events )
     altJ3 <- getAlternativeSS( dfwithin , events )
-    
+    colnames(altJ1)[-ncol(altJ1)] <- rownames(targets)
+    colnames(altJ2)[-ncol(altJ2)] <- rownames(targets)
+    colnames(altJ3)[-ncol(altJ3)] <- rownames(targets)
+      
     sumAltJ1 <- .sumByCond( .extractCountColumns( altJ1, targets ), targets )
     sumAltJ1[is.na(sumAltJ1)] <- 0 
     sumAltJ2 <- .sumByCond( .extractCountColumns( altJ2, targets ), targets )
@@ -587,6 +592,9 @@ setMethod(
     esJ1 <- getES( dfstart , events )
     esJ2 <- getES( dfend , events )
     esJ3 <- getES( dfwithin , events )
+    colnames(esJ1)[-ncol(esJ1)] <- rownames(targets)
+    colnames(esJ2)[-ncol(esJ2)] <- rownames(targets)
+    colnames(esJ3)[-ncol(esJ3)] <- rownames(targets)
     
     sumEsJ1 <- .sumByCond( .extractCountColumns( esJ1, targets ), targets )
     sumEsJ1[is.na(sumEsJ1)] <- 0 
@@ -1133,7 +1141,7 @@ setMethod(
       })
     }
     titulo <- "ASpli: integrated signals"
-    y <- datatable(cbind(' ' = '&oplus;',is[1:ntop,c("region", "locus", "b", "bjs", "ja", "jl", "bin", "feature", "bpval", "lpval", "apval")]),
+    y <- datatable(cbind(' ' = '&oplus;',is[1:ntop,c("region", "locus", "b", "bjs", "ja", "jl", "bin", "feature", "bin.event", "bpval", "lpval", "apval")]),
               escape = -2,
               filter ="top",
               fillContainer = F,

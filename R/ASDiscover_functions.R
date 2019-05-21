@@ -248,9 +248,12 @@
         .extractCountColumns( allJunctionCounts[ subjectNames, ], targets ),
         row.names = NULL ) 
     
+
+    
     # Sum the rows of the junctions that share the boundary
     sharedRowSum <- data.frame( aggregate( . ~ names, data = junctionCounts, sum ) )
     
+    colnames( sharedRowSum )[-1] <- rownames(targets)
     rownames( sharedRowSum ) <- sharedRowSum$names
     sharedRowSum <- .extractCountColumns( sharedRowSum, targets  )
     
@@ -278,8 +281,9 @@
     j2 <- .sumByCond( sharedRowSumOrdered , targets  )
     jratioResult <- j1 / ( j1 + j2 )
     colnames( jratioResult ) <- paste( colnames( jratioResult ), boundaryType, sep="." )
-
-    result <- data.frame( sharedNamesOrdered, sharedRowSumOrdered, jratioResult  )
+    
+    #Fix for the columns starting with X (targets starting with a number)
+    result <- data.frame( sharedNamesOrdered, sharedRowSumOrdered, jratioResult, check.names=FALSE  )
  
     # Sets the name of the 'Hit' column in the result dataframe 
     colnames( result ) [1] <- if ( boundaryType == 'start' ) 'StartHit' else 'EndHit'
@@ -315,6 +319,5 @@
           sharedEndData
       #  , pAS )
           ) )
-  
   return( result )
 }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
