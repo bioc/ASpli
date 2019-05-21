@@ -674,31 +674,22 @@
   }
   
   #bines diferenciales
-  if(FALSE){
-    ss <- iss[iss$region==greg,]
-    if(ss$b==1){
-      if(ss$feature=="I"){
-        lines(c(start(bins[ss$bin]),end(bins[ss$bin])),c(0,0),col="orange",lwd=3)
+  
+  #que bines diferenciales hay en la region?
+  iE<-which(names(bins)%in%iiss$bin)
+  if(length(iE)>0){
+    for(iie in seq_along(iE)){
+      if(mcols(bins)$feature[iE[iie]]=="I"){
+        lines(c(start(bins[iE[iie]]),end(bins[iE[iie]])),c(ycollapsed,ycollapsed),col="orange",lwd=3)
       }else{
-        rect(start(bins[ss$bin]),-1,end(bins[ss$bin]),1,col="orange",border=NA)
-      }
-    }
-  }else{
-    #que bines diferenciales hay en la region?
-    iE<-which(names(bins)%in%iiss$bin)
-    if(length(iE)>0){
-      for(iie in seq_along(iE)){
-        if(mcols(bins)$feature[iE[iie]]=="I"){
-          lines(c(start(bins[iE[iie]]),end(bins[iE[iie]])),c(ycollapsed,ycollapsed),col="orange",lwd=3)
-        }else{
-          if(iiss$b==1 & iiss$bjs==0) cc <- "orange"
-          if(iiss$b==1 & iiss$bjs==1) cc <- "red"
-          if(iiss$b==0 & iiss$bjs==1) cc <- "yellow"
-          rect(start(bins[iE[iie]]),ycollapsed-.45,end(bins[iE[iie]]),ycollapsed+.45,col=cc,border=NA)
-        }
+        if(iiss$b==1 & iiss$bjs==0) cc <- "orange"
+        if(iiss$b==1 & iiss$bjs==1) cc <- "red"
+        if(iiss$b==0 & iiss$bjs==1) cc <- "yellow"
+        rect(start(bins[iE[iie]]),ycollapsed-.45,end(bins[iE[iie]]),ycollapsed+.45,col=cc,border=NA)
       }
     }
   }
+  
   
   lines(par("usr")[1:2],rep(ycollapsed-1,each=2),lty=2,col="gray")
   
@@ -740,13 +731,6 @@
     jcoords1          <- matrix(as.numeric(aux[ijs,]),ncol=3)
     rownames(jcoords1)<-js[ijs]
     nj1               <- nrow(jcoords1)
-    
-    #saco del grupo gris junturas anchor
-    iout<-rownames(jcoords0)%in%rownames(jcoords1)
-    if(sum(iout)>0){
-      jcoords0<-jcoords0[!iout,]
-      nj0 <- nj0 - sum(iout)
-    }
   }
   
   #analizo locale 
@@ -767,13 +751,6 @@
     jcoords2          <- matrix(as.numeric(aux[ijs,]),ncol=3)
     rownames(jcoords2)<-js[ijs]
     nj2               <- nrow(jcoords2)
-    
-    #saco del grupo gris junturas locale
-    iout<-rownames(jcoords0)%in%rownames(jcoords2)
-    if(sum(iout)>0){
-      jcoords0<-jcoords0[!iout,]
-      nj0 <- nj0 - sum(iout)
-    }
   }
   
   # junturas en la region que no son anchor ni locale
