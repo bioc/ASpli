@@ -802,7 +802,8 @@ setGeneric( name = "jDUreport",
                             runUniformityTest         = FALSE,
                             mergedBams                = NULL,
                             maxPValForUniformityCheck = 0.2,
-                            strongFilter              = FALSE
+                            strongFilter              = FALSE,
+                            maxConditionsForDispersionEstimate = 24
             ) standardGeneric("jDUreport") )
 
 
@@ -817,11 +818,13 @@ setMethod(
     runUniformityTest         = FALSE,
     mergedBams                = NULL,
     maxPValForUniformityCheck = 0.2,
-    strongFilter              = FALSE
+    strongFilter              = FALSE,
+    maxConditionsForDispersionEstimate = 24
   ) {
     
     .junctionDUreportExt( asd, minAvgCounts, contrast, 
-                          filterWithContrasted, runUniformityTest, mergedBams, maxPValForUniformityCheck, strongFilter ) 
+                          filterWithContrasted, runUniformityTest, mergedBams, maxPValForUniformityCheck, strongFilter,
+                          maxConditionsForDispersionEstimate) 
   }
 )
 
@@ -1034,7 +1037,7 @@ setMethod(
   signature = "ASpliSplicingReport",
   definition = function( sr, output.dir="sr" ) {
     
-    file.exists( output.dir ) || dir.create( output.dir )
+    file.exists( output.dir ) || dir.create( output.dir , recursive = T)
     
     
     for(s in slotNames(sr)){
@@ -1061,7 +1064,7 @@ setMethod(
                        style = 'caption-side: top; text-align: left;',
                        htmltools::h1(titulo)
                      ))    
-      suppressWarnings(saveWidget(y, file = paste0(getwd(), "/", output.dir, "/", s, "Report.html")))
+      suppressWarnings(saveWidget(y, file = paste0(output.dir, "/", s, "Report.html")))
       browseURL(paste0(getwd(), "/", output.dir, "/", s, "Report.html"))
     }    
   }
@@ -1123,7 +1126,7 @@ setMethod(
     for(i in 1:ntop){
       r <- is$region[i]
       if(i %% 10 == 0){
-        message(paste0(signif(i/ntop, 2), "% completed"))
+        message(paste0(signif(i/ntop, 2)*100, "% completed"))
       }
       tryCatch({
         png(width = 1400, height=700, filename = paste0(getwd(), "/", output.dir, "/img/", r, "_gene.png"))

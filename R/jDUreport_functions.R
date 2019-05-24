@@ -6,7 +6,8 @@
     runUniformityTest         = FALSE,
     mergedBams                = NULL,
     maxPValForUniformityCheck = 0.2,
-    strongFilter              = FALSE
+    strongFilter              = FALSE,
+    maxConditionsForDispersionEstimate = 24 
   ){
   
   targets <- asd@targets
@@ -45,7 +46,7 @@
   
   countData             <- .makeCountDataWithClusters(data[names(clusters$membership),start_J3:end_J3], clusters)
   
-  ltsp                  <- .binsJDUWithDiffSplice(countData, targets, contrast)
+  ltsp                  <- .binsJDUWithDiffSplice(countData, targets, contrast, maxConditionsForDispersionEstimate = maxConditionsForDispersionEstimate)
   
   jPSI                  <- ltsp[["junction"]]
   mean.counts           <- rowMeans(countData[rownames(jPSI), rownames(targets)[targets$condition %in% getConditions(targets)[contrast != 0]]])
@@ -85,7 +86,9 @@
   Js                    <- .makeJunctions(data, targets, start_J1, start_J2, start_J3, minAvgCounts, filterWithContrasted, contrast)
   countData             <- .makeCountData(Js$J3, Js$J1, Js$J2)
   
-  ltsp                  <- .binsJDUWithDiffSplice(countData, targets, contrast)
+  #We reduce data so dispersion estimates can be computed in a razonable ammount of time
+  reduxData             <- .makeReduxData(countData, targets, contrast, maxConditionsForDispersionEstimate)
+  ltsp                  <- .binsJDUWithDiffSplice(reduxData$countData, reduxData$targets, reduxData$contrast)
 
   jPIR                  <- ltsp[["junction"]]
   jPIR                  <- jPIR[-(grep("[.][1-2]$", rownames(jPIR))), ] #Saco las junturas que no son J3
@@ -136,7 +139,9 @@
   Js                    <- .makeJunctions(data, targets, start_J1, start_J2, start_J3, minAvgCounts, filterWithContrasted, contrast)
   countData             <- .makeCountData(Js$J3, Js$J1,  Js$J2)
   
-  tsp                   <- .binsDUWithDiffSplice(countData, targets, contrast)
+  #We reduce data so dispersion estimates can be computed in a razonable ammount of time
+  reduxData             <- .makeReduxData(countData, targets, contrast, maxConditionsForDispersionEstimate)
+  tsp                   <- .binsDUWithDiffSplice(reduxData$countData, reduxData$targets, reduxData$contrast)
   tsp                   <- tsp[-(grep("[.][1-2]$", rownames(tsp))), ]
   tsp$bin.fdr           <- p.adjust(tsp$pvalue, "fdr")
   
@@ -190,8 +195,10 @@
   Js                    <- .makeJunctions(data, targets, start_J1, start_J2, start_J3, minAvgCounts, filterWithContrasted, contrast)
   
   countData             <- .makeCountData(Js$J3, Js$J1, Js$J2)
-  
-  tsp                   <- .binsDUWithDiffSplice(countData, targets, contrast)
+
+  #We reduce data so dispersion estimates can be computed in a razonable ammount of time
+  reduxData             <- .makeReduxData(countData, targets, contrast, maxConditionsForDispersionEstimate)
+  tsp                   <- .binsDUWithDiffSplice(reduxData$countData, reduxData$targets, reduxData$contrast)
   tsp                   <- tsp[-(grep("[.][1-2]$", rownames(tsp))), ]
   tsp$bin.fdr           <- p.adjust(tsp$pvalue, "fdr")
   
@@ -362,7 +369,8 @@
   contrast,
   ignoreExternal = FALSE,
   ignoreIo = TRUE,
-  ignoreI = FALSE
+  ignoreI = FALSE,
+  maxConditionsForDispersionEstimate = 4
 ) {
   
   # Filter bins
@@ -377,7 +385,7 @@
   # make DU analysis
   y <- DGEList( counts = .extractCountColumns( countData, targets ),
                 group = factor( group, levels = getConditions(targets), ordered = TRUE) ,
-                genes = .extractDataColumns(countData, targets) )       
+                genes = .extractDataColumns(countData, targets) ) #Must use regular targets in order to effectively remove the target columns
   
   # TODO: Este filtro es muy resctrictivos
   #  keep <- rowSums( cpm( y ) > 1) >= 2
@@ -526,11 +534,10 @@
       message(paste0("Uniformity test: ", round(i/length(ii)*100), "% completed"))
     }
     #reader <- bamReader(mergedBams[2], idx=TRUE)
-    
     #reader <- readers[[which.max(data[p, getConditions(targets)])]]
     pp      <- strsplit2(p, "[.]")[1, ]
     ad <- system(paste0("samtools depth -r ", paste0(pp[1], ":", (as.numeric(pp[2])-10), "-",  (as.numeric(pp[3])+10)), " ", mergedBams[which.max(data[p, getConditions(targets)[contrast != 0]])]), intern = T)
-    if(length(ad) > 0){
+    if(length(ad) > 40){
       ad <- as.numeric(strsplit2(ad, "\t")[, 3])
       #if(refid[pp[1]] < 5){
       #for(i in 1:100){
@@ -556,5 +563,23 @@
   
   return(Uniformity)
   
+}
+
+#Para que el test corra en un tiempo razonable en datasets muy grandes, evaluamos en un subconjunto
+.makeReduxData <- function(countData, targets, contrast, maxConditionsForDispersionEstimate){
+  group                 <- targets$condition 
+  ugroup                <- unique(group)
+  names(contrast)       <- ugroup
+  contrast_groups       <- ugroup[contrast != 0]
+  other_groups          <- ugroup[contrast == 0]
+  other_groups          <- sample(other_groups, min(length(other_groups), abs(maxConditionsForDispersionEstimate-length(contrast_groups))))
+  final_groups          <- c(contrast_groups, other_groups)
+  redux_targets         <- targets[targets$condition %in% final_groups, ]
+  contrast              <- contrast[final_groups]
+  targets               <- targets[targets$condition %in% redux_targets$condition, ]
+  
+  countData             <- cbind(.extractDataColumns(countData, targets), .extractCountColumns( countData, redux_targets ))
+  reduxData             <- list(countData = countData, targets = targets, contrast = contrast)
+  return(reduxData)
 }
 
