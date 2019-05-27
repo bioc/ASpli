@@ -1064,8 +1064,9 @@ setMethod(
                        style = 'caption-side: top; text-align: left;',
                        htmltools::h1(titulo)
                      ))    
-      suppressWarnings(saveWidget(y, file = paste0(output.dir, "/", s, "Report.html")))
-      browseURL(paste0(getwd(), "/", output.dir, "/", s, "Report.html"))
+      ffile <- normalizePath(paste0(output.dir, "/", s, "Report.html"))
+      suppressWarnings(saveWidget(y, file = ffile))
+      browseURL(ffile)
     }    
   }
 )
@@ -1178,8 +1179,11 @@ setMethod(
               }
            });")
     )    
-    saveWidget(y, file = paste(getwd(), output.dir, "integratedSignals.html", sep="/"))
-    browseURL(paste(getwd(), output.dir, "integratedSignals.html", sep="/"))
+    
+    ffile <- normalizePath(paste0(output.dir, "/", s, "integratedSignals.html"))
+    suppressWarnings(saveWidget(y, file = ffile))
+    browseURL(ffile)
+    
   }
 )
 
