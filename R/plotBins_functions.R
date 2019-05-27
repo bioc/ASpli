@@ -567,7 +567,17 @@
       #  if(iiss$jl==1){
       #    #TODO
       #  }else{
-      roiJ3   <- as.numeric(strsplit2(as.character(iiss$J3),".",fixed=TRUE)[2:3])
+      
+      #roiJ3   <- as.numeric(strsplit2(as.character(iiss$J3),".",fixed=TRUE)[2:3])
+      
+      #chequeo si tengo mas de una J3
+      j3aux <- strsplit2(iiss$J3,";")
+      roiJ3<-c()
+      for(ij3 in seq_along(j3aux)){
+        roiJ3   <- c(roiJ3,as.numeric(strsplit2(j3aux[ij3],".",fixed=TRUE)[2:3]))
+      }
+      roiJ3 <- range(roiJ3)
+      
       #  }
       
       roi[1] <- min(roi,roiJ3)
