@@ -10,6 +10,7 @@
   }
   
   mr <- new( Class="ASpliSplicingReport" )
+  mr@contrast <- jdu@contrast
   
   #Mergin bin based junctions
   jir                    <- jir(jdu)
@@ -370,11 +371,11 @@
     }
   }
   
-  i <- grep("ja.", overlaps_aux$region,fixed=TRUE)
-  if(length(i)){
-    L <- as.data.frame(anchorbased[as.numeric(strsplit2(overlaps_aux$region[i], "ja.")[, 2])])
-    overlaps_aux$region[i] <- paste0("Chr", L$seqnames, ":", L$start, "-", L$end)
-  }
+  # i <- grep("ja.", overlaps_aux$region,fixed=TRUE)
+  # if(length(i)){
+  #   L <- as.data.frame(anchorbased[as.numeric(strsplit2(overlaps_aux$region[i], "ja.")[, 2])])
+  #   overlaps_aux$region[i] <- paste0("Chr", L$seqnames, ":", L$start, "-", L$end)
+  # }
   
   # i <- grep("jl.", overlaps_aux$region,fixed=TRUE)
   # L <- as.data.frame(localebased[as.numeric(strsplit2(overlaps_aux$region[i], "jl.")[, 2])])
@@ -411,6 +412,18 @@
     overlaps_aux$region[i] <- paste0("Chr", L$seqnames, ":", L$start + 1, "-", L$end - 1)
     overlaps_aux$region[i[j]] <- paste0("Chr", L$seqnames[j], ":", L$start[j], "-", L$end[j])
   }  
+  
+  i <- grep("ja.", overlaps_aux$region,fixed=TRUE)
+  if(length(i)){
+    L <- as.data.frame(localebased[as.numeric(strsplit2(overlaps_aux$region[i], "ja.")[, 2])])
+    aux_region <- paste0("Chr", L$seqnames, ":", L$start + 1, "-", L$end - 1)
+    j <- which(aux_region %in% setdiff(aux_region, overlaps_aux$region))
+    overlaps_aux$region[i] <- paste0("Chr", L$seqnames, ":", L$start + 1, "-", L$end - 1)
+    overlaps_aux$region[i[j]] <- paste0("Chr", L$seqnames[j], ":", L$start[j], "-", L$end[j])
+  }  
+  
+  
+  
   if(nrow(overlaps_aux) > 0){
     overlaps_aux <- unique(overlaps_aux)
     overlaps_aux <- overlaps_aux[order(overlaps_aux$region), ]
@@ -444,37 +457,75 @@
           if(sum(i) > 0){
             return(as.character(asd@junctionsPJU$symbol[i]))
           }else{
-            return(NA) 
+            return("") 
           }
         })
         aa$locus[!is.na(regiones)] <- regiones[!is.na(regiones)]
         aa <- aa[, c(1, 11, 2:10)]
       }
     }
-    aa$bpval <- 1
-    aa$apval <- 1
-    aa$lpval <- 1
+    aa$locus_overlap <- "-"
+    locus_overlap <- binbased(sr)$locus_overlap[binbased(sr)$locus %in% aa$locus[aa$locus != ""]]
+    names(locus_overlap) <- binbased(sr)$locus[binbased(sr)$locus %in% aa$locus[aa$locus != ""]]
+    for(i in 1:length(locus_overlap)){
+      j <- aa$locus == names(locus_overlap)[i]
+      aa$locus_overlap[j] <- locus_overlap[i]
+    }
+        
+    aa$bfdr          <- 1
+    aa$blogfc        <- 0
+
+    aa$bjsfdr        <- 1
+    aa$bjslogfc      <- 0
+    aa$bjsnonuniformity <- Inf
+    aa$bjsinclussion <- 0
+    
+    aa$afdr           <- 1
+    aa$alogfc         <- 0
+    aa$anonuniformity  <- Inf
+    aa$aparticipation <- 0
+    
+    aa$lfdr           <- 1
+    aa$llogfc         <- 0
+    aa$lparticipation <- 0
+    
+        
     for(b in 1:nrow(aa)){
       if(aa$b[b] != 0){
         i <- which(binbased(sr)$bin == aa$bin[b])
         if(length(i) > 0){
-          aa$bpval[b] <- binbased(sr)$bin.pvalue[i[1]]
+          aa$bfdr[b] <- binbased(sr)$bin.fdr[i[1]]
+          aa$blogfc[b] <- binbased(sr)$bin.logFC[i[1]]
         }
       }
+      if(aa$bjs[b] != 0){
+        i <- which(binbased(sr)$J3 == aa$J3[b])
+        if(length(i) > 0){
+          aa$bjsfdr[b] <- binbased(sr)$junction.fdr[i[1]]
+          aa$bjslogfc[b] <- binbased(sr)$junction.logFC[i[1]]
+          aa$bjsnonuniformity[b] <- binbased(sr)$junction.nonuniformity[i[1]]
+          aa$bjsinclussion[b] <- replace_na(binbased(sr)$junction.dPIN[i[1]], binbased(sr)$junction.dPIR[i[1]])  
+        }
+      }      
       if(aa$ja[b] != 0){
         i <- which(anchorbased(sr)$junction == aa$J3[b])
         if(length(i) > 0){
-          aa$apval[b] <- anchorbased(sr)$junction.pvalue[i[1]]
+          aa$afdr[b] <- anchorbased(sr)$junction.fdr[i[1]]
+          aa$alogfc[b] <- anchorbased(sr)$junction.logFC[i[1]]
+          aa$anonuniformity[b] <- anchorbased(sr)$junction.nonuniformity[i[1]]
+          aa$aparticipation[b] <- anchorbased(sr)$junction.participation[i[1]]
         }
       }
       if(aa$jl[b] != 0){
         i <- which(localebased(sr)$junction == aa$J3[b])
         if(length(i) > 0){
-          aa$lpval[b] <- localebased(sr)$junction.pvalue[i[1]]
+          aa$lfdr[b] <- localebased(sr)$junction.fdr[i[1]]
+          aa$llogfc[b] <- localebased(sr)$junction.logFC[i[1]]
+          aa$lparticipation[b] <- localebased(sr)$junction.participation[i[1]]
         }
       }          
     }  
-    aa <- aa[order(aa$bpval), ]
+    aa <- aa[order(aa$bfdr), ]
     r <- strsplit2(unique(aa$region), "Chr")[, 2]
     chr <- strsplit2(r, ":")[, 1]
     chr <- sapply(chr, function(s){return(is.na(suppressWarnings(as.numeric(s))))})
