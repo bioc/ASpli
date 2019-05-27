@@ -1064,7 +1064,7 @@ setMethod(
                        style = 'caption-side: top; text-align: left;',
                        htmltools::h1(titulo)
                      ))    
-      ffile <- normalizePath(paste0(output.dir, "/", s, "Report.html"))
+      ffile <- paste0(normalizePath(paste0(output.dir)), "/", s, "Report.html")
       suppressWarnings(saveWidget(y, file = ffile))
       browseURL(ffile)
     }    
@@ -1180,7 +1180,7 @@ setMethod(
            });")
     )    
     
-    ffile <- normalizePath(paste0(output.dir, "/", s, "integratedSignals.html"))
+    ffile <- paste0(normalizePath(paste0(output.dir)), "/", s, "integratedSignals.html")
     suppressWarnings(saveWidget(y, file = ffile))
     browseURL(ffile)
     
