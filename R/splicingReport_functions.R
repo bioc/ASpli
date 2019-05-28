@@ -210,6 +210,9 @@
     stop("asd must be an ASpliAS object") 
   }
   
+  #
+  # Pongo todo lo que quiero compara en GRanges
+  #
   #bines significativos y uniformes
   b  <- sr@binbased
   b  <- b[!is.na(b$start), ]
@@ -280,6 +283,10 @@
     anchorbased <- GRanges()
   }
   
+  
+  #
+  # Overlaps
+  #
   laux  <- list(b=binbased,bjs=binsupport,jl=localebased,ja=anchorbased)
   if(class(otherSources) == "GRanges") laux$otherSources = otherSources
   lover <- list()
@@ -287,6 +294,10 @@
     for(j in (i+1):length(laux)){
       if(j>length(laux)) break
       saux <- paste0("overlaps_",paste0(names(laux)[c(i,j)],collapse="_"))
+<<<<<<< HEAD
+=======
+      #if(names(laux)[i]%in%c("b","bjs") | names(laux)[j]%in%c("b","bjs")){
+>>>>>>> 7c5c1f727cbeea02eb99df97a6a6e7e9578bae8d
       if(names(laux)[i]%in%c("b","bjs","otherSources") | names(laux)[j]%in%c("b","bjs","otherSources")){
         ttype<-"any"
       }else{
