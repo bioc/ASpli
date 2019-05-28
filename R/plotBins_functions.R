@@ -518,6 +518,13 @@
 
 .plotSplicingPattern<-function(region=NULL,iss,counts,f,mergedBAMs,sr,exones=NULL,genePlot=TRUE,jCompletelyIncluded=TRUE,
                               zoomRegion=1.5,useLog=FALSE,tcex=1){
+  #region <- r
+  #iss <- is
+  #counts
+  #f <- features
+  #mergedBAMs <- mergedBams
+  #exones = transcriptExons(features)
+  
   
   #alturas relativas de paneles de coverage y junturas
   hCov=0.7

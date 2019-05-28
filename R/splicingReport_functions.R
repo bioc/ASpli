@@ -287,7 +287,7 @@
     for(j in (i+1):length(laux)){
       if(j>length(laux)) break
       saux <- paste0("overlaps_",paste0(names(laux)[c(i,j)],collapse="_"))
-      if(names(laux)[i]%in%c("b","bjs") | names(laux)[j]%in%c("b","bjs")){
+      if(names(laux)[i]%in%c("b","bjs","otherSources") | names(laux)[j]%in%c("b","bjs","otherSources")){
         ttype<-"any"
       }else{
         ttype<-"equal"
@@ -337,6 +337,7 @@
       overlaps_aux <- rbindlist(list(overlaps_aux, d))
     }
   }
+  
   #bin based que no tienen overlap con otra clase de eventos
   if(length(binbased) > 0){
     nooverlap <- setdiff(paste0("b.", (1:length(binbased))), overlaps_aux$region[grep("b.", overlaps_aux$region,fixed=TRUE)])
@@ -423,7 +424,6 @@
   }  
   
   
-  
   if(nrow(overlaps_aux) > 0){
     overlaps_aux <- unique(overlaps_aux)
     overlaps_aux <- overlaps_aux[order(overlaps_aux$region), ]
@@ -460,7 +460,7 @@
             return("") 
           }
         })
-        aa$locus[!is.na(regiones)] <- regiones[!is.na(regiones)]
+        aa$locus[regiones != ""] <- regiones[regiones != ""]
         aa <- aa[, c(1, 11, 2:10)]
       }
     }
@@ -472,60 +472,60 @@
       aa$locus_overlap[j] <- locus_overlap[i]
     }
         
-    aa$bfdr          <- 1
-    aa$blogfc        <- 0
+    aa$b.fdr          <- NA
+    aa$b.logfc        <- NA
 
-    aa$bjsfdr        <- 1
-    aa$bjslogfc      <- 0
-    aa$bjsnonuniformity <- Inf
-    aa$bjsinclussion <- 0
+    aa$bjs.fdr           <- NA
+    aa$bjs.logfc         <- NA
+    aa$bjs.nonuniformity <- NA
+    aa$bjs.inclussion    <- NA
     
-    aa$afdr           <- 1
-    aa$alogfc         <- 0
-    aa$anonuniformity  <- Inf
-    aa$aparticipation <- 0
+    aa$a.fdr           <- NA
+    aa$a.logfc         <- NA
+    aa$a.nonuniformity <- NA
+    aa$a.participation <- NA
     
-    aa$lfdr           <- 1
-    aa$llogfc         <- 0
-    aa$lparticipation <- 0
+    aa$l.fdr           <- NA
+    aa$l.logfc         <- NA
+    aa$l.participation <- NA
     
         
     for(b in 1:nrow(aa)){
       if(aa$b[b] != 0){
         i <- which(binbased(sr)$bin == aa$bin[b])
         if(length(i) > 0){
-          aa$bfdr[b] <- binbased(sr)$bin.fdr[i[1]]
-          aa$blogfc[b] <- binbased(sr)$bin.logFC[i[1]]
+          aa$b.fdr[b] <- binbased(sr)$bin.fdr[i[1]]
+          aa$b.logfc[b] <- binbased(sr)$bin.logFC[i[1]]
         }
       }
       if(aa$bjs[b] != 0){
         i <- which(binbased(sr)$J3 == aa$J3[b])
         if(length(i) > 0){
-          aa$bjsfdr[b] <- binbased(sr)$junction.fdr[i[1]]
-          aa$bjslogfc[b] <- binbased(sr)$junction.logFC[i[1]]
-          aa$bjsnonuniformity[b] <- binbased(sr)$junction.nonuniformity[i[1]]
-          aa$bjsinclussion[b] <- replace_na(binbased(sr)$junction.dPIN[i[1]], binbased(sr)$junction.dPIR[i[1]])  
+          aa$bjs.fdr[b] <- binbased(sr)$junction.fdr[i[1]]
+          aa$bjs.logfc[b] <- binbased(sr)$junction.logFC[i[1]]
+          aa$bjs.nonuniformity[b] <- binbased(sr)$junction.nonuniformity[i[1]]
+          aa$bjs.inclussion[b] <- replace_na(binbased(sr)$junction.dPIN[i[1]], binbased(sr)$junction.dPIR[i[1]])  
         }
       }      
       if(aa$ja[b] != 0){
         i <- which(anchorbased(sr)$junction == aa$J3[b])
         if(length(i) > 0){
-          aa$afdr[b] <- anchorbased(sr)$junction.fdr[i[1]]
-          aa$alogfc[b] <- anchorbased(sr)$junction.logFC[i[1]]
-          aa$anonuniformity[b] <- anchorbased(sr)$junction.nonuniformity[i[1]]
-          aa$aparticipation[b] <- anchorbased(sr)$junction.participation[i[1]]
+          aa$a.fdr[b] <- anchorbased(sr)$junction.fdr[i[1]]
+          aa$a.logfc[b] <- anchorbased(sr)$junction.logFC[i[1]]
+          aa$a.nonuniformity[b] <- anchorbased(sr)$junction.nonuniformity[i[1]]
+          aa$a.participation[b] <- anchorbased(sr)$junction.participation[i[1]]
         }
       }
       if(aa$jl[b] != 0){
         i <- which(localebased(sr)$junction == aa$J3[b])
         if(length(i) > 0){
-          aa$lfdr[b] <- localebased(sr)$junction.fdr[i[1]]
-          aa$llogfc[b] <- localebased(sr)$junction.logFC[i[1]]
-          aa$lparticipation[b] <- localebased(sr)$junction.participation[i[1]]
+          aa$l.fdr[b] <- localebased(sr)$junction.fdr[i[1]]
+          aa$l.logfc[b] <- localebased(sr)$junction.logFC[i[1]]
+          aa$l.participation[b] <- localebased(sr)$junction.participation[i[1]]
         }
       }          
     }  
-    aa <- aa[order(aa$bfdr), ]
+    aa <- aa[order(aa$b.fdr), ]
     r <- strsplit2(unique(aa$region), "Chr")[, 2]
     chr <- strsplit2(r, ":")[, 1]
     chr <- sapply(chr, function(s){return(is.na(suppressWarnings(as.numeric(s))))})
@@ -533,7 +533,10 @@
   }else{
     aa <- data.table(region = character(), locus = character(), b = numeric(), bjs = numeric(), ja = numeric(),
                      jl = numeric(), bin = character(), feature = character(), bin.event = character(),
-                     J3 = character(), binreg = character())
+                     J3 = character(), binreg = character(), locus_overlap = numeric(), b.fdr = numeric(),
+                     b.logfc = numeric(), bjs.fdr = numeric(), bjs.logfc = numeric(), bjs.nonuniformity = numeric(),
+                     bjs.inclussion = numeric(), a.fdr = numeric(), a.logfc = numeric(), a.nonuniformity = numeric(),
+                     a.participation = numeric(), l.fdr = numeric(), l.logfc = numeric(), l.participation = numeric())
   }
   
 
