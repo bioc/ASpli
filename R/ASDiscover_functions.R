@@ -121,7 +121,7 @@
   return( jranges )
 }
 
-.junctionsDiscover <- function( df, bam, cores, readLength, targets, features ) {
+.junctionsDiscover <- function( df, bam, cores, readLength, targets, features, minAnchor ) {
 
   # This function get the counts of the junctions that overlaps the an 
   # intron/exon region of a bin. The junction must overlap completely and at 
@@ -129,11 +129,11 @@
   # The regions can be exon1-intron or intron-exon2. All junctions are assumed 
   # to correspond to a intron.
   getExonIntronCounts <- function( jranges, targets, bams, readLength, 
-      regionType, cores = 1 ) {
+      regionType, cores = 1, minAnchor ) {
     
     exonIntron <- jranges
 
-    minAnchor <- round( 8 * readLength / 100 )
+    minAnchor <- round( minAnchor * readLength / 100 )
     
     start( exonIntron ) <- if ( regionType == 'e1i' ) start( jranges ) else end( jranges )
     start( exonIntron ) <- start( exonIntron ) - ( readLength - minAnchor ) - 1
@@ -164,9 +164,9 @@
   # Get counts for junction overlapping the exon1-intron region and intron-exon2
   # region
   e1i <- getExonIntronCounts( jranges, targets, ungappedBams, readLength , 
-      'e1i', cores = cores)
+      'e1i', cores = cores, minAnchor)
   ie2 <- getExonIntronCounts( jranges, targets, ungappedBams, readLength , 
-      'ie2', cores = cores)  
+      'ie2', cores = cores, minAnchor)  
   
   # Calculates the PIR value 
   j1 <- .sumByCond( e1i,     targets )

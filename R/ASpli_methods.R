@@ -51,7 +51,8 @@ setClass( Class = "ASpliSplicingReport",
           representation = representation(
             binbased    = "data.frame",
             localebased = "data.frame",
-            anchorbased = "data.frame"))
+            anchorbased = "data.frame",
+            contrast    = "numeric"))
 
 # ---------------------------------------------------------------------------- #
 
@@ -210,7 +211,8 @@ setGeneric (
                   bam = NULL, 
                   minReadLength, 
                   threshold = 5, 
-                  cores = 1 ) standardGeneric("jCounts") )
+                  cores = 1,
+                  minAnchor = 10) standardGeneric("jCounts") )
 
 setMethod(
   f = "jCounts",
@@ -220,8 +222,9 @@ setMethod(
                          bam = NULL, 
                          minReadLength, 
                          threshold = 5, 
-                         cores = 1 ) {
-    return(AsDiscover( counts, features, bam = NULL, minReadLength, threshold = 5, cores = 1 ))
+                         cores = 1,
+                         minAnchor = 10) {
+    return(AsDiscover( counts, features, bam = NULL, minReadLength, threshold, cores, minAnchor ))
   }
 )
 
@@ -370,7 +373,8 @@ setGeneric (
                   bam = NULL, 
                   minReadLength, 
                   threshold = 5, 
-                  cores = 1 ) standardGeneric("AsDiscover") )
+                  cores = 1,
+                  minAnchor = 10) standardGeneric("AsDiscover") )
 
 setMethod(
   f = "AsDiscover",
@@ -380,7 +384,8 @@ setMethod(
                          bam = NULL, 
                          minReadLength, 
                          threshold = 5, 
-                         cores = 1 ) {
+                         cores = 1,
+                         minAnchor = 10) {
     
     targets <- counts@targets
     
@@ -414,7 +419,8 @@ setMethod(
                                               cores = cores , 
                                               minReadLength, 
                                               targets[target, ], 
-                                              features )        
+                                              features,
+                                              minAnchor = minAnchor)        
         }
   
         if(ncol(as@junctionsPIR) == 0){
@@ -444,7 +450,8 @@ setMethod(
                                           cores = cores , 
                                           minReadLength, 
                                           targets, 
-                                          features ) 
+                                          features,
+                                          minAnchor = minAnchor ) 
       as@junctionsPIR <- junctionsPIR
     }
     message("Junctions PIR completed")
@@ -1012,7 +1019,9 @@ setMethod(
     
     for(slotName in slotNames(sr)){
       # Export Genes  
-      write.table( slot(sr, slotName), paste(output.dir, paste0(slotName, ".txt"), sep="/"), sep = "\t", quote = FALSE, col.names = T, row.names = F )
+      if(class(slot(sr, slotName)) == "data.frame"){
+        write.table( slot(sr, slotName), paste(output.dir, paste0(slotName, ".txt"), sep="/"), sep = "\t", quote = FALSE, col.names = T, row.names = F )
+      }
     }
     
   }
@@ -1041,32 +1050,34 @@ setMethod(
     
     
     for(s in slotNames(sr)){
-      b <- slot(sr, s)
-      if(s == "binbased"){
-          b$feature <- as.factor(b$feature)
-          b$bin.event <- as.factor(b$bin.event)
-          b[, c(10:12, 15:ncol(b))] <- apply(b[, c(10:12, 15:ncol(b))], 2, function(s){return(signif(as.numeric(s), digits = 4))})
+      if(class(slot(sr, s)) == "data.frame"){
+        b <- slot(sr, s)
+        if(s == "binbased"){
+            b$feature <- as.factor(b$feature)
+            b$bin.event <- as.factor(b$bin.event)
+            b[, c(10:12, 15:ncol(b))] <- apply(b[, c(10:12, 15:ncol(b))], 2, function(s){return(signif(as.numeric(s), digits = 4))})
+        }
+        titulo <- paste0('ASpli: ', s, ". Contrasts: ", paste(names(sr@contrast)[sr@contrast != 0], collapse = " - "))
+        y <- datatable(b,
+                       escape = TRUE,
+                       filter ="top",
+                       extensions = c('Buttons', 'KeyTable'), 
+                       options = list(dom = 'lfrtBip',
+                                      buttons = c('copy', 'csv', 'excel', 'pdf', 'print', I('colvis')),
+                                      columnDefs = list(
+                                        #  list(visible = FALSE, targets = c(0, 2, 3)),
+                                        list(orderable = FALSE, className =
+                                               'details-control', targets = 1)
+                                      ),
+                                      keys = TRUE
+                       ),   caption = htmltools::tags$caption(
+                         style = 'caption-side: top; text-align: left;',
+                         htmltools::h1(titulo)
+                       ))    
+        ffile <- paste0(normalizePath(paste0(output.dir)), "/", s, "Report.html")
+        suppressWarnings(saveWidget(y, file = ffile))
+        browseURL(ffile)
       }
-      titulo <- paste('ASpli:', s)
-      y <- datatable(b,
-                     escape = TRUE,
-                     filter ="top",
-                     extensions = c('Buttons', 'KeyTable'), 
-                     options = list(dom = 'lfrtBip',
-                                    buttons = c('copy', 'csv', 'excel', 'pdf', 'print', I('colvis')),
-                                    columnDefs = list(
-                                      #  list(visible = FALSE, targets = c(0, 2, 3)),
-                                      list(orderable = FALSE, className =
-                                             'details-control', targets = 1)
-                                    ),
-                                    keys = TRUE
-                     ),   caption = htmltools::tags$caption(
-                       style = 'caption-side: top; text-align: left;',
-                       htmltools::h1(titulo)
-                     ))    
-      ffile <- paste0(normalizePath(paste0(output.dir)), "/", s, "Report.html")
-      suppressWarnings(saveWidget(y, file = ffile))
-      browseURL(ffile)
     }    
   }
 )
@@ -1084,7 +1095,7 @@ setMethod(
   signature = "data.table",
   definition = function( is, output.dir="is", sr, counts, features, mergedBams, jCompletelyIncluded = FALSE, zoomRegion = 1.5, useLog = FALSE, tcex = 1, ntop = NULL) {
     
-    if(!all(colnames(is) %in% c("region", "locus", "b", "bjs", "ja", "jl", "bin", "feature", "bin.event", "J3", "binreg", "bpval", "lpval", "apval"))){
+    if(!any(colnames(is) %in% c("region", "locus", "b", "bjs", "ja", "jl", "bin", "feature", "bin.event", "J3", "binreg", "bpval", "lpval", "apval"))){
       stop("is must be a data.table generated by integrateSignals method")
     }
     
@@ -1107,11 +1118,12 @@ setMethod(
     is[,bjs:=as.factor(bjs)]
     is[,ja:=as.factor(ja)]
     is[,jl:=as.factor(jl)]
+    is$feature[is.na(is$feature)] <- "-" 
     is[,feature:=as.factor(feature)]
     is[,bin.event:=as.factor(bin.event)]
-    is[,bpval:=signif(as.numeric(bpval), 4)]
-    is[,lpval:=signif(as.numeric(lpval), 4)]
-    is[,apval:=signif(as.numeric(apval), 4)]
+    is[,bfdr:=signif(as.numeric(bfdr), 4)]
+    is[,lfdr:=signif(as.numeric(lfdr), 4)]
+    is[,afdr:=signif(as.numeric(afdr), 4)]
     chrMap <- as.character(1:5)
     names(chrMap) <- paste0("Chr",1:5)
     
@@ -1144,8 +1156,8 @@ setMethod(
         
       })
     }
-    titulo <- "ASpli: integrated signals"
-    y <- datatable(cbind(' ' = '&oplus;',is[1:ntop,c("region", "locus", "b", "bjs", "ja", "jl", "bin", "feature", "bin.event", "bpval", "lpval", "apval")]),
+    titulo <- paste0('ASpli: integrated signals. Contrasts: ', paste(names(sr@contrast)[sr@contrast != 0], collapse = " - "))
+    y <- datatable(cbind(' ' = '&oplus;',is[1:ntop,c("region", "locus", "locus_overlap", "b", "bjs", "ja", "jl", "bin", "feature", "bin.event", "blogfc", "bfdr", "bjslogfc", "bjsfdr", "bjsnonuniformity", "bjsinclussion", "alogfc", "afdr", "anonuniformity", "aparticipation", "llogfc", "lfdr", "lparticipation")]),
               escape = -2,
               filter ="top",
               fillContainer = F,

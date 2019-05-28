@@ -191,6 +191,9 @@ setMethod( 'show', 'ASpliFeatures', function( object ) {
       cat("Junctions: GRanges of length", 
           length(object@junctions),
           "Access using featuresj(object)","\n")
+      cat("Transcript Exons: GRanges of length", 
+          length(object@transcriptExons),
+          "Access using transcriptExons(object)","\n")
     })
 
 setMethod( 'show', 'ASpliCounts', function( object ) {
