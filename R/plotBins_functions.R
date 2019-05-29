@@ -632,8 +632,8 @@
     hh <- c(rep(c(hCov,hJun)/nConditions,nConditions),(hCov+hJun)/nConditions)
     hh <- hh/sum(hh)
   }
-  #layout(matrix(c((2*nConditions+1):1,rep(2*nConditions+2,2*nConditions),2*nConditions+3),ncol=2),width=c(0.8,.2),height=hh)
-  layout(matrix(c((2*nConditions+1):1,rep(1+2*nConditions+1:nConditions,each=2),(3*nConditions+2)),ncol=2),width=c(0.8,.2),height=hh)
+  #layout(matrix(c((2*nConditions+1):1,rep(1+2*nConditions+1:nConditions,each=2),(3*nConditions+2)),ncol=2),width=c(0.8,.2),height=hh)
+  layout(matrix((2*nConditions+1):1),width=c(0.8,.2),height=hh)
   
   par(mar=c(.5, 1.1, .5, 1.1))
   
@@ -995,64 +995,65 @@
   
   
   #vamos por el texto:
-  # Junturas Anchor
-  plot(1,axes=FALSE,type="n",xlab="",ylab="")
-  if(iiss$ja==1){
-    col1 <- c( "junction","junction.annotated","junction.fdr","junction.nonuniformity","junction.participation","cluster.fdr","dPIR")
-    a1 <- sr@anchorbased[sr@anchorbased$junction%in%iiss$J3,col1]
-    if(nrow(a1)>0){
-      a1[col1[3:7]]<-signif(a1[col1[3:7]],2)
+  if(FALSE){
+    # Junturas Anchor
+    plot(1,axes=FALSE,type="n",xlab="",ylab="")
+    if(iiss$ja==1){
+      col1 <- c( "junction","junction.annotated","junction.fdr","junction.nonuniformity","junction.participation","cluster.fdr","dPIR")
+      a1 <- sr@anchorbased[sr@anchorbased$junction%in%iiss$J3,col1]
+      if(nrow(a1)>0){
+        a1[col1[3:7]]<-signif(a1[col1[3:7]],2)
+        a1<-cbind(names(a1),t(a1))
+        a1<-apply(a1,1,function(x){return(paste(x,collapse=": "))})
+        names(a1)<- c("junction","annotated","j.fdr","non-unif","participation","cluster.fdr","D_PIR")
+        a1<-paste("  ",a1,sep = "")
+        a1<-c("Junction Anchorage:",a1)
+        legend("topleft",a1,cex=tcex,bty="n",inset=0.02) 
+        
+        # a2 <- sr@anchorbased[sr@anchorbased$junction%in%iiss$J3,8+c(6,4,2,5,3,1)]*nrep
+        # a2 <- cbind(names(a2),t(a2))
+        # a2 <- apply(a2,1,function(x){return(paste(x,collapse=": "))})
+        # a2<-paste("  ",a2,sep = "")
+        
+        # legend("bottomleft",a2,cex=tcex,bty="n",inset=0.02)
+      }else{
+        a1<-c("Junction Anchorage:","  no J3 passed the filter.")
+        legend("topleft",a1,cex=tcex,bty="n",inset=0.02)   
+      }
+    }
+    
+    # Junturas locale
+    plot(1,axes=FALSE,type="n",xlab="",ylab="")
+    if(iiss$jl==1){
+      col1 <- c( "junction","junction.annotated","junction.fdr","junction.participation","cluster.fdr")
+      a1 <- sr@localebased[sr@localebased$junction%in%iiss$J3,col1]
+      a1[col1[3:5]]<-signif(a1[col1[3:5]],2)
       a1<-cbind(names(a1),t(a1))
       a1<-apply(a1,1,function(x){return(paste(x,collapse=": "))})
-      names(a1)<- c("junction","annotated","j.fdr","non-unif","participation","cluster.fdr","D_PIR")
+      names(a1)<- c("junction","annotated","j.fdr","participation","cluster.fdr")
       a1<-paste("  ",a1,sep = "")
-      a1<-c("Junction Anchorage:",a1)
+      a1<-c("Junction Locale:",a1)
+      
       legend("topleft",a1,cex=tcex,bty="n",inset=0.02) 
       
-      # a2 <- sr@anchorbased[sr@anchorbased$junction%in%iiss$J3,8+c(6,4,2,5,3,1)]*nrep
-      # a2 <- cbind(names(a2),t(a2))
-      # a2 <- apply(a2,1,function(x){return(paste(x,collapse=": "))})
-      # a2<-paste("  ",a2,sep = "")
       
-      # legend("bottomleft",a2,cex=tcex,bty="n",inset=0.02)
-    }else{
-      a1<-c("Junction Anchorage:","  no J3 passed the filter.")
-      legend("topleft",a1,cex=tcex,bty="n",inset=0.02)   
+    }
+    
+    # bin info
+    plot(1,axes=FALSE,type="n",xlab="",ylab="")
+    if(iiss$b==1 | iiss$bjs==1){
+      col1 <- c( "bin","bin.fdr","junction.dPIR","junction.dPIN")
+      a1 <- sr@binbased[sr@binbased$bin%in%iiss$bin,col1]
+      a1[col1[2:4]]<-signif(a1[col1[2:4]],2)
+      names(a1)<-c("bin","bin.fdr","D_PIR","D_PIN")
+      a1<-cbind(names(a1),t(a1))
+      a1<-apply(a1,1,function(x){return(paste(x,collapse=": "))})
+      a1<-paste("  ",a1,sep = "")
+      a1<-c("Bin:",a1)
+      legend("topleft",a1,cex=tcex,bty="n",inset=0.02) 
+      
     }
   }
-  
-  # Junturas locale
-  plot(1,axes=FALSE,type="n",xlab="",ylab="")
-  if(iiss$jl==1){
-    col1 <- c( "junction","junction.annotated","junction.fdr","junction.participation","cluster.fdr")
-    a1 <- sr@localebased[sr@localebased$junction%in%iiss$J3,col1]
-    a1[col1[3:5]]<-signif(a1[col1[3:5]],2)
-    a1<-cbind(names(a1),t(a1))
-    a1<-apply(a1,1,function(x){return(paste(x,collapse=": "))})
-    names(a1)<- c("junction","annotated","j.fdr","participation","cluster.fdr")
-    a1<-paste("  ",a1,sep = "")
-    a1<-c("Junction Locale:",a1)
-    
-    legend("topleft",a1,cex=tcex,bty="n",inset=0.02) 
-    
-    
-  }
-  
-  # bin info
-  plot(1,axes=FALSE,type="n",xlab="",ylab="")
-  if(iiss$b==1 | iiss$bjs==1){
-    col1 <- c( "bin","bin.fdr","junction.dPIR","junction.dPIN")
-    a1 <- sr@binbased[sr@binbased$bin%in%iiss$bin,col1]
-    a1[col1[2:4]]<-signif(a1[col1[2:4]],2)
-    names(a1)<-c("bin","bin.fdr","D_PIR","D_PIN")
-    a1<-cbind(names(a1),t(a1))
-    a1<-apply(a1,1,function(x){return(paste(x,collapse=": "))})
-    a1<-paste("  ",a1,sep = "")
-    a1<-c("Bin:",a1)
-    legend("topleft",a1,cex=tcex,bty="n",inset=0.02) 
-    
-  }
-  
   
 }
 
