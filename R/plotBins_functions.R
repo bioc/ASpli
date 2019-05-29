@@ -516,14 +516,15 @@
 # mergedBAMs <- data.frame(full_path_file_name_bam_file = mergedBams, condition = c("col_16", "col_23", "pcp_16", "pcp_23"))
 #.plotSplicingPattern(region, iss, counts, f, mergedBAMs, sr, chrMap = chrMap)
 
-.plotSplicingPattern<-function(region=NULL,iss,counts,f,mergedBAMs,sr,exones=NULL,genePlot=TRUE,jCompletelyIncluded=TRUE,
+.plotSplicingPattern<-function(region=NULL,iss,counts,f,mergedBAMs,sr,genePlot=TRUE,jCompletelyIncluded=TRUE,
                               zoomRegion=1.5,useLog=FALSE,tcex=1){
   #region <- r
   #iss <- is
   #counts
   #f <- features
   #mergedBAMs <- mergedBams
-  #exones = transcriptExons(features)
+  
+  exones = transcriptExons(f)
   
   
   #alturas relativas de paneles de coverage y junturas

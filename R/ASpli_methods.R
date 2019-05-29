@@ -1154,10 +1154,10 @@ setMethod(
       }
       tryCatch({
         png(width = 1400, height=700, filename = paste0(normalizePath(output.dir), "/img/", r, "_gene.png"))
-        .plotSplicingPattern(r, is, counts, features, mergedBams, sr, exones = transcriptExons(features), genePlot = TRUE, jCompletelyIncluded, zoomRegion, useLog, tcex)
+        .plotSplicingPattern(r, is, counts, features, mergedBams, sr, genePlot = TRUE, jCompletelyIncluded, zoomRegion, useLog, tcex)
         dev.off()
         png(width = 1400, height=700, filename = paste0(normalizePath(output.dir), "/img/", r, ".png"))
-        .plotSplicingPattern(r, is, counts, features, mergedBams, sr, exones = transcriptExons(features), genePlot = FALSE, jCompletelyIncluded, zoomRegion, useLog, tcex)
+        .plotSplicingPattern(r, is, counts, features, mergedBams, sr, genePlot = FALSE, jCompletelyIncluded, zoomRegion, useLog, tcex)
         dev.off()
       }, warning = function(warning_condition) {
           message(warning_condition)        
