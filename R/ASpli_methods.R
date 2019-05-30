@@ -939,34 +939,38 @@ setMethod(
   signature = "ASpliDU",
   definition = function( du, output.dir="du" ) {
     
-    paths <- list()
+    #paths <- list()
     # Creates output folder structure
-    if ( containsGenesAndBins( du ) ) {
-      genesFile     <- file.path( output.dir, "genes","gene.de.tab" )       
-      exonsFile     <- file.path( output.dir, "exons", "exon.du.tab")       
-      intronsFile   <- file.path( output.dir, "introns", "intron.du.tab")
-      paths <- append( paths, list( genesFile, exonsFile, intronsFile  ))
-    }
+    #if ( containsGenesAndBins( du ) ) {
+    #  genesFile     <- file.path( output.dir, "genes","gene.de.tab" )       
+    #  exonsFile     <- file.path( output.dir, "exons", "exon.du.tab")       
+    #  intronsFile   <- file.path( output.dir, "introns", "intron.du.tab")
+    #  paths <- append( paths, list( genesFile, exonsFile, intronsFile  ))
+    #}
     
-    if ( containsJunctions( du ) ) {
-      junctionsFile <- file.path( output.dir, "junctions", "junction.du.tab")
-      paths <- append( paths , list( junctionsFile ) )
-    }
+    #if ( containsJunctions( du ) ) {
+    #  junctionsFile <- file.path( output.dir, "junctions", "junction.du.tab")
+    #  paths <- append( paths , list( junctionsFile ) )
+    #}
     
     file.exists( output.dir ) || dir.create( output.dir )
-    for (filename in paths ) {
-      dir.create( dirname( filename ) )
-    }
+    output.dir <- paste(output.dir, paste(names(du@contrast)[du@contrast != 0], collapse="-"), sep="/")
+    file.exists( output.dir ) || dir.create( output.dir )
+
+
+    #for (filename in paths ) {
+    #  dir.create( dirname( filename ) )
+    #}
     
     if ( containsGenesAndBins( du ) ) {
       # Export Genes  
-      write.table( genesDE( du ), genesFile, sep = "\t", quote = FALSE, 
+      write.table( genesDE( du ), paste(normalizePath(output.dir), "gene.de.tab", sep="/"), sep = "\t", quote = FALSE, 
                    col.names = NA )
       
       # Export Exons
       exonBins <- binsDU(du)[binsDU(du)$feature == "E",]
       exonBins <- exonBins[exonBins$event !="IR",]
-      write.table( exonBins, exonsFile, sep="\t", quote=FALSE, col.names=NA)
+      write.table( exonBins, paste(normalizePath(output.dir), "exon.du.tab", sep="/"), sep="\t", quote=FALSE, col.names=NA)
       
       
       # Export Introns 
@@ -974,12 +978,12 @@ setMethod(
         binsDU(du)[binsDU(du)$feature == "I" ,], 
         binsDU(du)[binsDU(du)$feature == "Io",],
         binsDU(du)[binsDU(du)$event   == "IR",])
-      write.table( intronBins, intronsFile, sep = "\t", quote = FALSE, 
+      write.table( intronBins, paste(normalizePath(output.dir), "intron.du.tab", sep="/"), sep = "\t", quote = FALSE, 
                    col.names = NA )
     }
     # Export Junctions
     if ( containsJunctions( du ) ) {
-      write.table( junctionsDU( du ), junctionsFile, sep = "\t", quote = FALSE, 
+      write.table( junctionsDU( du ), paste(normalizePath(output.dir), "junction.du.tab", sep="/"), sep = "\t", quote = FALSE, 
                    col.names=NA )
     }
   }
@@ -1074,7 +1078,7 @@ setMethod(
                          style = 'caption-side: top; text-align: left;',
                          htmltools::h1(titulo)
                        ))    
-        ffile <- paste0(normalizePath(paste0(output.dir)), "/", s, "Report.html")
+        ffile <- paste0(normalizePath(output.dir), "/", s, "Report.html")
         suppressWarnings(saveWidget(y, file = ffile))
         browseURL(ffile)
       }

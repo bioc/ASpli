@@ -154,6 +154,7 @@
   # Create result object                   
   du <- new( Class="ASpliDU" )
   du@contrast <- contrast
+  names(du@contrast) <- counts@condition.order
   # Generate conditions combining experimental factors
   targets <- .condenseTargetsConditions( targets ) 
   
