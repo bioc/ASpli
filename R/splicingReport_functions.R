@@ -268,9 +268,14 @@
   }
   
   b <- sr@anchorbased
+  if(all(is.na(b$junction.nonuniformity))){
+    bunif <- TRUE
+  }else{
+    bunif <- replace_na(b$junction.nonuniformity < unif, FALSE)
+  }
   b <- b[replace_na(b$junction.fdr < j.fdr, FALSE) & 
            replace_na(b$junction.participation > j.particip, FALSE) & 
-           replace_na(b$junction.nonuniformity < unif, FALSE), ]
+           bunif, ]
   if(nrow(b) > 0){
     aux <- strsplit2(b$junction, "[.]")
     start   = as.numeric(aux[, 2])#aggregate(start ~ cluster, data=b, FUN=min)
