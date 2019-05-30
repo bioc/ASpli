@@ -1059,8 +1059,10 @@ setMethod(
         if(s == "binbased"){
             b$feature <- as.factor(b$feature)
             b$bin.event <- as.factor(b$bin.event)
-            b[, c(10:12, 15:ncol(b))] <- apply(b[, c(10:12, 15:ncol(b))], 2, function(s){return(signif(as.numeric(s), digits = 4))})
+            #b[, c(10:12, 15:ncol(b))] <- apply(b[, c(10:12, 15:ncol(b))], 2, function(s){return(signif(as.numeric(s), digits = 4))})
         }
+	columnas_numericas <- which(sapply(b, class) == "numeric")
+	b[, columnas_numericas] <- apply(b[, columnas_numericas], 2, function(s){return(signif(as.numeric(s), digits = 4))})
         titulo <- paste0('ASpli: ', s, ". Contrasts: ", paste(names(sr@contrast)[sr@contrast != 0], collapse = " - "))
         y <- datatable(b,
                        escape = TRUE,
