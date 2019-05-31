@@ -84,7 +84,7 @@
   
   colnames(junctionbased_junctions) <- c("bin", "feature", "event", "locus", "locus_overlap", "symbol", "gene_coordinates", "bin.start", "bin.end",
                                          "bin.length", "bin.logFC", "bin.pvalue", "bin.fdr","junction", "junction.cluster", "junction.log.mean",
-                                         "junction.logFC", "junction.pvalue", "junction.fdr", "junction.annotated", "junction.participation", colnames(junctionbased_junctions)[grep("counts", colnames(junctionbased_junctions))])
+                                         "junction.logFC", "junction.pvalue", "junction.fdr", "junction.annotated", "junction.participation", "junction.dparticipation", colnames(junctionbased_junctions)[grep("counts", colnames(junctionbased_junctions))])
   
   junctionbased_junctions$junction.cluster <- as.character(junctionbased_junctions$junction.cluster)
   
@@ -100,7 +100,7 @@
                      "junction.log.mean",
                      "junction.logFC", "junction.pvalue", "junction.fdr", 
                      colnames(fulldt)[grep("counts", colnames(fulldt))],
-                     "junction.cluster", "junction.participation",
+                     "junction.cluster", "junction.participation", "junction.dparticipation",
                      "cluster.size", "cluster.pvalue", "cluster.fdr", 
                      "bin", "bin.pvalue", "bin.fdr")
                    ]
@@ -146,7 +146,7 @@
   
   colnames(junctionbased_junctions) <- c("bin", "feature", "event", "locus", "locus_overlap", "symbol", "gene_coordinates", "bin.start", "bin.end",
                                          "bin.length", "bin.logFC", "bin.pvalue", "bin.fdr", "junction", "junction.log.mean",
-                                         "junction.logFC", "junction.pvalue", "junction.fdr", "junction.nonuniformity", "junction.participation", "junction.annotated",
+                                         "junction.logFC", "junction.pvalue", "junction.fdr", "junction.nonuniformity", "junction.participation", "junction.dparticipation", "junction.annotated",
                                          colnames(junctionbased_junctions)[grep("counts", colnames(junctionbased_junctions))])
   
   #bins <- data.table(bdu@bins[rownames(bdu@bins) %in% junctionbased_junctions$bin, ], keep.rownames = T)
@@ -159,7 +159,7 @@
   fulldt <- fulldt[, 
                    c("junction", "junction.annotated",
                      "junction.log.mean",
-                     "junction.logFC", "junction.pvalue", "junction.fdr", "junction.nonuniformity", "junction.participation",
+                     "junction.logFC", "junction.pvalue", "junction.fdr", "junction.nonuniformity", "junction.participation", "junction.dparticipation",
                      colnames(fulldt)[grep("counts", colnames(fulldt))],
                      "cluster.pvalue", "cluster.fdr",
                      "bin", "bin.pvalue", "bin.fdr")
@@ -497,10 +497,12 @@
     aa$a.logfc         <- NA
     aa$a.nonuniformity <- NA
     aa$a.participation <- NA
+    aa$a.dparticipation <- NA
     
     aa$l.fdr           <- NA
     aa$l.logfc         <- NA
     aa$l.participation <- NA
+    aa$l.dparticipation <- NA
     
         
     for(b in 1:nrow(aa)){
@@ -527,6 +529,7 @@
           aa$a.logfc[b] <- anchorbased(sr)$junction.logFC[i[1]]
           aa$a.nonuniformity[b] <- anchorbased(sr)$junction.nonuniformity[i[1]]
           aa$a.participation[b] <- anchorbased(sr)$junction.participation[i[1]]
+          aa$a.dparticipation[b] <- anchorbased(sr)$junction.dparticipation[i[1]]
         }
       }
       if(aa$jl[b] != 0){
@@ -535,6 +538,7 @@
           aa$l.fdr[b] <- localebased(sr)$junction.fdr[i[1]]
           aa$l.logfc[b] <- localebased(sr)$junction.logFC[i[1]]
           aa$l.participation[b] <- localebased(sr)$junction.participation[i[1]]
+          aa$l.dparticipation[b] <- localebased(sr)$junction.dparticipation[i[1]]
         }
       }          
     }  
@@ -549,7 +553,8 @@
                      J3 = character(), binreg = character(), locus_overlap = numeric(), b.fdr = numeric(),
                      b.logfc = numeric(), bjs.fdr = numeric(), bjs.logfc = numeric(), bjs.nonuniformity = numeric(),
                      bjs.inclussion = numeric(), a.fdr = numeric(), a.logfc = numeric(), a.nonuniformity = numeric(),
-                     a.participation = numeric(), l.fdr = numeric(), l.logfc = numeric(), l.participation = numeric())
+                     a.participation = numeric(),
+                     a.dparticipation = numeric(), l.fdr = numeric(), l.logfc = numeric(), l.participation = numeric(),l.dparticipation = numeric())
   }
   
 

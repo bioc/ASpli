@@ -1,7 +1,7 @@
 
 .counterGenes <- function( reads, feature, cores = 1 ) {
   
-  hits <- lapply( reads, function( x ) { 
+  hits <- mclapply( reads, mc.cores = cores, function( x ) { 
         co <- countOverlaps( feature, x, ignore.strand = TRUE ) 
         gc()
         return(co)
@@ -35,7 +35,7 @@
 
 .counterBin <- function( reads, feature, genes, cores = 1  ) { 
   
-  hits <- lapply( reads, function(x) {
+  hits <- mclapply( reads, mc.cores = cores, function(x) {
         co <- countOverlaps( feature, x, ignore.strand = TRUE)
         gc()
         return(co)
@@ -68,11 +68,11 @@
 # .counterJbin Cuenta reads que atraviesan dos bins. 
 # TODO: el argumento l es la longitud de una read.  Que pasa con datos que 
 #       tienen un tamano de read variable ?
-.counterJbin <- function(reads, feature, genes, cores=NULL, l) {
+.counterJbin <- function(reads, feature, genes, cores=1, l) {
   
-  ungapped <- lapply( reads, function(x) { x[ njunc( x ) == 0 , ] } )
+  ungapped <- mclapply( reads, mc.cores = cores, function(x) { x[ njunc( x ) == 0 , ] } )
   
-  hits <- lapply( ungapped, function(x) { 
+  hits <- mclapply( ungapped, mc.cores = cores, function(x) { 
         co <- countOverlaps( feature, x, ignore.strand = TRUE,  minoverlap = l) 
         gc()
         return(co)
@@ -309,7 +309,7 @@
 
 .counterJunctions <- function(features, bam, cores, maxISize) {
   #if (is.null(cores) ) {
-    ujunctions <- lapply (bam, function(x)    {  
+    ujunctions <- mclapply (bam, mc.cores = cores, function(x)    {  
           junctions <- unlist(junctions(x) )
           strand(junctions) <- "*"
           start(junctions) <- start(junctions)-1
@@ -342,7 +342,7 @@
       end(jranges) , sep="." )
   jranges@ranges@NAMES <- fcoord
 
-  jcounts <- lapply(bam, function(x) {
+  jcounts <- mclapply(bam, mc.cores = cores, function(x) {
         junctions <- unlist(junctions(x) )
         strand(junctions)<- "*"
         start(junctions) <- start(junctions)-1

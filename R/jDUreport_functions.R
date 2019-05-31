@@ -57,12 +57,16 @@
   rownames(participation)       <- participation$cluster
   participation                 <- participation[jPSI$cluster, -1]
   participation                 <- mean.counts.per.condition/participation
-  participation                 <- apply(participation, 1, max)
+  maxparticipation              <- apply(participation, 1, max)
+  minparticipation              <- apply(participation, 1, min)
+  deltapariticipation           <- maxparticipation - minparticipation 
+  participation                 <- maxparticipation
   
   jPSI                  <- jPSI[, c("cluster", "log.mean", "logFC", "P.Value", "FDR")]
   jPSI$annotated        <- ifelse(data[rownames(jPSI), "junction"] != "noHit", "Yes", "No")
   jPSI$participation    <- participation
-  colnames(jPSI)        <- c("cluster", "log.mean", "logFC", "pvalue", "FDR", "annotated", "participation")
+  jPSI$dParticipation   <- deltapariticipation
+  colnames(jPSI)        <- c("cluster", "log.mean", "logFC", "pvalue", "FDR", "annotated", "participation", "dParticipation")
   
   
   jPSI                  <- cbind(jPSI, counts=mean.counts.per.condition)
@@ -114,12 +118,13 @@
   jPIR      <- cbind(jPIR, countsJ3 = sapply(getConditions(targets)[contrast != 0], function(i){return(rowMeans(Js$J3[rownames(jPIR), rownames(targets)[targets$condition %in% i]]))}))
   participation      <- jPIR[, grep("countsJ3", colnames(jPIR))]/(jPIR[, grep("countsJ1", colnames(jPIR))] + jPIR[, grep("countsJ2", colnames(jPIR))] + jPIR[, grep("countsJ3", colnames(jPIR))])
   jPIR$participation <- apply(participation, 1, max)
+  jPIR$dParticipation <- jPIR$participation-apply(participation, 1, min)
 
   
   jPIR$annotated        <- ifelse(!is.na(data[rownames(jPIR), "hitIntron"]), "Yes", "No")
-  jPIR                  <- jPIR[, c("log.mean", "logFC", "P.Value", "FDR", "NonUniformity", "participation", "annotated", colnames(jPIR)[grep("counts", colnames(jPIR))])]
+  jPIR                  <- jPIR[, c("log.mean", "logFC", "P.Value", "FDR", "NonUniformity", "participation", "dParticipation", "annotated", colnames(jPIR)[grep("counts", colnames(jPIR))])]
 
-  colnames(jPIR)        <- c("log.mean", "logFC", "pvalue", "FDR", "NonUniformity", "participation", "annotated", colnames(jPIR)[grep("counts", colnames(jPIR))])
+  colnames(jPIR)        <- c("log.mean", "logFC", "pvalue", "FDR", "NonUniformity", "participation", "dParticipation", "annotated", colnames(jPIR)[grep("counts", colnames(jPIR))])
            
   anchorj(jdu)          <- jPIR
   ltsp                  <- ltsp[["cluster"]][,!colnames(ltsp[["cluster"]])%in%"size"]
