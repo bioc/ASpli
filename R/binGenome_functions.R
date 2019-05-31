@@ -65,9 +65,9 @@
   # los solapamientos que se encuentran deben ser entre rangos de genes 
   # diferentes.
   if ( packageVersion("IRanges") < 2.6 ) {
-    locus <- findOverlaps( binsGRangesList, ignoreSelf=TRUE ) 
+    locus <- findOverlaps( binsGRangesList, ignoreSelf=TRUE, ignore.strand = T ) 
   } else {
-    locus <- findOverlaps( binsGRangesList, drop.self=TRUE ) 
+    locus <- findOverlaps( binsGRangesList, drop.self=TRUE, ignore.strand = T ) 
   }  
   # -------------------------------------------------------------------------- #
   
