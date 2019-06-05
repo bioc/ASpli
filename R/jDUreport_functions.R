@@ -522,8 +522,8 @@
     warning("Can't run uniformity test without merged bams.")
     return(rep(NA, length=nrow(data))) 
   }
-  if(!all(file.exists(mergedBams))){
-    warning("Couldn't find merged bams. Can't run uniformity test.")
+  if(!all(file.exists(c(mergedBams, paste0(mergedBams, ".bai"))))){
+    warning("Can't run uniformity test. Couldn't find merged bams or their index.")
     return(rep(NA, length=nrow(data))) 
   }
 
@@ -540,6 +540,7 @@
     }
     #reader <- bamReader(mergedBams[2], idx=TRUE)
     #reader <- readers[[which.max(data[p, getConditions(targets)])]]
+    
     pp      <- strsplit2(p, "[.]")[1, ]
     ad <- system(paste0("samtools depth -r ", paste0(pp[1], ":", (as.numeric(pp[2])-10), "-",  (as.numeric(pp[3])+10)), " ", mergedBams[which.max(data[p, getConditions(targets)[contrast != 0]])]), intern = T)
     if(length(ad) > 40){

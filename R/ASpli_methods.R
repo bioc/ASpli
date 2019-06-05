@@ -1049,7 +1049,7 @@ setMethod(
   f = "exportSplicingReports",
   signature = "ASpliSplicingReport",
   definition = function( sr, output.dir="sr" ) {
-    
+    output.dir <- paste0(normalizePath(output.dir), "/", paste0(names(sr@contrast)[sr@contrast != 0], collapse="-"))
     file.exists( output.dir ) || dir.create( output.dir , recursive = T)
     
     
@@ -1081,7 +1081,7 @@ setMethod(
                          htmltools::h1(titulo)
                        ))    
         ffile <- paste0(normalizePath(output.dir), "/", s, "Report.html")
-        suppressWarnings(saveWidget(y, file = ffile))
+        suppressWarnings(saveWidget(y, file = ffile, title = paste0(names(sr@contrast)[sr@contrast != 0], collapse="-")))
         browseURL(ffile)
       }
     }    
@@ -1120,7 +1120,8 @@ setMethod(
     if(nrow(mergedBams) == 0){
       stop("Merged bams dont match with contrasts")  
     }
-    file.exists( output.dir ) || dir.create( output.dir )
+    output.dir <- paste0(normalizePath(output.dir), "/", paste0(names(sr@contrast)[sr@contrast != 0], collapse="-"))
+    file.exists( output.dir ) || dir.create( output.dir, recursive = T )
     file.exists( paste0(output.dir, "/img") ) || dir.create( paste0(output.dir, "/img") )
 
     is[,b:=as.factor(b)]
@@ -1168,9 +1169,11 @@ setMethod(
         .plotSplicingPattern(r, is, counts, features, mergedBams, sr, genePlot = FALSE, jCompletelyIncluded, zoomRegion, useLog, tcex)
         dev.off()
       }, warning = function(warning_condition) {
-          message(warning_condition)        
+          message(warning_condition)   
+          dev.off()
       }, error = function(error_condition) {
           message(error_condition)
+          dev.off()
       }, finally={
         
       })
@@ -1199,7 +1202,6 @@ setMethod(
         tr(
           lapply(c("logFC", "FDR", "logFC", "FDR", "Non Uniformity", "Inclussion", "logFC", "FDR", "Non uniformity", "Participation", "dParticipation", "logFC", "FDR", "Participation", "dParticipation"), th)
         )
-        
       )
     ))
     y <- datatable(cbind('&oplus;', is[1:ntop,c("region", "locus", "locus_overlap", "b", "bjs", "ja", "jl", "bin", "feature", "bin.event", "b.logfc", "b.fdr", "bjs.logfc", "bjs.fdr", "bjs.nonuniformity", "bjs.inclussion", "a.logfc", "a.fdr", "a.nonuniformity", "a.participation", "a.dparticipation", "l.logfc", "l.fdr", "l.participation", "l.dparticipation")]),
@@ -1239,7 +1241,7 @@ setMethod(
     )    
     
     ffile <- paste0(normalizePath(output.dir), "/integratedSignals.html")
-    suppressWarnings(saveWidget(y, file = ffile))
+    suppressWarnings(saveWidget(y, file = ffile, title = paste(names(sr@contrast)[sr@contrast != 0], collapse = " - ")))
     browseURL(ffile)
     
   }
