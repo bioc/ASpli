@@ -809,7 +809,7 @@ setGeneric( name = "jDUreport",
                             runUniformityTest         = FALSE,
                             mergedBams                = NULL,
                             maxPValForUniformityCheck = 0.2,
-                            strongFilter              = TRUE,
+                            strongFilter              = FALSE,
                             maxConditionsForDispersionEstimate = 24
             ) standardGeneric("jDUreport") )
 
@@ -825,7 +825,7 @@ setMethod(
     runUniformityTest         = FALSE,
     mergedBams                = NULL,
     maxPValForUniformityCheck = 0.2,
-    strongFilter              = TRUE,
+    strongFilter              = FALSE,
     maxConditionsForDispersionEstimate = 24
   ) {
     
@@ -1161,23 +1161,22 @@ setMethod(
       if(i %% 10 == 0){
         message(paste0(signif(i/ntop, 2)*100, "% completed"))
       }
-      #tryCatch({
-      print(r)
+      tryCatch({
         png(width = 1400, height=700, filename = paste0(normalizePath(output.dir), "/img/", r, "_gene.png"))
         .plotSplicingPattern(r, is, counts, features, mergedBams, sr, genePlot = TRUE, jCompletelyIncluded, zoomRegion, useLog, tcex)
         dev.off()
         png(width = 1400, height=700, filename = paste0(normalizePath(output.dir), "/img/", r, ".png"))
         .plotSplicingPattern(r, is, counts, features, mergedBams, sr, genePlot = FALSE, jCompletelyIncluded, zoomRegion, useLog, tcex)
         dev.off()
-      # }, warning = function(warning_condition) {
-      #     message(warning_condition)   
-      #     dev.off()
-      # }, error = function(error_condition) {
-      #     message(error_condition)
-      #     dev.off()
-      # }, finally={
-      #   
-      # })
+      }, warning = function(warning_condition) {
+          message(warning_condition)   
+          dev.off()
+      }, error = function(error_condition) {
+          message(error_condition)
+          dev.off()
+      }, finally={
+        
+      })
     }
     titulo <- paste0('ASpli: integrated signals. Contrasts: ', paste(names(sr@contrast)[sr@contrast != 0], collapse = " - "))
     sketch = htmltools::withTags(table(
