@@ -809,7 +809,7 @@ setGeneric( name = "jDUreport",
                             runUniformityTest         = FALSE,
                             mergedBams                = NULL,
                             maxPValForUniformityCheck = 0.2,
-                            strongFilter              = FALSE,
+                            strongFilter              = TRUE,
                             maxConditionsForDispersionEstimate = 24
             ) standardGeneric("jDUreport") )
 
@@ -825,7 +825,7 @@ setMethod(
     runUniformityTest         = FALSE,
     mergedBams                = NULL,
     maxPValForUniformityCheck = 0.2,
-    strongFilter              = FALSE,
+    strongFilter              = TRUE,
     maxConditionsForDispersionEstimate = 24
   ) {
     
