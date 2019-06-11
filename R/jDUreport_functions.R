@@ -522,6 +522,14 @@
     warning("Can't run uniformity test without merged bams.")
     return(rep(NA, length=nrow(data))) 
   }
+  if(class(mergedBams)=="data.frame"){
+    mergedBams <- as.character(mergedBams[,1])
+  }
+  if(!is.character(mergedBams)){
+    warning("Can't run uniformity test. Problems with merged bams specifications.")
+    return(rep(NA, length=nrow(data))) 
+  }
+  
   if(!all(file.exists(c(mergedBams, paste0(mergedBams, ".bai"))))){
     warning("Can't run uniformity test. Couldn't find merged bams or their index.")
     return(rep(NA, length=nrow(data))) 
