@@ -199,7 +199,7 @@
 # por ejemplo, jl y que se solapa con un bin en al menos 3 pares de bases, aparece con soporte en bjs y en jl, mientras que si se solapa
 # con b, solamente de coverage, aparece con b y jl. Las junturas que aparecen reportadas al final son las que aparecen en el bin en caso
 # de tratarse de una region meramente "binica" o son la region en caso de venir de ja o jl.
-bin.fdr=0.05;unif=0.1;dPIN=0.05;dPIR=0.05;j.fdr=0.05;j.particip=0.1;usepvalBJS=FALSE;bjs.fdr=0.1; otherSources = NULL
+#bin.fdr=0.05;unif=0.1;dPIN=0.05;dPIR=0.05;j.fdr=0.05;j.particip=0.1;usepvalBJS=FALSE;bjs.fdr=0.1; otherSources = NULL
 .integrateSignals<-function(sr = NULL, asd = NULL, bin.fdr=0.05,unif=0.1,dPIN=0.05,dPIR=0.05,j.fdr=0.05,j.particip=0.1,usepvalBJS=FALSE,bjs.fdr=0.1, otherSources = NULL){
   
   if(class(sr) != "ASpliSplicingReport"){
@@ -213,7 +213,7 @@ bin.fdr=0.05;unif=0.1;dPIN=0.05;dPIR=0.05;j.fdr=0.05;j.particip=0.1;usepvalBJS=F
   #
   # Pongo todo lo que quiero compara en GRanges
   #
-  #bines significativos y uniformes
+  #bines significativos y uniformes1.130149.130372 
   b  <- sr@binbased
   b  <- b[!is.na(b$start), ]
   b  <- b[ replace_na(b$bin.fdr < bin.fdr, FALSE) & (is.na(b$junction.dPIR) | replace_na(b$junction.nonuniformity < unif, FALSE)),]
@@ -429,7 +429,7 @@ bin.fdr=0.05;unif=0.1;dPIN=0.05;dPIR=0.05;j.fdr=0.05;j.particip=0.1;usepvalBJS=F
   
   i <- grep("ja.", overlaps_aux$region,fixed=TRUE)
   if(length(i)){
-    L <- as.data.frame(localebased[as.numeric(strsplit2(overlaps_aux$region[i], "ja.")[, 2])])
+    L <- as.data.frame(anchorbased[as.numeric(strsplit2(overlaps_aux$region[i], "ja.")[, 2])])
     aux_region <- paste0("Chr", L$seqnames, ":", L$start + 1, "-", L$end - 1)
     j <- which(aux_region %in% setdiff(aux_region, overlaps_aux$region))
     overlaps_aux$region[i] <- paste0("Chr", L$seqnames, ":", L$start + 1, "-", L$end - 1)
