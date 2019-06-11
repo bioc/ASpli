@@ -550,27 +550,28 @@
     
     #Finds events with bjs and locale and tries to merge them
     bjs_jl <- aa$b == 0 & aa$bjs == 1 & aa$ja == 0 & aa$jl == 1
-    regions <- strsplit2(strsplit2(aa$region[bjs_jl], ":")[, 2], "-")
-    regions <- cbind(regions, locus=aa$locus[bjs_jl])
-    regions <- cbind(regions, bin=aa$bin[bjs_jl])
-    regions <- cbind(regions, region_original=aa$region[bjs_jl])
-    regions <- as.data.table(regions)
-    regions$V1 <- as.numeric(regions$V1)
-    regions$V2 <- as.numeric(regions$V2)
-    a_descartar <- c()
-    for(i in unique(regions$locus)){
-      a_ver <- regions[regions$locus == i, ]
-      posible_a_descartar <- which(is.na(a_ver$bin))
-      if(length(posible_a_descartar) > 0){
-       for(j in posible_a_descartar){
-        if(any(a_ver$V1 == a_ver$V1[j] + 1 | a_ver$V1 == a_ver$V1[j] - 1 | a_ver$V2 == a_ver$V2[j] - 1 | a_ver$V2 == a_ver$V2[j] - 1)){
-          a_descartar <- c(a_descartar, which(aa$region == a_ver$region_original[j] & is.na(aa$bin) & aa$b == 0 & aa$bjs == 1 & aa$ja == 0 & aa$jl == 1))
+    if(any(bjs_jl)){
+      regions <- strsplit2(strsplit2(aa$region[bjs_jl], ":")[, 2], "-")
+      regions <- cbind(regions, locus=aa$locus[bjs_jl])
+      regions <- cbind(regions, bin=aa$bin[bjs_jl])
+      regions <- cbind(regions, region_original=aa$region[bjs_jl])
+      regions <- as.data.table(regions)
+      regions$V1 <- as.numeric(regions$V1)
+      regions$V2 <- as.numeric(regions$V2)
+      a_descartar <- c()
+      for(i in unique(regions$locus)){
+        a_ver <- regions[regions$locus == i, ]
+        posible_a_descartar <- which(is.na(a_ver$bin))
+        if(length(posible_a_descartar) > 0){
+          for(j in posible_a_descartar){
+            if(any(a_ver$V1 == a_ver$V1[j] + 1 | a_ver$V1 == a_ver$V1[j] - 1 | a_ver$V2 == a_ver$V2[j] - 1 | a_ver$V2 == a_ver$V2[j] - 1)){
+              a_descartar <- c(a_descartar, which(aa$region == a_ver$region_original[j] & is.na(aa$bin) & aa$b == 0 & aa$bjs == 1 & aa$ja == 0 & aa$jl == 1))
+            }
+          }
         }
-       }
       }
+      if(length(a_descartar)>0)aa <- aa[-a_descartar, ]
     }
-    aa <- aa[-a_descartar, ]
-    
   }else{
     aa <- data.table(region = character(), locus = character(), b = numeric(), bjs = numeric(), ja = numeric(),
                      jl = numeric(), bin = character(), feature = character(), bin.event = character(),
