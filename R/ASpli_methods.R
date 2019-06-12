@@ -880,7 +880,8 @@ setMethod(
     sr=NULL,
     asd = NULL,
     bin.fdr=0.05,
-    unif=0.1,
+    nonunif=0.1, 
+    usenonunif=FALSE,
     dPIN=0.05,
     dPIR=0.05,
     j.fdr=0.05,
@@ -889,7 +890,7 @@ setMethod(
     bjs.fdr=0.1,
     otherSources = NULL
   ) {
-    .integrateSignals(sr, asd, bin.fdr, unif, dPIN, dPIR, j.fdr, j.particip, usepvalBJS, bjs.fdr, otherSources) 
+    .integrateSignals(sr, asd, bin.fdr, nonunif, usenonunif, dPIN, dPIR, j.fdr, j.particip, usepvalBJS, bjs.fdr, otherSources) 
   }
 )
 

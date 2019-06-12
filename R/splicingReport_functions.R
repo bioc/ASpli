@@ -200,7 +200,7 @@
 # con b, solamente de coverage, aparece con b y jl. Las junturas que aparecen reportadas al final son las que aparecen en el bin en caso
 # de tratarse de una region meramente "binica" o son la region en caso de venir de ja o jl.
 #bin.fdr=0.05;unif=0.1;dPIN=0.05;dPIR=0.05;j.fdr=0.05;j.particip=0.1;usepvalBJS=FALSE;bjs.fdr=0.1; otherSources = NULL
-.integrateSignals<-function(sr = NULL, asd = NULL, bin.fdr=0.05,unif=0.1,dPIN=0.05,dPIR=0.05,j.fdr=0.05,j.particip=0.1,usepvalBJS=FALSE,bjs.fdr=0.1, otherSources = NULL){
+.integrateSignals<-function(sr = NULL, asd = NULL, bin.fdr=0.05,nonunif=0.1,usenonunif=FALSE,dPIN=0.05,dPIR=0.05,j.fdr=0.05,j.particip=0.1,usepvalBJS=FALSE,bjs.fdr=0.1, otherSources = NULL){
   
   if(class(sr) != "ASpliSplicingReport"){
     stop("sr must be an ASpliSplicingReport object") 
@@ -216,7 +216,12 @@
   #bines significativos y uniformes1.130149.130372 
   b  <- sr@binbased
   b  <- b[!is.na(b$start), ]
-  b  <- b[ replace_na(b$bin.fdr < bin.fdr, FALSE) & (is.na(b$junction.dPIR) | replace_na(b$junction.nonuniformity < unif, FALSE)),]
+  if(usenonunif){
+   b  <- b[ replace_na(b$bin.fdr < bin.fdr, FALSE) & (is.na(b$junction.dPIR) | replace_na(b$junction.nonuniformity < nonunif, FALSE)),]
+  }else{
+   b  <- b[ replace_na(b$bin.fdr < bin.fdr, FALSE),]
+  }
+
   if(nrow(b) > 0){
     start   = as.numeric(b$start)#aggregate(start ~ cluster, data=b, FUN=min)
     end     = as.numeric(b$end)#aggregate(end ~ cluster, data=b, FUN=max)
@@ -231,15 +236,20 @@
   #soporte de juntura para bines
   b  <- sr@binbased
   b  <- b[!is.na(b$start), ]
-  
+ 
+  if(!usenonunif){
+    bunif <- TRUE
+  }else{
+    bunif <- replace_na(b$junction.nonuniformity < nonunif, FALSE)
+  }
   if(usepvalBJS){
     b  <- b[ b$junction.fdr < bjs.fdr &
                (replace_na(abs(b$junction.dPIN) > dPIN, FALSE) | 
-                  (replace_na(abs(b$junction.dPIR) > dPIR, FALSE) & replace_na(b$junction.nonuniformity < unif, FALSE))), ]
+                 (replace_na(abs(b$junction.dPIR) > dPIR, FALSE) & bunif)), ]
     
   }else{  
     b  <- b[replace_na(abs(b$junction.dPIN) > dPIN, FALSE) | 
-              (replace_na(abs(b$junction.dPIR) > dPIR, FALSE) & replace_na(b$junction.nonuniformity < unif, FALSE)), ]
+              (replace_na(abs(b$junction.dPIR) > dPIR, FALSE) & replace_na(b$junction.nonuniformity < nonunif, FALSE)), ]
   }
   if(nrow(b) > 0){
     start   = as.numeric(b$start)#aggregate(start ~ cluster, data=b, FUN=min)
@@ -268,10 +278,10 @@
   }
   
   b <- sr@anchorbased
-  if(all(is.na(b$junction.nonuniformity))){
+  if(!usenonunif | all(is.na(b$junction.nonuniformity))){
     bunif <- TRUE
   }else{
-    bunif <- replace_na(b$junction.nonuniformity < unif, FALSE)
+    bunif <- replace_na(b$junction.nonuniformity < nonunif, FALSE)
   }
   b <- b[replace_na(b$junction.fdr < j.fdr, FALSE) & 
            replace_na(b$junction.participation > j.particip, FALSE) & 
