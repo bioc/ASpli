@@ -156,7 +156,7 @@
 
   data_unif             <- data[rownames(jirPIR), getConditions(targets)[contrast != 0]]
   rownames(data_unif)   <- data[rownames(jirPIR), "J3"]
-  data_unif$pvalue      <- jirPIR$pvalue
+  data_unif$pvalue      <- min(jirPIR$pvalue,tsp$pvalue)  #corro unif test si bin o juntura son suficientemente significativos
   
   if(runUniformityTest){
     message("Testing uniformity in irPIR")
