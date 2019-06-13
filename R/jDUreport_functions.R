@@ -539,13 +539,19 @@
   Uniformity           <- rep(NA, length=nrow(data))
   names(Uniformity)    <- rownames(data)
   
+  # +     pb <- txtProgressBar(style=3)
+  # +     setTxtProgressBar(pb, i)
+  # +     close(pb
   i = 0
+  pb <- txtProgressBar(min=1,max=length(ii),style=3)
   Uniformity[ii] <- sapply(ii, function(p){
     #if(i %% 100 == 0) print(paste(i/length(elementos), "%"))
     i <<- i + 1
-    if(i %% 10 == 0){
-      message(paste0("Uniformity test: ", round(i/length(ii)*100), "% completed"))
-    }
+    setTxtProgressBar(pb,i)
+    # if(i %% 10 == 0){
+    #   message(paste0("Uniformity test: ", round(i/length(ii)*100), "% completed"))
+    # }
+    
     #reader <- bamReader(mergedBams[2], idx=TRUE)
     #reader <- readers[[which.max(data[p, getConditions(targets)])]]
     
@@ -570,6 +576,7 @@
     }
     #bamClose(reader)
   })
+  close(pb)
   
   #for(i in 1:length(readers)){
   #  bamClose(readers[[i]])
