@@ -1157,12 +1157,13 @@ setMethod(
         ntop <- length(is$region)
       }
     }
-    #for(i in 1:length(dev.list))dev.off()
+    #pb <- txtProgressBar(min=1,max=ntop,style=2)
     for(i in 1:ntop){
       r <- is$region[i]
-      if(i %% 10 == 0){
-        message(paste0(signif(i/ntop, 2)*100, "% completed"))
-      }
+       if(i %% 10 == 0){
+         message(paste0(signif(i/ntop, 2)*100, "% completed"))
+       }
+      #setTxtProgressBar(pb,i)
       tryCatch({
         png(width = 1400, height=700, filename = paste0(normalizePath(output.dir), "/img/", r, "_gene.png"))
         .plotSplicingPattern(r, is, counts, features, mergedBams, sr, genePlot = TRUE, jCompletelyIncluded, zoomRegion, useLog, tcex)
@@ -1180,6 +1181,7 @@ setMethod(
         
       })
     }
+    #close(pb)
     titulo <- paste0('ASpli: integrated signals. Contrasts: ', paste(names(sr@contrast)[sr@contrast != 0], collapse = " - "))
     sketch = htmltools::withTags(table(
       class = 'display',
