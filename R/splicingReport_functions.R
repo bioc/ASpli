@@ -249,7 +249,7 @@
     
   }else{  
     b  <- b[replace_na(abs(b$junction.dPIN) > dPIN, FALSE) | 
-              (replace_na(abs(b$junction.dPIR) > dPIR, FALSE) & bunif, ]
+              (replace_na(abs(b$junction.dPIR) > dPIR, FALSE) & bunif) ]
   }
   if(nrow(b) > 0){
     start   = as.numeric(b$start)#aggregate(start ~ cluster, data=b, FUN=min)
