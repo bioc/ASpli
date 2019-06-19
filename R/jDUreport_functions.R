@@ -141,7 +141,7 @@
   start_J3              <- grep("J3", colnames(data)) + 1
   
   data                  <- data[!is.na(data$J3), ]
-  Js                    <- .makeJunctions(data, targets, start_J1, start_J2, start_J3, minAvgCounts, filterWithContrasted, contrast)
+  Js                    <- .makeJunctions(data, targets, start_J1, start_J2, start_J3, minAvgCounts, filterWithContrasted, contrast, strongFilter)
   countData             <- .makeCountData(Js$J3, Js$J1,  Js$J2)
   
   #We reduce data so dispersion estimates can be computed in a razonable ammount of time
@@ -454,7 +454,8 @@
   start_J3,
   minAvgCounts,
   filterWithContrasted = FALSE,
-  contrast = NULL
+  contrast = NULL,
+  strongFilter = TRUE
 ){
   
   #Pasamos todos los NA a 0
@@ -472,8 +473,11 @@
   #                              rowMeans(J2[, grep(condition, colnames(J2))]) > minAvgCounts &
   #                              rowMeans(J3[, grep(condition, colnames(J3))]) > minAvgCounts)
   #}
-  reliables <- .filterJunctionBySampleWithContrast( J3, targets, minAvgCounts, filterWithContrasted = filterWithContrasted, contrast )
-  reliables <- rownames(reliables)
+  reliables <- list()
+  reliables[["J1"]] <- rownames(.filterJunctionBySampleWithContrast( J1, targets, minAvgCounts, filterWithContrasted = filterWithContrasted, contrast ))
+  reliables[["J2"]] <- rownames(.filterJunctionBySampleWithContrast( J2, targets, minAvgCounts, filterWithContrasted = filterWithContrasted, contrast ))
+  reliables[["J3"]] <- rownames(.filterJunctionBySampleWithContrast( J3, targets, minAvgCounts, filterWithContrasted = filterWithContrasted, contrast ))
+  reliables <- Reduce(intersect, reliables)
   #for(condition in unique(targets$condition)[contrast != 0]){
   #  reliables <- reliables | rowMeans(J3[, grep(condition, colnames(J3))]) > minAvgCounts
   #}  
