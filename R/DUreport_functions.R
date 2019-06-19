@@ -631,7 +631,7 @@ return (dfBin)
 }
 
 .binsDUWithDiffSplice <- function( countData, targets, contrast, 
-    ignoreExternal = FALSE, ignoreIo = TRUE, ignoreI = FALSE ) {
+    ignoreExternal = FALSE, ignoreIo = TRUE, ignoreI = FALSE, test = c("exon", "gene")[1] ) {
   
   # Filter bins
   countData = countData[ ! ignoreExternal | countData$event != "external" ,] 
@@ -663,7 +663,7 @@ return (dfBin)
   fit <- glmFit( y, design )
   ds  <- diffSpliceDGE( fit, contrast = contrast, geneid = "locus", 
       exonid = NULL, verbose = FALSE )
-  tsp <- topSpliceDGE( ds, test = "exon", FDR = 2, number = Inf )
+  tsp <- topSpliceDGE( ds, test = test, FDR = 2, number = Inf )
   
   # make column names equal to the results of DUReport method
   colnames( tsp )[ match( 'FDR', colnames( tsp )) ] <- 'bin.fdr'

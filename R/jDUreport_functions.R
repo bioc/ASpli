@@ -87,16 +87,17 @@
   start_J2              <- 3+nrow(targets)
   start_J3              <- 3+2*nrow(targets)
   
-  Js                    <- .makeJunctions(data, targets, start_J1, start_J2, start_J3, minAvgCounts, filterWithContrasted, contrast)
+  Js                    <- .makeJunctions(data, targets, start_J1, start_J2, start_J3, minAvgCounts, filterWithContrasted, contrast, strongFilter)
   countData             <- .makeCountData(Js$J3, Js$J1, Js$J2)
   
   #We reduce data so dispersion estimates can be computed in a razonable ammount of time
   reduxData             <- .makeReduxData(countData, targets, contrast, maxConditionsForDispersionEstimate)
-  ltsp                  <- .binsJDUWithDiffSplice(reduxData$countData, reduxData$targets, reduxData$contrast)
+  ltsp                  <- .binsJDUWithDiffSplice(reduxData$countData, reduxData$targets, reduxData$contrast, test = "gene")
 
   jPIR                  <- ltsp[["junction"]]
-  jPIR                  <- jPIR[-(grep("[.][1-2]$", rownames(jPIR))), ] #Saco las junturas que no son J3
-  jPIR$P.Value          <- p.adjust(jPIR$P.Value, "fdr") #Vuelvo a calcular los fdr solo sobre las junturas J3
+  #jPIR                  <- jPIR[-(grep("[.][1-2]$", rownames(jPIR))), ] #Saco las junturas que no son J3
+  #hist(jPIR$P.Value)
+  #jPIR$P.Value          <- p.adjust(jPIR$P.Value, "fdr") #Vuelvo a calcular los fdr solo sobre las junturas J3
   mean.counts           <- rowMeans(countData[rownames(jPIR), rownames(targets)[targets$condition %in% getConditions(targets)[contrast != 0]]])
   jPIR$log.mean         <- log2(mean.counts)
   
@@ -146,8 +147,7 @@
   
   #We reduce data so dispersion estimates can be computed in a razonable ammount of time
   reduxData             <- .makeReduxData(countData, targets, contrast, maxConditionsForDispersionEstimate)
-  tsp                   <- .binsDUWithDiffSplice(reduxData$countData, reduxData$targets, reduxData$contrast)
-  tsp                   <- tsp[-(grep("[.][1-2]$", rownames(tsp))), ]
+  tsp                   <- .binsDUWithDiffSplice(reduxData$countData, reduxData$targets, reduxData$contrast, test = "gene")
   tsp$bin.fdr           <- p.adjust(tsp$pvalue, "fdr")
   
   jirPIR                <- tsp[, c("logFC", "pvalue", "bin.fdr")]
@@ -197,14 +197,13 @@
   
   data                  <- data[!is.na(data$J3), ]
   
-  Js                    <- .makeJunctions(data, targets, start_J1, start_J2, start_J3, minAvgCounts, filterWithContrasted, contrast)
+  Js                    <- .makeJunctions(data, targets, start_J1, start_J2, start_J3, minAvgCounts, filterWithContrasted, contrast, strongFilter)
   
   countData             <- .makeCountData(Js$J3, Js$J1, Js$J2)
 
   #We reduce data so dispersion estimates can be computed in a razonable ammount of time
   reduxData             <- .makeReduxData(countData, targets, contrast, maxConditionsForDispersionEstimate)
-  tsp                   <- .binsDUWithDiffSplice(reduxData$countData, reduxData$targets, reduxData$contrast)
-  tsp                   <- tsp[-(grep("[.][1-2]$", rownames(tsp))), ]
+  tsp                   <- .binsDUWithDiffSplice(reduxData$countData, reduxData$targets, reduxData$contrast, test = "gene")
   tsp$bin.fdr           <- p.adjust(tsp$pvalue, "fdr")
   
   jesPSI                <- tsp[, c("logFC", "pvalue", "bin.fdr")]
@@ -237,11 +236,10 @@
   
   data                  <- data[!is.na(data$J3), ]
   
-  Js                    <- .makeJunctions(data, targets, start_J1, start_J2, start_J3, minAvgCounts, filterWithContrasted, contrast)
-  countData             <- .makeCountData(Js$J3, Js$J1, Js$J2)
+  Js                    <- .makeJunctions(data, targets, start_J1, start_J2, start_J3, minAvgCounts, filterWithContrasted, contrast, strongFilter, alt = T)
+  countData             <- .makeCountData(Js$J3, Js$J1 + Js$J2)
   
-  tsp                   <- .binsDUWithDiffSplice(countData, targets, contrast)
-  tsp                   <- tsp[-(grep("[.][1-2]$", rownames(tsp))), ]
+  tsp                   <- .binsDUWithDiffSplice(countData, targets, contrast, test = "gene")
   tsp$bin.fdr           <- p.adjust(tsp$pvalue, "fdr")
   
   jaltPSI               <- tsp[, c("logFC", "pvalue", "bin.fdr")]
@@ -455,7 +453,8 @@
   minAvgCounts,
   filterWithContrasted = FALSE,
   contrast = NULL,
-  strongFilter = TRUE
+  strongFilter = TRUE,
+  alt = FALSE
 ){
   
   #Pasamos todos los NA a 0
@@ -477,7 +476,13 @@
   reliables[["J1"]] <- rownames(.filterJunctionBySampleWithContrast( J1, targets, minAvgCounts, filterWithContrasted = filterWithContrasted, contrast ))
   reliables[["J2"]] <- rownames(.filterJunctionBySampleWithContrast( J2, targets, minAvgCounts, filterWithContrasted = filterWithContrasted, contrast ))
   reliables[["J3"]] <- rownames(.filterJunctionBySampleWithContrast( J3, targets, minAvgCounts, filterWithContrasted = filterWithContrasted, contrast ))
-  reliables <- Reduce(intersect, reliables)
+  #No queremos filtrar todas las junturas de alt, solo que tenga o J1 o J2
+  if(!alt){
+    reliables <- Reduce(intersect, reliables)
+  }else{
+    reliables <- c(intersect(reliables[["J1"]], reliables[["J3"]]), 
+                   intersect(reliables[["J2"]], reliables[["J3"]]))
+  }
   #for(condition in unique(targets$condition)[contrast != 0]){
   #  reliables <- reliables | rowMeans(J3[, grep(condition, colnames(J3))]) > minAvgCounts
   #}  
