@@ -631,7 +631,7 @@ return (dfBin)
 }
 
 .binsDUWithDiffSplice <- function( countData, targets, contrast, 
-    ignoreExternal = FALSE, ignoreIo = TRUE, ignoreI = FALSE, test = c("exon", "gene")[1] ) {
+    ignoreExternal = FALSE, ignoreIo = TRUE, ignoreI = FALSE){#, test = c("exon", "gene")[1] ) {
   
   # Filter bins
   countData = countData[ ! ignoreExternal | countData$event != "external" ,] 
@@ -663,14 +663,25 @@ return (dfBin)
   fit <- glmFit( y, design )
   ds  <- diffSpliceDGE( fit, contrast = contrast, geneid = "locus", 
       exonid = NULL, verbose = FALSE )
-  tsp <- topSpliceDGE( ds, test = test, FDR = 2, number = Inf )
+  tsp <- topSpliceDGE( ds, test = "exon", FDR = 2, number = Inf )
+  tspg<- topSpliceDGE( ds, test = "gene", FDR = 2, number = Inf )
   
   # make column names equal to the results of DUReport method
   colnames( tsp )[ match( 'FDR', colnames( tsp )) ] <- 'bin.fdr'
   colnames( tsp )[ match( 'P.Value', colnames( tsp )) ] <- 'pvalue'
   tsp$exon.LR <- NULL
   
-  return( tsp )
+  tsp <- tsp[,c("locus","logFC","pvalue","bin.fdr")]
+  colnames(tsp)[1]<-"J3"
+  
+  rownames(tspg) <- tspg$locus
+  tspg <- tspg[,c("gene.LR","P.Value","FDR")]
+  colnames(tspg)[1:3] <- c("cluster.LR","cluster.pvalue","cluster.fdr")
+  
+  return( list(junction=tsp,cluster=tspg) )
+  
+  
+ # return( tsp )
   
 } 
 
