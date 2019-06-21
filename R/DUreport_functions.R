@@ -271,6 +271,7 @@
 
   binsdu <- .binsDUWithDiffSplice( countData[[2]], targets, contrast, 
 		  ignoreExternal, ignoreIo, ignoreI )[[1]]  
+  colnames(binsdu)[1]<-"locus"
   
   binsDU( du ) <- binsdu
   
