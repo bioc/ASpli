@@ -92,7 +92,7 @@
   
   #We reduce data so dispersion estimates can be computed in a razonable ammount of time
   reduxData             <- .makeReduxData(countData, targets, contrast, maxConditionsForDispersionEstimate)
-  ltsp                  <- .binsJDUWithDiffSplice(reduxData$countData, reduxData$targets, reduxData$contrast, test = "gene")
+  ltsp                  <- .binsJDUWithDiffSplice(reduxData$countData, reduxData$targets, reduxData$contrast)#, test = "gene")
 
   jPIR                  <- ltsp[["junction"]]
   #jPIR                  <- jPIR[-(grep("[.][1-2]$", rownames(jPIR))), ] #Saco las junturas que no son J3
@@ -147,7 +147,8 @@
   
   #We reduce data so dispersion estimates can be computed in a razonable ammount of time
   reduxData             <- .makeReduxData(countData, targets, contrast, maxConditionsForDispersionEstimate)
-  tsp                   <- .binsDUWithDiffSplice(reduxData$countData, reduxData$targets, reduxData$contrast, test = "gene")
+  ltsp                   <- .binsDUWithDiffSplice(reduxData$countData, reduxData$targets, reduxData$contrast)
+  tsp <- ltsp[["junction"]]
   tsp$bin.fdr           <- p.adjust(tsp$pvalue, "fdr")
   
   jirPIR                <- tsp[, c("logFC", "pvalue", "bin.fdr")]
@@ -203,7 +204,8 @@
 
   #We reduce data so dispersion estimates can be computed in a razonable ammount of time
   reduxData             <- .makeReduxData(countData, targets, contrast, maxConditionsForDispersionEstimate)
-  tsp                   <- .binsDUWithDiffSplice(reduxData$countData, reduxData$targets, reduxData$contrast, test = "gene")
+  ltsp                   <- .binsDUWithDiffSplice(reduxData$countData, reduxData$targets, reduxData$contrast)#, test = "gene")
+  tsp <- ltsp[["junction"]]
   tsp$bin.fdr           <- p.adjust(tsp$pvalue, "fdr")
   
   jesPSI                <- tsp[, c("logFC", "pvalue", "bin.fdr")]
@@ -239,7 +241,8 @@
   Js                    <- .makeJunctions(data, targets, start_J1, start_J2, start_J3, minAvgCounts, filterWithContrasted, contrast, strongFilter, alt = T)
   countData             <- .makeCountData(Js$J3, Js$J1 + Js$J2)
   
-  tsp                   <- .binsDUWithDiffSplice(countData, targets, contrast, test = "gene")
+  ltsp                   <- .binsDUWithDiffSplice(countData, targets, contrast)#, test = "gene")
+  tsp <- ltsp[["junction"]]
   tsp$bin.fdr           <- p.adjust(tsp$pvalue, "fdr")
   
   jaltPSI               <- tsp[, c("logFC", "pvalue", "bin.fdr")]
