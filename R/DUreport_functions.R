@@ -270,7 +270,7 @@
       ignoreIo, contrast, filterWithContrasted )
 
   binsdu <- .binsDUWithDiffSplice( countData[[2]], targets, contrast, 
-		  ignoreExternal, ignoreIo, ignoreI )  
+		  ignoreExternal, ignoreIo, ignoreI )[[1]]  
   
   binsDU( du ) <- binsdu
   
