@@ -476,16 +476,25 @@
   #                              rowMeans(J3[, grep(condition, colnames(J3))]) > minAvgCounts)
   #}
   reliables <- list()
-  reliables[["J1"]] <- rownames(.filterJunctionBySampleWithContrast( J1, targets, minAvgCounts, filterWithContrasted = filterWithContrasted, contrast ))
-  reliables[["J2"]] <- rownames(.filterJunctionBySampleWithContrast( J2, targets, minAvgCounts, filterWithContrasted = filterWithContrasted, contrast ))
-  reliables[["J3"]] <- rownames(.filterJunctionBySampleWithContrast( J3, targets, minAvgCounts, filterWithContrasted = filterWithContrasted, contrast ))
-  #No queremos filtrar todas las junturas de alt, solo que tenga o J1 o J2
-  if(!alt){
-    reliables <- Reduce(intersect, reliables)
+  reliables[["J1"]] <- .filterJunctionBySampleWithContrast( J1, targets, minAvgCounts, filterWithContrasted = filterWithContrasted, contrast )
+  if(nrow(reliables[["J1"]]) > 0) reliables[["J1"]] <- rownames(reliables[["J1"]])
+  reliables[["J2"]] <- .filterJunctionBySampleWithContrast( J2, targets, minAvgCounts, filterWithContrasted = filterWithContrasted, contrast )
+  if(nrow(reliables[["J2"]]) > 0) reliables[["J2"]] <- rownames(reliables[["J2"]])
+  reliables[["J3"]] <-.filterJunctionBySampleWithContrast( J3, targets, minAvgCounts, filterWithContrasted = filterWithContrasted, contrast )
+  if(nrow(reliables[["J3"]]) > 0) reliables[["J3"]] <- rownames(reliables[["J3"]])
+  
+  if(strongFilter){
+    #No queremos filtrar todas las junturas de alt, solo que tenga o J1 o J2
+    if(!alt){
+      reliables <- Reduce(intersect, reliables)
+    }else{
+      reliables <- unique(c(intersect(reliables[["J1"]], reliables[["J3"]]), 
+                     intersect(reliables[["J2"]], reliables[["J3"]])))
+    }
   }else{
-    reliables <- c(intersect(reliables[["J1"]], reliables[["J3"]]), 
-                   intersect(reliables[["J2"]], reliables[["J3"]]))
+    reliables <- reliables[["J3"]]
   }
+  
   #for(condition in unique(targets$condition)[contrast != 0]){
   #  reliables <- reliables | rowMeans(J3[, grep(condition, colnames(J3))]) > minAvgCounts
   #}  
