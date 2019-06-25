@@ -82,7 +82,7 @@
                       aggregate(junturas[, 3] ~ jPSI$cluster, FUN=max))
   rango      <- apply(rango[jPSI$cluster, 2:3], 1, paste, collapse=".")
   rango      <- apply(cbind(junturas[, 1], rango), 1, paste, collapse=".")
-  rango      <- junturas[, 1], , collapse=".")
+  #rango      <- junturas[, 1], , collapse=".")
   ltsp$range <- rango[rownames(ltsp)]
   
   junturasDeInteres       <- jPSI[jPSI$FDR < maxFDRForParticipation, ]
