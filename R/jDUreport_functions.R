@@ -159,7 +159,8 @@
   }  
   ltsp$NonUniformity    <- data_unif[rownames(ltsp), "NonUniformity"]
   
-  colnames(ltsp)        <- c("cluster.LR", "pvalue", "FDR", "J1.FDR", "J2.FDR", "NonUniformity", "dPIR")
+  #colnames(ltsp)        <- c("cluster.LR", "pvalue", "FDR", "J1.FDR", "J2.FDR", "NonUniformity", "dPIR")
+  colnames(ltsp)        <- c("cluster.LR", "pvalue", "FDR", "NonUniformity")
   anchorc(jdu)          <- ltsp
   
   #######
@@ -179,7 +180,9 @@
   reduxData             <- .makeReduxData(countData, targets, contrast, maxConditionsForDispersionEstimate)
   ltsp                   <- .binsDUWithDiffSplice(reduxData$countData, reduxData$targets, reduxData$contrast)
   tsp <- ltsp[["junction"]]
+  tsp                   <- tsp[-(grep("[.][1-2]$", rownames(tsp))), ]
   tsp$bin.fdr           <- p.adjust(tsp$pvalue, "fdr")
+
   
   jirPIR                <- tsp[, c("logFC", "pvalue", "bin.fdr")]
   jirPIR$log.mean       <- log2(rowMeans(countData[rownames(jirPIR), rownames(targets)[targets$condition %in% getConditions(targets)[contrast != 0]]]))
@@ -187,11 +190,11 @@
 
   data_unif             <- data[rownames(jirPIR), getConditions(targets)[contrast != 0]]
   rownames(data_unif)   <- data[rownames(jirPIR), "J3"]
-  data_unif$pvalue      <- pmin(jirPIR$pvalue,tsp$pvalue)  #corro unif test si bin o juntura son suficientemente significativos
+  data_unif$FDR         <- pmin(jirPIR$bin.fdr,tsp$bin.fdr)  #corro unif test si bin o juntura son suficientemente significativos
   
   if(runUniformityTest){
     message("Testing uniformity in irPIR")
-    jirPIR$NonUniformity     <- .testUniformity(data_unif, mergedBams, maxPValForUniformityCheck, targets, contrast)
+    jirPIR$NonUniformity     <- .testUniformity(data_unif, mergedBams, maxFDRForUniformityCheck, targets, contrast)
   }else{
     jirPIR$NonUniformity     <- rep(NA, nrow(jirPIR))
   }
@@ -236,6 +239,7 @@
   reduxData             <- .makeReduxData(countData, targets, contrast, maxConditionsForDispersionEstimate)
   ltsp                   <- .binsDUWithDiffSplice(reduxData$countData, reduxData$targets, reduxData$contrast)#, test = "gene")
   tsp <- ltsp[["junction"]]
+  tsp                   <- tsp[-(grep("[.][1-2]$", rownames(tsp))), ]
   tsp$bin.fdr           <- p.adjust(tsp$pvalue, "fdr")
   
   jesPSI                <- tsp[, c("logFC", "pvalue", "bin.fdr")]
@@ -273,6 +277,7 @@
   
   ltsp                   <- .binsDUWithDiffSplice(countData, targets, contrast)#, test = "gene")
   tsp <- ltsp[["junction"]]
+  tsp                   <- tsp[-(grep("[.][1-2]$", rownames(tsp))), ]
   tsp$bin.fdr           <- p.adjust(tsp$pvalue, "fdr")
   
   jaltPSI               <- tsp[, c("logFC", "pvalue", "bin.fdr")]
