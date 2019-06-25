@@ -5,9 +5,10 @@
     filterWithContrasted      = FALSE,
     runUniformityTest         = FALSE,
     mergedBams                = NULL,
-    maxPValForUniformityCheck = 0.2,
+    maxFDRForUniformityCheck  = 0.1,
     strongFilter              = FALSE,
-    maxConditionsForDispersionEstimate = 24 
+    maxConditionsForDispersionEstimate = 24,
+    maxFDRForParticipation    = 0.05
   ){
   
   targets <- asd@targets
@@ -49,6 +50,8 @@
   ltsp                  <- .binsJDUWithDiffSplice(countData, targets, contrast, maxConditionsForDispersionEstimate = maxConditionsForDispersionEstimate)
   
   jPSI                  <- ltsp[["junction"]]
+
+  
   mean.counts           <- rowMeans(countData[rownames(jPSI), rownames(targets)[targets$condition %in% getConditions(targets)[contrast != 0]]])
   jPSI$log.mean         <- log2(mean.counts)
   
@@ -61,22 +64,33 @@
   minparticipation              <- apply(participation, 1, min)
   deltapariticipation           <- maxparticipation - minparticipation 
   participation                 <- maxparticipation
-  
-  jPSI                  <- jPSI[, c("cluster", "log.mean", "logFC", "P.Value", "FDR")]
-  jPSI$annotated        <- ifelse(data[rownames(jPSI), "junction"] != "noHit", "Yes", "No")
-  jPSI$participation    <- participation
-  jPSI$dParticipation   <- deltapariticipation
-  colnames(jPSI)        <- c("cluster", "log.mean", "logFC", "pvalue", "FDR", "annotated", "participation", "dParticipation")
+  jPSI$cluster.fdr              <- ltsp[["cluster"]][jPSI$cluster, "FDR"]
+  jPSI                          <- jPSI[, c("cluster", "cluster.fdr", "log.mean", "logFC", "P.Value", "FDR")]
+  jPSI$annotated                <- ifelse(data[rownames(jPSI), "junction"] != "noHit", "Yes", "No")
+  jPSI$participation            <- participation
+  jPSI$dParticipation           <- deltapariticipation
+  colnames(jPSI)                <- c("cluster", "cluster.fdr", "log.mean", "logFC", "pvalue", "FDR", "annotated", "participation", "dParticipation")
   
   
   jPSI                  <- cbind(jPSI, counts=mean.counts.per.condition)
   
   localej(jdu)          <- jPSI
 
-  ltsp                  <- ltsp[["cluster"]]
-  colnames(ltsp)        <- c("size", "cluster.LR", "pvalue", "FDR")
-  localec(jdu)          <- ltsp
-            
+  ltsp       <- ltsp[["cluster"]]
+  junturas   <- strsplit2(rownames(jPSI), "[.]")
+  rango      <- merge(aggregate(junturas[, 2] ~ jPSI$cluster, FUN=min), 
+                      aggregate(junturas[, 3] ~ jPSI$cluster, FUN=max))
+  rango      <- apply(rango[jPSI$cluster, 2:3], 1, paste, collapse=".")
+  rango      <- apply(cbind(junturas[, 1], rango), 1, paste, collapse=".")
+  rango      <- junturas[, 1], , collapse=".")
+  ltsp$range <- rango[rownames(ltsp)]
+  
+  junturasDeInteres       <- jPSI[jPSI$FDR < maxFDRForParticipation, ]
+  participacion           <- aggregate(participation ~ cluster, junturasDeInteres, FUN = max)
+  rownames(participacion) <- participacion[, 1]
+  ltsp$participation      <- participacion[rownames(ltsp), 2]
+  colnames(ltsp)          <- c("size", "cluster.LR", "pvalue", "FDR", "range", "participation")
+  localec(jdu)            <- ltsp
   
   ##############
   #junctionsPIR# 
@@ -95,7 +109,9 @@
   ltsp                  <- .binsJDUWithDiffSplice(reduxData$countData, reduxData$targets, reduxData$contrast)#, test = "gene")
 
   jPIR                  <- ltsp[["junction"]]
-  #jPIR                  <- jPIR[-(grep("[.][1-2]$", rownames(jPIR))), ] #Saco las junturas que no son J3
+  jPIR$cluster.fdr      <- ltsp[["cluster"]][as.character(jPIR$cluster), "FDR"]
+  
+  jPIR                  <- jPIR[-(grep("[.][1-2]$", rownames(jPIR))), ] #Saco las junturas que no son J3
   #hist(jPIR$P.Value)
   #jPIR$P.Value          <- p.adjust(jPIR$P.Value, "fdr") #Vuelvo a calcular los fdr solo sobre las junturas J3
   mean.counts           <- rowMeans(countData[rownames(jPIR), rownames(targets)[targets$condition %in% getConditions(targets)[contrast != 0]]])
@@ -104,11 +120,11 @@
 
   #Corremos Uniformity solamente sobre los elementos con menor pvalue
   data_unif             <- data[rownames(jPIR), getConditions(targets)[contrast != 0]]
-  data_unif$pvalue      <- jPIR$P.Value
+  data_unif$FDR         <- jPIR$FDR
   
   if(runUniformityTest){
     message("Testing uniformity in junctionsPIR")
-    jPIR$NonUniformity       <- .testUniformity(data_unif, mergedBams, maxPValForUniformityCheck, targets, contrast)
+    jPIR$NonUniformity       <- .testUniformity(data_unif, mergedBams, maxFDRForUniformityCheck, targets, contrast)
   }else{
     jPIR$NonUniformity       <- rep(NA, nrow(jPIR)) 
   }
@@ -123,13 +139,27 @@
 
   
   jPIR$annotated        <- ifelse(!is.na(data[rownames(jPIR), "hitIntron"]), "Yes", "No")
-  jPIR                  <- jPIR[, c("log.mean", "logFC", "P.Value", "FDR", "NonUniformity", "participation", "dParticipation", "annotated", colnames(jPIR)[grep("counts", colnames(jPIR))])]
+  jPIR                  <- jPIR[, c("cluster.fdr", "log.mean", "logFC", "P.Value", "FDR", "NonUniformity", "participation", "dParticipation", "annotated", colnames(jPIR)[grep("counts", colnames(jPIR))])]
 
-  colnames(jPIR)        <- c("log.mean", "logFC", "pvalue", "FDR", "NonUniformity", "participation", "dParticipation", "annotated", colnames(jPIR)[grep("counts", colnames(jPIR))])
+  colnames(jPIR)        <- c("cluster.fdr", "log.mean", "logFC", "pvalue", "FDR", "NonUniformity", "participation", "dParticipation", "annotated", colnames(jPIR)[grep("counts", colnames(jPIR))])
            
   anchorj(jdu)          <- jPIR
   ltsp                  <- ltsp[["cluster"]][,!colnames(ltsp[["cluster"]])%in%"size"]
-  colnames(ltsp)        <- c("cluster.LR", "pvalue", "FDR")
+  
+  data_unif             <- data[rownames(jPIR), getConditions(targets)[contrast != 0]]
+  
+  data_unif             <- data_unif[is.na(jPIR[, "NonUniformity"]), ]
+  data_unif$FDR         <- jPIR$cluster.fdr[is.na(jPIR[, "NonUniformity"])]
+
+  if(runUniformityTest){
+    message("Testing uniformity in junctionsPIR")
+    data_unif$NonUniformity       <- .testUniformity(data_unif, mergedBams, maxFDRForUniformityCheck, targets, contrast)
+  }else{
+    data_unif$NonUniformity       <- rep(NA, nrow(data_unif)) 
+  }  
+  ltsp$NonUniformity    <- data_unif[rownames(ltsp), "NonUniformity"]
+  
+  colnames(ltsp)        <- c("cluster.LR", "pvalue", "FDR", "J1.FDR", "J2.FDR", "NonUniformity", "dPIR")
   anchorc(jdu)          <- ltsp
   
   #######
@@ -534,7 +564,7 @@
 .testUniformity <- function(
   data, 
   mergedBams,
-  maxPValForUniformityCheck,
+  maxFDRForUniformityCheck,
   targets,
   contrast
 ){
@@ -556,7 +586,7 @@
     return(rep(NA, length=nrow(data))) 
   }
 
-  ii                   <- rownames(data)[data$pvalue < maxPValForUniformityCheck]
+  ii                   <- rownames(data)[data$FDR < maxFDRForUniformityCheck]
   Uniformity           <- rep(NA, length=nrow(data))
   names(Uniformity)    <- rownames(data)
   
