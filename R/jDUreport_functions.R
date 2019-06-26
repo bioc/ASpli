@@ -47,7 +47,9 @@
   
   countData             <- .makeCountDataWithClusters(data[names(clusters$membership),start_J3:end_J3], clusters)
   
-  ltsp                  <- .binsJDUWithDiffSplice(countData, targets, contrast, maxConditionsForDispersionEstimate = maxConditionsForDispersionEstimate)
+  #We reduce data so dispersion estimates can be computed in a razonable ammount of time
+  reduxData             <- .makeReduxData(countData, targets, contrast, maxConditionsForDispersionEstimate)  
+  ltsp                  <- .binsDUWithDiffSplice(reduxData$countData, reduxData$targets, reduxData$contrast)
   
   jPSI                  <- ltsp[["junction"]]
 
@@ -56,23 +58,23 @@
   jPSI$log.mean         <- log2(mean.counts)
   
   mean.counts.per.condition     <- sapply(getConditions(targets)[contrast != 0], function(i){return(rowMeans(countData[rownames(jPSI), rownames(targets)[targets$condition %in% i]]))})
-  participation                 <- aggregate(mean.counts.per.condition ~ jPSI$cluster, FUN = function(r){return(rowSums(t(r)))})
-  rownames(participation)       <- participation$cluster
-  participation                 <- participation[jPSI$cluster, -1]
+  participation                 <- aggregate(mean.counts.per.condition ~ jPSI$locus, FUN = function(r){return(rowSums(t(r)))})
+  rownames(participation)       <- participation$locus
+  participation                 <- participation[jPSI$locus, -1]
   participation                 <- mean.counts.per.condition/participation
   maxparticipation              <- apply(participation, 1, max)
   minparticipation              <- apply(participation, 1, min)
   deltapariticipation           <- maxparticipation - minparticipation 
   participation                 <- maxparticipation
-  jPSI$cluster.fdr              <- ltsp[["cluster"]][jPSI$cluster, "FDR"]
-  jPSI                          <- jPSI[, c("cluster", "cluster.fdr", "log.mean", "logFC", "P.Value", "FDR")]
+  #jPSI$cluster.fdr              <- ltsp[["cluster"]][jPSI$locus, "cluster.fdr"]
+  jPSI                          <- jPSI[, c("locus", "log.mean", "logFC", "pvalue", "bin.fdr")]
   jPSI$annotated                <- ifelse(data[rownames(jPSI), "junction"] != "noHit", "Yes", "No")
   jPSI$participation            <- participation
   jPSI$dParticipation           <- deltapariticipation
-  colnames(jPSI)                <- c("cluster", "cluster.fdr", "log.mean", "logFC", "pvalue", "FDR", "annotated", "participation", "dParticipation")
+  colnames(jPSI)                <- c("cluster", "log.mean", "logFC", "pvalue", "FDR", "annotated", "participation", "dParticipation")
   
   
-  jPSI                  <- cbind(jPSI, counts=mean.counts.per.condition)
+  jPSI                  <- cbind(jPSI, counts = mean.counts.per.condition)
   
   localej(jdu)          <- jPSI
 
@@ -88,8 +90,10 @@
   junturasDeInteres       <- jPSI[jPSI$FDR < maxFDRForParticipation, ]
   participacion           <- aggregate(participation ~ cluster, junturasDeInteres, FUN = max)
   rownames(participacion) <- participacion[, 1]
-  ltsp$participation      <- participacion[rownames(ltsp), 2]
-  colnames(ltsp)          <- c("size", "cluster.LR", "pvalue", "FDR", "range", "participation")
+  ltsp$participation      <- participacion[rownames(ltsp), 2] #llena con NA las participaciones que no estan
+  ltsp$size               <- table(jPSI$cluster)[rownames(ltsp)]
+  colnames(ltsp)          <- c("cluster.LR", "pvalue", "FDR", "range", "participation", "size")
+  ltsp                    <- ltsp[, c("size", "cluster.LR", "pvalue", "FDR", "range", "participation")]
   localec(jdu)            <- ltsp
   
   ##############
@@ -106,12 +110,23 @@
   
   #We reduce data so dispersion estimates can be computed in a razonable ammount of time
   reduxData             <- .makeReduxData(countData, targets, contrast, maxConditionsForDispersionEstimate)
-  ltsp                  <- .binsJDUWithDiffSplice(reduxData$countData, reduxData$targets, reduxData$contrast)#, test = "gene")
+  ltsp                  <- .binsDUWithDiffSplice(reduxData$countData, reduxData$targets, reduxData$contrast)#, test = "gene")
 
-  jPIR                  <- ltsp[["junction"]]
-  jPIR$cluster.fdr      <- ltsp[["cluster"]][as.character(jPIR$cluster), "FDR"]
+  tsp                   <- ltsp[["junction"]]
+  #jPIR$cluster.fdr      <- ltsp$cluster[as.character(jPIR$cluster), "FDR"]
+  J1                    <- tsp[grep("[.][1]$", rownames(tsp)), ]
+  rownames(J1)          <- J1$locus
+  J2                    <- tsp[grep("[.][2]$", rownames(tsp)), ]
+  rownames(J2)          <- J2$locus
+  tsp                   <- tsp[-(grep("[.][1-2]$", rownames(tsp))), ] #Saco las junturas que no son J3
   
-  jPIR                  <- jPIR[-(grep("[.][1-2]$", rownames(jPIR))), ] #Saco las junturas que no son J3
+  tsp$P.Value           <- ltsp$cluster[tsp$locus, "cluster.pvalue"]
+  tsp$FDR               <- p.adjust(ltsp$cluster[tsp$locus, "cluster.fdr"], "fdr")
+  tsp$LR                <- ltsp$cluster[tsp$locus, "cluster.LR"]    
+  tsp$J1.pvalue         <- J1[rownames(tsp), "pvalue"]
+  tsp$J2.pvalue         <- J2[rownames(tsp), "pvalue"]
+  jPIR                  <- tsp
+  
   #hist(jPIR$P.Value)
   #jPIR$P.Value          <- p.adjust(jPIR$P.Value, "fdr") #Vuelvo a calcular los fdr solo sobre las junturas J3
   mean.counts           <- rowMeans(countData[rownames(jPIR), rownames(targets)[targets$condition %in% getConditions(targets)[contrast != 0]]])
@@ -119,10 +134,9 @@
   
 
   #Corremos Uniformity solamente sobre los elementos con menor pvalue
-  data_unif             <- data[rownames(jPIR), getConditions(targets)[contrast != 0]]
-  data_unif$FDR         <- jPIR$FDR
-  
   if(runUniformityTest){
+    data_unif             <- data[rownames(jPIR), getConditions(targets)[contrast != 0]]
+    data_unif$FDR         <- jPIR$FDR
     message("Testing uniformity in junctionsPIR")
     jPIR$NonUniformity       <- .testUniformity(data_unif, mergedBams, maxFDRForUniformityCheck, targets, contrast)
   }else{
@@ -133,34 +147,25 @@
   jPIR      <- cbind(jPIR, countsJ1 = sapply(getConditions(targets)[contrast != 0], function(i){return(rowMeans(Js$J1[paste0(rownames(jPIR), ".1"), rownames(targets)[targets$condition %in% i]]))}))
   jPIR      <- cbind(jPIR, countsJ2 = sapply(getConditions(targets)[contrast != 0], function(i){return(rowMeans(Js$J2[paste0(rownames(jPIR), ".2"), rownames(targets)[targets$condition %in% i]]))}))
   jPIR      <- cbind(jPIR, countsJ3 = sapply(getConditions(targets)[contrast != 0], function(i){return(rowMeans(Js$J3[rownames(jPIR), rownames(targets)[targets$condition %in% i]]))}))
-  participation      <- jPIR[, grep("countsJ3", colnames(jPIR))]/(jPIR[, grep("countsJ1", colnames(jPIR))] + jPIR[, grep("countsJ2", colnames(jPIR))] + jPIR[, grep("countsJ3", colnames(jPIR))])
-  jPIR$participation <- apply(participation, 1, max)
-  jPIR$dParticipation <- jPIR$participation-apply(participation, 1, min)
+  
+  dpir      <- data[rownames(jPIR),getConditions(targets)]
+  jPIR$dPIR <- apply(dpir,1,function(x){sum(x*contrast)}) 
+  
+  #participation      <- jPIR[, grep("countsJ3", colnames(jPIR))]/(jPIR[, grep("countsJ1", colnames(jPIR))] + jPIR[, grep("countsJ2", colnames(jPIR))] + jPIR[, grep("countsJ3", colnames(jPIR))])
+  #jPIR$participation <- apply(participation, 1, max)
+  #jPIR$dParticipation <- jPIR$participation-apply(participation, 1, min)
 
   
   jPIR$annotated        <- ifelse(!is.na(data[rownames(jPIR), "hitIntron"]), "Yes", "No")
-  jPIR                  <- jPIR[, c("cluster.fdr", "log.mean", "logFC", "P.Value", "FDR", "NonUniformity", "participation", "dParticipation", "annotated", colnames(jPIR)[grep("counts", colnames(jPIR))])]
+  jPIR                  <- jPIR[, c("log.mean", "logFC", "P.Value", "FDR", "LR", "J1.pvalue", "J2.pvalue", "NonUniformity", "dPIR", "annotated", colnames(jPIR)[grep("counts", colnames(jPIR))])]
 
-  colnames(jPIR)        <- c("cluster.fdr", "log.mean", "logFC", "pvalue", "FDR", "NonUniformity", "participation", "dParticipation", "annotated", colnames(jPIR)[grep("counts", colnames(jPIR))])
+  colnames(jPIR)        <- c("log.mean", "logFC", "pvalue", "FDR", "LR", "J1.pvalue", "J2.pvalue", "NonUniformity", "dPIR", "annotated", colnames(jPIR)[grep("counts", colnames(jPIR))])
            
   anchorj(jdu)          <- jPIR
+  
   ltsp                  <- ltsp[["cluster"]][,!colnames(ltsp[["cluster"]])%in%"size"]
   
-  data_unif             <- data[rownames(jPIR), getConditions(targets)[contrast != 0]]
-  
-  data_unif             <- data_unif[is.na(jPIR[, "NonUniformity"]), ]
-  data_unif$FDR         <- jPIR$cluster.fdr[is.na(jPIR[, "NonUniformity"])]
-
-  if(runUniformityTest){
-    message("Testing uniformity in junctionsPIR")
-    data_unif$NonUniformity       <- .testUniformity(data_unif, mergedBams, maxFDRForUniformityCheck, targets, contrast)
-  }else{
-    data_unif$NonUniformity       <- rep(NA, nrow(data_unif)) 
-  }  
-  ltsp$NonUniformity    <- data_unif[rownames(ltsp), "NonUniformity"]
-  
-  #colnames(ltsp)        <- c("cluster.LR", "pvalue", "FDR", "J1.FDR", "J2.FDR", "NonUniformity", "dPIR")
-  colnames(ltsp)        <- c("cluster.LR", "pvalue", "FDR", "NonUniformity")
+  colnames(ltsp)        <- c("cluster.LR", "pvalue", "FDR")
   anchorc(jdu)          <- ltsp
   
   #######
@@ -178,21 +183,22 @@
   
   #We reduce data so dispersion estimates can be computed in a razonable ammount of time
   reduxData             <- .makeReduxData(countData, targets, contrast, maxConditionsForDispersionEstimate)
-  ltsp                   <- .binsDUWithDiffSplice(reduxData$countData, reduxData$targets, reduxData$contrast)
-  tsp <- ltsp[["junction"]]
-  tsp                   <- tsp[-(grep("[.][1-2]$", rownames(tsp))), ]
-  tsp$bin.fdr           <- p.adjust(tsp$pvalue, "fdr")
+  ltsp                  <- .binsDUWithDiffSplice(reduxData$countData, reduxData$targets, reduxData$contrast)
+  tsp                   <- ltsp[["junction"]]
 
+  tsp                   <- tsp[-(grep("[.][1-2]$", rownames(tsp))), ]
   
-  jirPIR                <- tsp[, c("logFC", "pvalue", "bin.fdr")]
+  tsp$pvalue            <- ltsp$cluster[tsp$locus, "cluster.pvalue"]
+  tsp$bin.fdr           <- p.adjust(ltsp$cluster[tsp$locus, "cluster.fdr"], "fdr")
+  tsp$bin.LR            <- ltsp$cluster[tsp$locus, "cluster.LR"]
+  
+  jirPIR                <- tsp[, c("logFC", "pvalue", "bin.fdr", "bin.LR")]
   jirPIR$log.mean       <- log2(rowMeans(countData[rownames(jirPIR), rownames(targets)[targets$condition %in% getConditions(targets)[contrast != 0]]]))
 
-
-  data_unif             <- data[rownames(jirPIR), getConditions(targets)[contrast != 0]]
-  rownames(data_unif)   <- data[rownames(jirPIR), "J3"]
-  data_unif$FDR         <- pmin(jirPIR$bin.fdr,tsp$bin.fdr)  #corro unif test si bin o juntura son suficientemente significativos
-  
   if(runUniformityTest){
+    data_unif             <- data[rownames(jirPIR), getConditions(targets)[contrast != 0]]
+    rownames(data_unif)   <- data[rownames(jirPIR), "J3"]
+    data_unif$FDR         <- jirPIR$bin.fdr#pmin(jirPIR$bin.fdr,tsp$bin.fdr)  #corro unif test si bin o juntura son suficientemente significativos
     message("Testing uniformity in irPIR")
     jirPIR$NonUniformity     <- .testUniformity(data_unif, mergedBams, maxFDRForUniformityCheck, targets, contrast)
   }else{
@@ -200,12 +206,12 @@
   }
 
   
-  jirPIR$J3             <- data[rownames(jirPIR), "J3"] 
-  jirPIR                <- jirPIR[, c("J3", "logFC", "log.mean", "pvalue", "bin.fdr", "NonUniformity")]
+  jirPIR$J3             <- data[rownames(jirPIR), "J3"]
+  jirPIR                <- jirPIR[, c("J3", "logFC", "log.mean", "pvalue", "bin.fdr", "bin.LR", "NonUniformity")]
   
   dpir                  <- irPIR(asd)[rownames(jirPIR),getConditions(targets)]
   jirPIR$dPIR           <- apply(dpir,1,function(x){sum(x*contrast)}) 
-  colnames(jirPIR)      <- c("J3", "logFC", "log.mean", "pvalue", "FDR", "NonUniformity","dPIR")
+  colnames(jirPIR)      <- c("J3", "logFC", "log.mean", "pvalue", "FDR", "LR", "NonUniformity","dPIR")
   jirPIR$multiplicity   <- "No"
   jirPIR$multiplicity[grep(";", jirPIR$J3)] <- "Yes"
   
@@ -237,21 +243,24 @@
 
   #We reduce data so dispersion estimates can be computed in a razonable ammount of time
   reduxData             <- .makeReduxData(countData, targets, contrast, maxConditionsForDispersionEstimate)
-  ltsp                   <- .binsDUWithDiffSplice(reduxData$countData, reduxData$targets, reduxData$contrast)#, test = "gene")
-  tsp <- ltsp[["junction"]]
+  ltsp                  <- .binsDUWithDiffSplice(reduxData$countData, reduxData$targets, reduxData$contrast)#, test = "gene")
+  tsp                   <- ltsp[["junction"]]
   tsp                   <- tsp[-(grep("[.][1-2]$", rownames(tsp))), ]
-  tsp$bin.fdr           <- p.adjust(tsp$pvalue, "fdr")
   
-  jesPSI                <- tsp[, c("logFC", "pvalue", "bin.fdr")]
+  tsp$pvalue            <- ltsp$cluster[tsp$locus, "cluster.pvalue"]
+  tsp$bin.fdr           <- p.adjust(ltsp$cluster[tsp$locus, "cluster.fdr"], "fdr")
+  tsp$bin.LR            <- ltsp$cluster[tsp$locus, "cluster.LR"]  
+
+  jesPSI                <- tsp[, c("logFC", "pvalue", "bin.fdr", "bin.LR")]
   jesPSI$log.mean       <- log2(rowMeans(countData[rownames(jesPSI), rownames(targets)[targets$condition %in% getConditions(targets)[contrast != 0]]]))
   jesPSI$event          <- data[rownames(jesPSI), "event"]
   jesPSI$J3             <- data[rownames(jesPSI), "J3"]
-  jesPSI                <- jesPSI[, c("event", "J3", "logFC", "log.mean", "pvalue", "bin.fdr")]
+  jesPSI                <- jesPSI[, c("event", "J3", "logFC", "log.mean", "pvalue", "bin.fdr", "bin.LR")]
   
   dpsi                  <- esPIN(asd)[rownames(jesPSI),getConditions(targets)]
   jesPSI$dPSI           <- apply(dpsi,1,function(x){sum(x*contrast)}) 
-  colnames(jesPSI)      <- c("event", "J3", "logFC", "log.mean", "pvalue", "FDR", "dPIN")
-  jesPSI$multiplicity        <- "No"
+  colnames(jesPSI)      <- c("event", "J3", "logFC", "log.mean", "pvalue", "FDR", "LR", "dPSI")
+  jesPSI$multiplicity   <- "No"
   jesPSI$multiplicity[grep(";", jesPSI$J3)] <- "Yes"
   
   jesPSI      <- cbind(jesPSI, countsJ1 = sapply(getConditions(targets)[contrast != 0], function(i){return(rowMeans(Js$J1[paste0(rownames(jesPSI), ".1"), rownames(targets)[targets$condition %in% i]]))}))
@@ -275,22 +284,25 @@
   Js                    <- .makeJunctions(data, targets, start_J1, start_J2, start_J3, minAvgCounts, filterWithContrasted, contrast, strongFilter, alt = T)
   countData             <- .makeCountData(Js$J3, Js$J1 + Js$J2)
   
-  ltsp                   <- .binsDUWithDiffSplice(countData, targets, contrast)#, test = "gene")
-  tsp <- ltsp[["junction"]]
+  ltsp                  <- .binsDUWithDiffSplice(countData, targets, contrast)#, test = "gene")
+  tsp                   <- ltsp[["junction"]]
   tsp                   <- tsp[-(grep("[.][1-2]$", rownames(tsp))), ]
-  tsp$bin.fdr           <- p.adjust(tsp$pvalue, "fdr")
   
-  jaltPSI               <- tsp[, c("logFC", "pvalue", "bin.fdr")]
+  tsp$pvalue            <- ltsp$cluster[tsp$locus, "cluster.pvalue"]
+  tsp$bin.fdr           <- p.adjust(ltsp$cluster[tsp$locus, "cluster.fdr"], "fdr")
+  tsp$bin.LR            <- ltsp$cluster[tsp$locus, "cluster.LR"]  
+  
+  jaltPSI               <- tsp[, c("logFC", "pvalue", "bin.fdr", "bin.LR")]
   jaltPSI$log.mean      <- log2(rowMeans(countData[rownames(jaltPSI), rownames(targets)[targets$condition %in% getConditions(targets)[contrast != 0]]]))  
   jaltPSI$event         <- data[rownames(jaltPSI), "event"]
   jaltPSI$J3            <- data[rownames(jaltPSI), "J3"]
-  jaltPSI               <- jaltPSI[, c("event", "J3", "logFC", "log.mean", "pvalue", "bin.fdr")]
+  jaltPSI               <- jaltPSI[, c("event", "J3", "logFC", "log.mean", "pvalue", "bin.fdr", "bin.LR")]
   
   
   dpsi                  <- altPIN(asd)[rownames(jaltPSI),getConditions(targets)]
   jaltPSI$dPSI          <- apply(dpsi,1,function(x){sum(x*contrast)}) 
-  colnames(jaltPSI)     <- c("event", "J3", "logFC", "log.mean", "pvalue", "FDR", "dPIN")
-  jaltPSI$multiplicity        <- "No"
+  colnames(jaltPSI)     <- c("event", "J3", "logFC", "log.mean", "pvalue", "FDR", "LR", "dPSI")
+  jaltPSI$multiplicity  <- "No"
   jaltPSI$multiplicity[grep(";", jaltPSI$J3)] <- "Yes"
 
   
@@ -651,6 +663,7 @@
   other_groups          <- ugroup[contrast == 0]
   other_groups          <- sample(other_groups, min(length(other_groups), abs(maxConditionsForDispersionEstimate-length(contrast_groups))))
   final_groups          <- c(contrast_groups, other_groups)
+  final_groups          <- names(contrast)[names(contrast) %in% final_groups]
   redux_targets         <- targets[targets$condition %in% final_groups, ]
   contrast              <- contrast[final_groups]
   targets               <- targets[targets$condition %in% redux_targets$condition, ]

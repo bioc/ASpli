@@ -271,7 +271,7 @@
 
   binsdu <- .binsDUWithDiffSplice( countData[[2]], targets, contrast, 
 		  ignoreExternal, ignoreIo, ignoreI )[[1]]  
-  colnames(binsdu)[1]<-"locus"
+  #colnames(binsdu)[1]<-"locus"
   
   binsDU( du ) <- binsdu
   
@@ -672,8 +672,8 @@ return (dfBin)
   colnames( tsp )[ match( 'P.Value', colnames( tsp )) ] <- 'pvalue'
   tsp$exon.LR <- NULL
   
-  tsp <- tsp[,c("locus","logFC","pvalue","bin.fdr")]
-  colnames(tsp)[1]<-"J3"
+  #tsp <- tsp[,c("locus","logFC","pvalue","bin.fdr")]
+  #colnames(tsp)[1]<-"J3"
   
   rownames(tspg) <- tspg$locus
   tspg <- tspg[,c("gene.LR","P.Value","FDR")]
