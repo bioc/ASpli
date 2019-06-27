@@ -22,8 +22,8 @@ setClass( Class = "ASpliCounts",
 setClass( Class="ASpliAS",
           representation = representation(
             irPIR = "data.frame",
-            altPIN = "data.frame",
-            esPIN = "data.frame",
+            altPSI = "data.frame",
+            esPSI = "data.frame",
             junctionsPIR = "data.frame",
             junctionsPJU = "data.frame",
             join = "data.frame", 
@@ -582,8 +582,8 @@ setMethod(
       .extractCountColumns( altJ3, targets ), 
       altPsiValues )
     
-    message("Junctions AltSS PIN completed")
-    altPIN( as ) <- result
+    message("Junctions AltSS PSI completed")
+    altPSI( as ) <- result
     # ---------------------------------------------------------------------- #
     
     # ---------------------------------------------------------------------- #
@@ -622,14 +622,14 @@ setMethod(
       .extractCountColumns( esJ3, targets ),
       esPsiValues )
     
-    message("Junctions ES PIN completed")
+    message("Junctions ES PSI completed")
     
-    esPIN( as ) <- result
+    esPSI( as ) <- result
     # ---------------------------------------------------------------------- #
     
     # TODO: joint podria ser un getter, pero no es necesario mantener toda
     # esta data repetida
-    joint( as ) <- rbind( altPIN( as ), esPIN( as ), irPIR( as ) )
+    joint( as ) <- rbind( altPSI( as ), esPSI( as ), irPIR( as ) )
     
     return( as )
     
@@ -667,8 +667,8 @@ setMethod(
     }
     
     # Export exons
-    write.table( altPIN(as), exonsFilePSI, sep="\t", quote=FALSE, col.names=NA)
-    write.table( esPIN(as), exonsFileES, sep="\t", quote=FALSE, col.names=NA)
+    write.table( altPSI(as), exonsFilePSI, sep="\t", quote=FALSE, col.names=NA)
+    write.table( esPSI(as), exonsFileES, sep="\t", quote=FALSE, col.names=NA)
     
     # Export Introns
     write.table( irPIR(as), intronsFile, sep="\t", quote=FALSE, col.names=NA)
@@ -864,7 +864,7 @@ setGeneric( name = "integrateSignals",
                             bin.fdr=0.05,
                             nonunif=0.1,
                             usenonunif=FALSE,
-                            dPIN=0.05,
+                            dPSI=0.05,
                             dPIR=0.05,
                             j.fdr=0.05,
                             j.particip=0.1,
@@ -883,7 +883,7 @@ setMethod(
     bin.fdr=0.05,
     nonunif=0.1, 
     usenonunif=FALSE,
-    dPIN=0.05,
+    dPSI=0.05,
     dPIR=0.05,
     j.fdr=0.05,
     j.particip=0.1,
@@ -891,7 +891,7 @@ setMethod(
     bjs.fdr=0.1,
     otherSources = NULL
   ) {
-    .integrateSignals(sr, asd, bin.fdr, nonunif, usenonunif, dPIN, dPIR, j.fdr, j.particip, usepvalBJS, bjs.fdr, otherSources) 
+    .integrateSignals(sr, asd, bin.fdr, nonunif, usenonunif, dPSI, dPIR, j.fdr, j.particip, usepvalBJS, bjs.fdr, otherSources) 
   }
 )
 
@@ -1063,8 +1063,8 @@ setMethod(
             b$bin.event <- as.factor(b$bin.event)
             #b[, c(10:12, 15:ncol(b))] <- apply(b[, c(10:12, 15:ncol(b))], 2, function(s){return(signif(as.numeric(s), digits = 4))})
         }
-	columnas_numericas <- which(sapply(b, class) == "numeric")
-	b[, columnas_numericas] <- apply(b[, columnas_numericas], 2, function(s){return(signif(as.numeric(s), digits = 4))})
+      	columnas_numericas <- which(sapply(b, class) == "numeric")
+	      b[, columnas_numericas] <- apply(b[, columnas_numericas], 2, function(s){return(signif(as.numeric(s), digits = 4))})
         titulo <- paste0('ASpli: ', s, ". Contrasts: ", paste(names(sr@contrast)[sr@contrast != 0], collapse = " - "))
         y <- datatable(b,
                        escape = TRUE,

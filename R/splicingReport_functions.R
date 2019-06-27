@@ -26,21 +26,21 @@
   jir                    <- jir(jdu)
   jir$event              <- NA
   jir$dPSI               <- NA
-  jir                    <- jir[, c("event", "J3", "multiplicity", "logFC", "log.mean", "pvalue", "FDR", "LR", "dPIR", "dPSI", "NonUniformity", colnames(jir)[grep("counts", colnames(jir))])]
+  jir                    <- jir[, c("event", "J3", "multiplicity", "logFC", "log.mean", "LR", "pvalue", "FDR", "dPIR", "dPSI", "NonUniformity", colnames(jir)[grep("counts", colnames(jir))])]
   colnames(jir)[colnames(jir) %in% c("FDR", "NonUniformity")] <- c("junction.fdr", "nonuniformity")
   #jir$bin                <- rownames(jir)
   
   jes                    <- jes(jdu)
   jes$nonuniformity      <- NA
   jes$dPIR               <- NA
-  jes                    <- jes[, c("event", "J3", "multiplicity", "logFC", "log.mean", "pvalue", "FDR", "LR", "dPIR", "dPSI", "nonuniformity", colnames(jes)[grep("counts", colnames(jes))])]
+  jes                    <- jes[, c("event", "J3", "multiplicity", "logFC", "log.mean", "LR", "pvalue", "FDR", "dPIR", "dPSI", "nonuniformity", colnames(jes)[grep("counts", colnames(jes))])]
   colnames(jes)[colnames(jes) %in% c("FDR")] <- c("junction.fdr")
   #jes$bin                <- rownames(jes)
   
   jalt                   <- jalt(jdu)
   jalt$nonuniformity     <- NA
   jalt$dPIR              <- NA
-  jalt                   <- jalt[, c("event", "J3", "multiplicity", "logFC", "log.mean", "pvalue", "FDR", "LR", "dPIR", "dPSI", "nonuniformity", colnames(jalt)[grep("counts", colnames(jalt))])]
+  jalt                   <- jalt[, c("event", "J3", "multiplicity", "logFC", "log.mean", "LR", "pvalue", "FDR", "dPIR", "dPSI", "nonuniformity", colnames(jalt)[grep("counts", colnames(jalt))])]
   colnames(jalt)[colnames(jalt) %in% c("FDR")] <- c("junction.fdr")
   #jalt$bin               <- rownames(jalt)
   
@@ -49,7 +49,7 @@
   aux                    <- data.frame(merge(bins, j, by="rn", all=T))
   colnames(aux)          <- c("bin", "feature", "bin.event", "locus", "locus_overlap", "symbol", "gene_coordinates", "start",
                               "end", "length", "bin.logFC", "bin.pvalue", "bin.fdr", "junction.event", "J3", "J3.multiplicity", "junction.logFC",
-                              "junction.log.mean", "junction.pvalue", "junction.fdr", "junction.LR", "junction.dPIR", "junction.dPSI", "junction.nonuniformity", colnames(aux)[grep("counts", colnames(aux))])
+                              "junction.log.mean", "junction.LR", "junction.pvalue", "junction.fdr", "junction.dPIR", "junction.dPSI", "junction.nonuniformity", colnames(aux)[grep("counts", colnames(aux))])
   
   aux                    <- aux[, !colnames(aux) %in% c("symbol", "junction.event")]
   
@@ -102,14 +102,13 @@
                                          "bin.length", "bin.logFC", "bin.pvalue", "bin.fdr","junction", "junction.cluster", "junction.log.mean",
                                          "junction.logFC", "junction.pvalue", "junction.fdr", "junction.annotated", "junction.participation", "junction.dparticipation", colnames(junctionbased_junctions)[grep("counts", colnames(junctionbased_junctions))])
   
-  junctionbased_junctions$junction.cluster <- as.character(junctionbased_junctions$junction.cluster)
-  
   #bins <- data.table(bdu@bins[rownames(bdu@bins) %in% junctionbased_junctions$bin, ], keep.rownames = T)
   #completo <- rbindlist(junctionbased_junctions, bins, use.names = T, fill = T)
   
   #Change type of junction.cluster so we can merge with cluster information
   junctionbased_junctions$junction.cluster <- as.character(junctionbased_junctions$junction.cluster)
   
+
   localec <- data.table(localec(jdu), keep.rownames = T)
   colnames(localec) <- c("rn", "cluster.size", "cluster.LR", "cluster.pvalue", "cluster.fdr", "cluster.range", "cluster.participation")
   fulldt <- data.frame(merge(junctionbased_junctions, localec, by.x = "junction.cluster", by.y = "rn", all = T))
@@ -120,7 +119,7 @@
                      "junction.logFC", "junction.pvalue", "junction.fdr", 
                      colnames(fulldt)[grep("counts", colnames(fulldt))],
                      "junction.cluster", "junction.participation", "junction.dparticipation",
-                     "cluster.size", "cluster.pvalue", "cluster.fdr", "cluster.range", "cluster.participation", 
+                     "cluster.size", "cluster.LR", "cluster.pvalue", "cluster.fdr", "cluster.range", "cluster.participation", 
                      "bin", "bin.pvalue", "bin.fdr")
                    ]
   rownames(fulldt) <- NULL
@@ -167,7 +166,7 @@
   
   colnames(junctionbased_junctions) <- c("bin", "feature", "event", "locus", "locus_overlap", "symbol", "gene_coordinates", "bin.start", "bin.end",
                                          "bin.length", "bin.logFC", "bin.pvalue", "bin.fdr", "junction", "junction.log.mean",
-                                         "junction.logFC", "junction.pvalue", "junction.fdr", "junction.lr", "J1.pvalue", "J2.pvalue",
+                                         "junction.logFC", "junction.LR", "junction.pvalue", "junction.fdr", "J1.pvalue", "J2.pvalue",
                                          "junction.nonuniformity", "junction.dPIR", "junction.annotated",
                                          colnames(junctionbased_junctions)[grep("counts", colnames(junctionbased_junctions))])
   
@@ -181,7 +180,7 @@
   fulldt <- fulldt[, 
                    c("junction", "junction.annotated",
                      "junction.log.mean",
-                     "junction.logFC", "junction.pvalue", "junction.fdr", "junction.lr", "J1.pvalue", "J2.pvalue",
+                     "junction.logFC", "junction.LR", "junction.pvalue", "junction.fdr", "J1.pvalue", "J2.pvalue",
                      "junction.nonuniformity", "junction.dPIR",
                      colnames(fulldt)[grep("counts", colnames(fulldt))],
                      "cluster.pvalue", "cluster.fdr",
@@ -224,7 +223,7 @@
 # con b, solamente de coverage, aparece con b y jl. Las junturas que aparecen reportadas al final son las que aparecen en el bin en caso
 # de tratarse de una region meramente "binica" o son la region en caso de venir de ja o jl.
 #bin.fdr=0.05;unif=0.1;dPIN=0.05;dPIR=0.05;j.fdr=0.05;j.particip=0.1;usepvalBJS=FALSE;bjs.fdr=0.1; otherSources = NULL
-.integrateSignals<-function(sr = NULL, asd = NULL, bin.fdr=0.05,nonunif=0.1,usenonunif=FALSE,dPIN=0.05,dPIR=0.05,j.fdr=0.05,j.particip=0.1,usepvalBJS=FALSE,bjs.fdr=0.1, otherSources = NULL){
+.integrateSignals<-function(sr = NULL, asd = NULL, bin.fdr=0.05,nonunif=0.1,usenonunif=FALSE,dPSI=0.05,dPIR=0.05,j.fdr=0.05,j.particip=0.1,usepvalBJS=FALSE,bjs.fdr=0.1, otherSources = NULL){
   
   if(class(sr) != "ASpliSplicingReport"){
     stop("sr must be an ASpliSplicingReport object") 
@@ -268,12 +267,12 @@
   }
   if(usepvalBJS){
     b  <- b[ b$junction.fdr < bjs.fdr &
-               (replace_na(abs(b$junction.dPIN) > dPIN, FALSE) | 
+               (replace_na(abs(b$junction.dPSI) > dPSI, FALSE) | 
                  (replace_na(abs(b$junction.dPIR) > dPIR, FALSE) & bunif)), ]
     
   }else{  
-    b  <- b[replace_na(abs(b$junction.dPIN) > dPIN, FALSE) | 
-              (replace_na(abs(b$junction.dPIR) > dPIR, FALSE) & bunif) ]
+    b  <- b[replace_na(abs(b$junction.dPSI) > dPSI, FALSE) | 
+              (replace_na(abs(b$junction.dPIR) > dPIR, FALSE) & bunif), ]
   }
   if(nrow(b) > 0){
     start   = as.numeric(b$start)#aggregate(start ~ cluster, data=b, FUN=min)
@@ -288,9 +287,9 @@
   
   b <- sr@localebased
   b <- b[replace_na(b$junction.fdr < j.fdr, FALSE) & 
-           replace_na(b$junction.participation > j.particip, FALSE), ]
+           replace_na(b$cluster.participation > j.particip, FALSE), ] #Reemplazamos la participacion de la juntura por la participacion del cluster al que pertenece que es el dato importante
   if(nrow(b) > 0){
-    aux <- strsplit2(b$junction, "[.]")
+    aux <- strsplit2(b$cluster.range, "[.]") #Reemplazamos la juntura por el rango del cluster al que pertenece que es el dato importante
     start   = as.numeric(aux[, 2])#aggregate(start ~ cluster, data=b, FUN=min)
     end     = as.numeric(aux[, 3])#aggregate(end ~ cluster, data=b, FUN=max)
     seqnames = aux[, 1]
@@ -522,17 +521,20 @@
     aa$b.fdr          <- NA
     aa$b.logfc        <- NA
 
+    aa$bjs.lr            <- NA
     aa$bjs.fdr           <- NA
     aa$bjs.logfc         <- NA
     aa$bjs.nonuniformity <- NA
     aa$bjs.inclussion    <- NA
     
+    aa$a.lr            <- NA
     aa$a.fdr           <- NA
     aa$a.logfc         <- NA
     aa$a.nonuniformity <- NA
     aa$a.participation <- NA
     aa$a.dparticipation <- NA
     
+    aa$l.lr            <- NA
     aa$l.fdr           <- NA
     aa$l.logfc         <- NA
     aa$l.participation <- NA
@@ -550,15 +552,17 @@
       if(aa$bjs[b] != 0){
         i <- which(binbased(sr)$J3 == aa$J3[b])
         if(length(i) > 0){
+          aa$bjs.lr[b] <- binbased(sr)$junction.LR[i[1]]
           aa$bjs.fdr[b] <- binbased(sr)$junction.fdr[i[1]]
           aa$bjs.logfc[b] <- binbased(sr)$junction.logFC[i[1]]
           aa$bjs.nonuniformity[b] <- binbased(sr)$junction.nonuniformity[i[1]]
-          aa$bjs.inclussion[b] <- replace_na(binbased(sr)$junction.dPIN[i[1]], binbased(sr)$junction.dPIR[i[1]])  
+          aa$bjs.inclussion[b] <- replace_na(binbased(sr)$junction.dPSI[i[1]], binbased(sr)$junction.dPIR[i[1]])  
         }
       }      
       if(aa$ja[b] != 0){
         i <- which(anchorbased(sr)$junction == aa$J3[b])
         if(length(i) > 0){
+          aa$a.lr[b] <- anchorbased(sr)$junction.LR[i[1]]
           aa$a.fdr[b] <- anchorbased(sr)$junction.fdr[i[1]]
           aa$a.logfc[b] <- anchorbased(sr)$junction.logFC[i[1]]
           aa$a.nonuniformity[b] <- anchorbased(sr)$junction.nonuniformity[i[1]]
@@ -569,6 +573,7 @@
       if(aa$jl[b] != 0){
         i <- which(localebased(sr)$junction == aa$J3[b])
         if(length(i) > 0){
+          aa$l.lr[b] <- localebased(sr)$cluster.LR[i[1]]
           aa$l.fdr[b] <- localebased(sr)$junction.fdr[i[1]]
           aa$l.logfc[b] <- localebased(sr)$junction.logFC[i[1]]
           aa$l.participation[b] <- localebased(sr)$junction.participation[i[1]]
@@ -610,10 +615,10 @@
     aa <- data.table(region = character(), locus = character(), b = numeric(), bjs = numeric(), ja = numeric(),
                      jl = numeric(), bin = character(), feature = character(), bin.event = character(),
                      J3 = character(), binreg = character(), locus_overlap = numeric(), b.fdr = numeric(),
-                     b.logfc = numeric(), bjs.fdr = numeric(), bjs.logfc = numeric(), bjs.nonuniformity = numeric(),
-                     bjs.inclussion = numeric(), a.fdr = numeric(), a.logfc = numeric(), a.nonuniformity = numeric(),
+                     b.logfc = numeric(), bjs.lr = numeric(), bjs.fdr = numeric(), bjs.logfc = numeric(), bjs.nonuniformity = numeric(),
+                     bjs.inclussion = numeric(), a.lr = numeric(), a.fdr = numeric(), a.logfc = numeric(), a.nonuniformity = numeric(),
                      a.participation = numeric(),
-                     a.dparticipation = numeric(), l.fdr = numeric(), l.logfc = numeric(), l.participation = numeric(),l.dparticipation = numeric())
+                     a.dparticipation = numeric(), l.lr = numeric(), l.fdr = numeric(), l.logfc = numeric(), l.participation = numeric(),l.dparticipation = numeric())
   }
   
 

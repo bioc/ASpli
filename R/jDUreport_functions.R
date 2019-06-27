@@ -51,12 +51,15 @@
   reduxData             <- .makeReduxData(countData, targets, contrast, maxConditionsForDispersionEstimate)  
   ltsp                  <- .binsDUWithDiffSplice(reduxData$countData, reduxData$targets, reduxData$contrast)
   
-  jPSI                  <- ltsp[["junction"]]
-
-  
+  tsp                   <- ltsp[["junction"]]
+  #tsp$pvalue            <- ltsp$cluster[tsp$locus, "cluster.pvalue"]
+  #tsp$bin.fdr           <- p.adjust(ltsp$cluster[tsp$locus, "cluster.fdr"], "fdr")
+  #tsp$bin.LR            <- ltsp$cluster[tsp$locus, "cluster.LR"]
+  jPSI                  <- tsp
   mean.counts           <- rowMeans(countData[rownames(jPSI), rownames(targets)[targets$condition %in% getConditions(targets)[contrast != 0]]])
   jPSI$log.mean         <- log2(mean.counts)
-  
+
+
   mean.counts.per.condition     <- sapply(getConditions(targets)[contrast != 0], function(i){return(rowMeans(countData[rownames(jPSI), rownames(targets)[targets$condition %in% i]]))})
   participation                 <- aggregate(mean.counts.per.condition ~ jPSI$locus, FUN = function(r){return(rowSums(t(r)))})
   rownames(participation)       <- participation$locus
@@ -91,9 +94,9 @@
   participacion           <- aggregate(participation ~ cluster, junturasDeInteres, FUN = max)
   rownames(participacion) <- participacion[, 1]
   ltsp$participation      <- participacion[rownames(ltsp), 2] #llena con NA las participaciones que no estan
-  ltsp$size               <- table(jPSI$cluster)[rownames(ltsp)]
-  colnames(ltsp)          <- c("cluster.LR", "pvalue", "FDR", "range", "participation", "size")
-  ltsp                    <- ltsp[, c("size", "cluster.LR", "pvalue", "FDR", "range", "participation")]
+  ltsp$size               <- as.numeric(table(jPSI$cluster)[rownames(ltsp)])
+  ltsp                    <- ltsp[, c("size", "cluster.LR", "cluster.pvalue", "cluster.fdr", "range", "participation")]
+  colnames(ltsp)          <- c("size", "cluster.LR", "pvalue", "FDR", "range", "participation")
   localec(jdu)            <- ltsp
   
   ##############
@@ -157,9 +160,9 @@
 
   
   jPIR$annotated        <- ifelse(!is.na(data[rownames(jPIR), "hitIntron"]), "Yes", "No")
-  jPIR                  <- jPIR[, c("log.mean", "logFC", "P.Value", "FDR", "LR", "J1.pvalue", "J2.pvalue", "NonUniformity", "dPIR", "annotated", colnames(jPIR)[grep("counts", colnames(jPIR))])]
+  jPIR                  <- jPIR[, c("log.mean", "logFC", "LR", "P.Value", "FDR", "J1.pvalue", "J2.pvalue", "NonUniformity", "dPIR", "annotated", colnames(jPIR)[grep("counts", colnames(jPIR))])]
 
-  colnames(jPIR)        <- c("log.mean", "logFC", "pvalue", "FDR", "LR", "J1.pvalue", "J2.pvalue", "NonUniformity", "dPIR", "annotated", colnames(jPIR)[grep("counts", colnames(jPIR))])
+  colnames(jPIR)        <- c("log.mean", "logFC", "LR", "pvalue", "FDR", "J1.pvalue", "J2.pvalue", "NonUniformity", "dPIR", "annotated", colnames(jPIR)[grep("counts", colnames(jPIR))])
            
   anchorj(jdu)          <- jPIR
   
