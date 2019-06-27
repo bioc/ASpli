@@ -1,4 +1,14 @@
-
+#################################################################################
+#Splicing Report
+#
+#
+#
+#This function integrates differential usage information from different sources.
+#Receives bin usage and junction usage and merges them in three steps.
+#First merges all bin based junction information (jir, jes, jalt).
+#Then merges locale information with coverage information in the regions.
+#Finally does the same with anchors.
+#################################################################################
 .splicingReport <- function(bdu, jdu, maxBinFDR, maxJunctionFDR){
   
   #Sanity check
@@ -66,21 +76,27 @@
   overlap      <- data.frame(findOverlaps(grbines, grjunctions))
   
   bins <- binsDU(bdu)
-  colnames(bins)[10] <- "bin.logFC"
+  colnames(bins)[colnames(bins) %in% c("logFC")] <- "bin.logFC"
   
+  #Unique identifier por locale pvalue
+  colnames(localej)[colnames(localej) %in% c("pvalue")] <- "junction.pvalue"
+  
+  #Merge overlaping bins and locales
   junctionbased_junctions <- data.table(bin=rownames(bins)[overlap$queryHits], bins[overlap$queryHits, ], 
-                                        J3 = rownames(localej(jdu))[overlap$subjectHits], localej(jdu)[overlap$subjectHits, ])
-  colnames(junctionbased_junctions)[colnames(junctionbased_junctions) %in% c("pvalue")] <- "junction.pvalue"
+                                        J3 = rownames(localej)[overlap$subjectHits], localej[overlap$subjectHits, ])
+  
   
   #bins                   <- data.table(bins[!rownames(bins) %in% junctionbased_junctions$bin, ], keep.rownames = T)
   #colnames(bins)[1]      <- "bin"
   
   #junctionbased_junctions <- rbindlist(list(junctionbased_junctions, bins), use.names = T, fill = T)
   
-  junctions               <- data.table(localej(jdu)[!rownames(localej(jdu)) %in% junctionbased_junctions$J3, ], keep.rownames = T)
-  colnames(junctions)[colnames(junctions) %in% c("rn", "pvalue")]  <- c("J3", "junction.pvalue")
+  junctions               <- data.table(localej[!rownames(localej) %in% junctionbased_junctions$J3, ], keep.rownames = T)
+  colnames(junctions)[colnames(junctions) %in% c("rn")]  <- c("J3")
   
+  #Adds non overlaping locales
   junctionbased_junctions <- rbindlist(list(junctionbased_junctions, junctions), use.names = T, fill = T)
+  
   
   colnames(junctionbased_junctions) <- c("bin", "feature", "event", "locus", "locus_overlap", "symbol", "gene_coordinates", "bin.start", "bin.end",
                                          "bin.length", "bin.logFC", "bin.pvalue", "bin.fdr","junction", "junction.cluster", "junction.log.mean",
@@ -90,6 +106,9 @@
   
   #bins <- data.table(bdu@bins[rownames(bdu@bins) %in% junctionbased_junctions$bin, ], keep.rownames = T)
   #completo <- rbindlist(junctionbased_junctions, bins, use.names = T, fill = T)
+  
+  #Change type of junction.cluster so we can merge with cluster information
+  junctionbased_junctions$junction.cluster <- as.character(junctionbased_junctions$junction.cluster)
   
   localec <- data.table(localec(jdu), keep.rownames = T)
   colnames(localec) <- c("rn", "cluster.size", "cluster.LR", "cluster.pvalue", "cluster.fdr", "cluster.range", "cluster.participation")
@@ -108,8 +127,9 @@
   fulldt          <- fulldt[union(which(fulldt$bin.fdr < maxBinFDR), which(fulldt$junction.fdr < maxJunctionFDR)), ]
   index.orden     <- strsplit2(fulldt$junction, "[.]")
   index.orden     <- order(GRanges(index.orden[, 1], IRanges(as.numeric(index.orden[, 2]), as.numeric(index.orden[, 3]))))
+  fulldt          <- fulldt[index.orden, ] 
   rownames(fulldt)<- NULL
-  localebased(mr) <- fulldt[index.orden, ]    
+  localebased(mr) <- fulldt
   
   ########################################
   anchorj  <- anchorj(jdu)
@@ -129,18 +149,19 @@
   overlap      <- data.frame(findOverlaps(grbines, grjunctions))
   
   bins <- binsDU(bdu)
-  colnames(bins)[10] <- "bin.logFC"
-  
+  colnames(bins)[colnames(bins) %in% c("logFC")] <- "bin.logFC"
+
+  colnames(anchorj)[colnames(anchorj) %in% c("pvalue")] <- "junction.pvalue"  
   junctionbased_junctions <- data.table(bin=rownames(bins)[overlap$queryHits], bins[overlap$queryHits, ], 
-                                        J3 = rownames(anchorj(jdu))[overlap$subjectHits], anchorj(jdu)[overlap$subjectHits, ])
-  colnames(junctionbased_junctions)[colnames(junctionbased_junctions) %in% c("pvalue")] <- "junction.pvalue"
+                                        J3 = rownames(anchorj)[overlap$subjectHits], anchorj[overlap$subjectHits, ])
+  
   #bins                   <- data.table(bins[!rownames(bins) %in% junctionbased_junctions$bin, ], keep.rownames = T)
   #colnames(bins)[1]      <- "bin"
   
   #junctionbased_junctions <- rbindlist(list(junctionbased_junctions, bins), use.names = T, fill = T)
   
-  junctions               <- data.table(anchorj(jdu)[!rownames(anchorj(jdu)) %in% junctionbased_junctions$J3, ], keep.rownames = T)
-  colnames(junctions)[colnames(junctions) %in% c("rn", "pvalue")]  <- c("J3", "junction.pvalue")
+  junctions               <- data.table(anchorj[!rownames(anchorj) %in% junctionbased_junctions$J3, ], keep.rownames = T)
+  colnames(junctions)[colnames(junctions) %in% c("rn")]  <- c("J3")
   
   junctionbased_junctions <- rbindlist(list(junctionbased_junctions, junctions), use.names = T, fill = T)
   
@@ -177,8 +198,9 @@
   #colnames(pir)   <- strsplit2(colnames(pir), "[.]")[, 2]
   #dpir            <- rowSums(t(t(pir)*jdu@contrast[colnames(pir)]))
   #fulldt$dPIR     <- dpir
+  fulldt          <- fulldt[index.orden, ] 
   rownames(fulldt)<- NULL
-  anchorbased(mr) <- fulldt[index.orden, ]  
+  anchorbased(mr) <- fulldt
   return(mr)
 }
 
