@@ -531,9 +531,8 @@
     aa$a.fdr           <- NA
     aa$a.logfc         <- NA
     aa$a.nonuniformity <- NA
-    aa$a.participation <- NA
-    aa$a.dparticipation <- NA
-    
+    aa$a.dpir          <- NA
+
     aa$l.lr            <- NA
     aa$l.fdr           <- NA
     aa$l.logfc         <- NA
@@ -566,8 +565,7 @@
           aa$a.fdr[b] <- anchorbased(sr)$junction.fdr[i[1]]
           aa$a.logfc[b] <- anchorbased(sr)$junction.logFC[i[1]]
           aa$a.nonuniformity[b] <- anchorbased(sr)$junction.nonuniformity[i[1]]
-          aa$a.participation[b] <- anchorbased(sr)$junction.participation[i[1]]
-          aa$a.dparticipation[b] <- anchorbased(sr)$junction.dparticipation[i[1]]
+          aa$a.dpir[b] <- anchorbased(sr)$junction.dPIR[i[1]]
         }
       }
       if(aa$jl[b] != 0){
