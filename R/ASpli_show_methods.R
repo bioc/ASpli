@@ -110,21 +110,21 @@ setGeneric( name =  "irPIR<-", def = function( x, value ) standardGeneric("irPIR
 setReplaceMethod( f = "irPIR", signature = c("ASpliAS",'data.frame'), 
     definition = function( x, value ){ x@irPIR <- value; return( x ) } )       
 
-setGeneric( name =  "altPIN", def = function( x ) standardGeneric("altPIN"))
-setMethod(f = "altPIN", signature = "ASpliAS", 
-    definition = function( x ) { x@altPIN })
+setGeneric( name =  "altPSI", def = function( x ) standardGeneric("altPSI"))
+setMethod(f = "altPSI", signature = "ASpliAS", 
+    definition = function( x ) { x@altPSI })
 
-setGeneric( name =  "altPIN<-", def = function( x, value ) standardGeneric("altPIN<-"))
-setReplaceMethod( f = "altPIN", signature = c("ASpliAS","data.frame"), 
-    definition = function( x, value ) { x@altPIN <- value; return( x ) })
+setGeneric( name =  "altPSI<-", def = function( x, value ) standardGeneric("altPSI<-"))
+setReplaceMethod( f = "altPSI", signature = c("ASpliAS","data.frame"), 
+    definition = function( x, value ) { x@altPSI <- value; return( x ) })
 
-setGeneric( name = "esPIN", def = function( x ) standardGeneric("esPIN"))
-setMethod( f = "esPIN", signature = "ASpliAS",
-    definition = function( x ) { x@esPIN })
+setGeneric( name = "esPSI", def = function( x ) standardGeneric("esPSI"))
+setMethod( f = "esPSI", signature = "ASpliAS",
+    definition = function( x ) { x@esPSI })
 
-setGeneric( name = "esPIN<-", def = function( x, value ) standardGeneric("esPIN<-"))
-setReplaceMethod( f = "esPIN", signature = c("ASpliAS","data.frame"),
-    definition = function( x, value ) { x@esPIN <- value; return( x ) })
+setGeneric( name = "esPSI<-", def = function( x, value ) standardGeneric("esPSI<-"))
+setReplaceMethod( f = "esPSI", signature = c("ASpliAS","data.frame"),
+    definition = function( x, value ) { x@esPSI <- value; return( x ) })
 
 setGeneric( name = "junctionsPIR", def = function( x ) standardGeneric("junctionsPIR"))
 setMethod( f ="junctionsPIR", signature = "ASpliAS", 
@@ -220,12 +220,12 @@ setMethod( 'show', 'ASpliAS', function( object )  {
       cat("IR PIR: ", 
           dim(object@irPIR)[1], "intron bins analysed.",
           "Access using irPIR(object)", "\n")
-      cat("ES PIN:", 
-          dim(object@esPIN)[1], "exon bins analysed.",
-          " Access using esPIN(object)", "\n")
-      cat("AltSS PIN:", 
-          dim(object@altPIN)[1], "exon bins analysed.",
-          " Access using altPIN(object)", "\n")
+      cat("ES PSI:", 
+          dim(object@esPSI)[1], "exon bins analysed.",
+          " Access using esPSI(object)", "\n")
+      cat("AltSS PSI:", 
+          dim(object@altPSI)[1], "exon bins analysed.",
+          " Access using altPSI(object)", "\n")
       cat("Junctions PIR:", 
           dim(object@junctionsPIR)[1], "junctions analysed.",
           "Access using junctionsPIR(object)", "\n")
@@ -453,8 +453,8 @@ setMethod(
     suppressWarnings( writeDU( du, output.dir ) )
     
     # Export as+du table
-    colnames( irPIR( as ) ) <- colnames( altPIN( as ) )
-    conP <- rbind( altPIN(as), esPIN(as), irPIR(as) )
+    colnames( irPIR( as ) ) <- colnames( altPSI( as ) )
+    conP <- rbind( altPSI(as), esPSI(as), irPIR(as) )
     ii   <- match( rownames( binsDU( du ) ), row.names(conP) )
     bins.join <- data.frame( binsDU(du), conP[ii,])
     bins.join$feature <- NULL

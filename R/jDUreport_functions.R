@@ -232,8 +232,8 @@
   ########
   #ES PSI#
   ########
-  message("Running esPIN test")
-  data                  <- esPIN(asd)
+  message("Running esPSI test")
+  data                  <- esPSI(asd)
   start_J1              <- grep("J1", colnames(data)) + 1
   start_J2              <- grep("J2", colnames(data)) + 1
   start_J3              <- grep("J3", colnames(data)) + 1
@@ -260,7 +260,7 @@
   jesPSI$J3             <- data[rownames(jesPSI), "J3"]
   jesPSI                <- jesPSI[, c("event", "J3", "logFC", "log.mean", "pvalue", "bin.fdr", "bin.LR")]
   
-  dpsi                  <- esPIN(asd)[rownames(jesPSI),getConditions(targets)]
+  dpsi                  <- esPSI(asd)[rownames(jesPSI),getConditions(targets)]
   jesPSI$dPSI           <- apply(dpsi,1,function(x){sum(x*contrast)}) 
   colnames(jesPSI)      <- c("event", "J3", "logFC", "log.mean", "pvalue", "FDR", "LR", "dPSI")
   jesPSI$multiplicity   <- "No"
@@ -276,8 +276,8 @@
   #########
   #ALT PSI#
   #########
-  message("Running altPIN test")
-  data                  <- altPIN(asd)
+  message("Running altPSI test")
+  data                  <- altPSI(asd)
   start_J1              <- grep("J1", colnames(data)) + 1
   start_J2              <- grep("J2", colnames(data)) + 1
   start_J3              <- grep("J3", colnames(data)) + 1
@@ -302,7 +302,7 @@
   jaltPSI               <- jaltPSI[, c("event", "J3", "logFC", "log.mean", "pvalue", "bin.fdr", "bin.LR")]
   
   
-  dpsi                  <- altPIN(asd)[rownames(jaltPSI),getConditions(targets)]
+  dpsi                  <- altPSI(asd)[rownames(jaltPSI),getConditions(targets)]
   jaltPSI$dPSI          <- apply(dpsi,1,function(x){sum(x*contrast)}) 
   colnames(jaltPSI)     <- c("event", "J3", "logFC", "log.mean", "pvalue", "FDR", "LR", "dPSI")
   jaltPSI$multiplicity  <- "No"

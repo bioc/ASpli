@@ -1042,10 +1042,10 @@
     # bin info
     plot(1,axes=FALSE,type="n",xlab="",ylab="")
     if(iiss$b==1 | iiss$bjs==1){
-      col1 <- c( "bin","bin.fdr","junction.dPIR","junction.dPIN")
+      col1 <- c( "bin","bin.fdr","junction.dPIR","junction.dPSI")
       a1 <- sr@binbased[sr@binbased$bin%in%iiss$bin,col1]
       a1[col1[2:4]]<-signif(a1[col1[2:4]],2)
-      names(a1)<-c("bin","bin.fdr","D_PIR","D_PIN")
+      names(a1)<-c("bin","bin.fdr","D_PIR","D_PSI")
       a1<-cbind(names(a1),t(a1))
       a1<-apply(a1,1,function(x){return(paste(x,collapse=": "))})
       a1<-paste("  ",a1,sep = "")
