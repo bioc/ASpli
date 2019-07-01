@@ -1066,22 +1066,86 @@ setMethod(
       	columnas_numericas <- which(sapply(b, class) == "numeric")
 	      b[, columnas_numericas] <- apply(b[, columnas_numericas], 2, function(s){return(signif(as.numeric(s), digits = 4))})
         titulo <- paste0('ASpli: ', s, ". Contrasts: ", paste(names(sr@contrast)[sr@contrast != 0], collapse = " - "))
-        y <- datatable(b,
-                       escape = TRUE,
-                       filter ="top",
-                       extensions = c('Buttons', 'KeyTable'), 
-                       options = list(dom = 'lfrtBip',
-                                      buttons = c('copy', 'csv', 'excel', 'pdf', 'print', I('colvis')),
-                                      columnDefs = list(
-                                        #  list(visible = FALSE, targets = c(0, 2, 3)),
-                                        list(orderable = FALSE, className =
-                                               'details-control', targets = 1)
-                                      ),
-                                      keys = TRUE
-                       ),   caption = htmltools::tags$caption(
-                         style = 'caption-side: top; text-align: left;',
-                         htmltools::h1(titulo)
-                       ))    
+        if(s != "localebased"){
+          y <- datatable(b,
+                         escape = TRUE,
+                         filter ="top",
+                         extensions = c('Buttons', 'KeyTable'), 
+                         options = list(dom = 'lfrtBip',
+                                        buttons = c('copy', 'csv', 'excel', 'pdf', 'print', I('colvis')),
+                                        columnDefs = list(
+                                          #  list(visible = FALSE, targets = c(0, 2, 3)),
+                                          list(orderable = FALSE, className =
+                                                 'details-control', targets = 1)
+                                        ),
+                                        keys = TRUE
+                         ),   caption = htmltools::tags$caption(
+                           style = 'caption-side: top; text-align: left;',
+                           htmltools::h1(titulo)
+                         ))    
+        }else{
+          
+          clusters  <- unique(b[, c("junction.cluster", "cluster.size", "cluster.LR", "cluster.pvalue", "cluster.fdr", "cluster.range", "cluster.participation")])
+          junctions <- unique(b[, c("junction.cluster", colnames(b)[!colnames(b) %in% colnames(clusters)])])
+          colnames(clusters)[1] <- "cluster"
+          subtables <- "var subtables = [];"
+          
+          for (i in clusters$cluster) {
+            cluster_junctions <- junctions[junctions$junction.cluster == i, ]
+            subtables <- paste0(subtables, "subtables[", i, "] = '<table><tr>")
+            for(k in 1:ncol(cluster_junctions)){
+              subtables <- paste0(subtables, "<th bgcolor=\"#808080\">", colnames(cluster_junctions)[k], "</th>")
+            }
+            color <- "#FFFFFF"
+            subtables <- paste0(subtables, "</tr>")            
+            for(j in 1:nrow(cluster_junctions)){
+              subtables <- paste0(subtables, '<tr>')
+              for(k in 1:ncol(cluster_junctions)){
+                subtables <- paste0(subtables, "<td bgcolor=\"", color ,"\">", cluster_junctions[j, k], "</td>")
+              }
+              subtables <- paste0(subtables, "</tr>")
+              color <- ifelse(color == "#FFFFFF", "#CDCDCD", "#FFFFFF")
+            }
+            subtables <- paste0(subtables, "</table>';")
+          }
+                      
+          text <- ";var format = function(d) { text = '<div>' + subtables[d[1]] + '</div>'; return text;};"
+          y <- datatable(cbind(' ' = '&oplus;', clusters),
+                         rownames = FALSE,
+                         escape = -1,
+                         filter ="top",
+                         fillContainer = F,
+                         extensions = c('Buttons', 'KeyTable'), 
+                         options = list(dom = 'lfrtBip',
+                                        buttons = c('copy', 'csv', 'excel', 'pdf', 'print', I('colvis')),
+                                        columnDefs = list(
+                                          #  list(visible = FALSE, targets = c(0, 2, 3)),
+                                          list(orderable = FALSE, className =
+                                                 'details-control', targets = 0)
+                                        ),
+                                        keys = TRUE
+                         ),   caption = htmltools::tags$caption(
+                           style = 'caption-side: top; text-align: left;',
+                           htmltools::h1(titulo)
+                         ), 
+                         callback = JS(paste0("
+                                      table.order([5, 'asc']).draw();
+                                      table.column(0).nodes().to$().css({cursor: 'pointer'});",
+                                      subtables,
+                                      text,
+                                      " 
+                                        table.on('click', 'td.details-control', function() {
+                                         var td = $(this), row = table.row(td.closest('tr'));
+                                         if (row.child.isShown()) {
+                                            row.child.hide();
+                                            td.html('&oplus;');
+                                        } else {
+                                            row.child(format(row.data())).show();
+                                            td.html('&CircleMinus;');
+                                        }
+                                     });"))
+                  )       
+        }
         ffile <- paste0(normalizePath(output.dir), "/", s, "Report.html")
         suppressWarnings(saveWidget(y, file = ffile, title = paste0(names(sr@contrast)[sr@contrast != 0], collapse="-")))
         browseURL(ffile)
