@@ -861,16 +861,17 @@ setMethod(
 setGeneric( name = "integrateSignals",
             def = function (sr=NULL,
                             asd = NULL, 
-                            bin.fdr=0.05,
+                            bin.fdr=0.1,
                             nonunif=0.1,
                             usenonunif=FALSE,
-                            dPSI=0.05,
-                            dPIR=0.05,
-                            j.fdr=0.05,
+                            dPSI=0.1,
+                            dPIR=0.1,
+                            j.fdr=0.1,
                             j.particip=0.1,
                             usepvalBJS=FALSE,
                             bjs.fdr=0.1,
-                            otherSources = NULL
+                            otherSources = NULL,
+                            overlapType = "any"
             ) standardGeneric("integrateSignals") )
 
 
@@ -880,18 +881,19 @@ setMethod(
   definition = function (
     sr=NULL,
     asd = NULL,
-    bin.fdr=0.05,
+    bin.fdr=0.1,
     nonunif=0.1, 
     usenonunif=FALSE,
-    dPSI=0.05,
-    dPIR=0.05,
-    j.fdr=0.05,
+    dPSI=0.1,
+    dPIR=0.1,
+    j.fdr=0.1,
     j.particip=0.1,
     usepvalBJS=FALSE,
     bjs.fdr=0.1,
-    otherSources = NULL
+    otherSources = NULL,
+    overlapType = "any"
   ) {
-    .integrateSignals(sr, asd, bin.fdr, nonunif, usenonunif, dPSI, dPIR, j.fdr, j.particip, usepvalBJS, bjs.fdr, otherSources) 
+    .integrateSignals(sr, asd, bin.fdr, nonunif, usenonunif, dPSI, dPIR, j.fdr, j.particip, usepvalBJS, bjs.fdr, otherSources, overlapType) 
   }
 )
 
@@ -955,9 +957,9 @@ setMethod(
     #  paths <- append( paths , list( junctionsFile ) )
     #}
     
-    file.exists( output.dir ) || dir.create( output.dir )
+    file.exists( output.dir ) || dir.create( output.dir , recursive = T)
     output.dir <- paste(output.dir, paste(names(du@contrast)[du@contrast != 0], collapse="-"), sep="/")
-    file.exists( output.dir ) || dir.create( output.dir )
+    file.exists( output.dir ) || dir.create( output.dir , recursive = T )
 
 
     #for (filename in paths ) {
@@ -999,9 +1001,9 @@ setMethod(
   signature = "ASpliJDU",
   definition = function( jdu, output.dir="jdu" ) {
     
-    file.exists( output.dir ) || dir.create( output.dir )
+    file.exists( output.dir ) || dir.create( output.dir , recursive = T )
     output.dir <- paste(output.dir, paste(names(jdu@contrast)[jdu@contrast != 0], collapse="-"), sep="/")
-    file.exists( output.dir ) || dir.create( output.dir )
+    file.exists( output.dir ) || dir.create( output.dir , recursive = T )
     
     for(slotName in slotNames(jdu)){
       # Export Genes  
@@ -1019,7 +1021,7 @@ setMethod(
   signature = "ASpliSplicingReport",
   definition = function( sr, output.dir="sr" ) {
     
-    file.exists( output.dir ) || dir.create( output.dir )
+    file.exists( output.dir ) || dir.create( output.dir , recursive = T )
     #output.dir <- paste(output.dir, paste(names(jdu@contrast)[jdu@contrast != 0], collapse="-"), sep="/")
     #file.exists( output.dir ) || dir.create( output.dir )
     
@@ -1045,13 +1047,13 @@ setMethod( f = 'mergeBinDUAS',
 
 
 setGeneric( name = "exportSplicingReports", 
-            def = function ( sr, output.dir="sr"  ) standardGeneric( "exportSplicingReports" ) )
+            def = function ( sr, output.dir="sr" , openInBrowser = F ) standardGeneric( "exportSplicingReports" ) )
 
 setMethod(
   f = "exportSplicingReports",
   signature = "ASpliSplicingReport",
-  definition = function( sr, output.dir="sr" ) {
-    output.dir <- paste0(normalizePath(output.dir), "/", paste0(names(sr@contrast)[sr@contrast != 0], collapse="-"))
+  definition = function( sr, output.dir="sr" , openInBrowser = F ) {
+    output.dir <- paste0(output.dir, "/", paste0(names(sr@contrast)[sr@contrast != 0], collapse="-"))
     file.exists( output.dir ) || dir.create( output.dir , recursive = T)
     
     
@@ -1085,24 +1087,26 @@ setMethod(
                          ))    
         }else{
           
-          clusters  <- unique(b[, c("junction.cluster", "cluster.size", "cluster.LR", "cluster.pvalue", "cluster.fdr", "cluster.range", "cluster.participation")])
+          clusters  <- unique(b[, c("junction.cluster", "cluster.locus", "cluster.size", "cluster.LR", "cluster.pvalue", "cluster.fdr", "cluster.range", "cluster.participation")])
           junctions <- unique(b[, c("junction.cluster", colnames(b)[!colnames(b) %in% colnames(clusters)])])
           colnames(clusters)[1] <- "cluster"
           subtables <- "var subtables = [];"
           
           for (i in clusters$cluster) {
             cluster_junctions <- junctions[junctions$junction.cluster == i, ]
+            datos_bin         <- data.frame(bin = as.character(aggregate(bin ~ junction, cluster_junctions, FUN=function(s){paste(s, collapse=";")}, na.action=na.pass)[, 2]),
+                                            bin.pvalue = as.character(aggregate(bin.pvalue ~ junction, cluster_junctions, FUN=function(s){paste(s, collapse=";")}, na.action=na.pass)[, 2]),
+                                            bin.fdr = as.character(aggregate(bin.fdr ~ junction, cluster_junctions, FUN=function(s){paste(s, collapse=";")}, na.action=na.pass)[, 2]), stringsAsFactors = F)
+            cluster_junctions <- unique(cluster_junctions[, !colnames(cluster_junctions) %in% c("bin", "bin.pvalue", "bin.fdr")])
+            cluster_junctions <- data.frame(cluster_junctions, datos_bin)
             subtables <- paste0(subtables, "subtables[", i, "] = '<table><tr>")
-            for(k in 1:ncol(cluster_junctions)){
-              subtables <- paste0(subtables, "<th bgcolor=\"#808080\">", colnames(cluster_junctions)[k], "</th>")
-            }
+            subtables <- paste0(subtables, paste0(paste0("<th bgcolor=\"#808080\">", colnames(cluster_junctions), "</th>"), collapse=""))
             color <- "#FFFFFF"
-            subtables <- paste0(subtables, "</tr>")            
+            subtables <- paste0(subtables, "</tr>")         
             for(j in 1:nrow(cluster_junctions)){
               subtables <- paste0(subtables, '<tr>')
-              for(k in 1:ncol(cluster_junctions)){
-                subtables <- paste0(subtables, "<td bgcolor=\"", color ,"\">", cluster_junctions[j, k], "</td>")
-              }
+              aux <- gsub("rcolor", color, paste0(paste0("<td bgcolor=\"rcolor\">", cluster_junctions[j, ], "</td>"), collapse=""))
+              subtables <- paste0(subtables, aux)
               subtables <- paste0(subtables, "</tr>")
               color <- ifelse(color == "#FFFFFF", "#CDCDCD", "#FFFFFF")
             }
@@ -1148,7 +1152,7 @@ setMethod(
         }
         ffile <- paste0(normalizePath(output.dir), "/", s, "Report.html")
         suppressWarnings(saveWidget(y, file = ffile, title = paste0(names(sr@contrast)[sr@contrast != 0], collapse="-")))
-        browseURL(ffile)
+        if(openInBrowser == T) browseURL(ffile)
       }
     }    
   }
@@ -1159,13 +1163,13 @@ setGeneric( name = "exportIntegratedSignals",
                              sr, counts, features, 
                              mergedBams, 
                              jCompletelyIncluded = FALSE, zoomRegion = 1.5, 
-                             useLog = FALSE, tcex = 1, ntop = NULL
+                             useLog = FALSE, tcex = 1, ntop = NULL, openInBrowser = F
                              ) standardGeneric( "exportIntegratedSignals" ) )
 
 setMethod(
   f = "exportIntegratedSignals",
   signature = "data.table",
-  definition = function( is, output.dir="is", sr, counts, features, mergedBams, jCompletelyIncluded = FALSE, zoomRegion = 1.5, useLog = FALSE, tcex = 1, ntop = NULL) {
+  definition = function( is, output.dir="is", sr, counts, features, mergedBams, jCompletelyIncluded = FALSE, zoomRegion = 1.5, useLog = FALSE, tcex = 1, ntop = NULL, openInBrowser = F) {
     
     #if(!all(colnames(is) %in% c('region','locus','b','bjs','ja','jl','bin','feature','bin.event','J3','binreg','locus_overlap','b.fdr','b.logfc','bjs.fdr','bjs.logfc','bjs.nonuniformity','bjs.inclussion','a.fdr','a.logfc','a.nonuniformity','a.participation','a.dparticipation','l.fdr','l.logfc','l.participation','l.dparticipation'))){
     #  stop("is must be a data.table generated by integrateSignals method. Not all integratedSignal columns are present")
@@ -1188,10 +1192,11 @@ setMethod(
       stop("Merged bams dont match with contrasts")  
     }
     
-    output.dir <- paste0(normalizePath(output.dir), "/", paste0(names(sr@contrast)[sr@contrast != 0], collapse="-"))
+    output.dir <- paste0(output.dir, "/", paste0(names(sr@contrast)[sr@contrast != 0], collapse="-"))
     file.exists( output.dir ) || dir.create( output.dir, recursive = T )
     file.exists( paste0(output.dir, "/img") ) || dir.create( paste0(output.dir, "/img") )
 
+    is[,further_examination_required:=as.factor(further_examination_required)]
     is[,b:=as.factor(b)]
     is[,bjs:=as.factor(bjs)]
     is[,ja:=as.factor(ja)]
@@ -1213,7 +1218,7 @@ setMethod(
     is[,a.dpir:=signif(as.numeric(a.dpir), 4)]
     is[,l.lr:=signif(as.numeric(l.lr), 4)]
     is[,l.fdr:=signif(as.numeric(l.fdr), 4)]
-    is[,l.logfc:=signif(as.numeric(l.logfc), 4)]
+    #is[,l.logfc:=signif(as.numeric(l.logfc), 4)]
     is[,l.participation:=signif(as.numeric(l.participation), 4)]
     is[,l.dparticipation:=signif(as.numeric(l.dparticipation), 4)]
 
@@ -1257,6 +1262,7 @@ setMethod(
         tr(
           th(rowspan = 2, 'View'),
           th(rowspan = 2, 'Region'),
+          th(rowspan = 2, 'Further Examination Required'),
           th(rowspan = 2, 'Locus'),
           th(rowspan = 2, 'Locus overlap'),
           th(rowspan = 2, 'Bin Evidence'),
@@ -1272,11 +1278,11 @@ setMethod(
           th(colspan = 5, 'Locale Junctions', bgcolor="#C0C0C0")
         ),
         tr(
-          lapply(c("logFC", "FDR", "LR",  "logFC", "FDR", "Non Uniformity", "Inclussion",  "LR", "logFC", "FDR", "Non uniformity", "Inclussion", "LR", "logFC", "FDR", "Participation", "dParticipation"), th)
+          lapply(c("logFC", "FDR", "LR",  "logFC", "FDR", "Non Uniformity", "Inclussion",  "LR", "logFC", "FDR", "Non uniformity", "Inclussion", "LR", "FDR", "Participation", "dParticipation"), th)
         )
       )
     ))
-    y <- datatable(cbind('&oplus;', is[1:ntop,c("region", "locus", "locus_overlap", "b", "bjs", "ja", "jl", "bin", "feature", "bin.event", "b.logfc", "b.fdr", "bjs.lr", "bjs.logfc", "bjs.fdr", "bjs.nonuniformity", "bjs.inclussion", "a.lr", "a.logfc", "a.fdr", "a.nonuniformity", "a.dpir", "l.lr", "l.logfc", "l.fdr", "l.participation", "l.dparticipation")]),
+    y <- datatable(cbind('&oplus;', is[1:ntop,c("region", "further_examination_required", "locus", "locus_overlap", "b", "bjs", "ja", "jl", "bin", "feature", "bin.event", "b.logfc", "b.fdr", "bjs.lr", "bjs.logfc", "bjs.fdr", "bjs.nonuniformity", "bjs.inclussion", "a.lr", "a.logfc", "a.fdr", "a.nonuniformity", "a.dpir", "l.lr", "l.fdr", "l.participation", "l.dparticipation")]),
               rownames = FALSE,
               escape = -1,
               filter ="top",
@@ -1314,7 +1320,7 @@ setMethod(
     
     ffile <- paste0(normalizePath(output.dir), "/integratedSignals.html")
     suppressWarnings(saveWidget(y, file = ffile, title = paste(names(sr@contrast)[sr@contrast != 0], collapse = " - ")))
-    browseURL(ffile)
+    if(openInBrowser == T) browseURL(ffile)
     
   }
 )

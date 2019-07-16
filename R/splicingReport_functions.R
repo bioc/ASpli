@@ -110,7 +110,26 @@
   
 
   localec <- data.table(localec(jdu), keep.rownames = T)
-  colnames(localec) <- c("rn", "cluster.size", "cluster.LR", "cluster.pvalue", "cluster.fdr", "cluster.range", "cluster.participation")
+
+  #Tries to find cluster locus
+  junctions  <- strsplit2(localec$range, "[.]")
+  seqnames   <- junctions[, 1]
+  start      <- as.numeric(junctions[, 2]) + 1
+  end        <- as.numeric(junctions[, 3]) - 1
+  
+  grclusters <- GRanges(seqnames, IRanges(start, end), strand="*")
+  
+  seqnames   <- strsplit2(genesDE(bdu)$gene_coordinates, "[:]")[, 1]
+  start      <- genesDE(bdu)$start
+  end        <- genesDE(bdu)$end
+  
+  grgenes    <- GRanges(seqnames, IRanges(start, end), strand="*")
+  
+  overlap    <- data.frame(findOverlaps(grclusters, grgenes))
+  localec$locus <- NA
+  localec$locus[overlap$queryHits] <- as.character(genesDE(bdu)$symbol[overlap$subjectHits])
+  colnames(localec) <- c("rn", "cluster.size", "cluster.LR", "cluster.pvalue", "cluster.fdr", "cluster.range", "cluster.participation", "cluster.dparticipation", "cluster.locus")
+  
   fulldt <- data.frame(merge(junctionbased_junctions, localec, by.x = "junction.cluster", by.y = "rn", all = T))
   
   fulldt <- fulldt[, 
@@ -119,16 +138,16 @@
                      "junction.logFC", "junction.pvalue", "junction.fdr", 
                      colnames(fulldt)[grep("counts", colnames(fulldt))],
                      "junction.cluster", "junction.participation", "junction.dparticipation",
-                     "cluster.size", "cluster.LR", "cluster.pvalue", "cluster.fdr", "cluster.range", "cluster.participation", 
+                     "cluster.locus", "cluster.size", "cluster.LR", "cluster.pvalue", "cluster.fdr", "cluster.range", "cluster.participation", "cluster.dparticipation", 
                      "bin", "bin.pvalue", "bin.fdr")
                    ]
   rownames(fulldt) <- NULL
-  fulldt          <- fulldt[union(which(fulldt$bin.fdr < maxBinFDR), which(fulldt$junction.fdr < maxJunctionFDR)), ]
-  index.orden     <- strsplit2(fulldt$junction, "[.]")
-  index.orden     <- order(GRanges(index.orden[, 1], IRanges(as.numeric(index.orden[, 2]), as.numeric(index.orden[, 3]))))
-  fulldt          <- fulldt[index.orden, ] 
-  rownames(fulldt)<- NULL
-  localebased(mr) <- fulldt
+  fulldt           <- fulldt[union(which(fulldt$bin.fdr < maxBinFDR), which(fulldt$cluster.fdr < maxJunctionFDR)), ]
+  index.orden      <- strsplit2(fulldt$junction, "[.]")
+  index.orden      <- order(GRanges(index.orden[, 1], IRanges(as.numeric(index.orden[, 2]), as.numeric(index.orden[, 3]))))
+  fulldt           <- fulldt[index.orden, ] 
+  rownames(fulldt) <- NULL
+  localebased(mr)  <- fulldt
   
   ########################################
   anchorj  <- anchorj(jdu)
@@ -174,7 +193,25 @@
   #completo <- rbindlist(junctionbased_junctions, bins, use.names = T, fill = T)
   
   anchorc <- data.table(anchorc(jdu), keep.rownames = T)
-  colnames(anchorc) <- c("rn", "cluster.LR", "cluster.pvalue", "cluster.fdr")
+  #Tries to find cluster locus
+  junctions  <- strsplit2(anchorc$rn, "[.]")
+  seqnames   <- junctions[, 1]
+  start      <- as.numeric(junctions[, 2]) + 1
+  end        <- as.numeric(junctions[, 3]) - 1
+  
+  grclusters <- GRanges(seqnames, IRanges(start, end), strand="*")
+  
+  seqnames   <- strsplit2(genesDE(bdu)$gene_coordinates, "[:]")[, 1]
+  start      <- genesDE(bdu)$start
+  end        <- genesDE(bdu)$end
+  
+  grgenes    <- GRanges(seqnames, IRanges(start, end), strand="*")
+  
+  overlap    <- data.frame(findOverlaps(grclusters, grgenes))
+  anchorc$locus <- NA
+  anchorc$locus[overlap$queryHits] <- as.character(genesDE(bdu)$symbol[overlap$subjectHits])
+  
+  colnames(anchorc) <- c("rn", "cluster.LR", "cluster.pvalue", "cluster.fdr", "cluster.locus")
   fulldt <- data.frame(merge(junctionbased_junctions, anchorc, by.x = "junction", by.y = "rn", all = T))
   
   fulldt <- fulldt[, 
@@ -183,11 +220,11 @@
                      "junction.logFC", "junction.LR", "junction.pvalue", "junction.fdr", "J1.pvalue", "J2.pvalue",
                      "junction.nonuniformity", "junction.dPIR",
                      colnames(fulldt)[grep("counts", colnames(fulldt))],
-                     "cluster.pvalue", "cluster.fdr",
+                     "cluster.locus", "cluster.pvalue", "cluster.fdr",
                      "bin", "bin.pvalue", "bin.fdr")
                    ]
   rownames(fulldt) <- NULL
-  fulldt          <- fulldt[union(which(fulldt$bin.fdr < maxBinFDR), which(fulldt$junction.fdr < maxJunctionFDR)), ]
+  fulldt          <- fulldt[union(which(fulldt$bin.fdr < maxBinFDR), which(fulldt$cluster.fdr < maxJunctionFDR)), ]
   index.orden     <- strsplit2(fulldt$junction, "[.]")
   index.orden     <- order(GRanges(index.orden[, 1], IRanges(as.numeric(index.orden[, 2]), as.numeric(index.orden[, 3]))))
   #countsJ1 <- fulldt[, colnames(fulldt)[grep("countsJ1", colnames(fulldt))]]
@@ -222,8 +259,8 @@
 # por ejemplo, jl y que se solapa con un bin en al menos 3 pares de bases, aparece con soporte en bjs y en jl, mientras que si se solapa
 # con b, solamente de coverage, aparece con b y jl. Las junturas que aparecen reportadas al final son las que aparecen en el bin en caso
 # de tratarse de una region meramente "binica" o son la region en caso de venir de ja o jl.
-#bin.fdr=0.05;unif=0.1;dPIN=0.05;dPIR=0.05;j.fdr=0.05;j.particip=0.1;usepvalBJS=FALSE;bjs.fdr=0.1; otherSources = NULL
-.integrateSignals<-function(sr = NULL, asd = NULL, bin.fdr=0.05,nonunif=0.1,usenonunif=FALSE,dPSI=0.05,dPIR=0.05,j.fdr=0.05,j.particip=0.1,usepvalBJS=FALSE,bjs.fdr=0.1, otherSources = NULL){
+#bin.fdr=0.1;nonunif=0.1;usenonunif=FALSE;dPSI=0.1;dPIR=0.1;j.fdr=0.1;j.particip=0.1;usepvalBJS=FALSE;bjs.fdr=0.1; otherSources = NULL; overlapType = "any"
+.integrateSignals<-function(sr = NULL, asd = NULL, bin.fdr=0.1,nonunif=0.1,usenonunif=FALSE,dPSI=0.1,dPIR=0.1,j.fdr=0.1, j.particip=0.1,usepvalBJS=FALSE, bjs.fdr=0.1, otherSources = NULL, overlapType = "any"){
   
   if(class(sr) != "ASpliSplicingReport"){
     stop("sr must be an ASpliSplicingReport object") 
@@ -286,7 +323,7 @@
   }
   
   b <- sr@localebased
-  b <- b[replace_na(b$junction.fdr < j.fdr, FALSE) & 
+  b <- b[replace_na(b$cluster.fdr < j.fdr, FALSE) & 
            replace_na(b$cluster.participation > j.particip, FALSE), ] #Reemplazamos la participacion de la juntura por la participacion del cluster al que pertenece que es el dato importante
   if(nrow(b) > 0){
     aux <- strsplit2(b$cluster.range, "[.]") #Reemplazamos la juntura por el rango del cluster al que pertenece que es el dato importante
@@ -295,7 +332,7 @@
     seqnames = aux[, 1]
     strand  = rep("*", times=length(seqnames))
     tipo    = rep("localebased", times=length(aux[, 1]))
-    localebased <- GRanges(seqnames, IRanges(start, end), strand, tipo)
+    localebased <- unique(GRanges(seqnames, IRanges(start, end), strand, tipo)) #Puede haber duplicados porque machean con varios bines
   }else{
     localebased <- GRanges()
   }
@@ -307,16 +344,16 @@
     bunif <- replace_na(b$junction.nonuniformity < nonunif, FALSE)
   }
   b <- b[replace_na(b$junction.fdr < j.fdr, FALSE) & 
-           replace_na(b$junction.participation > j.particip, FALSE) & 
+           replace_na(b$junction.dPIR > dPIR, FALSE) & 
            bunif, ]
   if(nrow(b) > 0){
     aux <- strsplit2(b$junction, "[.]")
-    start   = as.numeric(aux[, 2])#aggregate(start ~ cluster, data=b, FUN=min)
-    end     = as.numeric(aux[, 3])#aggregate(end ~ cluster, data=b, FUN=max)
+    start   = as.numeric(aux[, 2]) + 1#aggregate(start ~ cluster, data=b, FUN=min)
+    end     = as.numeric(aux[, 3]) - 1#aggregate(end ~ cluster, data=b, FUN=max)
     seqnames = aux[, 1]
     strand  = rep("*", times=length(seqnames))
     tipo    = rep("localebased", times=length(aux[, 1]))
-    anchorbased <- GRanges(seqnames, IRanges(start, end), strand, tipo)
+    anchorbased <- unique(GRanges(seqnames, IRanges(start, end), strand, tipo)) #Puede haber duplicados porque machean con varios bines
   }else{
     anchorbased <- GRanges()
   }
@@ -334,11 +371,12 @@
       saux <- paste0("overlaps_",paste0(names(laux)[c(i,j)],collapse="_"))
 
       if(names(laux)[i]%in%c("b","bjs","otherSources") | names(laux)[j]%in%c("b","bjs","otherSources")){
-        ttype<-"any"
+        ttype<-overlapType
       }else{
         ttype<-"equal"
       }
-      suppressWarnings(taux           <- as.data.table(findOverlaps(laux[[i]],laux[[j]],type=ttype, minoverlap = 3)))
+
+      suppressWarnings(taux <- as.data.table(findOverlaps(laux[[i]],laux[[j]],type=ttype, minoverlap = 3)))
       if(nrow(taux) > 0){
         taux[,queryHits:=paste(names(laux)[i],queryHits,sep=".")]
         taux[,subjectHits:=paste(names(laux)[j],subjectHits,sep=".")]
@@ -454,19 +492,21 @@
   i <- grep("jl.", overlaps_aux$region,fixed=TRUE)
   if(length(i)){
     L <- as.data.frame(localebased[as.numeric(strsplit2(overlaps_aux$region[i], "jl.")[, 2])])
-    aux_region <- paste0("Chr", L$seqnames, ":", L$start + 1, "-", L$end - 1)
+    aux_region <- paste0("Chr", L$seqnames, ":", L$start, "-", L$end)
     j <- which(aux_region %in% setdiff(aux_region, overlaps_aux$region))
-    overlaps_aux$region[i] <- paste0("Chr", L$seqnames, ":", L$start + 1, "-", L$end - 1)
+    overlaps_aux$region[i] <- aux_region
     overlaps_aux$region[i[j]] <- paste0("Chr", L$seqnames[j], ":", L$start[j], "-", L$end[j])
   }  
   
+  #corregi rango de junturas para buscar bounderies de intrones, pero se reporta
+  #el rango de la juntura original  
   i <- grep("ja.", overlaps_aux$region,fixed=TRUE)
   if(length(i)){
     L <- as.data.frame(anchorbased[as.numeric(strsplit2(overlaps_aux$region[i], "ja.")[, 2])])
-    aux_region <- paste0("Chr", L$seqnames, ":", L$start + 1, "-", L$end - 1)
+    aux_region <- paste0("Chr", L$seqnames, ":", L$start, "-", L$end)
     j <- which(aux_region %in% setdiff(aux_region, overlaps_aux$region))
-    overlaps_aux$region[i] <- paste0("Chr", L$seqnames, ":", L$start + 1, "-", L$end - 1)
-    overlaps_aux$region[i[j]] <- paste0("Chr", L$seqnames[j], ":", L$start[j], "-", L$end[j])
+    overlaps_aux$region[i] <- aux_region
+    overlaps_aux$region[i[j]] <- paste0("Chr", L$seqnames[j], ":", L$start[j] - 1, "-", L$end[j] + 1)
   }  
   
   
@@ -490,26 +530,50 @@
     roi <- gsub("[:]", ".", roi)
     roi <- gsub("[-]", ".", roi)
     aa$J3 <- as.character(aa$J3)
-    aa$J3[is.na(aa$J3)] <- roi[is.na(aa$J3)]
+    aa$J3[is.na(aa$J3)] <- roi[is.na(aa$J3)] #Hacemos esto para machear con los anchor. Recordar restar uno al start y sumar uno al end para machear correctamente
     
-    if(class(asd) == "ASpliAS"){
+    #Se hizo esto para recalcular el locus de los locales que ahora vienen por cluster
+    
+    if(FALSE){
+      if(class(asd) == "ASpliAS"){
+        if(nrow(asd@junctionsPJU) > 0){
+          aa$locus <- strsplit2(aa$bin, ":")[, 1]
+          regiones <- gsub("[Chr]", "", aa$region)
+          regiones <- gsub("[:]", ".", regiones)
+          regiones <- gsub("[-]", ".", regiones)
+          regiones <- sapply(regiones, function(r){
+            i <- rownames(asd@junctionsPJU) == r
+            if(sum(i) > 0){
+              return(as.character(asd@junctionsPJU$symbol[i]))
+            }else{
+              return("") 
+            }
+          })
+          aa$locus[regiones != ""] <- regiones[regiones != ""]
+        }
+      }
+    }else{
       if(nrow(asd@junctionsPJU) > 0){
-        aa$locus <- strsplit2(aa$bin, ":")[, 1]
         regiones <- gsub("[Chr]", "", aa$region)
         regiones <- gsub("[:]", ".", regiones)
         regiones <- gsub("[-]", ".", regiones)
-        regiones <- sapply(regiones, function(r){
-          i <- rownames(asd@junctionsPJU) == r
-          if(sum(i) > 0){
-            return(as.character(asd@junctionsPJU$symbol[i]))
-          }else{
-            return("") 
-          }
-        })
-        aa$locus[regiones != ""] <- regiones[regiones != ""]
-        aa <- aa[, c(1, 11, 2:10)]
+        regiones <- strsplit2(regiones, "[.]")
+        regiones <- GRanges(regiones[, 1], ranges = IRanges(start = as.numeric(regiones[, 2]), end = as.numeric(regiones[, 3])))
+        genes    <- gsub("[:]", ".", asd@junctionsPJU$gene_coordinates)
+        genes    <- gsub("[-]", ".", genes)
+        genes    <- strsplit2(genes, "[.]")
+        rownames(genes) <- asd@junctionsPJU$symbol
+        genes    <- unique(genes)
+        grgenes  <- GRanges(genes[, 1], ranges = IRanges(start = as.numeric(genes[, 2]), end = as.numeric(genes[, 3])))
+        overlap  <- data.frame(findOverlaps(regiones, grgenes, type="any"))
+        aa$locus[overlap$queryHits] <- rownames(genes)[overlap$subjectHits]
+      }else{
+        aa$locus <- NA
       }
     }
+    aa$further_examination_required <- 0
+    aa <- aa[, c(1, 12, 11, 2:10)]
+    
     aa$locus_overlap <- "-"
     locus_overlap <- binbased(sr)$locus_overlap[binbased(sr)$locus %in% aa$locus[aa$locus != ""]]
     names(locus_overlap) <- binbased(sr)$locus[binbased(sr)$locus %in% aa$locus[aa$locus != ""]]
@@ -517,7 +581,7 @@
       j <- aa$locus == names(locus_overlap)[i]
       aa$locus_overlap[j] <- locus_overlap[i]
     }
-        
+    
     aa$b.fdr          <- NA
     aa$b.logfc        <- NA
 
@@ -535,17 +599,19 @@
 
     aa$l.lr            <- NA
     aa$l.fdr           <- NA
-    aa$l.logfc         <- NA
+    #aa$l.logfc         <- NA
     aa$l.participation <- NA
     aa$l.dparticipation <- NA
-    
-        
+
     for(b in 1:nrow(aa)){
       if(aa$b[b] != 0){
         i <- which(binbased(sr)$bin == aa$bin[b])
         if(length(i) > 0){
           aa$b.fdr[b] <- binbased(sr)$bin.fdr[i[1]]
           aa$b.logfc[b] <- binbased(sr)$bin.logFC[i[1]]
+        }else{
+          aa$b[b] <- "*"
+          aa$further_examination_required[b] <- 1
         }
       }
       if(aa$bjs[b] != 0){
@@ -556,6 +622,9 @@
           aa$bjs.logfc[b] <- binbased(sr)$junction.logFC[i[1]]
           aa$bjs.nonuniformity[b] <- binbased(sr)$junction.nonuniformity[i[1]]
           aa$bjs.inclussion[b] <- replace_na(binbased(sr)$junction.dPSI[i[1]], binbased(sr)$junction.dPIR[i[1]])  
+        }else{
+          aa$bjs[b] <- "*"
+          aa$further_examination_required[b] <- 1
         }
       }      
       if(aa$ja[b] != 0){
@@ -566,16 +635,46 @@
           aa$a.logfc[b] <- anchorbased(sr)$junction.logFC[i[1]]
           aa$a.nonuniformity[b] <- anchorbased(sr)$junction.nonuniformity[i[1]]
           aa$a.dpir[b] <- anchorbased(sr)$junction.dPIR[i[1]]
+        }else{
+          aa$ja[b] <- "*"
+          aa$further_examination_required[b] <- 1
         }
       }
       if(aa$jl[b] != 0){
-        i <- which(localebased(sr)$junction == aa$J3[b])
-        if(length(i) > 0){
-          aa$l.lr[b] <- localebased(sr)$cluster.LR[i[1]]
-          aa$l.fdr[b] <- localebased(sr)$junction.fdr[i[1]]
-          aa$l.logfc[b] <- localebased(sr)$junction.logFC[i[1]]
-          aa$l.participation[b] <- localebased(sr)$junction.participation[i[1]]
-          aa$l.dparticipation[b] <- localebased(sr)$junction.dparticipation[i[1]]
+        if(FALSE){
+          if(!is.na(aa$J3[b])){
+            i <- which(localebased(sr)$junction == aa$J3[b])
+            if(length(i) > 0){
+              aa$l.lr[b] <- localebased(sr)$cluster.LR[i[1]]
+              aa$l.fdr[b] <- localebased(sr)$junction.fdr[i[1]]
+              aa$l.logfc[b] <- localebased(sr)$junction.logFC[i[1]]
+              aa$l.participation[b] <- localebased(sr)$junction.participation[i[1]]
+              aa$l.dparticipation[b] <- localebased(sr)$junction.dparticipation[i[1]]
+            }
+          } 
+        }else{
+          #Aca busco el cluster por region en lugar de buscar por juntura especifica
+          roi <- gsub("[Chr]", "", aa$region[b])
+          roi <- gsub("[:]", ".", roi)
+          roi <- gsub("[-]", ".", roi)
+          i <- which(localebased(sr)$cluster.range == roi)
+          if(length(i) > 0){
+            aa$l.lr[b] <- localebased(sr)$cluster.LR[i[1]]
+            aa$l.fdr[b] <- localebased(sr)$cluster.fdr[i[1]]
+            aa$l.participation[b] <- localebased(sr)$cluster.participation[i[1]]
+            aa$l.dparticipation[b] <- localebased(sr)$cluster.dparticipation[i[1]]
+          }else{ #Vemos si machea con la juntura quizas
+            i <- which(localebased(sr)$cluster.range == aa$J3[b])
+            if(length(i) > 0){
+              aa$l.lr[b] <- localebased(sr)$cluster.LR[i[1]]
+              aa$l.fdr[b] <- localebased(sr)$cluster.fdr[i[1]]
+              aa$l.participation[b] <- localebased(sr)$cluster.participation[i[1]]
+              aa$l.dparticipation[b] <- localebased(sr)$cluster.dparticipation[i[1]]
+            }else{
+              aa$jl[b] <- "*"
+              aa$further_examination_required[b] <- 1
+            }
+          }
         }
       }          
     }  
@@ -609,6 +708,7 @@
       }
       if(length(a_descartar)>0)aa <- aa[-a_descartar, ]
     }
+    
   }else{
     aa <- data.table(region = character(), locus = character(), b = numeric(), bjs = numeric(), ja = numeric(),
                      jl = numeric(), bin = character(), feature = character(), bin.event = character(),
