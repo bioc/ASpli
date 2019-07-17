@@ -9,7 +9,7 @@
 #Then merges locale information with coverage information in the regions.
 #Finally does the same with anchors.
 #################################################################################
-.splicingReport <- function(bdu, jdu, maxBinFDR, maxJunctionFDR){
+.splicingReport <- function(bdu, jdu){
   
   #Sanity check
   if(class(bdu) != "ASpliDU"){
@@ -53,7 +53,7 @@
   
   aux                    <- aux[, !colnames(aux) %in% c("symbol", "junction.event")]
   
-  aux                    <- aux[union(which(aux$bin.fdr < maxBinFDR), which(aux$junction.fdr < maxJunctionFDR)), ]
+  #aux                    <- aux[union(which(aux$bin.fdr < maxBinFDR), which(aux$junction.fdr < maxJunctionFDR)), ]
   aux                    <- aux[order(aux$bin), ]
   rownames(aux)          <- NULL
   binbased(mr)           <- aux
@@ -142,7 +142,7 @@
                      "bin", "bin.pvalue", "bin.fdr")
                    ]
   rownames(fulldt) <- NULL
-  fulldt           <- fulldt[union(which(fulldt$bin.fdr < maxBinFDR), which(fulldt$cluster.fdr < maxJunctionFDR)), ]
+  #fulldt           <- fulldt[union(which(fulldt$bin.fdr < maxBinFDR), which(fulldt$cluster.fdr < maxJunctionFDR)), ] #Traemos todos
   index.orden      <- strsplit2(fulldt$junction, "[.]")
   index.orden      <- order(GRanges(index.orden[, 1], IRanges(as.numeric(index.orden[, 2]), as.numeric(index.orden[, 3]))))
   fulldt           <- fulldt[index.orden, ] 
@@ -224,7 +224,7 @@
                      "bin", "bin.pvalue", "bin.fdr")
                    ]
   rownames(fulldt) <- NULL
-  fulldt          <- fulldt[union(which(fulldt$bin.fdr < maxBinFDR), which(fulldt$cluster.fdr < maxJunctionFDR)), ]
+  #fulldt          <- fulldt[union(which(fulldt$bin.fdr < maxBinFDR), which(fulldt$cluster.fdr < maxJunctionFDR)), ]
   index.orden     <- strsplit2(fulldt$junction, "[.]")
   index.orden     <- order(GRanges(index.orden[, 1], IRanges(as.numeric(index.orden[, 2]), as.numeric(index.orden[, 3]))))
   #countsJ1 <- fulldt[, colnames(fulldt)[grep("countsJ1", colnames(fulldt))]]
@@ -571,8 +571,8 @@
         aa$locus <- NA
       }
     }
-    aa$further_examination_required <- 0
-    aa <- aa[, c(1, 12, 11, 2:10)]
+
+    aa <- aa[, c(1, 11, 8, 2:7, 9:10)]
     
     aa$locus_overlap <- "-"
     locus_overlap <- binbased(sr)$locus_overlap[binbased(sr)$locus %in% aa$locus[aa$locus != ""]]
@@ -611,7 +611,6 @@
           aa$b.logfc[b] <- binbased(sr)$bin.logFC[i[1]]
         }else{
           aa$b[b] <- "*"
-          aa$further_examination_required[b] <- 1
         }
       }
       if(aa$bjs[b] != 0){
@@ -624,7 +623,6 @@
           aa$bjs.inclussion[b] <- replace_na(binbased(sr)$junction.dPSI[i[1]], binbased(sr)$junction.dPIR[i[1]])  
         }else{
           aa$bjs[b] <- "*"
-          aa$further_examination_required[b] <- 1
         }
       }      
       if(aa$ja[b] != 0){
@@ -635,14 +633,29 @@
           aa$a.logfc[b] <- anchorbased(sr)$junction.logFC[i[1]]
           aa$a.nonuniformity[b] <- anchorbased(sr)$junction.nonuniformity[i[1]]
           aa$a.dpir[b] <- anchorbased(sr)$junction.dPIR[i[1]]
+          #Si no tiene feature se lo tratamos de asignar
+          if(is.na(aa$feature[b])){
+            i <- which(binbased(sr)$J3 == aa$J3[b])
+            if(length(i) > 0){
+              if(length(grep("Io", binbased(sr)$bin)) > 0){
+                aa$bin.event[b] <- "IoR" #Es un evento conocido, puede venir de un Io  
+                aa$bin[b] <- binbased(sr)$bin[i[[1]]]
+              }
+            }else{            
+              if(aa$b[b] == "*"){ #Es un nuevo evento complejo, csp
+                aa$bin.event[b] <- "csp" 
+              }else if(aa$b[b] == "0"){ #Es un evento nuevo que no se asocia a ningún bin, new alternative splicing pattern
+                aa$bin.event[b] <- "nasp" 
+              }
+            }
+          }
         }else{
           aa$ja[b] <- "*"
-          aa$further_examination_required[b] <- 1
         }
       }
       if(aa$jl[b] != 0){
         if(FALSE){
-          if(!is.na(aa$J3[b])){
+          if(!is.na(localebased(sr)$J3[b])){
             i <- which(localebased(sr)$junction == aa$J3[b])
             if(length(i) > 0){
               aa$l.lr[b] <- localebased(sr)$cluster.LR[i[1]]
@@ -672,7 +685,40 @@
               aa$l.dparticipation[b] <- localebased(sr)$cluster.dparticipation[i[1]]
             }else{
               aa$jl[b] <- "*"
-              aa$further_examination_required[b] <- 1
+            }
+          }
+          
+          if(aa$jl[b] != "*"){
+            if(is.na(aa$feature[b])){#Tratamos de darle sentido a la juntura
+              if(aa$b[b] == "*"){
+                aa$bin.event[b] <- "csp" #Es complex
+              }else{
+                #Vemos si todas las junturas tienen mismo inicio o fin
+                junturas <- strsplit2(localebased(sr)$junction[i], "[.]")
+                if(length(table(junturas[, 2])) == 1 | length(table(junturas[, 3])) == 1){ #Todas tienen el mismo inicio y fin, se trata de un 3' o 5' alternativo nuevo
+                  aa$bin.event[b] <- "Novel 5'/3' alt" 
+                }else{ #No comparten los inicios o finales, vemos qué son            
+                  if(localebased(sr)$cluster.size[i[1]] == "3"){ #Vemos si machea con el J3 de algun bin 
+                    i <- which(binbased(sr)$J3 == aa$J3[b])
+                    if(length(i) > 0){
+                        aa$bin.event[b] <- "ES" 
+                        aa$bin[b] <- binbased(sr)$bin[i[[1]]]
+                    }else{
+                      aa$bin.event[b] <- "Novel ES" #Es exon skipping nuevo
+                    }
+                  }else if(localebased(sr)$cluster.size[i[1]] > 3){
+                    aa$bin.event[b] <- "csp" #Es complex
+                  }
+                }
+              }
+            }else if(aa$feature[b] == "E" & is.na(aa$bin.event[b])){
+              aa$bin.event[b] <- "csp" #Es complex
+            }else if(aa$feature[b] == "I" & is.na(aa$bin.event[b])){
+              if(aa$b == "*" | aa$bjs == "*" | aa$ja == "*"){
+                aa$bin.event[b] <- "IR"
+              }else{
+                aa$bin.event[b] <- "csp"
+              }
             }
           }
         }
