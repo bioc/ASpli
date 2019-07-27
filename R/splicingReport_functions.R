@@ -491,16 +491,10 @@
     }
   }
   
-  
-  #corregi rango de junturas para buscar bounderies de intrones, pero se reporta
-  #el rango de la juntura original
   i <- grep("jl.", overlaps_aux$region,fixed=TRUE)
   if(length(i)){
     L <- as.data.frame(localebased[as.numeric(strsplit2(overlaps_aux$region[i], "jl.")[, 2])])
-    aux_region <- paste0("Chr", L$seqnames, ":", L$start, "-", L$end)
-    j <- which(aux_region %in% setdiff(aux_region, overlaps_aux$region))
-    overlaps_aux$region[i] <- aux_region
-    overlaps_aux$region[i[j]] <- paste0("Chr", L$seqnames[j], ":", L$start[j], "-", L$end[j])
+    overlaps_aux$region[i] <- paste0("Chr", L$seqnames, ":", L$start, "-", L$end)
   }  
   
   #corregi rango de junturas para buscar bounderies de intrones, pero se reporta
@@ -516,7 +510,7 @@
     overlaps_aux$region[i[j]] <- paste0("Chr", L$seqnames[j], ":", L$start[j] - 1, "-", L$end[j] + 1)
   }  
   
-  #comienzo a megear rangos  
+  #comienzo a mergear rangos  
   if(nrow(overlaps_aux) > 0){
     overlaps_aux <- unique(overlaps_aux)  
     overlaps_aux <- overlaps_aux[order(overlaps_aux$region), ]
