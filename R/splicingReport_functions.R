@@ -368,11 +368,12 @@
       if(j>length(laux)) break
       saux <- paste0("overlaps_",paste0(names(laux)[c(i,j)],collapse="_"))
 
-      if(names(laux)[i]%in%c("b","bjs","otherSources") | names(laux)[j]%in%c("b","bjs","otherSources")){
-        ttype<-overlapType
-      }else{
-        ttype<-"equal"
-      }
+      ttype<-overlapType
+      # if(names(laux)[i]%in%c("b","bjs","otherSources") | names(laux)[j]%in%c("b","bjs","otherSources")){
+      #   ttype<-overlapType
+      # }else{
+      #   ttype<-"equal"
+      # }
 
       suppressWarnings(taux <- as.data.table(findOverlaps(laux[[i]],laux[[j]],type=ttype, minoverlap = 3)))
       if(nrow(taux) > 0){
@@ -384,6 +385,7 @@
     }
   }  
   
+  #Genero overlaps_aux: con region y 0/1 si hay evidencia
   overlaps     <- rbindlist(lover, use.names = F)
   overlaps_aux <- data.table(region=character(), b=numeric(), bjs=numeric(), ja=numeric(), jl=numeric())
   if(class(otherSources) == "GRanges") overlaps_aux$otherSources = numeric()
@@ -453,6 +455,8 @@
       }
     }
   }
+  #Hasta aca arme la tabla de 1/0 evidenciaL overlaps_aux
+  
   
   # i <- grep("ja.", overlaps_aux$region,fixed=TRUE)
   # if(length(i)){
@@ -464,6 +468,9 @@
   # L <- as.data.frame(localebased[as.numeric(strsplit2(overlaps_aux$region[i], "jl.")[, 2])])
   # overlaps_aux$region[i] <- paste0("Chr", L$seqnames, ":", L$start+1, "-", L$end-1)
   
+  #
+  #Cambio id de region por Rango genomico
+  #
   i <- grep("b.", overlaps_aux$region,fixed=TRUE)
   if(length(i)){
     L <- as.data.frame(binbased[as.numeric(strsplit2(overlaps_aux$region[i], "b.")[, 2])])
@@ -498,6 +505,8 @@
   
   #corregi rango de junturas para buscar bounderies de intrones, pero se reporta
   #el rango de la juntura original  
+  # se consigna con extremos corregidos para matchear borde de intron del anchor con bin-intronico con senial,
+  # si es un rango nuevo, se consigna el rango de la juntura original
   i <- grep("ja.", overlaps_aux$region,fixed=TRUE)
   if(length(i)){
     L <- as.data.frame(anchorbased[as.numeric(strsplit2(overlaps_aux$region[i], "ja.")[, 2])])
@@ -507,9 +516,9 @@
     overlaps_aux$region[i[j]] <- paste0("Chr", L$seqnames[j], ":", L$start[j] - 1, "-", L$end[j] + 1)
   }  
   
-  
+  #comienzo a megear rangos  
   if(nrow(overlaps_aux) > 0){
-    overlaps_aux <- unique(overlaps_aux)
+    overlaps_aux <- unique(overlaps_aux)  
     overlaps_aux <- overlaps_aux[order(overlaps_aux$region), ]
       
     #matcheo rango con bin
