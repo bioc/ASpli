@@ -585,7 +585,7 @@
     locus_overlap <- binbased(sr)$locus_overlap[binbased(sr)$locus %in% aa$locus[aa$locus != ""]]
     names(locus_overlap) <- binbased(sr)$locus[binbased(sr)$locus %in% aa$locus[aa$locus != ""]]
     for(i in 1:length(locus_overlap)){
-      j <- aa$locu6s == names(locus_overlap)[i]
+      j <- aa$locus == names(locus_overlap)[i]
       aa$locus_overlap[j] <- locus_overlap[i]
     }
     
@@ -747,6 +747,13 @@
                   i <- which(localebased(sr)$cluster.range == aa$J3[b])
                   if(length(i) > 0){ 
                     aa$bin.event[b] <- "ES"
+                    #Vemos si podemos encontrar el bin asociado a este ES
+                    j <- which(binbased(sr)$J3 == aa$J3[b])
+                    if(length(j) > 0){ #Lo encontramos y ponemos sus datos
+                      aa$b.fdr[b]   <- binbased(sr)$bin.fdr[j[1]]
+                      aa$b.logfc[b] <- binbased(sr)$bin.logFC[j[1]]
+		      aa$b[b]       <- 1
+                    }              
                   }else{
                     aa$bin.event[b] <- "CSP"
                   }
@@ -760,38 +767,6 @@
               }
             }
           }
-
-          # if(is.na(aa$feature[b])){#Tratamos de darle sentido a la juntura
-          #   if(aa$b[b] == "*"){
-          #     aa$bin.event[b] <- "csp" #Es complex
-          #   }else{
-          #     #Vemos si todas las junturas tienen mismo inicio o fin
-          #     junturas <- strsplit2(localebased(sr)$junction[i], "[.]")
-          #     if(length(table(junturas[, 2])) == 1 | length(table(junturas[, 3])) == 1){ #Todas tienen el mismo inicio y fin, se trata de un 3' o 5' alternativo nuevo
-          #       aa$bin.event[b] <- "Novel 5'/3' alt" 
-          #     }else{ #No comparten los inicios o finales, vemos que son            
-          #       if(localebased(sr)$cluster.size[i[1]] == "3"){ #Vemos si machea con el J3 de algun bin 
-          #         i <- which(binbased(sr)$J3 == aa$J3[b])
-          #         if(length(i) > 0){
-          #             aa$bin.event[b] <- "ES" 
-          #             aa$bin[b] <- binbased(sr)$bin[i[[1]]]
-          #         }else{
-          #           aa$bin.event[b] <- "Novel ES" #Es exon skipping nuevo
-          #         }
-          #       }else if(localebased(sr)$cluster.size[i[1]] > 3){
-          #         aa$bin.event[b] <- "csp" #Es complex
-          #       }
-          #     }
-          #   }
-          # }else if(aa$feature[b] == "E" & is.na(aa$bin.event[b])){
-          #   aa$bin.event[b] <- "csp" #Es complex
-          # }else if(aa$feature[b] == "I" & is.na(aa$bin.event[b])){
-          #   if(aa$b == "*" | aa$bjs == "*" | aa$ja == "*"){
-          #     aa$bin.event[b] <- "IR"
-          #   }else{
-          #     aa$bin.event[b] <- "csp"
-          #   }
-          # }
         }
       }          
       #Tratamos de darle sentido a otros eventos - de bines
