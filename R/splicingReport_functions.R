@@ -192,13 +192,12 @@
   #bins <- data.table(bdu@bins[rownames(bdu@bins) %in% junctionbased_junctions$bin, ], keep.rownames = T)
   #completo <- rbindlist(junctionbased_junctions, bins, use.names = T, fill = T)
   
-  anchorc <- data.table(anchorc(jdu), keep.rownames = T)
-  #Tries to find cluster locus
+  anchorc <- data.table(anchorc(jdu), keep.rownames = T)  #Tries to find cluster locus
   junctions  <- strsplit2(anchorc$rn, "[.]")
   seqnames   <- junctions[, 1]
   start      <- as.numeric(junctions[, 2]) + 1
   end        <- as.numeric(junctions[, 3]) - 1
-  
+ 
   grclusters <- GRanges(seqnames, IRanges(start, end), strand="*")
   
   seqnames   <- strsplit2(genesDE(bdu)$gene_coordinates, "[:]")[, 1]
@@ -222,7 +221,7 @@
                      colnames(fulldt)[grep("counts", colnames(fulldt))],
                      "cluster.locus", "cluster.pvalue", "cluster.fdr",
                      "bin", "bin.pvalue", "bin.fdr")
-                   ]
+                  ]
   rownames(fulldt) <- NULL
   #fulldt          <- fulldt[union(which(fulldt$bin.fdr < maxBinFDR), which(fulldt$cluster.fdr < maxJunctionFDR)), ]
   index.orden     <- strsplit2(fulldt$junction, "[.]")
@@ -263,8 +262,7 @@
 .integrateSignals<-function(sr = NULL, asd = NULL, bin.fdr=0.1,nonunif=0.1,usenonunif=FALSE,dPSI=0.1,dPIR=0.1,j.fdr=0.1, j.particip=0.1,usepvalBJS=FALSE, bjs.fdr=0.1, otherSources = NULL, overlapType = "any"){
   
   if(class(sr) != "ASpliSplicingReport"){
-    stop("sr must be an ASpliSplicingReport object") 
-  }
+    stop("sr must be an ASpliSplicingReport object")   }
   
   if(class(asd) != "ASpliAS"){
     stop("asd must be an ASpliAS object") 
@@ -578,7 +576,7 @@
     locus_overlap <- binbased(sr)$locus_overlap[binbased(sr)$locus %in% aa$locus[aa$locus != ""]]
     names(locus_overlap) <- binbased(sr)$locus[binbased(sr)$locus %in% aa$locus[aa$locus != ""]]
     for(i in 1:length(locus_overlap)){
-      j <- aa$locus == names(locus_overlap)[i]
+      j <- aa$locu6s == names(locus_overlap)[i]
       aa$locus_overlap[j] <- locus_overlap[i]
     }
     
@@ -603,6 +601,12 @@
     aa$l.participation <- NA
     aa$l.dparticipation <- NA
 
+    #Generamos el rango para los bines para clasificar los locales
+    bines       <- data.frame(bin = sr@binbased$bin, feature = sr@binbased$feature, gene_coordinates = sr@binbased$gene_coordinates, start = sr@binbased$start, end = sr@binbased$end, stringsAsFactors = F)
+    bines       <- bines[complete.cases(bines), ]
+    chromosomes <- strsplit2(bines$gene_coordinates, "[:]")[, 1]
+    rango_bines <- GRanges(seqnames = chromosomes, ranges = IRanges(start = bines$start, end = bines$end))
+    
     for(b in 1:nrow(aa)){
       if(aa$b[b] != 0){
         i <- which(binbased(sr)$bin == aa$bin[b])
@@ -643,9 +647,9 @@
               }
             }else{            
               if(aa$b[b] == "*"){ #Es un nuevo evento complejo, csp
-                aa$bin.event[b] <- "csp" 
-              }else if(aa$b[b] == "0"){ #Es un evento nuevo que no se asocia a ningún bin, new alternative splicing pattern
-                aa$bin.event[b] <- "nasp" 
+                aa$bin.event[b] <- "CSP" 
+              }else if(aa$b[b] == "0"){ #Es un evento nuevo que no se asocia a ningun bin, new alternative splicing pattern
+                aa$bin.event[b] <- "Novel ASP" 
               }
             }
           }
@@ -688,41 +692,111 @@
             }
           }
           
-          if(aa$jl[b] != "*"){
-            if(is.na(aa$feature[b])){#Tratamos de darle sentido a la juntura
-              if(aa$b[b] == "*"){
-                aa$bin.event[b] <- "csp" #Es complex
-              }else{
-                #Vemos si todas las junturas tienen mismo inicio o fin
-                junturas <- strsplit2(localebased(sr)$junction[i], "[.]")
-                if(length(table(junturas[, 2])) == 1 | length(table(junturas[, 3])) == 1){ #Todas tienen el mismo inicio y fin, se trata de un 3' o 5' alternativo nuevo
-                  aa$bin.event[b] <- "Novel 5'/3' alt" 
-                }else{ #No comparten los inicios o finales, vemos qué son            
-                  if(localebased(sr)$cluster.size[i[1]] == "3"){ #Vemos si machea con el J3 de algun bin 
-                    i <- which(binbased(sr)$J3 == aa$J3[b])
-                    if(length(i) > 0){
-                        aa$bin.event[b] <- "ES" 
-                        aa$bin[b] <- binbased(sr)$bin[i[[1]]]
-                    }else{
-                      aa$bin.event[b] <- "Novel ES" #Es exon skipping nuevo
-                    }
-                  }else if(localebased(sr)$cluster.size[i[1]] > 3){
-                    aa$bin.event[b] <- "csp" #Es complex
+          if(aa$jl[b] == 1){
+            if(is.na(aa$feature[b])){ #Tratamos de darle sentido a la juntura
+              junturas <- strsplit2(unique(localebased(sr)$junction[i]), "[.]")
+              #Vemos si hay un unico pivot.
+              punta_1 <- length(table(junturas[, 2]))
+              punta_2 <- length(table(junturas[, 3]))
+              
+              #Vemos si es alt o complejo              
+              if(punta_1 == 1 | punta_2 == 1){
+                
+                if(punta_1 == 1){
+                  #Buscamos el rango de las junturas
+                  rango_min    <- min(as.numeric(junturas[, 3]))
+                  rango_max    <- max(as.numeric(junturas[, 3]))
+                  rango        <- GRanges(junturas[1, 1], IRanges(rango_min, rango_max))
+                  rango_intron <- GRanges(junturas[1, 1], IRanges(rango_min, rango_max - 1))
+                  
+                }else if (punta_2 == 1){ 
+                  
+                  #Buscamos el rango de las junturas
+                  rango_min    <- min(as.numeric(junturas[, 2]))
+                  rango_max    <- max(as.numeric(junturas[, 2]))
+                  rango        <- GRanges(junturas[1, 1], IRanges(rango_min, rango_max))
+                  rango_intron <- GRanges(junturas[1, 1], IRanges(rango_min + 1, rango_max))
+ 
+                }
+                
+                #Vemos que tipo de bines atraviezan las junturas. Si son todos del mismo tipo, es alt
+                hits        <- data.frame(findOverlaps(rango, rango_bines))
+                if(length(table(bines$feature[hits$subjectHits])) == 1){
+                  aa$bin.event[b] <- "Alt 5'/3'"
+                }else{
+                  #Vemos si se trata de un intron alt
+                  hits        <- data.frame(findOverlaps(rango_intron, rango_bines))
+                  if(length(table(bines$feature[hits$subjectHits])) == 1){
+                    aa$bin.event[b] <- "Alt 5'/3'"
+                  }else{ #No parece ser alt, es complejo entonces
+                    aa$bin.event[b] <- "CSP"
                   }
                 }
-              }
-            }else if(aa$feature[b] == "E" & is.na(aa$bin.event[b])){
-              aa$bin.event[b] <- "csp" #Es complex
-            }else if(aa$feature[b] == "I" & is.na(aa$bin.event[b])){
-              if(aa$b == "*" | aa$bjs == "*" | aa$ja == "*"){
-                aa$bin.event[b] <- "IR"
               }else{
-                aa$bin.event[b] <- "csp"
+                #Vemos si es ES
+                if(nrow(junturas) == 3){
+                  i <- which(localebased(sr)$cluster.range == aa$J3[b])
+                  if(length(i) > 0){ 
+                    aa$bin.event[b] <- "ES"
+                  }else{
+                    aa$bin.event[b] <- "CSP"
+                  }
+                }else{ #Si no es nada de lo anterior entonces es complejo
+                  aa$bin.event[b] <- "CSP"
+                }
+              }
+              #Vemos si es un novel event
+              if(any(asd@junctionsPJU$junction[rownames(asd@junctionsPJU) %in% localebased(sr)$junction[i]] == "noHit")){
+                aa$bin.event[b] <- paste("Novel", aa$bin.event[b])
               }
             }
           }
+
+          # if(is.na(aa$feature[b])){#Tratamos de darle sentido a la juntura
+          #   if(aa$b[b] == "*"){
+          #     aa$bin.event[b] <- "csp" #Es complex
+          #   }else{
+          #     #Vemos si todas las junturas tienen mismo inicio o fin
+          #     junturas <- strsplit2(localebased(sr)$junction[i], "[.]")
+          #     if(length(table(junturas[, 2])) == 1 | length(table(junturas[, 3])) == 1){ #Todas tienen el mismo inicio y fin, se trata de un 3' o 5' alternativo nuevo
+          #       aa$bin.event[b] <- "Novel 5'/3' alt" 
+          #     }else{ #No comparten los inicios o finales, vemos que son            
+          #       if(localebased(sr)$cluster.size[i[1]] == "3"){ #Vemos si machea con el J3 de algun bin 
+          #         i <- which(binbased(sr)$J3 == aa$J3[b])
+          #         if(length(i) > 0){
+          #             aa$bin.event[b] <- "ES" 
+          #             aa$bin[b] <- binbased(sr)$bin[i[[1]]]
+          #         }else{
+          #           aa$bin.event[b] <- "Novel ES" #Es exon skipping nuevo
+          #         }
+          #       }else if(localebased(sr)$cluster.size[i[1]] > 3){
+          #         aa$bin.event[b] <- "csp" #Es complex
+          #       }
+          #     }
+          #   }
+          # }else if(aa$feature[b] == "E" & is.na(aa$bin.event[b])){
+          #   aa$bin.event[b] <- "csp" #Es complex
+          # }else if(aa$feature[b] == "I" & is.na(aa$bin.event[b])){
+          #   if(aa$b == "*" | aa$bjs == "*" | aa$ja == "*"){
+          #     aa$bin.event[b] <- "IR"
+          #   }else{
+          #     aa$bin.event[b] <- "csp"
+          #   }
+          # }
         }
       }          
+      #Tratamos de darle sentido a otros eventos - de bines
+      if((aa$b[b] == 1 | aa$bjs[b] == 1 | aa$jl[b] == 1) & aa$bin.event[b] == "-"){
+        if(aa$feature[b] == "E"){
+          aa$bin.event[b] <- "ASCE"
+        }else if(aa$feature[b] == "I"){ 
+          if(aa$b[b] != "*" & aa$bjs[b] != "*" & aa$ja[b] != "*" & aa$jl[b] != "*"){
+            aa$bin.event[b] <- "IR"
+          }else{
+            aa$bin.event[b] <- "CSP"
+          }
+        }
+      }      
     }  
     aa <- aa[order(aa$b.fdr), ]
     r <- strsplit2(unique(aa$region), "Chr")[, 2]
