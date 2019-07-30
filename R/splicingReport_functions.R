@@ -640,7 +640,7 @@
         }else{
           aa$bjs[b] <- "*"
         }
-      }      
+      }
       if(aa$ja[b] != 0){
         i <- which(anchorbased(sr)$junction == aa$J3[b])
         if(length(i) > 0){
@@ -752,7 +752,7 @@
                     aa$bin.event[b] <- "ES"
                     #Vemos si podemos encontrar el bin asociado a este ES
                     j <- which(binbased(sr)$J3 == aa$J3[b])
-                    if(length(j) > 0){ #Lo encontramos, sacamos directamente esta fila porque coincide con la que ya existe y tiene más datos.
+                    if(length(j) > 0){ #Lo encontramos, sacamos directamente esta fila porque coincide con la que ya existe y tiene mas datos.
                       elementos_a_eliminar <- c(elementos_a_eliminar, b)
                       #aa$b.fdr[b]   <- binbased(sr)$bin.fdr[j[1]]
                       #aa$b.logfc[b] <- binbased(sr)$bin.logFC[j[1]]
