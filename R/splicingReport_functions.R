@@ -658,7 +658,7 @@
                 aa$bin[b] <- binbased(sr)$bin[i[[1]]]
               }
             }else{            
-              if(aa$b[b] == "*"){ #Es un nuevo evento complejo, csp
+              if(aa$b[b] == "*"){ #Es un evento complejo, csp
                 aa$bin.event[b] <- "CSP" 
               }else if(aa$b[b] == "0"){ #Es un evento nuevo que no se asocia a ningun bin, new alternative splicing pattern
                 aa$bin.event[b] <- "Novel ASP" 
@@ -751,7 +751,7 @@
                   if(length(i) > 0){ 
                     aa$bin.event[b] <- "ES"
                     #Vemos si podemos encontrar el bin asociado a este ES
-                    j <- which(binbased(sr)$J3 == aa$J3[b])
+                    j <- which(aa$region == aa$J3[b])
                     if(length(j) > 0){ #Lo encontramos, sacamos directamente esta fila porque coincide con la que ya existe y tiene mas datos.
                       elementos_a_eliminar <- c(elementos_a_eliminar, b)
                       #aa$b.fdr[b]   <- binbased(sr)$bin.fdr[j[1]]
@@ -772,7 +772,8 @@
             }
           }
         }
-      }          
+      }  
+      
       #Tratamos de darle sentido a otros eventos - de bines
       if((aa$b[b] == 1 | aa$bjs[b] == 1 | aa$jl[b] == 1) & aa$bin.event[b] == "-"){
         if(aa$feature[b] == "E"){
@@ -786,6 +787,7 @@
         }
       }      
     }  
+    
     #Descartamos elementos duplicados por ES
     if(!is.null(elementos_a_eliminar)){
       aa <- aa[-elementos_a_eliminar, ]
