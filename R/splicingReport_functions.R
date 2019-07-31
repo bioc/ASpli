@@ -273,6 +273,8 @@
   # Pongo todo lo que quiero comparar en GRanges
   #
   #bines significativos y uniformes 1.130149.130372 
+  original_signals <- setNames(vector("list", 4), c("b", "bjs", "ja", "jl"))
+  
   b  <- sr@binbased
   b  <- b[!is.na(b$start), ]
   if(usenonunif){
@@ -280,7 +282,9 @@
   }else{
    b  <- b[ replace_na(b$bin.fdr < bin.fdr, FALSE),]
   }
-
+  
+  original_signals$b <- b
+  
   if(nrow(b) > 0){
     start   = as.numeric(b$start)#aggregate(start ~ cluster, data=b, FUN=min)
     end     = as.numeric(b$end)#aggregate(end ~ cluster, data=b, FUN=max)
@@ -310,6 +314,9 @@
     b  <- b[replace_na(abs(b$junction.dPSI) > dPSI, FALSE) | 
               (replace_na(abs(b$junction.dPIR) > dPIR, FALSE) & bunif), ]
   }
+  
+  original_signals$bjs <- b
+  
   if(nrow(b) > 0){
     start   = as.numeric(b$start)#aggregate(start ~ cluster, data=b, FUN=min)
     end     = as.numeric(b$end)#aggregate(end ~ cluster, data=b, FUN=max)
@@ -325,6 +332,9 @@
   b <- sr@localebased
   b <- b[replace_na(b$cluster.fdr < j.fdr, FALSE) & 
            replace_na(b$cluster.participation > j.particip, FALSE), ] #Reemplazamos la participacion de la juntura por la participacion del cluster al que pertenece que es el dato importante
+  
+  original_signals$jl <- b
+  
   if(nrow(b) > 0){
     aux <- strsplit2(b$cluster.range, "[.]") #Reemplazamos la juntura por el rango del cluster al que pertenece que es el dato importante
     start   = as.numeric(aux[, 2])#aggregate(start ~ cluster, data=b, FUN=min)
@@ -346,13 +356,16 @@
   b <- b[replace_na(b$junction.fdr < j.fdr, FALSE) & 
            replace_na(b$junction.dPIR > dPIR, FALSE) & 
            bunif, ]
+  
+  original_signals$ja <- b
+  
   if(nrow(b) > 0){
     aux <- strsplit2(b$junction, "[.]")
     start   = as.numeric(aux[, 2]) + 1#aggregate(start ~ cluster, data=b, FUN=min)
     end     = as.numeric(aux[, 3]) - 1#aggregate(end ~ cluster, data=b, FUN=max)
     seqnames = aux[, 1]
     strand  = rep("*", times=length(seqnames))
-    tipo    = rep("localebased", times=length(aux[, 1]))
+    tipo    = rep("anchorbased", times=length(aux[, 1]))
     anchorbased <- unique(GRanges(seqnames, IRanges(start, end), strand, tipo)) #Puede haber duplicados porque machean con varios bines
   }else{
     anchorbased <- GRanges()
@@ -614,34 +627,34 @@
     
     for(b in 1:nrow(aa)){
       if(aa$b[b] != 0){
-        i <- which(binbased(sr)$bin == aa$bin[b])
+        i <- which(original_signals$b$bin == aa$bin[b])
         if(length(i) > 0){
-          aa$b.fdr[b] <- binbased(sr)$bin.fdr[i[1]]
-          aa$b.logfc[b] <- binbased(sr)$bin.logFC[i[1]]
+          aa$b.fdr[b] <- original_signals$b$bin.fdr[i[1]]
+          aa$b.logfc[b] <- original_signals$b$bin.logFC[i[1]]
         }else{
           aa$b[b] <- "*"
         }
       }
       if(aa$bjs[b] != 0){
-        i <- which(binbased(sr)$J3 == aa$J3[b])
+        i <- which(original_signals$bjs$J3 == aa$J3[b])
         if(length(i) > 0){
-          aa$bjs.lr[b] <- binbased(sr)$junction.LR[i[1]]
-          aa$bjs.fdr[b] <- binbased(sr)$junction.fdr[i[1]]
-          aa$bjs.logfc[b] <- binbased(sr)$junction.logFC[i[1]]
-          aa$bjs.nonuniformity[b] <- binbased(sr)$junction.nonuniformity[i[1]]
-          aa$bjs.inclussion[b] <- replace_na(binbased(sr)$junction.dPSI[i[1]], binbased(sr)$junction.dPIR[i[1]])  
+          aa$bjs.lr[b] <- original_signals$bjs$junction.LR[i[1]]
+          aa$bjs.fdr[b] <- original_signals$bjs$junction.fdr[i[1]]
+          aa$bjs.logfc[b] <- original_signals$bjs$junction.logFC[i[1]]
+          aa$bjs.nonuniformity[b] <- original_signals$bjs$junction.nonuniformity[i[1]]
+          aa$bjs.inclussion[b] <- replace_na(original_signals$bjs$junction.dPSI[i[1]], original_signals$bjs$junction.dPIR[i[1]])  
         }else{
           aa$bjs[b] <- "*"
         }
       }
       if(aa$ja[b] != 0){
-        i <- which(anchorbased(sr)$junction == aa$J3[b])
+        i <- which(original_signals$ja$junction == aa$J3[b])
         if(length(i) > 0){
-          aa$a.lr[b] <- anchorbased(sr)$junction.LR[i[1]]
-          aa$a.fdr[b] <- anchorbased(sr)$junction.fdr[i[1]]
-          aa$a.logfc[b] <- anchorbased(sr)$junction.logFC[i[1]]
-          aa$a.nonuniformity[b] <- anchorbased(sr)$junction.nonuniformity[i[1]]
-          aa$a.dpir[b] <- anchorbased(sr)$junction.dPIR[i[1]]
+          aa$a.lr[b] <- original_signals$ja$junction.LR[i[1]]
+          aa$a.fdr[b] <- original_signals$ja$junction.fdr[i[1]]
+          aa$a.logfc[b] <- original_signals$ja$junction.logFC[i[1]]
+          aa$a.nonuniformity[b] <- original_signals$ja$junction.nonuniformity[i[1]]
+          aa$a.dpir[b] <- original_signals$ja$junction.dPIR[i[1]]
           #Si no tiene feature se lo tratamos de asignar
           if(is.na(aa$feature[b])){
             i <- which(binbased(sr)$J3 == aa$J3[b])
@@ -664,14 +677,14 @@
       }
       if(aa$jl[b] != 0){
         if(FALSE){
-          if(!is.na(localebased(sr)$J3[b])){
-            i <- which(localebased(sr)$junction == aa$J3[b])
+          if(!is.na(original_signals$jl$J3[b])){
+            i <- which(original_signals$jl$junction == aa$J3[b])
             if(length(i) > 0){
-              aa$l.lr[b] <- localebased(sr)$cluster.LR[i[1]]
-              aa$l.fdr[b] <- localebased(sr)$junction.fdr[i[1]]
-              aa$l.logfc[b] <- localebased(sr)$junction.logFC[i[1]]
-              aa$l.participation[b] <- localebased(sr)$junction.participation[i[1]]
-              aa$l.dparticipation[b] <- localebased(sr)$junction.dparticipation[i[1]]
+              aa$l.lr[b] <- original_signals$jl$cluster.LR[i[1]]
+              aa$l.fdr[b] <- original_signals$jl$junction.fdr[i[1]]
+              aa$l.logfc[b] <- original_signals$jl$junction.logFC[i[1]]
+              aa$l.participation[b] <- original_signals$jl$junction.participation[i[1]]
+              aa$l.dparticipation[b] <- original_signals$jl$junction.dparticipation[i[1]]
             }
           } 
         }else{
@@ -679,19 +692,19 @@
           roi <- gsub("[Chr]", "", aa$region[b])
           roi <- gsub("[:]", ".", roi)
           roi <- gsub("[-]", ".", roi)
-          i <- which(localebased(sr)$cluster.range == roi)
+          i <- which(original_signals$jl$cluster.range == roi)
           if(length(i) > 0){
-            aa$l.lr[b] <- localebased(sr)$cluster.LR[i[1]]
-            aa$l.fdr[b] <- localebased(sr)$cluster.fdr[i[1]]
-            aa$l.participation[b] <- localebased(sr)$cluster.participation[i[1]]
-            aa$l.dparticipation[b] <- localebased(sr)$cluster.dparticipation[i[1]]
+            aa$l.lr[b] <- original_signals$jl$cluster.LR[i[1]]
+            aa$l.fdr[b] <- original_signals$jl$cluster.fdr[i[1]]
+            aa$l.participation[b] <- original_signals$jl$cluster.participation[i[1]]
+            aa$l.dparticipation[b] <- original_signals$jl$cluster.dparticipation[i[1]]
           }else{ #Vemos si machea con la juntura quizas
-            i <- which(localebased(sr)$cluster.range == aa$J3[b])
+            i <- which(original_signals$jl$cluster.range == aa$J3[b])
             if(length(i) > 0){
-              aa$l.lr[b] <- localebased(sr)$cluster.LR[i[1]]
-              aa$l.fdr[b] <- localebased(sr)$cluster.fdr[i[1]]
-              aa$l.participation[b] <- localebased(sr)$cluster.participation[i[1]]
-              aa$l.dparticipation[b] <- localebased(sr)$cluster.dparticipation[i[1]]
+              aa$l.lr[b] <- original_signals$jl$cluster.LR[i[1]]
+              aa$l.fdr[b] <- original_signals$jl$cluster.fdr[i[1]]
+              aa$l.participation[b] <- original_signals$jl$cluster.participation[i[1]]
+              aa$l.dparticipation[b] <- original_signals$jl$cluster.dparticipation[i[1]]
             }else{
               aa$jl[b] <- "*"
             }
