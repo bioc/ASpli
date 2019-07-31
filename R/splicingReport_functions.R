@@ -262,16 +262,17 @@
 .integrateSignals<-function(sr = NULL, asd = NULL, bin.fdr=0.1,nonunif=0.1,usenonunif=FALSE,dPSI=0.1,dPIR=0.1,j.fdr=0.1, j.particip=0.1,usepvalBJS=FALSE, bjs.fdr=0.1, otherSources = NULL, overlapType = "any"){
   
   if(class(sr) != "ASpliSplicingReport"){
-    stop("sr must be an ASpliSplicingReport object")   }
+    stop("sr must be an ASpliSplicingReport object")   
+  }
   
   if(class(asd) != "ASpliAS"){
     stop("asd must be an ASpliAS object") 
   }
   
   #
-  # Pongo todo lo que quiero compara en GRanges
+  # Pongo todo lo que quiero comparar en GRanges
   #
-  #bines significativos y uniformes1.130149.130372 
+  #bines significativos y uniformes 1.130149.130372 
   b  <- sr@binbased
   b  <- b[!is.na(b$start), ]
   if(usenonunif){
@@ -320,6 +321,7 @@
     binsupport <- GRanges()
   }
   
+  #Locales
   b <- sr@localebased
   b <- b[replace_na(b$cluster.fdr < j.fdr, FALSE) & 
            replace_na(b$cluster.participation > j.particip, FALSE), ] #Reemplazamos la participacion de la juntura por la participacion del cluster al que pertenece que es el dato importante
@@ -526,7 +528,7 @@
     aa <- binbased(sr)[ii,c(1:3,7:8,13)]
     aa <- cbind(aa[,-c(4,5)],binreg=paste(aa$start,aa$end,sep="-"))
     
-    aa <-cbind(overlaps_aux,aa)
+    aa  <-cbind(overlaps_aux,aa)
     roi <- gsub("[Chr]", "", roi)
     roi <- gsub("[:]", ".", roi)
     roi <- gsub("[-]", ".", roi)
@@ -576,13 +578,11 @@
     aa <- aa[, c(1, 11, 8, 2:7, 9:10)]
     
     aa$locus_overlap <- "-"
-    locus_overlap <- binbased(sr)$locus_overlap[binbased(sr)$locus %in% aa$locus[aa$locus != ""]]
-    names(locus_overlap) <- binbased(sr)$locus[binbased(sr)$locus %in% aa$locus[aa$locus != ""]]
-    for(i in 1:length(locus_overlap)){
-      j <- aa$locus == names(locus_overlap)[i]
-      aa$locus_overlap[j] <- locus_overlap[i]
-    }
-    
+    locus_overlap <- binbased(sr)$locus_overlap[binbased(sr)$locus %in% aa$locus[!is.na(aa$locus)]]
+    names(locus_overlap) <- binbased(sr)$locus[binbased(sr)$locus %in% aa$locus[!is.na(aa$locus)]]
+    aa$locus_overlap[!is.na(aa$locus)] <- locus_overlap[aa$locus[!is.na(aa$locus)]]
+    aa$locus_overlap[is.na(aa$locus_overlap)] <- "-"
+       
     aa$b.fdr          <- NA
     aa$b.logfc        <- NA
 
@@ -610,6 +610,8 @@
     chromosomes <- strsplit2(bines$gene_coordinates, "[:]")[, 1]
     rango_bines <- GRanges(seqnames = chromosomes, ranges = IRanges(start = bines$start, end = bines$end))
     
+    elementos_a_eliminar <- c() #Puede que podamos colapsar algunos elementos, por lo que los duplicados tienen que eliminarse
+    
     for(b in 1:nrow(aa)){
       if(aa$b[b] != 0){
         i <- which(binbased(sr)$bin == aa$bin[b])
@@ -631,7 +633,7 @@
         }else{
           aa$bjs[b] <- "*"
         }
-      }      
+      }
       if(aa$ja[b] != 0){
         i <- which(anchorbased(sr)$junction == aa$J3[b])
         if(length(i) > 0){
@@ -649,7 +651,7 @@
                 aa$bin[b] <- binbased(sr)$bin[i[[1]]]
               }
             }else{            
-              if(aa$b[b] == "*"){ #Es un nuevo evento complejo, csp
+              if(aa$b[b] == "*"){ #Es un evento complejo, csp
                 aa$bin.event[b] <- "CSP" 
               }else if(aa$b[b] == "0"){ #Es un evento nuevo que no se asocia a ningun bin, new alternative splicing pattern
                 aa$bin.event[b] <- "Novel ASP" 
@@ -742,11 +744,12 @@
                   if(length(i) > 0){ 
                     aa$bin.event[b] <- "ES"
                     #Vemos si podemos encontrar el bin asociado a este ES
-                    j <- which(binbased(sr)$J3 == aa$J3[b])
-                    if(length(j) > 0){ #Lo encontramos y ponemos sus datos
-                      aa$b.fdr[b]   <- binbased(sr)$bin.fdr[j[1]]
-                      aa$b.logfc[b] <- binbased(sr)$bin.logFC[j[1]]
-		      aa$b[b]       <- 1
+                    j <- which(aa$region == aa$J3[b])
+                    if(length(j) > 0){ #Lo encontramos, sacamos directamente esta fila porque coincide con la que ya existe y tiene mas datos.
+                      elementos_a_eliminar <- c(elementos_a_eliminar, b)
+                      #aa$b.fdr[b]   <- binbased(sr)$bin.fdr[j[1]]
+                      #aa$b.logfc[b] <- binbased(sr)$bin.logFC[j[1]]
+		                  #aa$b[b]       <- 1
                     }              
                   }else{
                     aa$bin.event[b] <- "CSP"
@@ -762,7 +765,8 @@
             }
           }
         }
-      }          
+      }  
+      
       #Tratamos de darle sentido a otros eventos - de bines
       if((aa$b[b] == 1 | aa$bjs[b] == 1 | aa$jl[b] == 1) & aa$bin.event[b] == "-"){
         if(aa$feature[b] == "E"){
@@ -776,6 +780,12 @@
         }
       }      
     }  
+    
+    #Descartamos elementos duplicados por ES
+    if(!is.null(elementos_a_eliminar)){
+      aa <- aa[-elementos_a_eliminar, ]
+    }
+    
     aa <- aa[order(aa$b.fdr), ]
     r <- strsplit2(unique(aa$region), "Chr")[, 2]
     chr <- strsplit2(r, ":")[, 1]
@@ -804,7 +814,9 @@
           }
         }
       }
-      if(length(a_descartar)>0)aa <- aa[-a_descartar, ]
+      if(length(a_descartar)>0){
+        aa <- aa[-a_descartar, ]
+      }
     }
     
   }else{
