@@ -415,7 +415,7 @@
   # -------------------------------------------------------------------------- #
   
   # -------------------------------------------------------------------------- #
-  # Calculates avg. bin dentity by condition
+  # Calculates avg. bin density by condition
   # TODO: vectorize this code
   avRdBin <- matrix( unlist(
           lapply( contrastedConditions , 
@@ -427,7 +427,7 @@
   # -------------------------------------------------------------------------- #
   
   # -------------------------------------------------------------------------- #
-  # Calculates avg. gene dentity by condition
+  # Calculates avg. gene density by condition
   # TODO: vectorize this code
   avRdGen <- matrix( unlist(
           lapply( contrastedConditions, 

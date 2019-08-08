@@ -676,105 +676,92 @@
         }
       }
       if(aa$jl[b] != 0){
-        if(FALSE){
-          if(!is.na(original_signals$jl$J3[b])){
-            i <- which(original_signals$jl$junction == aa$J3[b])
-            if(length(i) > 0){
-              aa$l.lr[b] <- original_signals$jl$cluster.LR[i[1]]
-              aa$l.fdr[b] <- original_signals$jl$junction.fdr[i[1]]
-              aa$l.logfc[b] <- original_signals$jl$junction.logFC[i[1]]
-              aa$l.participation[b] <- original_signals$jl$junction.participation[i[1]]
-              aa$l.dparticipation[b] <- original_signals$jl$junction.dparticipation[i[1]]
-            }
-          } 
-        }else{
-          #Aca busco el cluster por region en lugar de buscar por juntura especifica
-          roi <- gsub("[Chr]", "", aa$region[b])
-          roi <- gsub("[:]", ".", roi)
-          roi <- gsub("[-]", ".", roi)
-          i <- which(original_signals$jl$cluster.range == roi)
+        #Aca busco el cluster por region en lugar de buscar por juntura especifica
+        roi <- gsub("[Chr]", "", aa$region[b])
+        roi <- gsub("[:]", ".", roi)
+        roi <- gsub("[-]", ".", roi)
+        i <- which(original_signals$jl$cluster.range == roi)
+        if(length(i) > 0){
+          aa$l.lr[b] <- original_signals$jl$cluster.LR[i[1]]
+          aa$l.fdr[b] <- original_signals$jl$cluster.fdr[i[1]]
+          aa$l.participation[b] <- original_signals$jl$cluster.participation[i[1]]
+          aa$l.dparticipation[b] <- original_signals$jl$cluster.dparticipation[i[1]]
+        }else{ #Vemos si machea con la juntura quizas
+          i <- which(original_signals$jl$cluster.range == aa$J3[b])
           if(length(i) > 0){
             aa$l.lr[b] <- original_signals$jl$cluster.LR[i[1]]
             aa$l.fdr[b] <- original_signals$jl$cluster.fdr[i[1]]
             aa$l.participation[b] <- original_signals$jl$cluster.participation[i[1]]
             aa$l.dparticipation[b] <- original_signals$jl$cluster.dparticipation[i[1]]
-          }else{ #Vemos si machea con la juntura quizas
-            i <- which(original_signals$jl$cluster.range == aa$J3[b])
-            if(length(i) > 0){
-              aa$l.lr[b] <- original_signals$jl$cluster.LR[i[1]]
-              aa$l.fdr[b] <- original_signals$jl$cluster.fdr[i[1]]
-              aa$l.participation[b] <- original_signals$jl$cluster.participation[i[1]]
-              aa$l.dparticipation[b] <- original_signals$jl$cluster.dparticipation[i[1]]
-            }else{
-              aa$jl[b] <- "*"
-            }
+          }else{
+            aa$jl[b] <- "*"
           }
-          
-          if(aa$jl[b] == 1){
-            if(is.na(aa$feature[b])){ #Tratamos de darle sentido a la juntura
-              junturas <- strsplit2(unique(localebased(sr)$junction[i]), "[.]")
-              #Vemos si hay un unico pivot.
-              punta_1 <- length(table(junturas[, 2]))
-              punta_2 <- length(table(junturas[, 3]))
+        }
+        
+        if(aa$jl[b] == 1){ #Encontre el cluster
+          if(is.na(aa$feature[b])){ #Tratamos de darle sentido al evento
+            junturas <- strsplit2(unique(original_signals$jl$junction[i]), "[.]")
+            #Vemos si hay un unico pivot.
+            punta_1 <- length(table(junturas[, 2]))
+            punta_2 <- length(table(junturas[, 3]))
+            
+            #Vemos si es alt o complejo              
+            if(punta_1 == 1 | punta_2 == 1){
               
-              #Vemos si es alt o complejo              
-              if(punta_1 == 1 | punta_2 == 1){
+              if(punta_1 == 1){
+                #Buscamos el rango de las junturas
+                rango_min    <- min(as.numeric(junturas[, 3]))
+                rango_max    <- max(as.numeric(junturas[, 3]))
+                rango        <- GRanges(junturas[1, 1], IRanges(rango_min, rango_max))
+                rango_intron <- GRanges(junturas[1, 1], IRanges(rango_min, rango_max - 1))
                 
-                if(punta_1 == 1){
-                  #Buscamos el rango de las junturas
-                  rango_min    <- min(as.numeric(junturas[, 3]))
-                  rango_max    <- max(as.numeric(junturas[, 3]))
-                  rango        <- GRanges(junturas[1, 1], IRanges(rango_min, rango_max))
-                  rango_intron <- GRanges(junturas[1, 1], IRanges(rango_min, rango_max - 1))
-                  
-                }else if (punta_2 == 1){ 
-                  
-                  #Buscamos el rango de las junturas
-                  rango_min    <- min(as.numeric(junturas[, 2]))
-                  rango_max    <- max(as.numeric(junturas[, 2]))
-                  rango        <- GRanges(junturas[1, 1], IRanges(rango_min, rango_max))
-                  rango_intron <- GRanges(junturas[1, 1], IRanges(rango_min + 1, rango_max))
- 
-                }
+              }else if (punta_2 == 1){ 
                 
-                #Vemos que tipo de bines atraviezan las junturas. Si son todos del mismo tipo, es alt
-                hits        <- data.frame(findOverlaps(rango, rango_bines))
+                #Buscamos el rango de las junturas
+                rango_min    <- min(as.numeric(junturas[, 2]))
+                rango_max    <- max(as.numeric(junturas[, 2]))
+                rango        <- GRanges(junturas[1, 1], IRanges(rango_min, rango_max))
+                rango_intron <- GRanges(junturas[1, 1], IRanges(rango_min + 1, rango_max))
+
+              }
+              
+              #Vemos que tipo de bines atraviezan las junturas. Si son todos del mismo tipo, es alt
+              hits        <- data.frame(findOverlaps(rango, rango_bines))
+              if(length(table(bines$feature[hits$subjectHits])) == 1){
+                aa$bin.event[b] <- "Alt 5'/3'"
+              }else{
+                #Vemos si se trata de un intron alt
+                hits        <- data.frame(findOverlaps(rango_intron, rango_bines))
                 if(length(table(bines$feature[hits$subjectHits])) == 1){
                   aa$bin.event[b] <- "Alt 5'/3'"
-                }else{
-                  #Vemos si se trata de un intron alt
-                  hits        <- data.frame(findOverlaps(rango_intron, rango_bines))
-                  if(length(table(bines$feature[hits$subjectHits])) == 1){
-                    aa$bin.event[b] <- "Alt 5'/3'"
-                  }else{ #No parece ser alt, es complejo entonces
-                    aa$bin.event[b] <- "CSP"
-                  }
-                }
-              }else{
-                #Vemos si es ES
-                if(nrow(junturas) == 3){
-                  i <- which(localebased(sr)$cluster.range == aa$J3[b])
-                  if(length(i) > 0){ 
-                    aa$bin.event[b] <- "ES"
-                    #Vemos si podemos encontrar el bin asociado a este ES
-                    j <- which(aa$region == aa$J3[b])
-                    if(length(j) > 0){ #Lo encontramos, sacamos directamente esta fila porque coincide con la que ya existe y tiene mas datos.
-                      elementos_a_eliminar <- c(elementos_a_eliminar, b)
-                      #aa$b.fdr[b]   <- binbased(sr)$bin.fdr[j[1]]
-                      #aa$b.logfc[b] <- binbased(sr)$bin.logFC[j[1]]
-		                  #aa$b[b]       <- 1
-                    }              
-                  }else{
-                    aa$bin.event[b] <- "CSP"
-                  }
-                }else{ #Si no es nada de lo anterior entonces es complejo
+                }else{ #No parece ser alt, es complejo entonces
                   aa$bin.event[b] <- "CSP"
                 }
               }
-              #Vemos si es un novel event
-              if(any(asd@junctionsPJU$junction[rownames(asd@junctionsPJU) %in% localebased(sr)$junction[i]] == "noHit")){
-                aa$bin.event[b] <- paste("Novel", aa$bin.event[b])
+            }else{
+              #Vemos si es ES
+              if(nrow(junturas) == 3){
+                i <- which(original_signals$jl$cluster.range == aa$J3[b])
+                if(length(i) > 0){ 
+                  aa$bin.event[b] <- "ES"
+                  #Vemos si podemos encontrar el bin asociado a este ES
+                  j <- which(aa$region == aa$J3[b])
+                  if(length(j) > 0){ #Lo encontramos, sacamos directamente esta fila porque coincide con la que ya existe y tiene mas datos.
+                    elementos_a_eliminar <- c(elementos_a_eliminar, b)
+                    #aa$b.fdr[b]   <- binbased(sr)$bin.fdr[j[1]]
+                    #aa$b.logfc[b] <- binbased(sr)$bin.logFC[j[1]]
+	                  #aa$b[b]       <- 1
+                  }              
+                }else{
+                  aa$bin.event[b] <- "CSP"
+                }
+              }else{ #Si no es nada de lo anterior entonces es complejo
+                aa$bin.event[b] <- "CSP"
               }
+            }
+            #Vemos si es un novel event
+            if(any(asd@junctionsPJU$junction[rownames(asd@junctionsPJU) %in% original_signals$jl$junction[i]] == "noHit")){
+              aa$bin.event[b] <- paste("Novel", aa$bin.event[b])
             }
           }
         }
