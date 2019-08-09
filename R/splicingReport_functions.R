@@ -258,8 +258,8 @@
 # por ejemplo, jl y que se solapa con un bin en al menos 3 pares de bases, aparece con soporte en bjs y en jl, mientras que si se solapa
 # con b, solamente de coverage, aparece con b y jl. Las junturas que aparecen reportadas al final son las que aparecen en el bin en caso
 # de tratarse de una region meramente "binica" o son la region en caso de venir de ja o jl.
-#bin.fdr=0.1;nonunif=0.1;usenonunif=FALSE;dPSI=0.1;dPIR=0.1;j.fdr=0.1;j.particip=0.1;usepvalBJS=FALSE;bjs.fdr=0.1; otherSources = NULL; overlapType = "any"
-.integrateSignals<-function(sr = NULL, asd = NULL, bin.fdr=0.1,nonunif=0.1,usenonunif=FALSE,dPSI=0.1,dPIR=0.1,j.fdr=0.1, j.particip=0.1,usepvalBJS=FALSE, bjs.fdr=0.1, otherSources = NULL, overlapType = "any"){
+#bin.logFC = log2(1.5);bin.fdr=0.1;nonunif=0.1;usenonunif=FALSE;dPSI=0.1;dPIR=0.1;j.fdr=0.1;j.particip=0.1;usepvalBJS=FALSE;bjs.fdr=0.1; otherSources = NULL; overlapType = "any"
+.integrateSignals<-function(sr = NULL, asd = NULL, bin.logFC = log2(1.5), bin.fdr=0.1,nonunif=0.1,usenonunif=FALSE,dPSI=0.1,dPIR=0.1,j.fdr=0.1, j.particip=0.1,usepvalBJS=FALSE, bjs.fdr=0.1, otherSources = NULL, overlapType = "any"){
   
   if(class(sr) != "ASpliSplicingReport"){
     stop("sr must be an ASpliSplicingReport object")   
@@ -275,8 +275,9 @@
   #bines significativos y uniformes 1.130149.130372 
   original_signals <- setNames(vector("list", 4), c("b", "bjs", "ja", "jl"))
   
-  b  <- sr@binbased
-  b  <- b[!is.na(b$start), ]
+  b <- sr@binbased
+  b <- b[!is.na(b$start), ]
+  b <- b[ replace_na(abs(b$bin.logFC) < bin.logFC, FALSE), ]
   if(usenonunif){
    b  <- b[ replace_na(b$bin.fdr < bin.fdr, FALSE) & (is.na(b$junction.dPIR) | replace_na(b$junction.nonuniformity < nonunif, FALSE)),]
   }else{

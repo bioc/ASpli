@@ -12,7 +12,7 @@
     ignoreExternal = TRUE,
     ignoreIo = TRUE, 
     ignoreI = FALSE,
-    filterWithContrasted = FALSE,
+    filterWithContrasted = TRUE,
     verbose = FALSE,
     threshold = 5
     # ---------------------------------------------------------------------- #
@@ -146,7 +146,7 @@
     ignoreExternal = TRUE, 
     ignoreIo = TRUE, 
     ignoreI = FALSE,
-    filterWithContrasted = FALSE,
+    filterWithContrasted = TRUE,
 	verbose = TRUE) {
  
   targets <- counts@targets
@@ -181,7 +181,7 @@
     minRds = 0.05,
     contrast = NULL,
     forceGLM = FALSE,
-    filterWithContrasted = FALSE,
+    filterWithContrasted = TRUE,
     verbose = FALSE ) {
   
   dfGen <- .filterGenes( counts, targets, minGenReads, minRds, contrast, 
@@ -211,7 +211,7 @@
     ignoreExternal, 
     ignoreIo, 
     ignoreI,
-    filterWithContrasted = FALSE,
+    filterWithContrasted = TRUE,
     verbose = FALSE) {
   
   # Filter bins
@@ -281,7 +281,7 @@
 
 
 .filterGenes <- function( counts, targets, minGenReads, minRds, contrast= NULL, 
-    filterWithContrasted = FALSE, verbose = FALSE ) {
+    filterWithContrasted = TRUE, verbose = FALSE ) {
   
   if ( verbose ) { message( "Filtering genes:") }
   

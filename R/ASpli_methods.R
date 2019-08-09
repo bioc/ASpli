@@ -696,7 +696,7 @@ setGeneric (
                   ignoreExternal = TRUE,
                   ignoreIo = TRUE, 
                   ignoreI = FALSE,
-                  filterWithContrasted = FALSE,
+                  filterWithContrasted = TRUE,
                   verbose = FALSE,
                   threshold = 5
   ) standardGeneric("DUreport.norm") )
@@ -718,7 +718,7 @@ setMethod(
                          ignoreExternal = TRUE,
                          ignoreIo = TRUE, 
                          ignoreI = FALSE,
-                         filterWithContrasted = FALSE,
+                         filterWithContrasted = TRUE,
                          verbose = FALSE,
                          threshold = 5
   ) { 
@@ -745,7 +745,7 @@ setGeneric (
                   ignoreExternal = TRUE,
                   ignoreIo = TRUE, 
                   ignoreI = FALSE,
-                  filterWithContrasted = FALSE,
+                  filterWithContrasted = TRUE,
                   verbose = FALSE
   ) standardGeneric("DUreport.offset") )
 
@@ -764,7 +764,7 @@ setMethod(
                          ignoreExternal = TRUE,
                          ignoreIo = TRUE, 
                          ignoreI = FALSE,
-                         filterWithContrasted = FALSE,
+                         filterWithContrasted = TRUE,
                          verbose = FALSE
   ) { 
     offset = TRUE
@@ -778,7 +778,7 @@ setGeneric( name = 'gbDUreport',
             def = function( counts, minGenReads  = 10, minBinReads = 5, 
                             minRds = 0.05, contrast = NULL, forceGLM = FALSE,  
                             ignoreExternal = TRUE, ignoreIo = TRUE, ignoreI = FALSE, 
-                            filterWithContrasted = FALSE, verbose = TRUE ) 
+                            filterWithContrasted = TRUE, verbose = TRUE ) 
               standardGeneric( 'gbDUreport'))
 
 setMethod( 
@@ -793,7 +793,7 @@ setMethod(
                          ignoreExternal = TRUE,
                          ignoreIo = TRUE, 
                          ignoreI = FALSE, 
-                         filterWithContrasted = FALSE,
+                         filterWithContrasted = TRUE,
                          verbose = TRUE ) {
     .DUreportBinSplice( counts, minGenReads, minBinReads, minRds, 
                         contrast, forceGLM, ignoreExternal, ignoreIo, ignoreI, 
@@ -805,7 +805,7 @@ setGeneric( name = "jDUreport",
             def = function (asd, 
                             minAvgCounts              = 5, 
                             contrast                  = NULL,
-                            filterWithContrasted      = FALSE,
+                            filterWithContrasted      = TRUE,
                             runUniformityTest         = FALSE,
                             mergedBams                = NULL,
                             maxPValForUniformityCheck = 0.2,
@@ -821,7 +821,7 @@ setMethod(
     asd,
     minAvgCounts              = 5, 
     contrast                  = NULL,
-    filterWithContrasted      = FALSE,
+    filterWithContrasted      = TRUE,
     runUniformityTest         = FALSE,
     mergedBams                = NULL,
     maxPValForUniformityCheck = 0.2,
@@ -857,6 +857,7 @@ setMethod(
 setGeneric( name = "integrateSignals",
             def = function (sr=NULL,
                             asd = NULL, 
+                            bin.logFC = log2(1.5),
                             bin.fdr=0.1,
                             nonunif=0.1,
                             usenonunif=FALSE,
@@ -877,6 +878,7 @@ setMethod(
   definition = function (
     sr=NULL,
     asd = NULL,
+    bin.logFC = log2(1.5),
     bin.fdr=0.1,
     nonunif=0.1, 
     usenonunif=FALSE,
@@ -889,7 +891,7 @@ setMethod(
     otherSources = NULL,
     overlapType = "any"
   ) {
-    .integrateSignals(sr, asd, bin.fdr, nonunif, usenonunif, dPSI, dPIR, j.fdr, j.particip, usepvalBJS, bjs.fdr, otherSources, overlapType) 
+    .integrateSignals(sr, asd, bin.logFC, bin.fdr, nonunif, usenonunif, dPSI, dPIR, j.fdr, j.particip, usepvalBJS, bjs.fdr, otherSources, overlapType) 
   }
 )
 
@@ -1208,12 +1210,14 @@ setMethod(
     is[,bjs.fdr:=signif(as.numeric(bjs.fdr), 4)]
     is[,bjs.logfc:=signif(as.numeric(bjs.logfc), 4)]    
     is[,bjs.nonuniformity:=signif(as.numeric(bjs.nonuniformity), 4)]
-    is[,bjs.inclussion:=signif(as.numeric(bjs.inclussion), 4)]    
+    is[,bjs.inclussion_sign:=as.factor(replace_na(sign(as.numeric(bjs.inclussion)), 0))]        
+    is[,bjs.inclussion:=abs(signif(as.numeric(bjs.inclussion), 4))]    
     is[,a.lr:=signif(as.numeric(a.lr), 4)]
     is[,a.fdr:=signif(as.numeric(a.fdr), 4)]
     is[,a.logfc:=signif(as.numeric(a.logfc), 4)]
     is[,a.nonuniformity:=signif(as.numeric(a.nonuniformity), 4)]
-    is[,a.dpir:=signif(as.numeric(a.dpir), 4)]
+    is[,a.dpir_sign:=as.factor(replace_na(sign(as.numeric(a.dpir)), 0))]    
+    is[,a.dpir:=abs(signif(as.numeric(a.dpir), 4))]
     is[,l.lr:=signif(as.numeric(l.lr), 4)]
     is[,l.fdr:=signif(as.numeric(l.fdr), 4)]
     #is[,l.logfc:=signif(as.numeric(l.logfc), 4)]
@@ -1274,16 +1278,16 @@ setMethod(
           th(rowspan = 2, 'Bin'),
           th(rowspan = 2, 'Feature'),
           th(colspan = 2, 'Bins', bgcolor="#DCDCDC"),
-          th(colspan = 5, 'Bin Supporting Junctions', bgcolor="#C0C0C0"),
-          th(colspan = 5, 'Anchor Junctions', bgcolor="#DCDCDC"),
+          th(colspan = 6, 'Bin Supporting Junctions', bgcolor="#C0C0C0"),
+          th(colspan = 6, 'Anchor Junctions', bgcolor="#DCDCDC"),
           th(colspan = 5, 'Locale Junctions', bgcolor="#C0C0C0")
         ),
         tr(
-          lapply(c("logFC", "FDR", "LR",  "logFC", "FDR", "Non Uniformity", "Inclussion",  "LR", "logFC", "FDR", "Non uniformity", "Inclussion", "LR", "FDR", "Participation", "dParticipation"), th)
+          lapply(c("logFC", "FDR", "LR",  "logFC", "FDR", "Non Uniformity", "Inclussion", "Sign Inclussion",  "LR", "logFC", "FDR", "Non uniformity", "Inclussion", "Sign Inclussion", "LR", "FDR", "Participation", "dParticipation"), th)
         )
       )
     ))
-    y <- datatable(cbind('&oplus;', is[1:ntop,c("region", "bin.event", "locus", "locus_overlap", "b", "bjs", "ja", "jl", "bin", "feature", "b.logfc", "b.fdr", "bjs.lr", "bjs.logfc", "bjs.fdr", "bjs.nonuniformity", "bjs.inclussion", "a.lr", "a.logfc", "a.fdr", "a.nonuniformity", "a.dpir", "l.lr", "l.fdr", "l.participation", "l.dparticipation")]),
+    y <- datatable(cbind('&oplus;', is[1:ntop,c("region", "bin.event", "locus", "locus_overlap", "b", "bjs", "ja", "jl", "bin", "feature", "b.logfc", "b.fdr", "bjs.lr", "bjs.logfc", "bjs.fdr", "bjs.nonuniformity", "bjs.inclussion", "bjs.inclussion_sign", "a.lr", "a.logfc", "a.fdr", "a.nonuniformity", "a.dpir", "a.dpir_sign", "l.lr", "l.fdr", "l.participation", "l.dparticipation")]),
               rownames = FALSE,
               escape = -1,
               filter ="top",

@@ -328,7 +328,7 @@
   df0,
   targets,
   threshold,
-  filterWithContrasted = FALSE,
+  filterWithContrasted = TRUE,
   contrast = NULL 
 ) {
   
@@ -510,7 +510,7 @@
   start_J2,
   start_J3,
   minAvgCounts,
-  filterWithContrasted = FALSE,
+  filterWithContrasted = TRUE,
   contrast = NULL,
   strongFilter = TRUE,
   alt = FALSE
