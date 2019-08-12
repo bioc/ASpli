@@ -277,7 +277,7 @@
   
   b <- sr@binbased
   b <- b[!is.na(b$start), ]
-  b <- b[ replace_na(abs(b$bin.logFC) < bin.logFC, FALSE), ]
+  b <- b[ replace_na(abs(b$bin.logFC) > bin.logFC, FALSE), ]
   if(usenonunif){
    b  <- b[ replace_na(b$bin.fdr < bin.fdr, FALSE) & (is.na(b$junction.dPIR) | replace_na(b$junction.nonuniformity < nonunif, FALSE)),]
   }else{
