@@ -48,8 +48,8 @@
   bins                   <- data.table(binsDU(bdu), keep.rownames = T)
   aux                    <- data.frame(merge(bins, j, by="rn", all=T))
   colnames(aux)          <- c("bin", "feature", "bin.event", "locus", "locus_overlap", "symbol", "gene_coordinates", "start",
-                              "end", "length", "bin.logFC", "bin.pvalue", "bin.fdr", "junction.event", "J3", "J3.multiplicity", "junction.logFC",
-                              "junction.log.mean", "junction.LR", "junction.pvalue", "junction.fdr", "junction.dPIR", "junction.dPSI", "junction.nonuniformity", colnames(aux)[grep("counts", colnames(aux))])
+                              "end", "length", "bin.logFC", "bin.pvalue", "bin.fdr", "junction.event", "J3", "J3.multiplicity", "J3.logFC",
+                              "J3.log.mean", "j.set.LR", "j.set.pvalue", "j.set.fdr", "j.set.dPIR", "j.set.dPSI", "j.set.nonuniformity", colnames(aux)[grep("counts", colnames(aux))])
   
   aux                    <- aux[, !colnames(aux) %in% c("symbol", "junction.event")]
   
@@ -304,16 +304,16 @@
   if(!usenonunif){
     bunif <- TRUE
   }else{
-    bunif <- replace_na(b$junction.nonuniformity < nonunif, FALSE)
+    bunif <- replace_na(b$j.set.nonuniformity < nonunif, FALSE)
   }
   if(usepvalBJS){
-    b  <- b[ b$junction.fdr < bjs.fdr &
-               (replace_na(abs(b$junction.dPSI) > dPSI, FALSE) | 
-                 (replace_na(abs(b$junction.dPIR) > dPIR, FALSE) & bunif)), ]
+    b  <- b[ b$j.set.fdr < bjs.fdr &
+               (replace_na(abs(b$j.set.dPSI) > dPSI, FALSE) | 
+                 (replace_na(abs(b$j.set.dPIR) > dPIR, FALSE) & bunif)), ]
     
   }else{  
-    b  <- b[replace_na(abs(b$junction.dPSI) > dPSI, FALSE) | 
-              (replace_na(abs(b$junction.dPIR) > dPIR, FALSE) & bunif), ]
+    b  <- b[replace_na(abs(b$j.set.dPSI) > dPSI, FALSE) | 
+              (replace_na(abs(b$j.set.dPIR) > dPIR, FALSE) & bunif), ]
   }
   
   original_signals$bjs <- b
@@ -639,11 +639,11 @@
       if(aa$bjs[b] != 0){
         i <- which(original_signals$bjs$J3 == aa$J3[b])
         if(length(i) > 0){
-          aa$bjs.lr[b] <- original_signals$bjs$junction.LR[i[1]]
-          aa$bjs.fdr[b] <- original_signals$bjs$junction.fdr[i[1]]
-          aa$bjs.logfc[b] <- original_signals$bjs$junction.logFC[i[1]]
-          aa$bjs.nonuniformity[b] <- original_signals$bjs$junction.nonuniformity[i[1]]
-          aa$bjs.inclussion[b] <- replace_na(original_signals$bjs$junction.dPSI[i[1]], original_signals$bjs$junction.dPIR[i[1]])  
+          aa$bjs.lr[b] <- original_signals$bjs$j.set.LR[i[1]]
+          aa$bjs.fdr[b] <- original_signals$bjs$j.set.fdr[i[1]]
+          aa$bjs.logfc[b] <- original_signals$bjs$J3.logFC[i[1]]
+          aa$bjs.nonuniformity[b] <- original_signals$bjs$j.set.nonuniformity[i[1]]
+          aa$bjs.inclussion[b] <- replace_na(original_signals$bjs$j.set.dPSI[i[1]], original_signals$bjs$j.set.dPIR[i[1]])  
         }else{
           aa$bjs[b] <- "*"
         }
@@ -819,6 +819,21 @@
         aa <- aa[-a_descartar, ]
       }
     }
+    
+    #Buscamos duplicados
+    hash <- apply(aa[, mget(colnames(aa)[!colnames(aa) %in% c("region", "bin.event", "bin", "feature", "binreg")])], 1, paste, collapse = "-")
+    duplicados <- table(hash)
+    
+    #Comparamos los distintos eventos duplicados para mergearlos
+    duplicados_a_remover <- c()
+    for(duplicado in names(duplicados)[duplicados > 1]){
+      if(all(aa$bin.event[hash %in% duplicado] %in% c("Novel ES", "ES", "ASCE"))){
+        posibles <- which(hash %in% duplicado)
+        duplicados_a_remover <- c(duplicados_a_remover, posibles[is.na(aa$bin[hash %in% duplicado])])
+      }
+    }
+    #Removemos los elementos mergeados
+    aa <- aa[-duplicados_a_remover, ]
     
   }else{
     aa <- data.table(region = character(), locus = character(), b = numeric(), bjs = numeric(), ja = numeric(),

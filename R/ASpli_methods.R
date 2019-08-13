@@ -1208,13 +1208,13 @@ setMethod(
     is[,b.logfc:=signif(as.numeric(b.logfc), 4)]
     is[,bjs.lr:=signif(as.numeric(bjs.lr), 4)]
     is[,bjs.fdr:=signif(as.numeric(bjs.fdr), 4)]
-    is[,bjs.logfc:=signif(as.numeric(bjs.logfc), 4)]    
+    #is[,bjs.logfc:=signif(as.numeric(bjs.logfc), 4)]    
     is[,bjs.nonuniformity:=signif(as.numeric(bjs.nonuniformity), 4)]
     is[,bjs.inclussion_sign:=as.factor(replace_na(sign(as.numeric(bjs.inclussion)), 0))]        
     is[,bjs.inclussion:=abs(signif(as.numeric(bjs.inclussion), 4))]    
     is[,a.lr:=signif(as.numeric(a.lr), 4)]
     is[,a.fdr:=signif(as.numeric(a.fdr), 4)]
-    is[,a.logfc:=signif(as.numeric(a.logfc), 4)]
+    #is[,a.logfc:=signif(as.numeric(a.logfc), 4)]
     is[,a.nonuniformity:=signif(as.numeric(a.nonuniformity), 4)]
     is[,a.dpir_sign:=as.factor(replace_na(sign(as.numeric(a.dpir)), 0))]    
     is[,a.dpir:=abs(signif(as.numeric(a.dpir), 4))]
@@ -1278,16 +1278,16 @@ setMethod(
           th(rowspan = 2, 'Bin'),
           th(rowspan = 2, 'Feature'),
           th(colspan = 2, 'Bins', bgcolor="#DCDCDC"),
-          th(colspan = 6, 'Bin Supporting Junctions', bgcolor="#C0C0C0"),
-          th(colspan = 6, 'Anchor Junctions', bgcolor="#DCDCDC"),
+          th(colspan = 5, 'Bin Supporting Junctions', bgcolor="#C0C0C0"),
+          th(colspan = 5, 'Anchor Junctions', bgcolor="#DCDCDC"),
           th(colspan = 5, 'Locale Junctions', bgcolor="#C0C0C0")
         ),
         tr(
-          lapply(c("logFC", "FDR", "LR",  "logFC", "FDR", "Non Uniformity", "Inclussion", "Sign Inclussion",  "LR", "logFC", "FDR", "Non uniformity", "Inclussion", "Sign Inclussion", "LR", "FDR", "Participation", "dParticipation"), th)
+          lapply(c("logFC", "FDR", "LR", "FDR", "Non Uniformity", "dInclussion", "Sign Inclussion", "LR", "FDR", "Non uniformity", "dInclussion", "Sign Inclussion", "LR", "FDR", "Participation", "dParticipation"), th)
         )
       )
     ))
-    y <- datatable(cbind('&oplus;', is[1:ntop,c("region", "bin.event", "locus", "locus_overlap", "b", "bjs", "ja", "jl", "bin", "feature", "b.logfc", "b.fdr", "bjs.lr", "bjs.logfc", "bjs.fdr", "bjs.nonuniformity", "bjs.inclussion", "bjs.inclussion_sign", "a.lr", "a.logfc", "a.fdr", "a.nonuniformity", "a.dpir", "a.dpir_sign", "l.lr", "l.fdr", "l.participation", "l.dparticipation")]),
+    y <- datatable(cbind('&oplus;', is[1:ntop,c("region", "bin.event", "locus", "locus_overlap", "b", "bjs", "ja", "jl", "bin", "feature", "b.logfc", "b.fdr", "bjs.lr", "bjs.fdr", "bjs.nonuniformity", "bjs.inclussion", "bjs.inclussion_sign", "a.lr", "a.fdr", "a.nonuniformity", "a.dpir", "a.dpir_sign", "l.lr", "l.fdr", "l.participation", "l.dparticipation")]),
               rownames = FALSE,
               escape = -1,
               filter ="top",
