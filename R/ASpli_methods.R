@@ -1232,32 +1232,34 @@ setMethod(
         ntop <- length(is$region)
       }
     }
-    pb <- txtProgressBar(min=1,max=ntop,style=2)
-    if(makeGraphs){
-      for(i in 1:ntop){
-        r <- is$region[i]
-        #if(i %% 10 == 0){
-        # message(paste0(signif(i/ntop, 2)*100, "% completed"))
-        #}
-        setTxtProgressBar(pb,i)
-        tryCatch({
-          if(!file.exists(paste0(normalizePath(output.dir), "/img/", r, "_gene.png"))){
-            png(width = 1400, height=700, filename = paste0(normalizePath(output.dir), "/img/", r, "_gene.png"))
-            .plotSplicingPattern(r, is, counts, features, mergedBams, sr, genePlot = TRUE, jCompletelyIncluded, zoomRegion, useLog, tcex)
-            dev.off()
-            png(width = 1400, height=700, filename = paste0(normalizePath(output.dir), "/img/", r, ".png"))
-            .plotSplicingPattern(r, is, counts, features, mergedBams, sr, genePlot = FALSE, jCompletelyIncluded, zoomRegion, useLog, tcex)
-            dev.off()
-          }
-        }, warning = function(warning_condition) {
-            #message(warning_condition)   
-            dev.off()
-        }, error = function(error_condition) {
-            #message(error_condition)
-            dev.off()
-        }, finally={
-          
-        })
+    if(ntop > 1){
+      pb <- txtProgressBar(min=1,max=ntop,style=2)
+      if(makeGraphs){
+        for(i in 1:ntop){
+          r <- is$region[i]
+          #if(i %% 10 == 0){
+          # message(paste0(signif(i/ntop, 2)*100, "% completed"))
+          #}
+          setTxtProgressBar(pb,i)
+          tryCatch({
+            if(!file.exists(paste0(normalizePath(output.dir), "/img/", r, "_gene.png"))){
+              png(width = 1400, height=700, filename = paste0(normalizePath(output.dir), "/img/", r, "_gene.png"))
+              .plotSplicingPattern(r, is, counts, features, mergedBams, sr, genePlot = TRUE, jCompletelyIncluded, zoomRegion, useLog, tcex)
+              dev.off()
+              png(width = 1400, height=700, filename = paste0(normalizePath(output.dir), "/img/", r, ".png"))
+              .plotSplicingPattern(r, is, counts, features, mergedBams, sr, genePlot = FALSE, jCompletelyIncluded, zoomRegion, useLog, tcex)
+              dev.off()
+            }
+          }, warning = function(warning_condition) {
+              #message(warning_condition)   
+              dev.off()
+          }, error = function(error_condition) {
+              #message(error_condition)
+              dev.off()
+          }, finally={
+            
+          })
+        }
       }
     }
     #close(pb)
