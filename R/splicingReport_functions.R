@@ -9,7 +9,7 @@
 #Then merges locale information with coverage information in the regions.
 #Finally does the same with anchors.
 #################################################################################
-.splicingReport <- function(bdu, jdu){
+.splicingReport <- function(bdu, jdu, counts){
   
   #Sanity check
   if(class(bdu) != "ASpliDU"){
@@ -18,7 +18,10 @@
   if(class(jdu) != "ASpliJDU"){
     stop("jdu must be an ASpliJDU object, try running jDUreport first") 
   }
-  
+  if(class(counts) != "ASpliCounts"){
+    stop("counts must be an ASpliCounts object, try running gbCounts first") 
+  }  
+
   mr <- new( Class="ASpliSplicingReport" )
   mr@contrast <- jdu@contrast
   
@@ -49,14 +52,23 @@
   aux                    <- data.frame(merge(bins, j, by="rn", all=T))
   colnames(aux)          <- c("bin", "feature", "bin.event", "locus", "locus_overlap", "symbol", "gene_coordinates", "start",
                               "end", "length", "bin.logFC", "bin.pvalue", "bin.fdr", "junction.event", "J3", "J3.multiplicity", "J3.logFC",
-                              "J3.log.mean", "j.set.LR", "j.set.pvalue", "j.set.fdr", "j.set.dPIR", "j.set.dPSI", "j.set.nonuniformity", colnames(aux)[grep("counts", colnames(aux))])
+                              "J3.log.mean", "cluster.LR", "cluster.pvalue", "cluster.fdr", "cluster.dPIR", "cluster.dPSI", "cluster.nonuniformity", colnames(aux)[grep("counts", colnames(aux))])
   
   aux                    <- aux[, !colnames(aux) %in% c("symbol", "junction.event")]
   
   #aux                    <- aux[union(which(aux$bin.fdr < maxBinFDR), which(aux$junction.fdr < maxJunctionFDR)), ]
   aux                    <- aux[order(aux$bin), ]
   rownames(aux)          <- NULL
-  binbased(mr)           <- aux
+  
+  #Buscamos los elementos sin start y se las asignamos a partir de los features
+  sin_start            <- which(is.na(aux$start))
+  if(length(sin_start)){
+    imputaciones         <- countsb(counts)[aux$bin[sin_start], ]
+    aux$start[sin_start] <- imputaciones$start
+    aux$end[sin_start]   <- imputaciones$end
+    aux$gene_coordinates[sin_start] <- imputaciones$gene_coordinates
+  }
+  binbased(mr)         <- aux
   
   ########################################
   localej   <- localej(jdu)
@@ -258,8 +270,23 @@
 # por ejemplo, jl y que se solapa con un bin en al menos 3 pares de bases, aparece con soporte en bjs y en jl, mientras que si se solapa
 # con b, solamente de coverage, aparece con b y jl. Las junturas que aparecen reportadas al final son las que aparecen en el bin en caso
 # de tratarse de una region meramente "binica" o son la region en caso de venir de ja o jl.
-#bin.logFC = log2(1.5);bin.fdr=0.1;nonunif=0.1;usenonunif=FALSE;dPSI=0.1;dPIR=0.1;j.fdr=0.1;j.particip=0.1;usepvalBJS=FALSE;bjs.fdr=0.1; otherSources = NULL; overlapType = "any"
-.integrateSignals<-function(sr = NULL, asd = NULL, bin.logFC = log2(1.5), bin.fdr=0.1,nonunif=0.1,usenonunif=FALSE,dPSI=0.1,dPIR=0.1,j.fdr=0.1, j.particip=0.1,usepvalBJS=FALSE, bjs.fdr=0.1, otherSources = NULL, overlapType = "any"){
+#bin.FC = 3; bin.fdr = 0.05; nonunif = 1; usenonunif = FALSE; bin.inclussion = 0.1; bjs.inclussion = 0.2; bjs.fdr = 0.1; a.inclussion = 0.3; a.fdr = 0.05; l.inclussion = 0.3; l.fdr = 0.05; usepvalBJS=FALSE; otherSources = NULL; overlapType = "any"
+.integrateSignals<-function(sr = NULL,
+                            asd = NULL,
+                            bin.FC = 3,
+                            bin.fdr = 0.05,
+                            nonunif = 1,
+                            usenonunif = FALSE,
+                            bin.inclussion = 0.1,
+                            bjs.inclussion = 0.2,
+                            bjs.fdr = 0.1,
+                            a.inclussion = 0.3,
+                            a.fdr = 0.05,
+                            l.inclussion = 0.3,
+                            l.fdr = 0.05,
+                            usepvalBJS=FALSE,
+                            otherSources = NULL,
+                            overlapType = "any"){
   
   if(class(sr) != "ASpliSplicingReport"){
     stop("sr must be an ASpliSplicingReport object")   
@@ -275,14 +302,29 @@
   #bines significativos y uniformes 1.130149.130372 
   original_signals <- setNames(vector("list", 4), c("b", "bjs", "ja", "jl"))
   
-  b <- sr@binbased
-  b <- b[!is.na(b$start), ]
-  b <- b[ replace_na(abs(b$bin.logFC) > bin.logFC, FALSE), ]
-  if(usenonunif){
-   b  <- b[ replace_na(b$bin.fdr < bin.fdr, FALSE) & (is.na(b$junction.dPIR) | replace_na(b$junction.nonuniformity < nonunif, FALSE)),]
-  }else{
-   b  <- b[ replace_na(b$bin.fdr < bin.fdr, FALSE),]
-  }
+  
+  b <- binbased(sr)
+  b <- b[!is.na(b$length), ]
+  # b <- b[ replace_na(abs(b$bin.logFC) > bin.logFC, FALSE), ]
+  # if(usenonunif){
+  #   b  <- b[ replace_na(b$bin.fdr < bin.fdr, FALSE) & (is.na(b$junction.dPIR) | replace_na(b$junction.nonuniformity < nonunif, FALSE)),]
+  # }else{
+  #   b  <- b[ replace_na(b$bin.fdr < bin.fdr, FALSE),]
+  # }
+
+  #bin: qv + soporte juntura
+  ibin1 <- (!is.na(b$bin.fdr) & b$bin.fdr < bin.fdr) &
+    ( (!is.na(b$cluster.dPIR) & abs(b$cluster.dPIR) > bin.inclussion) |
+        (!is.na(b$cluster.dPSI) & abs(b$cluster.dPSI) > bin.inclussion))
+  
+  #bin: qv + FC + nonunif
+  ibin2  <- (!is.na(b$bin.fdr) & b$bin.fdr < bin.fdr) &
+    abs(b$bin.logFC) > log2(bin.FC) &
+    (is.na(b$cluster.nonuniformity) |
+       b$cluster.nonuniformity<nonunif)
+  
+  ibin   <- ibin1 | ibin2  
+  b      <- b[ibin, ]
   
   original_signals$b <- b
   
@@ -296,25 +338,40 @@
   }else{
     binbased <- GRanges()
   }
+    
+  #Seniales de bin y soporte de junturas
+
+# 
+#   b1loc  <- unique(a$locus[ibin1])
+#   b2loc  <- unique(a$locus[ibin2])
+#   bloc   <- unique(a$locus[ibin])
+#   
+
   
   #soporte de juntura para bines
-  b  <- sr@binbased
-  b  <- b[!is.na(b$start), ]
- 
-  if(!usenonunif){
-    bunif <- TRUE
-  }else{
-    bunif <- replace_na(b$j.set.nonuniformity < nonunif, FALSE)
-  }
-  if(usepvalBJS){
-    b  <- b[ b$j.set.fdr < bjs.fdr &
-               (replace_na(abs(b$j.set.dPSI) > dPSI, FALSE) | 
-                 (replace_na(abs(b$j.set.dPIR) > dPIR, FALSE) & bunif)), ]
-    
-  }else{  
-    b  <- b[replace_na(abs(b$j.set.dPSI) > dPSI, FALSE) | 
-              (replace_na(abs(b$j.set.dPIR) > dPIR, FALSE) & bunif), ]
-  }
+  b  <- binbased(sr)
+  #b  <- b[!is.na(b$start), ]
+  # 
+  # if(!usenonunif){
+  #   bunif <- TRUE
+  # }else{
+  #   bunif <- replace_na(b$cluster.nonuniformity < nonunif, FALSE)
+  # }
+  # if(usepvalBJS){
+  #   b  <- b[ b$cluster.fdr < bjs.fdr &
+  #              (replace_na(abs(b$cluster.dPSI) > dPSI, FALSE) | 
+  #                 (replace_na(abs(b$cluster.dPIR) > dPIR, FALSE) & bunif)), ]
+  #   
+  # }else{  
+  #   b  <- b[replace_na(abs(b$cluster.dPSI) > dPSI, FALSE) | 
+  #             (replace_na(abs(b$cluster.dPIR) > dPIR, FALSE) & bunif), ]
+  # }
+  
+  #solo soporte de juntura
+  ibjs <- b$cluster.fdr < bjs.fdr &
+    ( (!is.na(b$cluster.dPIR) & abs(b$cluster.dPIR) > bjs.inclussion) |
+        (!is.na(b$cluster.dPSI) & abs(b$cluster.dPSI) > bjs.inclussion))
+  b <- b[ibjs, ]
   
   original_signals$bjs <- b
   
@@ -329,35 +386,20 @@
     binsupport <- GRanges()
   }
   
-  #Locales
-  b <- sr@localebased
-  b <- b[replace_na(b$cluster.fdr < j.fdr, FALSE) & 
-           replace_na(b$cluster.participation > j.particip, FALSE), ] #Reemplazamos la participacion de la juntura por la participacion del cluster al que pertenece que es el dato importante
-  
-  original_signals$jl <- b
-  
-  if(nrow(b) > 0){
-    aux <- strsplit2(b$cluster.range, "[.]") #Reemplazamos la juntura por el rango del cluster al que pertenece que es el dato importante
-    start   = as.numeric(aux[, 2])#aggregate(start ~ cluster, data=b, FUN=min)
-    end     = as.numeric(aux[, 3])#aggregate(end ~ cluster, data=b, FUN=max)
-    seqnames = aux[, 1]
-    strand  = rep("*", times=length(seqnames))
-    tipo    = rep("localebased", times=length(aux[, 1]))
-    localebased <- unique(GRanges(seqnames, IRanges(start, end), strand, tipo)) #Puede haber duplicados porque machean con varios bines
-  }else{
-    localebased <- GRanges()
-  }
-  
-  b <- sr@anchorbased
-  if(!usenonunif | all(is.na(b$junction.nonuniformity))){
-    bunif <- TRUE
-  }else{
-    bunif <- replace_na(b$junction.nonuniformity < nonunif, FALSE)
-  }
-  b <- b[replace_na(b$junction.fdr < j.fdr, FALSE) & 
-           replace_na(b$junction.dPIR > dPIR, FALSE) & 
-           bunif, ]
-  
+  #anchor
+  b    <- anchorbased(sr)
+  ianc <-  b$cluster.fdr < a.fdr & abs(b$junction.dPIR) > a.inclussion
+
+  # b <- sr@anchorbased
+  # if(!usenonunif | all(is.na(b$junction.nonuniformity))){
+  #   bunif <- TRUE
+  # }else{
+  #   bunif <- replace_na(b$junction.nonuniformity < nonunif, FALSE)
+  # }
+  # b <- b[replace_na(b$junction.fdr < j.fdr, FALSE) & 
+  #          replace_na(b$junction.dPIR > dPIR, FALSE) & 
+  #          bunif, ]
+  b <- b[ianc, ]
   original_signals$ja <- b
   
   if(nrow(b) > 0){
@@ -371,8 +413,38 @@
   }else{
     anchorbased <- GRanges()
   }
+  #locale
+  b     <- localebased(sr)
+  # #Locales
+  # b <- sr@localebased
+  # b <- b[replace_na(b$cluster.fdr < j.fdr, FALSE) & 
+  #          replace_na(b$cluster.participation > j.particip, FALSE), ] #Reemplazamos la participacion de la juntura por la participacion del cluster al que pertenece que es el dato importante
+  # 
+  iloc  <- b$cluster.fdr < l.fdr & (!is.na(b$cluster.dparticipation) &
+                                     abs(b$cluster.dparticipation) > l.inclussion)
   
+  b <- b[iloc, ]
+  original_signals$jl <- b
   
+  if(nrow(b) > 0){
+    aux <- strsplit2(b$cluster.range, "[.]") #Reemplazamos la juntura por el rango del cluster al que pertenece que es el dato importante
+    start   = as.numeric(aux[, 2])#aggregate(start ~ cluster, data=b, FUN=min)
+    end     = as.numeric(aux[, 3])#aggregate(end ~ cluster, data=b, FUN=max)
+    seqnames = aux[, 1]
+    strand  = rep("*", times=length(seqnames))
+    tipo    = rep("localebased", times=length(aux[, 1]))
+    localebased <- unique(GRanges(seqnames, IRanges(start, end), strand, tipo)) #Puede haber duplicados porque machean con varios bines
+  }else{
+    localebased <- GRanges()
+  }
+
+  #corrijo que los Io no tienen bien el locus
+  # iio<-grep("Io",a$bin[ibjs])
+  # aux <- a$bin[which(ibjs)[iio]]
+  # aux <- unlist(lapply(strsplit(aux,":",fixed=TRUE),function(x){x[1]}))
+  # jloc <-unique(c(a$locus[ibjs],aux))
+  # jloc <- jloc[!is.na(jloc)]
+
   #
   # Overlap estimation
   #
@@ -588,7 +660,13 @@
         aa$locus <- NA
       }
     }
+    
+    #Traemos los locus del bin si no están
+    genes <- strsplit2(aa$bin, ":")[, 1]
+    locus_a_imputar <- which(is.na(aa$locus) & !is.na(aa$bin))
+    aa$locus[locus_a_imputar] <- genes[locus_a_imputar]
 
+    #Reordenamos las columnas
     aa <- aa[, c(1, 11, 8, 2:7, 9:10)]
     
     aa$locus_overlap <- "-"
@@ -639,11 +717,11 @@
       if(aa$bjs[b] != 0){
         i <- which(original_signals$bjs$J3 == aa$J3[b])
         if(length(i) > 0){
-          aa$bjs.lr[b] <- original_signals$bjs$j.set.LR[i[1]]
-          aa$bjs.fdr[b] <- original_signals$bjs$j.set.fdr[i[1]]
+          aa$bjs.lr[b] <- original_signals$bjs$cluster.LR[i[1]]
+          aa$bjs.fdr[b] <- original_signals$bjs$cluster.fdr[i[1]]
           aa$bjs.logfc[b] <- original_signals$bjs$J3.logFC[i[1]]
-          aa$bjs.nonuniformity[b] <- original_signals$bjs$j.set.nonuniformity[i[1]]
-          aa$bjs.inclussion[b] <- replace_na(original_signals$bjs$j.set.dPSI[i[1]], original_signals$bjs$j.set.dPIR[i[1]])  
+          aa$bjs.nonuniformity[b] <- original_signals$bjs$cluster.nonuniformity[i[1]]
+          aa$bjs.inclussion[b] <- replace_na(original_signals$bjs$cluster.dPSI[i[1]], original_signals$bjs$cluster.dPIR[i[1]])  
         }else{
           aa$bjs[b] <- "*"
         }
@@ -833,7 +911,9 @@
       }
     }
     #Removemos los elementos mergeados
-    aa <- aa[-duplicados_a_remover, ]
+    if(length(duplicados_a_remover) > 0){
+      aa <- aa[-duplicados_a_remover, ]
+    }
     
   }else{
     aa <- data.table(region = character(), locus = character(), b = numeric(), bjs = numeric(), ja = numeric(),

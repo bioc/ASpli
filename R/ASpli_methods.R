@@ -838,7 +838,8 @@ setMethod(
 
 setGeneric( name = "splicingReport",
             def = function (bdu, 
-                            jdu
+                            jdu, 
+                            counts
             ) standardGeneric("splicingReport") )
 
 
@@ -847,26 +848,29 @@ setMethod(
   signature = "ASpliDU",
   definition = function (
     bdu,
-    jdu
+    jdu,
+    counts
   ) {
     
-    .splicingReport( bdu, jdu ) 
+    .splicingReport( bdu, jdu, counts ) 
   }
 )
 
 setGeneric( name = "integrateSignals",
-            def = function (sr=NULL,
+            def = function (sr = NULL,
                             asd = NULL, 
-                            bin.logFC = log2(1.5),
-                            bin.fdr=0.1,
-                            nonunif=0.1,
-                            usenonunif=FALSE,
-                            dPSI=0.1,
-                            dPIR=0.1,
-                            j.fdr=0.1,
-                            j.particip=0.1,
+                            bin.FC = 3,
+                            bin.fdr = 0.05,
+                            nonunif = 1,
+                            usenonunif = FALSE,
+                            bin.inclussion = 0.1,
+                            bjs.inclussion = 0.2,
+                            bjs.fdr = 0.1,
+                            a.inclussion = 0.3,
+                            a.fdr = 0.05,
+                            l.inclussion = 0.3,
+                            l.fdr = 0.05,
                             usepvalBJS=FALSE,
-                            bjs.fdr=0.1,
                             otherSources = NULL,
                             overlapType = "any"
             ) standardGeneric("integrateSignals") )
@@ -876,22 +880,25 @@ setMethod(
   f = "integrateSignals",
   signature = "ASpliSplicingReport",
   definition = function (
-    sr=NULL,
-    asd = NULL,
-    bin.logFC = log2(1.5),
-    bin.fdr=0.1,
-    nonunif=0.1, 
-    usenonunif=FALSE,
-    dPSI=0.1,
-    dPIR=0.1,
-    j.fdr=0.1,
-    j.particip=0.1,
+    sr = NULL,
+    asd = NULL, 
+    bin.FC = 3,
+    bin.fdr = 0.05,
+    nonunif = 1,
+    usenonunif = FALSE,
+    bin.inclussion = 0.1,
+    bjs.inclussion = 0.2,
+    bjs.fdr = 0.1,
+    a.inclussion = 0.3,
+    a.fdr = 0.05,
+    l.inclussion = 0.3,
+    l.fdr = 0.05,
     usepvalBJS=FALSE,
-    bjs.fdr=0.1,
     otherSources = NULL,
     overlapType = "any"
   ) {
-    .integrateSignals(sr, asd, bin.logFC, bin.fdr, nonunif, usenonunif, dPSI, dPIR, j.fdr, j.particip, usepvalBJS, bjs.fdr, otherSources, overlapType) 
+    .integrateSignals(sr, asd, bin.FC, bin.fdr, nonunif, usenonunif, bin.inclussion, bjs.inclussion, bjs.fdr, a.inclussion, a.fdr,
+                      l.inclussion, l.fdr, usepvalBJS, otherSources, overlapType) 
   }
 )
 
