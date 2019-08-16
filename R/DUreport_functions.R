@@ -632,7 +632,7 @@ return (dfBin)
 }
 
 .binsDUWithDiffSplice <- function( countData, targets, contrast, 
-    ignoreExternal = FALSE, ignoreIo = TRUE, ignoreI = FALSE){#, test = c("exon", "gene")[1] ) {
+    ignoreExternal = FALSE, ignoreIo = TRUE, ignoreI = FALSE){
   
   # Filter bins
   countData = countData[ ! ignoreExternal | countData$event != "external" ,] 
