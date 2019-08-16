@@ -170,7 +170,7 @@
 
   jPIR$annotated        <- ifelse(!is.na(data[rownames(jPIR), "hitIntron"]), "Yes", "No")
   jPIR                  <- jPIR[, c("annotated", "log.mean", "logFC", "LR", "P.Value", "FDR", "J1.pvalue", "J2.pvalue", "NonUniformity", "dPIR", colnames(jPIR)[grep("counts", colnames(jPIR))])]
-                       <-         c("annotated","log.mean", "logFC", "LR", "pvalue", "FDR", "J1.pvalue", "J2.pvalue", "NonUniformity", "dPIR",  colnames(jPIR)[grep("counts", colnames(jPIR))])
+                       #
   colnames(jPIR)[match("P.Value",colnames(jPIR))] <- "pvalue"          
   anchorj(jdu)          <- jPIR
   
