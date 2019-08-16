@@ -1,4 +1,3 @@
-#################################################################################
 #Splicing Report
 #
 #
@@ -661,7 +660,7 @@
       }
     }
     
-    #Traemos los locus del bin si no están
+    #Traemos los locus del bin si no estan
     genes <- strsplit2(aa$bin, ":")[, 1]
     locus_a_imputar <- which(is.na(aa$locus) & !is.na(aa$bin))
     aa$locus[locus_a_imputar] <- genes[locus_a_imputar]
