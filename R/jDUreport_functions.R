@@ -169,7 +169,7 @@
   #jPIR$dParticipation <- jPIR$participation-apply(participation, 1, min)
 
   jPIR$annotated        <- ifelse(!is.na(data[rownames(jPIR), "hitIntron"]), "Yes", "No")
-  jPIR                  <- jPIR[, c("annotated", "log.mean", "logFC", "LR", "P.Value", "FDR", "J1.pvalue", "J2.pvalue", "NonUniformity", "dPIR", colnames(jPIR)[grep("counts", colnames(jPIR))])]
+  jPIR                  <- jPIR[, c("log.mean", "logFC", "LR", "P.Value", "FDR", "J1.pvalue", "J2.pvalue", "NonUniformity", "dPIR", "annotated", colnames(jPIR)[grep("counts", colnames(jPIR))])]
                        #
   colnames(jPIR)[match("P.Value",colnames(jPIR))] <- "pvalue"          
   anchorj(jdu)          <- jPIR
