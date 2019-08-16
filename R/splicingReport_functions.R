@@ -65,6 +65,7 @@
     imputaciones         <- countsb(counts)[aux$bin[sin_start], ]
     aux$start[sin_start] <- imputaciones$start
     aux$end[sin_start]   <- imputaciones$end
+    aux$bin.event[sin_start]<-imputaciones$event                   #ACH aver
     aux$gene_coordinates[sin_start] <- imputaciones$gene_coordinates
   }
   binbased(mr)         <- aux
@@ -313,20 +314,20 @@
 
   #bin: qv + soporte juntura
   ibin1 <- (!is.na(b$bin.fdr) & b$bin.fdr < bin.fdr) &
-    ( (!is.na(b$cluster.dPIR) & abs(b$cluster.dPIR) > bin.inclussion) |
-        (!is.na(b$cluster.dPSI) & abs(b$cluster.dPSI) > bin.inclussion))
+           ( (!is.na(b$cluster.dPIR) & abs(b$cluster.dPIR) > bin.inclussion) |
+             (!is.na(b$cluster.dPSI) & abs(b$cluster.dPSI) > bin.inclussion))
   
   #bin: qv + FC + nonunif
   ibin2  <- (!is.na(b$bin.fdr) & b$bin.fdr < bin.fdr) &
-    abs(b$bin.logFC) > log2(bin.FC) &
-    (is.na(b$cluster.nonuniformity) |
-       b$cluster.nonuniformity<nonunif)
+            abs(b$bin.logFC) > log2(bin.FC) &
+            (is.na(b$cluster.nonuniformity) | b$cluster.nonuniformity<nonunif)
   
   ibin   <- ibin1 | ibin2  
   b      <- b[ibin, ]
   
   original_signals$b <- b
   
+  #Define GRanges associated to bin splicing signals
   if(nrow(b) > 0){
     start   = as.numeric(b$start)#aggregate(start ~ cluster, data=b, FUN=min)
     end     = as.numeric(b$end)#aggregate(end ~ cluster, data=b, FUN=max)
@@ -347,7 +348,7 @@
 #   
 
   
-  #soporte de juntura para bines
+  #Let's start again...lookin for junction support signals
   b  <- binbased(sr)
   #b  <- b[!is.na(b$start), ]
   # 
@@ -368,12 +369,13 @@
   
   #solo soporte de juntura
   ibjs <- b$cluster.fdr < bjs.fdr &
-    ( (!is.na(b$cluster.dPIR) & abs(b$cluster.dPIR) > bjs.inclussion) |
-        (!is.na(b$cluster.dPSI) & abs(b$cluster.dPSI) > bjs.inclussion))
+          ( (!is.na(b$cluster.dPIR) & abs(b$cluster.dPIR) > bjs.inclussion) |
+            (!is.na(b$cluster.dPSI) & abs(b$cluster.dPSI) > bjs.inclussion))
   b <- b[ibjs, ]
   
   original_signals$bjs <- b
   
+  #Lets define ranges coming from junction supporte splicing signals
   if(nrow(b) > 0){
     start   = as.numeric(b$start)#aggregate(start ~ cluster, data=b, FUN=min)
     end     = as.numeric(b$end)#aggregate(end ~ cluster, data=b, FUN=max)
@@ -401,6 +403,7 @@
   b <- b[ianc, ]
   original_signals$ja <- b
   
+  #anchor ranges
   if(nrow(b) > 0){
     aux <- strsplit2(b$junction, "[.]")
     start   = as.numeric(aux[, 2]) + 1#aggregate(start ~ cluster, data=b, FUN=min)
@@ -412,19 +415,16 @@
   }else{
     anchorbased <- GRanges()
   }
+
   #locale
   b     <- localebased(sr)
-  # #Locales
-  # b <- sr@localebased
-  # b <- b[replace_na(b$cluster.fdr < j.fdr, FALSE) & 
-  #          replace_na(b$cluster.participation > j.particip, FALSE), ] #Reemplazamos la participacion de la juntura por la participacion del cluster al que pertenece que es el dato importante
-  # 
-  iloc  <- b$cluster.fdr < l.fdr & (!is.na(b$cluster.dparticipation) &
-                                     abs(b$cluster.dparticipation) > l.inclussion)
+  iloc  <- b$cluster.fdr < l.fdr & 
+          (!is.na(b$cluster.dparticipation) & abs(b$cluster.dparticipation) > l.inclussion)
   
   b <- b[iloc, ]
   original_signals$jl <- b
-  
+
+  #locale ranges  
   if(nrow(b) > 0){
     aux <- strsplit2(b$cluster.range, "[.]") #Reemplazamos la juntura por el rango del cluster al que pertenece que es el dato importante
     start   = as.numeric(aux[, 2])#aggregate(start ~ cluster, data=b, FUN=min)
@@ -445,7 +445,7 @@
   # jloc <- jloc[!is.na(jloc)]
 
   #
-  # Overlap estimation
+  # Overlap estimation (order matters)
   #
   laux  <- list(b=binbased,bjs=binsupport,jl=localebased,ja=anchorbased)
   if(class(otherSources) == "GRanges") laux$otherSources = otherSources
