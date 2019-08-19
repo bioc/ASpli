@@ -67,6 +67,7 @@
     aux$end[sin_start]   <- imputaciones$end
     aux$bin.event[sin_start]<-imputaciones$event                   #ACH aver
     aux$gene_coordinates[sin_start] <- imputaciones$gene_coordinates
+    aux$feature[sin_start] <- imputaciones$feature
   }
   binbased(mr)         <- aux
   
