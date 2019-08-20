@@ -252,6 +252,51 @@
   return(mr)
 }
 
+
+.filterSignals<-function(sr,
+                         bin.FC = 3,
+                         bin.fdr = 0.05,
+                         bin.inclussion = 0.1,
+                         bjs.inclussion = 0.2,
+                         bjs.fdr = 0.1,
+                         a.inclussion = 0.3,
+                         a.fdr = 0.05,
+                         l.inclussion = 0.3,
+                         l.fdr = 0.05){
+  b <- binbased(sr)
+  b <- b[!is.na(b$length), ]
+  
+  #bin: qv + soporte juntura
+  ibin1 <- (!is.na(b$bin.fdr) & b$bin.fdr < bin.fdr) &
+    ( (!is.na(b$cluster.dPIR) & abs(b$cluster.dPIR) > bin.inclussion) |
+        (!is.na(b$cluster.dPSI) & abs(b$cluster.dPSI) > bin.inclussion))
+  
+  #bin: qv + FC + nonunif
+  ibin2  <- (!is.na(b$bin.fdr) & b$bin.fdr < bin.fdr) &
+    abs(b$bin.logFC) > log2(bin.FC) &
+    (is.na(b$cluster.nonuniformity) | b$cluster.nonuniformity<nonunif)
+  
+  ibin   <- ibin1 | ibin2  
+  
+  #bin a partir de solo soporte de juntura
+  b  <- binbased(sr)
+  ibjs <- b$cluster.fdr < bjs.fdr &
+    ( (!is.na(b$cluster.dPIR) & abs(b$cluster.dPIR) > bjs.inclussion) |
+        (!is.na(b$cluster.dPSI) & abs(b$cluster.dPSI) > bjs.inclussion))
+  
+  #anchor
+  b    <- anchorbased(sr)
+  ianc <-  b$cluster.fdr < a.fdr & abs(b$junction.dPIR) > a.inclussion
+  
+  
+  b     <- localebased(sr)
+  iloc  <- b$cluster.fdr < l.fdr & 
+    (!is.na(b$cluster.dparticipation) & abs(b$cluster.dparticipation) > l.inclussion)
+  
+  return(list(ibin1=ibin1,ibin2=ibin2,ibjs=ibjs,ianc=ianc,iloc=iloc))
+}
+
+
 #Genera un data.table de regiones genicas con seniales diferenciales de diferente naturaleza
 #                     region b bjs ja jl
 # 1:       Chr1:45560-45645 1   1  0  0
@@ -303,29 +348,16 @@
   #bines significativos y uniformes 1.130149.130372 
   original_signals <- setNames(vector("list", 4), c("b", "bjs", "ja", "jl"))
   
-  
+  #apply filters
+  lfs <- .filterSignals(sr, bin.FC=bin.FC, bin.fdr=bin.fdr, bin.inclussion=bin.inclussion, 
+                            bjs.inclussion=bjs.inclussion, bjs.fdr=bjs.fdr,
+                            a.inclussion=a.inclussion, a.fdr=a.fdr,
+                            l.inclussion = l.inclussion,l.fdr = l.fdr)
+
+      
   b <- binbased(sr)
   b <- b[!is.na(b$length), ]
-  # b <- b[ replace_na(abs(b$bin.logFC) > bin.logFC, FALSE), ]
-  # if(usenonunif){
-  #   b  <- b[ replace_na(b$bin.fdr < bin.fdr, FALSE) & (is.na(b$junction.dPIR) | replace_na(b$junction.nonuniformity < nonunif, FALSE)),]
-  # }else{
-  #   b  <- b[ replace_na(b$bin.fdr < bin.fdr, FALSE),]
-  # }
-
-  #bin: qv + soporte juntura
-  ibin1 <- (!is.na(b$bin.fdr) & b$bin.fdr < bin.fdr) &
-           ( (!is.na(b$cluster.dPIR) & abs(b$cluster.dPIR) > bin.inclussion) |
-             (!is.na(b$cluster.dPSI) & abs(b$cluster.dPSI) > bin.inclussion))
-  
-  #bin: qv + FC + nonunif
-  ibin2  <- (!is.na(b$bin.fdr) & b$bin.fdr < bin.fdr) &
-            abs(b$bin.logFC) > log2(bin.FC) &
-            (is.na(b$cluster.nonuniformity) | b$cluster.nonuniformity<nonunif)
-  
-  ibin   <- ibin1 | ibin2  
-  b      <- b[ibin, ]
-  
+  b <- b[lfs$ibin1 | lfs$ibin2, ]
   original_signals$b <- b
   
   #Define GRanges associated to bin splicing signals
@@ -340,41 +372,12 @@
     binbased <- GRanges()
   }
     
-  #Seniales de bin y soporte de junturas
 
-# 
-#   b1loc  <- unique(a$locus[ibin1])
-#   b2loc  <- unique(a$locus[ibin2])
-#   bloc   <- unique(a$locus[ibin])
-#   
-
-  
   #Let's start again...lookin for junction support signals
   b  <- binbased(sr)
-  #b  <- b[!is.na(b$start), ]
-  # 
-  # if(!usenonunif){
-  #   bunif <- TRUE
-  # }else{
-  #   bunif <- replace_na(b$cluster.nonuniformity < nonunif, FALSE)
-  # }
-  # if(usepvalBJS){
-  #   b  <- b[ b$cluster.fdr < bjs.fdr &
-  #              (replace_na(abs(b$cluster.dPSI) > dPSI, FALSE) | 
-  #                 (replace_na(abs(b$cluster.dPIR) > dPIR, FALSE) & bunif)), ]
-  #   
-  # }else{  
-  #   b  <- b[replace_na(abs(b$cluster.dPSI) > dPSI, FALSE) | 
-  #             (replace_na(abs(b$cluster.dPIR) > dPIR, FALSE) & bunif), ]
-  # }
+  b <- b[lfs$ibjs, ]
   
-  #solo soporte de juntura
-  ibjs <- b$cluster.fdr < bjs.fdr &
-          ( (!is.na(b$cluster.dPIR) & abs(b$cluster.dPIR) > bjs.inclussion) |
-            (!is.na(b$cluster.dPSI) & abs(b$cluster.dPSI) > bjs.inclussion))
-  b <- b[ibjs, ]
-  
-  original_signals$bjs <- b
+  original_signals$bjs <- b 
   
   #Lets define ranges coming from junction supporte splicing signals
   if(nrow(b) > 0){
@@ -390,18 +393,7 @@
   
   #anchor
   b    <- anchorbased(sr)
-  ianc <-  b$cluster.fdr < a.fdr & abs(b$junction.dPIR) > a.inclussion
-
-  # b <- sr@anchorbased
-  # if(!usenonunif | all(is.na(b$junction.nonuniformity))){
-  #   bunif <- TRUE
-  # }else{
-  #   bunif <- replace_na(b$junction.nonuniformity < nonunif, FALSE)
-  # }
-  # b <- b[replace_na(b$junction.fdr < j.fdr, FALSE) & 
-  #          replace_na(b$junction.dPIR > dPIR, FALSE) & 
-  #          bunif, ]
-  b <- b[ianc, ]
+  b <- b[lfs$ianc, ]
   original_signals$ja <- b
   
   #anchor ranges
@@ -418,11 +410,8 @@
   }
 
   #locale
-  b     <- localebased(sr)
-  iloc  <- b$cluster.fdr < l.fdr & 
-          (!is.na(b$cluster.dparticipation) & abs(b$cluster.dparticipation) > l.inclussion)
-  
-  b <- b[iloc, ]
+  b <- localebased(sr) 
+  b <- b[lfs$iloc, ]
   original_signals$jl <- b
 
   #locale ranges  
@@ -438,12 +427,6 @@
     localebased <- GRanges()
   }
 
-  #corrijo que los Io no tienen bien el locus
-  # iio<-grep("Io",a$bin[ibjs])
-  # aux <- a$bin[which(ibjs)[iio]]
-  # aux <- unlist(lapply(strsplit(aux,":",fixed=TRUE),function(x){x[1]}))
-  # jloc <-unique(c(a$locus[ibjs],aux))
-  # jloc <- jloc[!is.na(jloc)]
 
   #
   # Overlap estimation (order matters)
