@@ -255,7 +255,7 @@
 
 .filterSignals<-function(sr,
                          bin.FC = 3,
-                         bin.fdr = 0.05,
+                         bin.fdr = 0.05,nonunif=1,
                          bin.inclussion = 0.1,
                          bjs.inclussion = 0.2,
                          bjs.fdr = 0.1,
