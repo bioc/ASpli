@@ -180,9 +180,9 @@ setMethod(
     
     counts@gene.rd <- gene.rd
     counts@bin.rd <- rdfinalb
-    counts@targets <- targets
-    group                  <- .condenseTargetsConditions(targets)$condition
-    counts@condition.order <- levels(factor( group, unique( group ), ordered = TRUE ))
+    # counts@targets <- .condenseTargetsConditions(targets)
+    # group                  <- count@targets$condition
+    # counts@condition.order <- levels(factor( group, unique( group ), ordered = TRUE ))
     return(counts)
   }
 )
@@ -199,6 +199,8 @@ setMethod(
   signature = "ASpliFeatures",
   definition = function( features, bam=NULL, targets, cores = 1, minReadLength,  
                          maxISize, minAnchor = 10) {
+    
+    
     return(readCounts( features, bam=bam, targets, cores = cores, minReadLength, maxISize, minAnchor = minAnchor))
   }
 )
@@ -245,6 +247,12 @@ setMethod(
     #Create result object
     counts <- new(Class="ASpliCounts")
     
+    #Generates sample names in case there arent any
+    targets <- .generateSamplesNames(targets)
+    counts@targets <- .condenseTargetsConditions(targets) #ACH
+    group                  <- counts@targets$condition
+    counts@condition.order <- levels(factor( group, unique( group ), ordered = TRUE ))
+    
     #Minimal anchors
     minAnchor <- if ( ! is.null(minAnchor) ) minAnchor else 10
     minA <- round( minAnchor * minReadLength / 100 )
@@ -254,9 +262,6 @@ setMethod(
     }else{
       ntargets <- 1
     }
-    
-    #Generates sample names in case there arent any
-    targets <- .generateSamplesNames(targets)
     
     for(target in 1:ntargets){
       
@@ -1253,9 +1258,9 @@ setMethod(
               png(width = 1400, height=700, filename = paste0(normalizePath(output.dir), "/img/", r, "_gene.png"))
               .plotSplicingPattern(r, is, counts, features, mergedBams, sr, genePlot = TRUE, jCompletelyIncluded, zoomRegion, useLog, tcex)
               dev.off()
-              png(width = 1400, height=700, filename = paste0(normalizePath(output.dir), "/img/", r, ".png"))
-              .plotSplicingPattern(r, is, counts, features, mergedBams, sr, genePlot = FALSE, jCompletelyIncluded, zoomRegion, useLog, tcex)
-              dev.off()
+        #      png(width = 1400, height=700, filename = paste0(normalizePath(output.dir), "/img/", r, ".png"))
+        #      .plotSplicingPattern(r, is, counts, features, mergedBams, sr, genePlot = FALSE, jCompletelyIncluded, zoomRegion, useLog, tcex)
+        #      dev.off()
             }
           }, warning = function(warning_condition) {
               #message(warning_condition)   
