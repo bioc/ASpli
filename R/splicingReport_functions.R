@@ -373,9 +373,9 @@
   }
     
 
-  #Let's start again...lookin for junction support signals
+  #Let's start again...looking for junction support signals
   b  <- binbased(sr)
-  b <- b[lfs$ibjs, ]
+  b  <- b[lfs$ibjs, ]
   
   original_signals$bjs <- b 
   
@@ -526,8 +526,9 @@
       }
     }
   }
-  #Hasta aca arme la tabla de 1/0 evidenciaL overlaps_aux
-  
+  #Hasta aca arme la tabla de 1/0 evidenciaL overlaps_aux 
+  # regiones que son reportadas por diferentes seniales aparecen en mas de una fila
+   
   
   # i <- grep("ja.", overlaps_aux$region,fixed=TRUE)
   # if(length(i)){
@@ -583,11 +584,18 @@
   
   #comienzo a mergear rangos  
   if(nrow(overlaps_aux) > 0){
-    overlaps_aux <- unique(overlaps_aux)  
+    #Let's aggregate signals from identical regions
+    a <- by(overlaps_aux[,-1],overlaps_aux$region,function(x){
+                      apply(x,2,function(y){any(y!=0)})
+                    })
+    aa           <- data.frame(region=names(a),matrix(as.numeric(unlist(a)),byrow=TRUE,ncol=ncol(overlaps_aux)-1))
+    colnames(aa)[-1] <- colnames(overlaps_aux)[-1]
+
+    overlaps_aux <- data.table(aa)  
     overlaps_aux <- overlaps_aux[order(overlaps_aux$region), ]
       
     #matcheo rango con bin
-    roi  <- overlaps_aux[,region]
+    roi  <- as.character(overlaps_aux[,region])
     rroi <- unlist(lapply(strsplit(roi,":",fixed=TRUE),function(x){return(x[2])}))
     #binbased(sr)
     ii<-match(rroi,paste0(binbased(sr)$start,"-",binbased(sr)$end))
@@ -603,6 +611,8 @@
     roi <- gsub("[-]", ".", roi)
     aa$J3 <- as.character(aa$J3)
     aa$J3[is.na(aa$J3)] <- roi[is.na(aa$J3)] #Hacemos esto para machear con los anchor. Recordar restar uno al start y sumar uno al end para machear correctamente
+                                             # Nota ACH: me parece mejor dejarlo NA y poner la logica de usar el rango
+                                             # de la region cuando haga falta (!)
     
     #Se hizo esto para recalcular el locus de los locales que ahora vienen por cluster
     
@@ -700,11 +710,11 @@
       if(aa$bjs[b] != 0){
         i <- which(original_signals$bjs$J3 == aa$J3[b])
         if(length(i) > 0){
-          aa$bjs.lr[b] <- original_signals$bjs$cluster.LR[i[1]]
-          aa$bjs.fdr[b] <- original_signals$bjs$cluster.fdr[i[1]]
-          aa$bjs.logfc[b] <- original_signals$bjs$J3.logFC[i[1]]
+          aa$bjs.lr[b]            <- original_signals$bjs$cluster.LR[i[1]]
+          aa$bjs.fdr[b]           <- original_signals$bjs$cluster.fdr[i[1]]
+          aa$bjs.logfc[b]         <- original_signals$bjs$J3.logFC[i[1]]
           aa$bjs.nonuniformity[b] <- original_signals$bjs$cluster.nonuniformity[i[1]]
-          aa$bjs.inclussion[b] <- replace_na(original_signals$bjs$cluster.dPSI[i[1]], original_signals$bjs$cluster.dPIR[i[1]])  
+          aa$bjs.inclussion[b]    <- replace_na(original_signals$bjs$cluster.dPSI[i[1]], original_signals$bjs$cluster.dPIR[i[1]])  
         }else{
           aa$bjs[b] <- "*"
         }
