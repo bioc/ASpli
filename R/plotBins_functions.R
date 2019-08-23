@@ -798,7 +798,7 @@
                         mergedBAMs[icond, 1]), intern = T)
     ad <- matrix(as.numeric(strsplit2(ad,"\t")),ncol=3)
     yylim <- range(ad[,3])
-    
+
     nrep <- table(counts@targets$condition)[mergedBAMs[icond,2]]
     #me quedo con las que pasan un filtro de minima   
     jjcoords0<-jcoords0
@@ -848,7 +848,7 @@
         for(ij in 1:nj1){
           lines(jcoords[ij,2:3],rep(nj0+ij,2),lwd=ww[rownames(jcoords)[ij],1],col="lightblue")
           points(jcoords[ij,2:3],rep(nj0+ij,2),pch=18,cex=0.5,col="lightblue")
-          text(mean(as.numeric(jcoords[ij,2:3])),nj0+ij,jcounts[ij],pos=3,cex=0.8)
+          text(mean(as.numeric(jcoords[ij,2:3])),nj0+ij,jcounts[ij],pos=3,cex=tcex)
         }
       }
       if(nj2>0){
@@ -860,17 +860,18 @@
         for(ij in 1:nj2){
           lines(jcoords[ij,2:3],rep(nj0+nj1+ij,2),lwd=ww[rownames(jcoords)[ij],1],col="lightgreen")
           points(jcoords[ij,2:3],rep(nj0+nj1+ij,2),pch=18,cex=0.5,col="lightgreen")
-          text(mean(as.numeric(jcoords[ij,2:3])),nj0+nj1+ij,jcounts[ij],pos=3,cex=0.8)
+          text(mean(as.numeric(jcoords[ij,2:3])),nj0+nj1+ij,jcounts[ij],pos=3,cex=tcex)
         }
       }
     }
     
     #plot(0,typ="n",xlim=c(start(bins[1]),end(bins[nbines])),ylim=c(1,nj0+nj1+nj2+3),axes=FALSE,xlab="",ylab="")
     
-    njlevels <- nj0+nj1+nj2+3
+    extra <- 5
+    njlevels <- nj0+nj1+nj2+extra
     
     j12      <- intersect(rownames(jcoords1),rownames(jcoords2))
-    njlevels <- nj0+nj1+nj2-length(j12)+3
+    njlevels <- nj0+nj1+nj2-length(j12)+extra
     
     plot(0,typ="n",xlim=c(start(bins[1]),end(bins[nbines])),ylim=c(1,njlevels),axes=FALSE,xlab="",ylab="")
     jmaxcount <- max(c(jcount0,jcount1,jcount2))
@@ -884,7 +885,7 @@
       }
     }
     
-    if(njlevels-nj0>3){
+    if(njlevels-nj0>extra){
       jcounts<-c()
       if(nj1>0) jcounts<-jcount1
       if(nj2>0){
@@ -907,10 +908,10 @@
       abline(v=unique(c(jcoords[,2],jcoords[,3])),col="lightblue",lty=3)
       for(ij in 1:length(ccolor)){
         #yij <- nj0+ij
-        yij  <- ij * njlevels/(nj1+nj2-length(j12))
-        lines(jcoords[ij,2:3],rep(yij,2),lwd=ww[rownames(jcoords)[ij],1],col=ccolor[ij])
+        yij  <- ij * njlevels*0.8/(nj1+nj2-length(j12))
+        lines(jcoords[ij,2:3],rep(yij,2),lwd=max(1,ww[rownames(jcoords)[ij],1]),col=ccolor[ij])
         points(jcoords[ij,2:3],rep(yij,2),pch=18,cex=0.5,col=ccolor[ij])
-        text(mean(as.numeric(jcoords[ij,2:3])),yij,jcounts[ij],pos=3,cex=1.5)
+        text(mean(as.numeric(jcoords[ij,2:3])),yij,jcounts[ij],pos=2,cex=tcex)
       }
       
     }
@@ -979,7 +980,7 @@
             ,border=NA,col=topo.colors(nConditions,1)[icond],fillOddEven = TRUE)
     lines(c(ad[1,2],ad[,2],ad[nrow(ad),2]),  c(0.01,ad[,3],0.01),
           col=topo.colors(nConditions,1)[icond])
-    text(ad[1,2],0.01,paste0("[0-",max(ad[,3]),"]"),cex=1.2,adj=c(-.25,-.5))
+    text(ad[1,2],0.01,paste0("[0-",max(ad[,3]),"]"),cex=tcex,adj=c(-.25,-.5))
     
     if(nj1>0)abline(v=unique(c(jcoords1[,2],jcoords1[,3])),col="lightblue",lty=3)
     if(nj2>0)abline(v=unique(c(jcoords2[,2],jcoords2[,3])),col="lightgreen",lty=3)
@@ -989,7 +990,8 @@
       xroi   <- as.numeric(strsplit2(strsplit2(iiss$region,":")[2],"-"))
       lines(xroi,rep(par("usr")[3],2),col="black",lwd=3)
       # rect(xroi[1],par("usr")[3],xroi[2],par("usr")[3]+diff(par("usr")[4:3])*.1,col="black",density=2)
-    }  
+    }
+    legend("topleft", as.character(mergedBAMs$condition[icond]),bty="n")
   }
   mtext(paste(iiss$locus,iiss$region),line=-.5,cex=0.8)
   
