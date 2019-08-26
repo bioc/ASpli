@@ -540,7 +540,7 @@
     return()
   }
   
-  geneName<-iiss[,"locus"]
+  geneName<-as.character(iiss[,"locus"])
   
   #encuentra x: GRanges para graficar
   if(!genePlot){
@@ -614,14 +614,29 @@
     #iE <- which(mcols(featuresb(f))$locus%in%geneName & mcols(featuresb(f))$feature=="E"
     iE <- which(mcols(featuresb(f))$locus%in%geneName)
     if(length(iE)==0){
-      warning("Something terribly wrong happened...No annotation data
-              for",geneName,"was found!\n")
-      return()
+      #Is this a monoexonic gene?
+      if(length(featuresg(f)[[geneName]])==1){
+        bins <- featuresg(f)[geneName]
+        mcols(bins)<-data.frame(locus=geneName,bin="E001",feature="mono E",
+                                symbol=mcols(bins)$symbol,
+                                locus_overlap=mcols(bins)$locus_overlap,
+                                class="E",
+                                event="novel",
+                                eventJ="-")
+        zroi <- roi <- as.numeric(c(start(bins)[1],end(bins)[length(bins)]))
+      }else{
+       warning("Something terribly wrong happened...No annotation data
+              for",geneName," could be found!\nProbably a monoexonic gene...")
+       return()
+      }
+    }else{
+     bins <- featuresb(f)[iE,]
+     bins <- bins[mcols(bins)$feature!="Io",]
+     zroi <- roi <- c(start(bins)[1],end(bins)[length(bins)])
     }
-    bins <- featuresb(f)[iE,]
-    bins <- bins[mcols(bins)$feature!="Io",]
     
-    zroi <- roi <- c(start(bins)[1],end(bins)[length(bins)])
+    
+    
   }
   
   #Armado del layout
@@ -669,7 +684,7 @@
   }
   
   # Bines del genoma anotado que overlapean con el roi
-  iE   <- mcols(bins)$feature=="E"
+  iE   <- mcols(bins)$feature%in%c("E","mono E")
   iroi <- (start(bins)>=roi[1] & start(bins)<roi[2])
   
   nbines <- length(bins)
@@ -697,13 +712,15 @@
   iE<-which(names(bins)%in%iiss$bin)
   if(length(iE)>0){
     for(iie in seq_along(iE)){
-      if(mcols(bins)$feature[iE[iie]]=="I"){
+      if(mcols(bins)$feature[iE[iie]]%in%c("Io","I")){
         lines(c(start(bins[iE[iie]]),end(bins[iE[iie]])),c(ycollapsed,ycollapsed),col="orange",lwd=3)
       }else{
-        if(iiss$b==1 & iiss$bjs==0) cc <- "orange"
-        if(iiss$b==1 & iiss$bjs==1) cc <- "red"
-        if(iiss$b==0 & iiss$bjs==1) cc <- "yellow"
-        rect(start(bins[iE[iie]]),ycollapsed-.45,end(bins[iE[iie]]),ycollapsed+.45,col=cc,border=NA)
+        if(iiss$b==1 | iiss$bjs==1){
+         if(iiss$b==1 & iiss$bjs==0) cc <- "orange"
+         if(iiss$b==1 & iiss$bjs==1) cc <- "red"
+         if(iiss$b==0 & iiss$bjs==1) cc <- "yellow"
+         rect(start(bins[iE[iie]]),ycollapsed-.45,end(bins[iE[iie]]),ycollapsed+.45,col=cc,border=NA)
+        } 
       }
     }
   }
@@ -873,7 +890,8 @@
     j12      <- intersect(rownames(jcoords1),rownames(jcoords2))
     njlevels <- nj0+nj1+nj2-length(j12)+extra
     
-    plot(0,typ="n",xlim=c(start(bins[1]),end(bins[nbines])),ylim=c(1,njlevels),axes=FALSE,xlab="",ylab="")
+    xx<-as.numeric(c(start(bins[1]),end(bins[nbines])))
+    plot(0,typ="n",xlim=xx,ylim=c(1,njlevels),axes=FALSE,xlab="",ylab="")
     jmaxcount <- max(c(jcount0,jcount1,jcount2))
     if(nj0>0){
       jcounts <- jcount0
@@ -915,66 +933,14 @@
       }
       
     }
-    # 
-    # if(nj1-length(j12)>0){
-    #   iok<-which(!rownames(jcount1)%in%j12)
-    #   if(length(iok)>0){ 
-    #     jcounts <- jcount1[iok,]
-    #     jcoords <- jjcoords1[iok,]
-    #     ww <- jcounts/jmaxcount*3
-    #     
-    #     abline(v=unique(c(jcoords[,2],jcoords[,3])),col="lightblue",lty=3)
-    #     for(ij in 1:nj1){
-    #       #yij <- nj0+ij
-    #       yij <- ij * njlevels/(nj1+nj2-length(j12))
-    #       lines(jcoords[ij,2:3],rep(yij,2),lwd=ww[rownames(jcoords)[ij],1],col="lightblue")
-    #       points(jcoords[ij,2:3],rep(yij,2),pch=18,cex=0.5,col="lightblue")
-    #       text(mean(as.numeric(jcoords[ij,2:3])),yij,jcounts[ij],pos=3,cex=1.5)
-    #     }
-    #   }
-    # }
-    # 
-    # if(nj2-length(j12)>0){
-    #   iok<-which(!rownames(jcount2)%in%j12)
-    #   if(length(iok)>0){ 
-    #     
-    #     jcounts <- jcount2[iok,]
-    #     jcoords <- jjcoords2[iok,]
-    #     ww <- jcounts/jmaxcount*3
-    #     
-    #     abline(v=unique(c(jcoords[,2],jcoords[,3])),col="lightgreen",lty=3)
-    #     for(ij in 1:nj2){
-    #       #yij <- nj0+nj1+ij
-    #       yij <- (nj1-length(j12)+ij)*  njlevels/(nj1+nj2-length(j12))
-    #       lines(jcoords[ij,2:3],rep(yij,2),lwd=ww[rownames(jcoords)[ij],1],col="lightgreen")
-    #       points(jcoords[ij,2:3],rep(yij,2),pch=18,cex=0.5,col="lightgreen")
-    #       text(mean(as.numeric(jcoords[ij,2:3])),yij,jcounts[ij],pos=3,cex=1.5)
-    #     }
-    #   }
-    # }
-    # 
-    # if(length(j12)>0){
-    #   
-    #   jcounts <- jcount2[j12,]
-    #   jcoords <- jjcoords2[j12,]
-    #   ww <- jcounts/jmaxcount*3
-    #   
-    #   abline(v=unique(c(jcoords[,2],jcoords[,3])),col="lightgreen",lty=3)
-    #   for(ij in seq_along(j12)){
-    #     #yij <- nj0+nj1+ij
-    #     yij <- (nj1-length(j12)+ij)*  njlevels/(nj1+nj2-length(j12))
-    #     lines(jcoords[ij,2:3],rep(yij,2),lwd=ww[rownames(jcoords)[ij],1],col="lightgreen")
-    #     points(jcoords[ij,2:3],rep(yij,2),pch=18,cex=0.5,col="lightgreen")
-    #     text(mean(as.numeric(jcoords[ij,2:3])),yij,jcounts[ij],pos=3,cex=1.5)
-    #   }
-    # }
-    # 
+
     
     #coverage
+    xx <- as.numeric(c(start(bins[1]),end(bins[nbines])))
     if(useLog){
-      plot(0.01,typ="n",xlim=c(start(bins[1]),end(bins[nbines])),ylim=yylim,axes=FALSE,xlab="",ylab="",log="y")
+      plot(0.01,typ="n",xlim=xx,ylim=yylim,axes=FALSE,xlab="",ylab="",log="y")
     }else{
-      plot(0,typ="n",xlim=c(start(bins[1]),end(bins[nbines])),ylim=yylim,axes=FALSE,xlab="",ylab="")
+      plot(0,typ="n",xlim=xx,ylim=yylim,axes=FALSE,xlab="",ylab="")
     }
     polygon(c(ad[1,2],ad[,2],ad[nrow(ad),2]), c(0.01,ad[,3],0.01)
             ,border=NA,col=topo.colors(nConditions,1)[icond],fillOddEven = TRUE)
