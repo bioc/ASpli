@@ -1245,7 +1245,7 @@ setMethod(
       }
     }
     if(ntop > 1){
-      pb <- txtProgressBar(min=1,max=ntop,style=2)
+      pb <- txtProgressBar(min=1,max=ntop,style=3)
       if(makeGraphs){
         for(i in 1:ntop){
           r <- is$region[i]
