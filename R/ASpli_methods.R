@@ -1323,7 +1323,7 @@ setMethod(
             table.order([10, 'asc']).draw();
             table.column(0).nodes().to$().css({cursor: 'pointer'});
             var format = function(d) {
-             return '<div><h4>Gene view</h4></br><img src=\"img/' + d[1] + '_gene.png\" height=\"700\"></img></div><div></br></div><div><h4>Region view</h4></br><img src=\"img/' + d[1] + '.png\" height=\"700\"></img></div>';
+             return '<div><h4>Gene view</h4></br><img src=\"img/' + d[1] + '_gene.png\" height=\"700\"></img></div>';
             };
             table.on('click', 'td.details-control', function() {
                var td = $(this), row = table.row(td.closest('tr'));
