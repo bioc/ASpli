@@ -595,7 +595,7 @@
     overlaps_aux <- overlaps_aux[order(overlaps_aux$region), ]
       
     #matcheo rango con bin
-    roi  <- as.character(overlaps_aux[,region])
+    roi  <- as.character(overlaps_aux[,'region'])
     rroi <- unlist(lapply(strsplit(roi,":",fixed=TRUE),function(x){return(x[2])}))
     #binbased(sr)
     ii<-match(rroi,paste0(binbased(sr)$start,"-",binbased(sr)$end))
