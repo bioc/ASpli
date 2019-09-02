@@ -1200,8 +1200,14 @@ setMethod(
       stop("features must be an ASpliFeatures object")
     }
     
-    mergedBams <- mergedBams[mergedBams$condition %in% names(sr@contrast)[sr@contrast != 0], ]
-    if(nrow(mergedBams) == 0){
+    saux <- names(sr@contrast)[sr@contrast != 0]
+    ina <- which(is.na(match(saux,mergedBams$condition)))
+    if(length(ina)>0){
+      stop("Check merged-bams data.frame.\nContrast condition(s)", paste(saux[ina],collapse=", ")," not found in any merged-bam data.frame condition category.")  
+    }
+    
+    mergedBams <- mergedBams[mergedBams$condition %in% saux, ]
+    if(nrow(mergedBams) == 0 ){
       stop("Merged bams dont match with contrasts")  
     }
     
