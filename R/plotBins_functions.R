@@ -524,6 +524,10 @@
   #f <- features
   #mergedBAMs <- mergedBams
   
+  if(length(transcriptExons(f))==1){
+    warning("transcriptExons(f) has only one element. This could imply that something is wrong with the ASpliFeature object.\n")
+  }
+  
   exones = transcriptExons(f)
   
   
