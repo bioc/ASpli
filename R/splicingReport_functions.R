@@ -262,7 +262,7 @@
                          a.inclussion = 0.3,
                          a.fdr = 0.05,
                          l.inclussion = 0.3,
-                         l.fdr = 0.05){
+                         l.fdr = 0.05,bDetectionSummary=FALSE){
   b <- binbased(sr)
   b <- b[!is.na(b$length), ]
   
@@ -293,9 +293,132 @@
   iloc  <- b$cluster.fdr < l.fdr & 
     (!is.na(b$cluster.dparticipation) & abs(b$cluster.dparticipation) > l.inclussion)
   
-  return(list(ibin1=ibin1,ibin2=ibin2,ibjs=ibjs,ianc=ianc,iloc=iloc))
+  lfs <- list(ibin1=ibin1,ibin2=ibin2,ibjs=ibjs,ianc=ianc,iloc=iloc)
+  
+  if(bDetectionSummary){
+    .plotASpliDetectionSummary(sr,lfs,   bin.FC = bin.FC,
+                                     bin.fdr = bin.fdr,nonunif=nonunif,
+                                     bin.inclussion = bin.inclussion,
+                                     bjs.inclussion = bjs.inclussion,
+                                     bjs.fdr = bjs.fdr,
+                                     a.inclussion = a.inclussion,
+                                     a.fdr = a.fdr,
+                                     l.inclussion = l.inclussion,
+                                     l.fdr = l.fdr)
+  }
+  return(lfs)
 }
 
+.plotASpliDetectionSummary<-function(sr,lfs,
+                          bin.FC = 3,
+                          bin.fdr = 0.05,nonunif=1,
+                          bin.inclussion = 0.1,
+                          bjs.inclussion = 0.2,
+                          bjs.fdr = 0.1,
+                          a.inclussion = 0.3,
+                          a.fdr = 0.05,
+                          l.inclussion = 0.3,
+                          l.fdr = 0.05){
+    
+    bplot <- TRUE 
+    
+    #Seniales de bin y soporte de junturas
+    a<-binbased(sr)
+    
+    #corrijo los locus NA
+    ina <- which(is.na(a$locus))
+    aux <- a$bin[ina]
+    aux <- unlist(lapply(strsplit(aux,":",fixed=TRUE),function(x){x[1]}))
+    a$locus[ina] <- aux
+    
+
+    ibin1 <- lfs$ibin1
+    ibin2 <- lfs$ibin2
+    ibjs  <- lfs$ibjs
+    ianc  <- lfs$ianc
+    iloc  <- lfs$iloc
+    
+    
+    ibin   <- ibin1 | ibin2
+    b1loc  <- unique(a$locus[ibin1])
+    b2loc  <- unique(a$locus[ibin2])
+    bloc   <- unique(a$locus[ibin])
+    
+    #solo soporte de juntura
+    jloc <- unique(a$locus[ibjs])
+    
+    if(bplot){
+      layout(matrix(c(1:6),2,3,byrow=TRUE))
+      plot  (a$bin.logFC,-log(a$bin.fdr),col="gray",pch=20,log="y",xlab="bin logFC",ylab="-log bin.fdr")
+      points(a$bin.logFC[ibin1],-log(a$bin.fdr)[ibin1],col=rgb(0,1,0,0.5),pch=20)
+      points(a$bin.logFC[ibin2],-log(a$bin.fdr)[ibin2],col=rgb(1,1,0,0.5),pch=20)
+      abline(h=-log(bin.fdr),lty=2,col="gray")
+      points(a$bin.logFC[ibjs],-log(a$bin.fdr)[ibjs],col=rgb(1,0,1,0.5),pch=20)
+      
+      iqv <- which(a$bin.fdr<bin.fdr)
+      aux <- c(abs(a$cluster.dPIR)[iqv],abs(a$cluster.dPSI)[iqv]) 
+      aux <- aux[!is.na(aux)]  
+      plot(ecdf(aux),xlab="junction support inclussion",main=paste0("signif bins:",length(iqv)))
+      abline(v=c(0.1,.2,.3),col="gray",lty=2)
+      abline(v=bin.inclussion,col="red",lty=2,lwd=2)
+      legend("bottomright",paste0(sum(aux>bin.inclussion)," (",length(b1loc),")"),bty="n")
+      text(bin.inclussion,0,pos=4,signif(ecdf(aux)(bin.inclussion),2),bg="white")
+      
+      
+      plot(ecdf(abs(a$bin.logFC[iqv])),xlab="log2 FC",main="")
+      abline(v=log2(c(1.5,2,3)),col="gray",lty=2)
+      abline(v=log2(bin.FC),col="red",lty=2,lwd=2)
+      legend("bottomright",paste0(sum(abs(a$bin.logFC[iqv])>log2(bin.FC))," (",length(b2loc),")"),bty="n")
+      text(log2(bin.FC),0,pos=4,signif(ecdf(abs(a$bin.logFC[iqv]))(log2(bin.FC)),2),bg="white")
+      
+      
+      iqv <- which(a$cluster.fdr < bjs.fdr)
+      aux <- c(abs(a$cluster.dPIR)[iqv],abs(a$cluster.dPSI)[iqv]) 
+      aux <- aux[!is.na(aux)]  
+      plot(ecdf(aux),xlab="inclussion",main=paste0("signif junc supp clusters:",length(iqv)))
+      abline(v=c(0.1,.2,.3),col="gray",lty=2)
+      abline(v=bjs.inclussion,col="red",lty=2,lwd=2)
+      legend("bottomright",paste0(sum(aux>bjs.inclussion)," (",length(jloc),")"),bty="n")
+      text(bjs.inclussion,0,pos=4,signif(ecdf(aux)(bjs.inclussion),2),bg="white")
+      
+    }
+    
+    
+    #anchor
+    a    <- anchorbased(sr)
+    aloc <- unique(a$cluster.locus[ianc])
+    if(bplot){
+      iq <- which(a$junction.fdr < a.fdr )
+      plot(ecdf(abs(a$junction.dPIR)[iq]),main=paste0("signif anchor j-clusters:",length(iq)),xlab="abs dPIR")
+      abline(v=c(0.1,.2,.3),col="gray",lty=2)
+      abline(v=a.inclussion,col="red",lty=2,lwd=2)
+      legend("bottomright",paste0(sum(abs(a$junction.dPIR[ianc])>a.inclussion,na.rm=TRUE)," (",length(aloc),")"),bty="n")
+      text(a.inclussion,0,pos=4,signif(ecdf(abs(a$junction.dPIR[iq]))(a.inclussion),2),bg="white")
+      
+    }
+    
+    
+    #locale
+    a     <- localebased(sr)
+    iloc  <- a$cluster.fdr < l.fdr & (!is.na(a$cluster.dparticipation) & abs(a$cluster.dparticipation) > l.inclussion) 
+    gloc  <- unique(a$cluster.locus[iloc]) 
+    if(bplot){
+      iq <- which(a$cluster.fdr < l.fdr )
+      aux <- a$cluster.dparticipation[iq]
+      aux<-aux[!is.na(aux)]
+      plot(ecdf(abs(aux)),main=paste0("stat signif locale junctions:",length(aux)),xlab="abs dparticipation")
+      abline(v=c(0.1,.2,.3),col="gray",lty=2)
+      abline(v=l.inclussion,col="red",lty=2,lwd=2)
+      legend("bottomright",paste0(sum(abs(aux)>l.inclussion,na.rm=TRUE)," (",length(gloc),")"),bty="n")
+      text(l.inclussion,0,pos=4,signif(ecdf(abs(a$cluster.dparticipation[iq]))(l.inclussion),2),bg="white")
+      
+    }
+    
+    # #Combino seniales
+    # gasp <- unique(c(gloc,aloc,jloc,bloc))
+    # return(gasp)
+    # 
+}
 
 #Genera un data.table de regiones genicas con seniales diferenciales de diferente naturaleza
 #                     region b bjs ja jl
