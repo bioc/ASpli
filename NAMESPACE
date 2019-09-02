@@ -1,6 +1,7 @@
 exportPattern("^[[:alpha:]]+")
 import(methods)
 import(utils)
+import(data.table)
 import(BiocGenerics)
 import(IRanges)
 import(GenomicRanges)
@@ -17,14 +18,14 @@ importFrom("stats", "aggregate", "formula", "p.adjust", "model.matrix", "setName
 importFrom("graphics", "axis", "barplot", "legend", "lines", "par","plot", "title")
 importFrom("igraph", "graph_from_edgelist", "clusters")
 importFrom("limma", "strsplit2")
-importFrom("data.table", "data.table", "rbindlist")
+
 importFrom(parallel, mclapply)
 importFrom("tidyr", "replace_na")
 import(S4Vectors)
-
 import(Gviz)
 import(DT)
 import(grid)
+import(htmltools)
 exportMethods(
     "jCounts",
     "binGenome",
