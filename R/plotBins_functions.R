@@ -557,13 +557,13 @@
     features.chr<-levels(seqnames(featuresb(f))@values)
     
     if(is.na(match(aspli.chr,features.chr))){
-      if(is.null(chrMap)){
+      #if(is.null(chrMap)){ #chrMap no se define más así que debería entrar siempre acá
         warning(paste("No se pudo mapear nombres de cromosomas.",
                       "\n aspli.chr=",aspli.chr,
                       "\n features.chr=",paste(features.chr,collapse="/")))
-      }else{
-        chr <- features.chr[match(aspli.chr,features.chr)]
-      }
+      #}else{
+       # chr <- features.chr[match(aspli.chr,features.chr)]
+      #}
     }else{
       chr <- aspli.chr
     }
@@ -648,7 +648,7 @@
     hh <- hh/sum(hh)
   }
   #layout(matrix(c((2*nConditions+1):1,rep(1+2*nConditions+1:nConditions,each=2),(3*nConditions+2)),ncol=2),width=c(0.8,.2),height=hh)
-  layout(matrix((2*nConditions+1):1),width=c(0.8,.2),height=hh)
+  layout(matrix((2*nConditions+1):1),widths=c(0.8,.2),heights=hh)
   
   par(mar=c(.5, 1.1, .5, 1.1))
   
