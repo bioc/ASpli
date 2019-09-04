@@ -1100,6 +1100,11 @@ setMethod(
                          ))    
         }else{
           clusters  <- unique(b[, c("junction.cluster", "cluster.locus", "cluster.size", "cluster.LR", "cluster.pvalue", "cluster.fdr", "cluster.range", "cluster.participation")])
+          
+          b <- slot(sr, s)
+          columnas_numericas <- which(sapply(b, class) == "numeric")
+          b[, columnas_numericas] <- apply(b[, columnas_numericas], 2, function(s){return(signif(as.numeric(s), digits = 4))})
+          
           junctions <- unique(b[, c("junction.cluster", colnames(b)[!colnames(b) %in% colnames(clusters)])])
           colnames(clusters)[1] <- "cluster"
           subtables <- "var subtables = [];"
