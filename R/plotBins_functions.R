@@ -561,7 +561,7 @@
     features.chr<-levels(seqnames(featuresb(f))@values)
     
     if(is.na(match(aspli.chr,features.chr))){
-      #if(is.null(chrMap)){ #chrMap no se define más así que debería entrar siempre acá
+      #if(is.null(chrMap)){ #chrMap no se define mas asi que deberia entrar siempre aca
         warning(paste("No se pudo mapear nombres de cromosomas.",
                       "\n aspli.chr=",aspli.chr,
                       "\n features.chr=",paste(features.chr,collapse="/")))
