@@ -516,7 +516,7 @@
 # mergedBAMs <- data.frame(full_path_file_name_bam_file = mergedBams, condition = c("col_16", "col_23", "pcp_16", "pcp_23"))
 #.plotSplicingPattern(region, iss, counts, f, mergedBAMs, sr, chrMap = chrMap)
 
-.plotSplicingPattern<-function(region=NULL,iss,counts,f,mergedBAMs,sr,genePlot=TRUE,jCompletelyIncluded=TRUE,
+.plotSplicingPattern<-function(region=NULL,iss,counts,f,mergedBAMs,sr,asd,genePlot=TRUE,jCompletelyIncluded=TRUE,
                               zoomRegion=1.5,useLog=FALSE,tcex=1){
   #region <- r
   #iss <- is

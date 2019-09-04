@@ -7,6 +7,7 @@
 \alias{rdsg}
 \alias{rdsb}
 \alias{condition.order}
+\alias{targets}
 \alias{countsb<-}
 \alias{countse1i<-}
 \alias{countsg<-}
@@ -30,6 +31,7 @@ countsj(x)
 rdsg(x)
 rdsb(x)
 condition.order(x)
+targets(x)
 }
 \arguments{
   \item{x}{   
@@ -54,6 +56,7 @@ cj   <- countsj(counts)
 rg   <- rdsg(counts)
 rb   <- rdsb(counts)
 co   <- condition.order(counts)
+tg   <- targets(counts)
 # Set data tables to an ASpliCounts object
 
 countsb(counts)   <- cb1

@@ -35,16 +35,16 @@ exportIntegratedSignals( is, output.dir="is",
   \item{asd}{ 
     An object of class \code{ASpliAS}
   }  
-  \item{output.dir}{Description TODO}
-  \item{mergedBams}{Description TODO}
-  \item{jCompletelyIncluded}{Description TODO}
-  \item{zoomRegion}{Description TODO}
-  \item{useLog}{Description TODO}
-  \item{tcex}{Description TODO}
-  \item{ntop}{Description TODO}
-  \item{openInBrowser}{Description TODO}
-  \item{makeGraphs}{Description TODO}
-  \item{bforce}{Description TODO}
+  \item{output.dir}{HTML reports output directory}
+  \item{mergedBams}{Dataframe with path to merged bams for each condition }
+  \item{jCompletelyIncluded}{If TRUE only plot junctions completely included in plot region. Else plot any overlapping junction in the region}
+  \item{zoomRegion}{ Magnify plot region by this factor}
+  \item{useLog}{Plot counts log}
+  \item{tcex}{Text size}
+  \item{ntop}{Only show n top signals}
+  \item{openInBrowser}{Open reports in browser when done}
+  \item{makeGraphs}{Generate graphs in reports}
+  \item{bforce}{Force plot generation even if plot already exists}
 }
 
 \value{ 
@@ -66,8 +66,6 @@ exportIntegratedSignals( is, output.dir="is",
 
 \seealso{
   \code{\link{jDUreport}}, \code{\link{gbDUreport}}, \code{\link{ASpliSplicingReport}}
-  Accessors: \code{\link{junctionsDU}}
-  Export: \code{\link{writeDU}}
 }
 
 

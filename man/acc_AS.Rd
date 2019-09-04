@@ -1,13 +1,13 @@
 \name{AS accessors}
 
-\alias{altPIN}
-\alias{esPIN}
+\alias{altPSI}
+\alias{esPSI}
 \alias{irPIR}
 \alias{joint}
 \alias{junctionsPIR}
 \alias{junctionsPJU}
-\alias{altPIN<-}
-\alias{esPIN<-}
+\alias{altPSI<-}
+\alias{esPSI<-}
 \alias{irPIR<-}
 \alias{joint<-}
 \alias{junctionsPIR<-}
@@ -20,8 +20,8 @@ into an ASpliAS object is not a typical task and must be done with care, because
 it can affect the integrity of the object. }
 
 \usage{
-altPIN( x )
-esPIN( x )
+altPSI( x )
+esPSI( x )
 irPIR( x )
 joint( x )
 junctionsPIR( x )
@@ -41,8 +41,8 @@ junctionsPJU( x )
 
 #as <- aspliASexample()
 
-#ap <- altPIN(as)
-#ep <- esPIN(as)
+#ap <- altPSI(as)
+#ep <- esPSI(as)
 #ip <- irPIR(as)
 #j  <- joint(as)
 #jpi <- junctionsPIR(as)
@@ -52,8 +52,8 @@ junctionsPJU( x )
 
 #as2 <- new( 'ASpliAS' )
 
-#altPIN( as2 )  <- ap
-#esPIN( as2 )  <- ep
+#altPSI( as2 )  <- ap
+#esPSI( as2 )  <- ep
 #irPIR( as2 )  <- ip
 #joint( as2 )  <- j
 #junctionsPIR( as2 )  <- jpi

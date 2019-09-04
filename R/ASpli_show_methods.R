@@ -176,6 +176,23 @@ setMethod( f = "junctionsDU", signature = "ASpliDU",
 setGeneric(  name = "junctionsDU<-", def = function( x, value ) standardGeneric("junctionsDU<-") )
 setReplaceMethod( f = "junctionsDU", signature = c( "ASpliDU", 'data.frame'), 
     definition = function( x, value ){ x@junctions <- value; return( x ) } )
+#-----------------------------------------------------------------------
+
+setGeneric( name = "filters", def = function( x ) standardGeneric("filters"))
+setMethod( f = "filters", signature = "ASpliIntegratedSignals",
+           definition = function( x ){ x@filters } )
+
+setGeneric( name = "filters<-", def = function( x, value ) standardGeneric("filters<-"))
+setReplaceMethod( f = "filters", signature = c("ASpliIntegratedSignals","data.frame"),
+                  definition = function( x, value ){ x@filters <- value; return( x )} )
+
+setGeneric( name = "signals", def = function( x ) standardGeneric("signals") )
+setMethod( f = "signals", signature = "ASpliIntegratedSignals", 
+           definition = function( x ){ x@signals })
+
+setGeneric( name = "signals<-", def = function( x, value ) standardGeneric("signals<-") )
+setReplaceMethod( f = "signals", signature = c("ASpliIntegratedSignals","data.frame"), 
+                  definition = function( x, value ){ x@signals <- value; return( x ) })
 # ---------------------------------------------------------------------------- #
 
 # ---------------------------------------------------------------------------- #

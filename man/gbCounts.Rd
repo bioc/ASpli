@@ -10,7 +10,7 @@
 \description{ Summarize read overlaps against all feature levels }
 
 \usage{
-  gbCounts( features, bam = NULL, targets, cores = 1, readLength,
+  gbCounts( features, bam = NULL, targets, cores = 1, minReadLength,
                  maxISize, minAnchor = 10)
 }
 
@@ -26,10 +26,10 @@
   \item{targets}{ A dataframe containing sample, bam and experimental factors 
     columns }
   
-  \item{readLength}{ Read length of sequenced library. It is used for compute 
+  \item{minReadLength}{ Minimum read length of sequenced library. It is used for computing 
     E1I and IE2 read summarization }
     
-  \item{maxISize}{maximum intron expected size. Junctions longer than this size
+  \item{maxISize}{Maximum intron expected size. Junctions longer than this size
     will be dicarded }
   
   \item{cores}{ Number of cores to use. Default is 1 }

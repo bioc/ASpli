@@ -17,10 +17,10 @@ exportSplicingReports( sr, output.dir="sr" , openInBrowser = F, maxBinFDR = 0.2,
   \item{sr}{ 
     An object of class \code{ASpliSplicingReport}
   }
-  \item{output.dir}{Description TODO}
-  \item{openInBrowser}{Description TODO}
-  \item{maxBinFDR}{Description TODO}
-  \item{maxJunctionFDR}{Description TODO}
+  \item{output.dir}{HTML reports output directory}
+  \item{openInBrowser}{Open reports in browser when done}
+  \item{maxBinFDR}{Only show bins with FDR < maxBinFDR}
+  \item{maxJunctionFDR}{Only show junctions with FDR < maxJunctionFDR}
 }
 
 \value{ 
@@ -41,9 +41,7 @@ exportSplicingReports( sr, output.dir="sr" , openInBrowser = F, maxBinFDR = 0.2,
 }
 
 \seealso{
-  \code{\link{jDUreport}}, \code{\link{gbDUreport}}, \code{\link{ASpliSplicingReport}}
-  Accessors: \code{\link{junctionsDU}}
-  Export: \code{\link{writeDU}}
+  \code{\link{splicingReport}}, \code{\link{ASpliSplicingReport}}
 }
 
 

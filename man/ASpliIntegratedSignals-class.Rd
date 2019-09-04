@@ -6,15 +6,14 @@
 
 \alias{ASpliIntegratedSignals}
 \alias{ASpliIntegratedSignals-class}
-\alias{anchorbased,ASpliIntegratedSignals-method}
-\alias{binbased,ASpliIntegratedSignals-method}
-\alias{localebased,ASpliIntegratedSignals-method}
-\alias{anchorbased<-,ASpliIntegratedSignals,data.frame-method}
-\alias{localebased<-,ASpliIntegratedSignals,data.frame-method}
-\alias{binbased<-,ASpliIntegratedSignals,data.frame-method}
+\alias{signals,ASpliIntegratedSignals-method}
+\alias{filters,ASpliIntegratedSignals-method}
+\alias{signals<-,ASpliIntegratedSignals,data.frame-method}
+\alias{filters<-,ASpliIntegratedSignals,data.frame-method}
 \alias{splicingReport,ASpliIntegratedSignals-method}
 \alias{show,ASpliIntegratedSignals-method}
 \alias{writeIntegratedSignals,ASpliIntegratedSignals-method}
+\alias{exportIntegratedSignals,ASpliIntegratedSignals-method}
 
 
 \title{Class \code{"ASpliIntegratedSignals"}}
@@ -24,9 +23,8 @@
 
 \section{Slots}{
   \describe{
-    \item{\code{binbased}}{}
-    \item{\code{localebased}}{}
-    \item{\code{anchorbased}}{}
+    \item{\code{signals}}{}
+    \item{\code{filters}}{}
   }
 }
 

@@ -465,6 +465,22 @@
     stop("asd must be an ASpliAS object") 
   }
   
+  
+  is <- new( Class="ASpliIntegratedSignals" )
+  is@filters <- data.frame( bin.FC = bin.FC,
+                            bin.fdr = bin.fdr,
+                            nonunif = nonunif,
+                            usenonunif = usenonunif,
+                            bin.inclussion = bin.inclussion,
+                            bjs.inclussion = bjs.inclussion,
+                            bjs.fdr = bjs.fdr,
+                            a.inclussion = a.inclussion,
+                            a.fdr = a.fdr,
+                            l.inclussion = l.inclussion,
+                            l.fdr = l.fdr,
+                            usepvalBJS=usepvalBJS,
+                            overlapType = overlapType)
+  
   #
   # Pongo todo lo que quiero comparar en GRanges
   #
@@ -571,8 +587,8 @@
 
       suppressWarnings(taux <- as.data.table(findOverlaps(laux[[i]],laux[[j]],type=ttype, minoverlap = 3)))
       if(nrow(taux) > 0){
-        taux[,queryHits:=paste(names(laux)[i],queryHits,sep=".")]
-        taux[,subjectHits:=paste(names(laux)[j],subjectHits,sep=".")]
+        taux$queryHits   <- paste(names(laux)[i],taux$queryHits,sep=".")
+        taux$subjectHits <- paste(names(laux)[j],taux$subjectHits,sep=".")
         colnames(taux) <- names(laux)[c(i,j)]
         lover[[saux]]           <-  taux
       }
@@ -1040,7 +1056,7 @@
                      a.participation = numeric(),
                      a.dparticipation = numeric(), l.lr = numeric(), l.fdr = numeric(), l.logfc = numeric(), l.participation = numeric(),l.dparticipation = numeric())
   }
+  is@signals <- aa
   
-
-  return(aa)
+  return(is)
 }

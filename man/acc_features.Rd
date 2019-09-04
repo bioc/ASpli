@@ -2,9 +2,11 @@
 \alias{featuresb}
 \alias{featuresg}
 \alias{featuresj}
+\alias{transcriptExons}
 \alias{featuresb<-}
 \alias{featuresg<-}
 \alias{featuresj<-}
+\alias{transcriptExons<-}
 
 \title{ Accessors for ASpliFeatures object }
 
@@ -14,6 +16,7 @@
   featuresg( x )
   featuresb( x )
   featuresj( x )
+  transcriptExons( x )
 }
 
 \arguments{
@@ -26,7 +29,7 @@
   featuresj, returns GRanges object for all bins and junctions. 
 }
 
-\author{ Estefania Mancini, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz}
+\author{ Estefania Mancini, Andres Rabinovich, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz}
 
 \examples{
   # Get data from an ASpliFeatures object
@@ -36,13 +39,15 @@
   fg <- featuresg( features )
   fb <- featuresb( features )
   fj <- featuresj( features )
+  te <- transcriptExons( features )
+  
   
   # Set data to an ASpliFeatures object
   
   featuresg( features ) <- fg 
   featuresb( features ) <- fb 
   featuresj( features ) <- fj 
-
+  transcriptExons( features )  <- te
 }
 
 

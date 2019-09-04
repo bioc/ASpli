@@ -6,14 +6,14 @@
 
 \alias{ASpliAS}
 \alias{ASpliAS-class}
-\alias{altPIN,ASpliAS-method}
-\alias{esPIN,ASpliAS-method}
+\alias{altPSI,ASpliAS-method}
+\alias{esPSI,ASpliAS-method}
 \alias{irPIR,ASpliAS-method}
 \alias{joint,ASpliAS-method}
 \alias{junctionsPIR,ASpliAS-method}
 \alias{junctionsPJU,ASpliAS-method}
-\alias{altPIN<-,ASpliAS,data.frame-method}
-\alias{esPIN<-,ASpliAS,data.frame-method}
+\alias{altPSI<-,ASpliAS,data.frame-method}
+\alias{esPSI<-,ASpliAS,data.frame-method}
 \alias{irPIR<-,ASpliAS,data.frame-method}
 \alias{joint<-,ASpliAS,data.frame-method}
 \alias{junctionsPIR<-,ASpliAS,data.frame-method}
@@ -24,21 +24,21 @@
 
 \title{Class \code{"ASpliAS"}}
 
-\description{ Results of PIN and PIR using experimental junctions }
+\description{ Results of PSI and PIR using experimental junctions }
 
 \section{ Slots }{
   \describe{
     \item{\code{irPIR}:}{
       Reports: event, e1i counts (J1), ie1 counts (J2), j_within (J3), PIR by 
       condition. J1, J2, J3 sum of junctions (J1, J2, J3) by condition.}
-    \item{\code{altPIN}:}{
+    \item{\code{altPSI}:}{
       Reports: event, J1 (start), J2 (end), J3 (exclusion), PSI. J1, J2, J3 sum 
       of junctions (J1, J2, J3) by condition.}
-    \item{\code{esPIN}:}{
+    \item{\code{esPSI}:}{
       Reports: event, J1 (start), J2 (end), J3 (exclusion), PSI. J1, J2, J3 sum 
       of junctions (J1, J2, J3) by condition.}
     \item{\code{join}:}{
-      It is a combination of irPIR, altPIN and esPIN tables}
+      It is a combination of irPIR, altPSI and esPSI tables}
     \item{\code{junctionsPIR}:}{
       PIR metric for each experimental junction using e1i and ie2 counts. 
       Exclusion junction is the junction itself. This output helps to discover 
@@ -52,14 +52,14 @@
   }
 }
 
-\author{ Estefania Mancini, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz}
+\author{ Estefania Mancini, Andres Rabinovich, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz}
 
 \seealso{ 
   Methods: \code{\link{AsDiscover}}
   
-  Accesors: \code{\link{altPIN}},
+  Accesors: \code{\link{altPSI}},
             \code{\link{irPIR}},
-            \code{\link{esPIN}},
+            \code{\link{esPSI}},
             \code{\link{joint}},
             \code{\link{junctionsPIR}},
             \code{\link{junctionsPJU}}

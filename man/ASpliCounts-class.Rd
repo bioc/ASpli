@@ -10,11 +10,13 @@
 \alias{countsg,ASpliCounts-method}
 \alias{countsie2,ASpliCounts-method}
 \alias{countsj,ASpliCounts-method}
+\alias{targets,ASpliCounts-method}
 \alias{countsb<-,ASpliCounts,data.frame-method}
 \alias{countse1i<-,ASpliCounts,data.frame-method}
 \alias{countsg<-,ASpliCounts,data.frame-method}
 \alias{countsie2<-,ASpliCounts,data.frame-method}
 \alias{countsj<-,ASpliCounts,data.frame-method}
+\alias{targets<-,ASpliCounts,data.frame-method}
 \alias{gbDUreport,ASpliCounts-method}
 \alias{DUreport.norm,ASpliCounts-method}
 \alias{DUreport.offset,ASpliCounts-method}

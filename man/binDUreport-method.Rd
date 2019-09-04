@@ -22,7 +22,7 @@
              ignoreExternal = TRUE, 
              ignoreIo = TRUE, 
              ignoreI = FALSE,
-             filterWithContrasted = FALSE,
+             filterWithContrasted = TRUE,
              verbose = TRUE )
 }
 
@@ -75,7 +75,7 @@
     A logical value specifying if bins, genes and junction will be filtered by
     read quantity and read density using data from those conditions that will 
     be used in the comparison, i.e. those which coefficients in contrast 
-    argument are different from zero. The default value is FALSE, it is strongly
+    argument are different from zero. The default value is TRUE, it is strongly
     recommended to do not change this value. }
   \item{verbose}{
     A logical value that indicates that detailed information about each step in 

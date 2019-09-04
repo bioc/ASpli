@@ -15,6 +15,8 @@
 \alias{splicingReport,ASpliSplicingReport-method}
 \alias{show,ASpliSplicingReport-method}
 \alias{writeSplicingReport,ASpliSplicingReport-method}
+\alias{integrateSignals,ASpliSplicingReport-method}
+\alias{exportSplicingReports,ASpliSplicingReport-method}
 
 
 \title{Class \code{"ASpliSplicingReport"}}
@@ -27,6 +29,7 @@
     \item{\code{binbased}}{}
     \item{\code{localebased}}{}
     \item{\code{anchorbased}}{}
+    \item{\code{contrast}}{}
   }
 }
 

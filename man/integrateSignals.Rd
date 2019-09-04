@@ -10,7 +10,12 @@
 }
 
 \usage{
-  integrateSignals(sr=NULL, asd = NULL, bin.fdr=0.05,unif=0.1,dPIN=0.05,dPIR=0.05,j.fdr=0.05,j.particip=0.1,usepvalBJS=FALSE,bjs.fdr=0.1, otherSources = NULL)
+  integrateSignals(sr = NULL, asd = NULL, bin.FC = 3, bin.fdr = 0.05,
+                 nonunif = 1, usenonunif = FALSE, bin.inclussion = 0.1,
+                 bjs.inclussion = 0.2, bjs.fdr = 0.1, a.inclussion =
+                 0.3, a.fdr = 0.05, l.inclussion = 0.3, l.fdr = 0.05,
+                 usepvalBJS = FALSE, otherSources = NULL, overlapType =
+                 "any")
 }
 
 \arguments{
@@ -20,23 +25,27 @@
   \item{asd}{ 
     An object of class \code{ASpliDU}
   }  
+  \item{bin.FC}{Description TODO}
   \item{bin.fdr}{Description TODO}
-  \item{maxBinFDR}{Description TODO}
-  \item{unif}{Description TODO}
-  \item{dPIN}{Description TODO}
-  \item{dPIR}{Description TODO}
-  \item{j.fdr}{Description TODO}
-  \item{j.particip}{Description TODO}
-  \item{usepvalBJS}{Description TODO}
+  \item{nonunif}{Description TODO}
+  \item{usenonunif}{Description TODO}
+  \item{bin.inclussion}{Description TODO}
+  \item{bjs.inclussion}{Description TODO}
   \item{bjs.fdr}{Description TODO}
+  \item{a.inclussion}{Description TODO}
+  \item{a.fdr}{Description TODO}
+  \item{l.inclussion}{Description TODO}
+  \item{l.fdr}{Description TODO}
+  \item{usepvalBJS}{Description TODO}
   \item{otherSources}{Description TODO}
+  \item{overlapType}{Description TODO}    
 }
 
 \value{ 
-  A \code{data.frame} with integrated signals }
+  A \code{ASpliIntegratedSignals} with integrated signals }
 
 \author{
-  Andres Rabinovich, Estefania Mancini, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz
+  Estefania Mancini, Andres Rabinovich, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz
 }
 
 \examples{

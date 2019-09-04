@@ -2,9 +2,9 @@
 \alias{jCounts}
 \alias{AsDiscover}
 
-\title{ Report PIN, PJU and PIR using experimental junctions }
+\title{ Report PSI, PJU and PIR using experimental junctions }
 
-\description{ Given a bin, it is possible to calculate PIN/PIR metric using 
+\description{ Given a bin, it is possible to calculate PSI/PIR metric using 
 junctions to estimate changes in the use of it along different conditions. 
 PSI or PIR metric is calculated for each bin and experimental condition. The 
 selection of which metric is used is based on the kind of splicing event 
@@ -12,7 +12,8 @@ associated with each bin.
 }
  
 \usage{ 
- jCounts( counts, features, bam = NULL, readLength, threshold , cores )
+ jCounts( counts, features, bam = NULL, minReadLength, threshold
+                 = 5, cores = 1, minAnchor = 10 )
 }
 \arguments{
 \item{counts}{
@@ -23,11 +24,13 @@ An object of class ASpliCounts.
 
 \item{bam}{ A list with BAM files contents.}
 
-\item{readLength}{ Read length of sequenced read. Default 100L }
+\item{minReadLength}{ Read length of sequenced read. Default 100L }
 
 \item{threshold}{ Minimum  number of reads supporting junctions. Default=5 }
 
 \item{cores}{ Number of processing cores to use }
+
+\item{minAnchor}{ TODO}
 }
 
 \value{ 
@@ -37,12 +40,12 @@ An object of class ASpliAS
   condition. J1, J2, J3 sum of junctions (J1, J2, J3) by condition. 
 }
 
-\item{altPIN}{ 
+\item{altPSI}{ 
   reports: event, J1 (start), J2 (end), J3 (exclusion), PSI. J1, J2, J3 sum of 
   junctions (J1, J2, J3) by condition. 
 }
 
-\item{esPIN}{ reports: event, J1 (start), J2 (end), J3 (exclusion), PSI. J1, J2,
+\item{esPSI}{ reports: event, J1 (start), J2 (end), J3 (exclusion), PSI. J1, J2,
   J3 sum of junctions (J1, J2, J3) by condition. 
 }
 
@@ -60,7 +63,7 @@ An object of class ASpliAS
 
 }
 \author{
-  Estefania Mancini, Marcelo Yanovsky and Ariel Chernomoretz 
+  Estefania Mancini, Andres Rabinovich, Javier Iserte, Marcelo Yanovsky and Ariel Chernomoretz 
 }
 
 \examples{
@@ -102,7 +105,7 @@ An object of class ASpliAS
 
 \seealso{
 
-Accesors: \code{\link{irPIR}}, \code{\link{altPIN}}, \code{\link{esPIN}}, 
+Accesors: \code{\link{irPIR}}, \code{\link{altPSI}}, \code{\link{esPSI}}, 
 \code{\link{junctionsPIR}}, \code{\link{junctionsPJU} }
 
 Export: \code{ \link{writeAS} }

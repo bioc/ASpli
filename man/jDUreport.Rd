@@ -10,14 +10,11 @@
 }
 
 \usage{
-  jDUreport(asd, 
-            minAvgCounts              = 5, 
-            contrast                  = NULL,
-            filterWithContrasted      = FALSE,
-            runUniformityTest         = FALSE,
-            mergedBams                = NULL,
-            maxPValForUniformityCheck = 0.2,
-            strongFilter              = FALSE)
+  jDUreport(asd, minAvgCounts = 5, contrast = NULL,
+                 filterWithContrasted = TRUE, runUniformityTest =
+                 FALSE, mergedBams = NULL, maxPValForUniformityCheck =
+                 0.2, strongFilter = TRUE,
+                 maxConditionsForDispersionEstimate = 24)
 }
 
 \arguments{
@@ -44,14 +41,17 @@
   } 
   \item{strongFilter}{
     Use only junctions that passed filters for clustering
-  }   
+  }  
+  \item{maxConditionsForDispersionEstimate}{  
+    In order to reduce resource usage, estimate dispersion with a reduced number of conditions.
+  }
 }
 
 \value{ 
   An \code{ASpliJDU} object with results of differential usage of junctions }
 
 \author{
-  Andres Rabinovich, Estefania Mancini, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz
+  Estefania Mancini, Andres Rabinovich, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz
 }
 
 \examples{

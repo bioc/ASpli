@@ -3,15 +3,14 @@
 \alias{splicingReport}
 
 \title{
-  Differential junction usage estimation. COMPLETAR
+  Differential junction usage estimation.
 }
 \description{
-  Estimate differential usage at junction level. COMPLETAR
+  Estimate differential usage at junction level.
 }
 
 \usage{
-  splicingReport(bdu, 
-               jdu, maxBinFDR = 0.2, maxJunctionFDR = 0.2)
+  splicingReport(bdu, jdu, counts)
 }
 
 \arguments{
@@ -21,15 +20,16 @@
   \item{jdu}{ 
     An object of class \code{ASpliJDU}
   }
-  \item{maxBinFDR}{Description TODO}
-  \item{maxJunctionFDR}{Description TODO}
+  \item{counts}{ 
+    An object of class \code{ASpliCounts}
+  }
 }
 
 \value{ 
   An \code{ASpliSplicingReport} object with results of differential usage of junctions }
 
 \author{
-  Andres Rabinovich, Estefania Mancini, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz
+  Estefania Mancini, Andres Rabinovich, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz
 }
 
 \examples{
@@ -44,8 +44,6 @@
 
 \seealso{
   \code{\link{jDUreport}}, \code{\link{gbDUreport}}, \code{\link{ASpliSplicingReport}}
-  Accessors: \code{\link{junctionsDU}}
-  Export: \code{\link{writeDU}}
 }
 
 
