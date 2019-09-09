@@ -1377,6 +1377,49 @@ setMethod(
   }
 )
 
+setGeneric( name = 'filterSignals',
+            def = function( sr,
+                            bin.FC = 3,
+                            bin.fdr = 0.05,
+                            nonunif=1,
+                            bin.inclussion = 0.1,
+                            bjs.inclussion = 0.2,
+                            bjs.fdr = 0.1,
+                            a.inclussion = 0.3,
+                            a.fdr = 0.05,
+                            l.inclussion = 0.3,
+                            l.fdr = 0.05, 
+                            bDetectionSummary=FALSE  ) 
+              standardGeneric( 'filterSignals' ))
+
+setMethod( f = 'filterSignals',
+           signature = c( 'ASpliSplicingReport' ),
+           definition = function( sr,
+                                  bin.FC = 3,
+                                  bin.fdr = 0.05,
+                                  nonunif=1,
+                                  bin.inclussion = 0.1,
+                                  bjs.inclussion = 0.2,
+                                  bjs.fdr = 0.1,
+                                  a.inclussion = 0.3,
+                                  a.fdr = 0.05,
+                                  l.inclussion = 0.3,
+                                  l.fdr = 0.05, 
+                                  bDetectionSummary=FALSE ) {
+             .filterSignals( sr, 
+                             bin.FC, 
+                             bin.fdr, 
+                             nonunif, 
+                             bin.inclussion, 
+                             bjs.inclussion,
+                             bjs.fdr,
+                             a.inclussion,
+                             a.fdr,
+                             l.inclussion,
+                             l.fdr, 
+                             bDetectionSummary ) } )
+
+
 # ---------------------------------------------------------------------------- #
 
 # ---------------------------------------------------------------------------- #

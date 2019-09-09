@@ -17,6 +17,7 @@
 \alias{writeSplicingReport,ASpliSplicingReport-method}
 \alias{integrateSignals,ASpliSplicingReport-method}
 \alias{exportSplicingReports,ASpliSplicingReport-method}
+\alias{filterSignals,ASpliSplicingReport-method}
 
 
 \title{Class \code{"ASpliSplicingReport"}}
