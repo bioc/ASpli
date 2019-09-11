@@ -1268,22 +1268,12 @@ setMethod(
     # is[,b.logfc:=signif(as.numeric(b.logfc), 4)]
     # is[,bjs.lr:=signif(as.numeric(bjs.lr), 4)]
     # is[,bjs.fdr:=signif(as.numeric(bjs.fdr), 4)]
-    # #is[,bjs.logfc:=signif(as.numeric(bjs.logfc), 4)]    
-    # is[,bjs.nonuniformity:=signif(as.numeric(bjs.nonuniformity), 4)]
+     
     is$bjs.inclussion_sign <- as.factor(replace_na(sign(as.numeric(is$bjs.inclussion)), 0))     
-    is$bjs.inclussion <- abs(is$bjs.inclussion) 
-    # is[,a.lr:=signif(as.numeric(a.lr), 4)]
-    # is[,a.fdr:=signif(as.numeric(a.fdr), 4)]
-    #is[,a.logfc:=signif(as.numeric(a.logfc), 4)]
-    # is[,a.nonuniformity:=signif(as.numeric(a.nonuniformity), 4)]
     is$a.dpir_sign <- as.factor(replace_na(sign(as.numeric(is$a.dpir)), 0))    
     is$a.dpir      <- abs(is$a.dpir)
-    # is[,l.lr:=signif(as.numeric(l.lr), 4)]
-    # is[,l.fdr:=signif(as.numeric(l.fdr), 4)]
-    # #is[,l.logfc:=signif(as.numeric(l.logfc), 4)]
-    # is[,l.participation:=signif(as.numeric(l.participation), 4)]
-    # is[,l.dparticipation:=signif(as.numeric(l.dparticipation), 4)]
     
+   
     message("Generating graphs...")
     if(!is.numeric(ntop)){
         ntop <- length(is$region)
