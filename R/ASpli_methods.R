@@ -1235,39 +1235,42 @@ setMethod(
     file.exists( paste0(output.dir, "/img") ) || dir.create( paste0(output.dir, "/img") )
     
     is$feature[is.na(is$feature)] <- "-"
-    for(column in c("b","bjs","ja","jl","feature","bin.event")){
-      is[, column] <- as.factor(is[, column])
-    }
-    # is[,b:=as.factor(b)]
-    # is[,bjs:=as.factor(bjs)]
-    # is[,ja:=as.factor(ja)]
-    # is[,jl:=as.factor(jl)]
-    # is[,feature:=as.factor(feature)]
-    # is[,bin.event:=as.factor(bin.event)]
-    # 
-    for(column in c("b.fdr","b.logfc","bjs.lr","bjs.fdr","bjs.nonuniformity","bjs.inclussion", "a.lr","a.fdr","a.nonuniformity","l.lr","l.fdr","l.participation","l.dparticipation", "a.dpir")){
-      is[, column] <- signif(as.numeric(is[, column]), 4)
-    }
+    # for(column in c("b","bjs","ja","jl","feature","bin.event")){
+    #   is[, column] <- as.factor(is[, ..column])
+    # }
+     is[,b:=as.factor(b)]
+     is[,bjs:=as.factor(bjs)]
+     is[,ja:=as.factor(ja)]
+     is[,jl:=as.factor(jl)]
+     is[,feature:=as.factor(feature)]
+     is[,bin.event:=as.factor(bin.event)]
+     
+    # for(column in c("b.fdr","b.logfc","bjs.lr","bjs.fdr","bjs.nonuniformity","bjs.inclussion", "a.lr","a.fdr","a.nonuniformity","l.lr","l.fdr","l.participation","l.dparticipation", "a.dpir")){
+    #   is[, column] <- signif(as.numeric(is[, column]), 4)
+    # }
     
-    # is[,b.fdr:=signif(as.numeric(b.fdr), 4)]
-    # is[,b.logfc:=signif(as.numeric(b.logfc), 4)]
-    # is[,bjs.lr:=signif(as.numeric(bjs.lr), 4)]
-    # is[,bjs.fdr:=signif(as.numeric(bjs.fdr), 4)]
+    is[,b.fdr:=signif(as.numeric(b.fdr), 4)]
+    is[,b.logfc:=signif(as.numeric(b.logfc), 4)]
+    is[,bjs.lr:=signif(as.numeric(bjs.lr), 4)]
+    is[,bjs.fdr:=signif(as.numeric(bjs.fdr), 4)]
     # #is[,bjs.logfc:=signif(as.numeric(bjs.logfc), 4)]    
-    # is[,bjs.nonuniformity:=signif(as.numeric(bjs.nonuniformity), 4)]
+    is[,bjs.nonuniformity:=signif(as.numeric(bjs.nonuniformity), 4)]
+     
     is$bjs.inclussion_sign <- as.factor(replace_na(sign(as.numeric(is$bjs.inclussion)), 0))     
-    is$bjs.inclussion <- abs(is$bjs.inclussion) 
-    # is[,a.lr:=signif(as.numeric(a.lr), 4)]
-    # is[,a.fdr:=signif(as.numeric(a.fdr), 4)]
-    #is[,a.logfc:=signif(as.numeric(a.logfc), 4)]
-    # is[,a.nonuniformity:=signif(as.numeric(a.nonuniformity), 4)]
+    is[,bjs.inclussion:=abs(signif(as.numeric(bjs.inclussion), 4))]
+    
+    is[,a.lr:=signif(as.numeric(a.lr), 4)]
+    is[,a.fdr:=signif(as.numeric(a.fdr), 4)]
+    is[,a.logfc:=signif(as.numeric(a.logfc), 4)]
+    is[,a.nonuniformity:=signif(as.numeric(a.nonuniformity), 4)]
     is$a.dpir_sign <- as.factor(replace_na(sign(as.numeric(is$a.dpir)), 0))    
     is$a.dpir      <- abs(is$a.dpir)
-    # is[,l.lr:=signif(as.numeric(l.lr), 4)]
-    # is[,l.fdr:=signif(as.numeric(l.fdr), 4)]
-    # #is[,l.logfc:=signif(as.numeric(l.logfc), 4)]
-    # is[,l.participation:=signif(as.numeric(l.participation), 4)]
-    # is[,l.dparticipation:=signif(as.numeric(l.dparticipation), 4)]
+    
+    is[,l.lr:=signif(as.numeric(l.lr), 4)]
+    is[,l.fdr:=signif(as.numeric(l.fdr), 4)]
+    #is[,l.logfc:=signif(as.numeric(l.logfc), 4)]
+    is[,l.participation:=signif(as.numeric(l.participation), 4)]
+    is[,l.dparticipation:=signif(as.numeric(l.dparticipation), 4)]
     
     message("Generating graphs...")
     if(!is.numeric(ntop)){
