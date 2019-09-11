@@ -1216,7 +1216,9 @@ setMethod(
       stop("asd must be an ASpliAS object")
     }
     
+    filters <- is@filters
     is <- is@signals
+    
     saux <- names(sr@contrast)[sr@contrast != 0]
     ina <- which(is.na(match(saux,mergedBams$condition)))
     if(length(ina)>0){
@@ -1313,7 +1315,8 @@ setMethod(
       }
     }
     #close(pb)
-    titulo <- paste0('ASpli: integrated signals. Contrasts: ', paste(names(sr@contrast)[sr@contrast != 0], collapse = " - "))
+    titulo <- paste(paste('ASpli: integrated signals. Contrasts:', 
+                     paste(names(sr@contrast)[sr@contrast != 0], collapse = " - ")))
     sketch = htmltools::withTags(table(
       class = 'display',
       tags$thead(
@@ -1355,7 +1358,7 @@ setMethod(
                              keys = TRUE
               ),   caption = htmltools::tags$caption(
                 style = 'caption-side: top; text-align: left;',
-                htmltools::h1(titulo)
+                htmltools::h1(titulo), htmltools::h4(paste("Filters:", paste(paste(names(filters), filters, sep="="), collapse="; ")))
               ), container = sketch,
               callback = JS("
             table.order([10, 'asc']).draw();

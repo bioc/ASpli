@@ -830,7 +830,7 @@
           aa$b[b] <- "*"
         }
       }
-      if(aa$bjs[b] != 0){
+      if(aa$bjs[b] != 0 | aa$b[b] != 0){
         i <- which(original_signals$bjs$J3 == aa$J3[b])
         if(length(i) > 0){
           aa$bjs.lr[b]            <- original_signals$bjs$cluster.LR[i[1]]
