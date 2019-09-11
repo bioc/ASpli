@@ -68,7 +68,8 @@ exportMethods(
     "filterDU",
     "splicingReport",
     "integrateSignals",
-    "exportIntegratedSignals"
+    "exportIntegratedSignals",
+    "filterSignals"
 )
 exportClasses(
     "ASpliAS",
@@ -76,5 +77,6 @@ exportClasses(
     "ASpliDU",
     "ASpliFeatures",
     "ASpliJDU",
-    "ASpliSplicingReport"
+    "ASpliSplicingReport",
+    "ASpliIntegratedSignals"
 )

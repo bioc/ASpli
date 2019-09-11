@@ -3,10 +3,10 @@
 \alias{exportIntegratedSignals}
 
 \title{
-  Differential junction usage estimation. COMPLETAR
+  Export integrated signals.
 }
 \description{
-  Estimate differential usage at junction level. COMPLETAR
+  Export integrated signals in an easy to analyze HTML table.
 }
 
 \usage{
@@ -55,17 +55,26 @@ exportIntegratedSignals( is, output.dir="is",
 }
 
 \examples{
-  # Create a transcript DB from gff/gtf annotation file.
-  # Warnings in this examples can be ignored.
+  ##Calculates junction differential usage from junction counts 
+  #j           <- jDUreport(asd, contrast, mergedBams = mergedBams)
   
-  #as <- new("ASpliAS")
-  #targets <- 1
-  #a <- junctionDUreportExt(as, targets)
+  ##Calculates bin differential usage from bin counts 
+  #gb          <- gbDUreport(counts, contrast)
+  
+  ##Generate splicig reports from different sources
+  #sr          <- splicingReport(gb, j, counts)
+  
+  ##Integrate signals
+  #is          <- integrateSignals(sr, asd)
+  
+  ##Export integrated signals
+  #exportIntegratedSignals(is, output.dir = "is", sr, counts, features, mergedBams)
   
 }
 
 \seealso{
-  \code{\link{jDUreport}}, \code{\link{gbDUreport}}, \code{\link{ASpliSplicingReport}}
+  \code{\link{gbDUreport}}, \code{\link{jDUreport}}, \code{\link{ASpliSplicingReport}},  \code{\link{splicingReport}}, \
+  code{\link{ASpliIntegratedSignals}}
 }
 
 

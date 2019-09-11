@@ -6,7 +6,7 @@
   Differential junction usage estimation
 }
 \description{
-  Estimate differential usage at junction level. COMPLETAR
+  Estimate differential usage at junction level.
 }
 
 \usage{
@@ -25,10 +25,24 @@
     Minimum average counts for filtering.
   }  
   \item{contrast}{
-    Contrasts 
+    Define the comparison between conditions to be tested.
+    \code{contrast} should be a vector with length equal to the number of 
+    experimental conditions defined by \code{targets}. The values of this vector
+    are the coefficients that will be used to weight each condition, the order 
+    of the values corresponds to the order given by \code{getConditions} 
+    function. When \code{contrast} is NULL, defaults to a vector containing -1,
+    as the first value, 1 as the second an zero for all the remaining values, 
+    this corresponds to a pair comparison where the first condition is assumed 
+    to be a control and the second condition is the treatment, all other 
+    conditions are ignored. 
+    Default = NULL 
   }
   \item{filterWithContrasted}{
-    Apply filter on all conditions or only on contrasts
+    A logical value specifying if bins, genes and junction will be filtered by
+    read quantity and read density using data from those conditions that will 
+    be used in the comparison, i.e. those which coefficients in contrast 
+    argument are different from zero. The default value is TRUE, it is strongly
+    recommended to do not change this value.
   }
   \item{runUniformityTest}{
     Run uniformity test on Intron Retention

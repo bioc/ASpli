@@ -439,7 +439,8 @@
 # por ejemplo, jl y que se solapa con un bin en al menos 3 pares de bases, aparece con soporte en bjs y en jl, mientras que si se solapa
 # con b, solamente de coverage, aparece con b y jl. Las junturas que aparecen reportadas al final son las que aparecen en el bin en caso
 # de tratarse de una region meramente "binica" o son la region en caso de venir de ja o jl.
-#bin.FC = 3; bin.fdr = 0.05; nonunif = 1; usenonunif = FALSE; bin.inclussion = 0.1; bjs.inclussion = 0.2; bjs.fdr = 0.1; a.inclussion = 0.3; a.fdr = 0.05; l.inclussion = 0.3; l.fdr = 0.05; usepvalBJS=FALSE; otherSources = NULL; overlapType = "any"
+#bin.FC = 3; bin.fdr = 0.05; nonunif = 1; usenonunif = FALSE; bin.inclussion = 0.1; bjs.inclussion = 0.2; bjs.fdr = 0.1; a.inclussion = 0.3; a.fdr = 0.05; l.inclussion = 0.3; l.fdr = 0.05; otherSources = NULL; overlapType = "any"
+#bin.FC = 3;bin.fdr = 0.05;nonunif = 1;usenonunif = FALSE;bin.inclussion = 0.1;bjs.inclussion = 0.2;bjs.fdr = 0.1;a.inclussion = 0.3;a.fdr = 0.05;l.inclussion = 0.3;l.fdr = 0.05;otherSources = NULL;overlapType = "any"
 .integrateSignals<-function(sr = NULL,
                             asd = NULL,
                             bin.FC = 3,
@@ -453,7 +454,6 @@
                             a.fdr = 0.05,
                             l.inclussion = 0.3,
                             l.fdr = 0.05,
-                            usepvalBJS=FALSE,
                             otherSources = NULL,
                             overlapType = "any"){
   
@@ -478,7 +478,6 @@
                             a.fdr = a.fdr,
                             l.inclussion = l.inclussion,
                             l.fdr = l.fdr,
-                            usepvalBJS=usepvalBJS,
                             overlapType = overlapType)
   
   #
@@ -685,27 +684,27 @@
   i <- grep("b.", overlaps_aux$region,fixed=TRUE)
   if(length(i)){
     L <- as.data.frame(binbased[as.numeric(strsplit2(overlaps_aux$region[i], "b.")[, 2])])
-    overlaps_aux$region[i] <- paste0("Chr", L$seqnames, ":", L$start, "-", L$end)
+    overlaps_aux$region[i] <- paste0(L$seqnames, ":", L$start, "-", L$end)
   }
   
   i <- grep("bjs.", overlaps_aux$region, fixed=TRUE)
   if(length(i)){
     L <- as.data.frame(binsupport[as.numeric(strsplit2(overlaps_aux$region[i], "bjs.")[, 2])])
-    overlaps_aux$region[i] <- paste0("Chr", L$seqnames, ":", L$start, "-", L$end)
+    overlaps_aux$region[i] <- paste0(L$seqnames, ":", L$start, "-", L$end)
   }
   
   if(class(otherSources) == "GRanges"){
     i <- grep("otherSources.", overlaps_aux$region,fixed=TRUE)
     if(length(i)){
       L <- as.data.frame(otherSources[as.numeric(strsplit2(overlaps_aux$region[i], "otherSources.")[, 2])])
-      overlaps_aux$region[i] <- paste0("Chr", L$seqnames, ":", L$start, "-", L$end)
+      overlaps_aux$region[i] <- paste0(L$seqnames, ":", L$start, "-", L$end)
     }
   }
   
   i <- grep("jl.", overlaps_aux$region,fixed=TRUE)
   if(length(i)){
     L <- as.data.frame(localebased[as.numeric(strsplit2(overlaps_aux$region[i], "jl.")[, 2])])
-    overlaps_aux$region[i] <- paste0("Chr", L$seqnames, ":", L$start, "-", L$end)
+    overlaps_aux$region[i] <- paste0(L$seqnames, ":", L$start, "-", L$end)
   }  
   
   #corregi rango de junturas para buscar bounderies de intrones, pero se reporta
@@ -715,10 +714,10 @@
   i <- grep("ja.", overlaps_aux$region,fixed=TRUE)
   if(length(i)){
     L <- as.data.frame(anchorbased[as.numeric(strsplit2(overlaps_aux$region[i], "ja.")[, 2])])
-    aux_region <- paste0("Chr", L$seqnames, ":", L$start, "-", L$end)
+    aux_region <- paste0(L$seqnames, ":", L$start, "-", L$end)
     j <- which(aux_region %in% setdiff(aux_region, overlaps_aux$region))
     overlaps_aux$region[i] <- aux_region
-    overlaps_aux$region[i[j]] <- paste0("Chr", L$seqnames[j], ":", L$start[j] - 1, "-", L$end[j] + 1)
+    overlaps_aux$region[i[j]] <- paste0(L$seqnames[j], ":", L$start[j] - 1, "-", L$end[j] + 1)
   }  
   
   #comienzo a mergear rangos  
@@ -734,7 +733,7 @@
     overlaps_aux <- overlaps_aux[order(overlaps_aux$region), ]
       
     #matcheo rango con bin
-    roi  <- as.character(overlaps_aux[,'region'])
+    roi  <- as.character(overlaps_aux$region)
     rroi <- unlist(lapply(strsplit(roi,":",fixed=TRUE),function(x){return(x[2])}))
     #binbased(sr)
     ii<-match(rroi,paste0(binbased(sr)$start,"-",binbased(sr)$end))
@@ -745,7 +744,7 @@
     aa <- cbind(aa[,-c(4,5)],binreg=paste(aa$start,aa$end,sep="-"))
     
     aa  <-cbind(overlaps_aux,aa)
-    roi <- gsub("[Chr]", "", roi)
+    #roi <- gsub("Chr", "", roi, fixed = T)
     roi <- gsub("[:]", ".", roi)
     roi <- gsub("[-]", ".", roi)
     aa$J3 <- as.character(aa$J3)
@@ -754,43 +753,24 @@
                                              # de la region cuando haga falta (!)
     
     #Se hizo esto para recalcular el locus de los locales que ahora vienen por cluster
-    
-    if(FALSE){
-      if(class(asd) == "ASpliAS"){
-        if(nrow(asd@junctionsPJU) > 0){
-          aa$locus <- strsplit2(aa$bin, ":")[, 1]
-          regiones <- gsub("[Chr]", "", aa$region)
-          regiones <- gsub("[:]", ".", regiones)
-          regiones <- gsub("[-]", ".", regiones)
-          regiones <- sapply(regiones, function(r){
-            i <- rownames(asd@junctionsPJU) == r
-            if(sum(i) > 0){
-              return(as.character(asd@junctionsPJU$symbol[i]))
-            }else{
-              return("") 
-            }
-          })
-          aa$locus[regiones != ""] <- regiones[regiones != ""]
-        }
-      }
+    if(nrow(asd@junctionsPJU) > 0){
+      #regiones <- gsub("Chr", "", aa$region, fixed = T)
+      
+      regiones <- aa$region
+      regiones <- gsub("[:]", ".", regiones)
+      regiones <- gsub("[-]", ".", regiones)
+      regiones <- strsplit2(regiones, "[.]")
+      regiones <- GRanges(regiones[, 1], ranges = IRanges(start = as.numeric(regiones[, 2]), end = as.numeric(regiones[, 3])))
+      genes    <- gsub("[:]", ".", asd@junctionsPJU$gene_coordinates)
+      genes    <- gsub("[-]", ".", genes)
+      genes    <- strsplit2(genes, "[.]")
+      rownames(genes) <- asd@junctionsPJU$symbol
+      genes    <- unique(genes)
+      grgenes  <- GRanges(genes[, 1], ranges = IRanges(start = as.numeric(genes[, 2]), end = as.numeric(genes[, 3])))
+      overlap  <- data.frame(findOverlaps(regiones, grgenes, type="any"))
+      aa$locus[overlap$queryHits] <- rownames(genes)[overlap$subjectHits]
     }else{
-      if(nrow(asd@junctionsPJU) > 0){
-        regiones <- gsub("[Chr]", "", aa$region)
-        regiones <- gsub("[:]", ".", regiones)
-        regiones <- gsub("[-]", ".", regiones)
-        regiones <- strsplit2(regiones, "[.]")
-        regiones <- GRanges(regiones[, 1], ranges = IRanges(start = as.numeric(regiones[, 2]), end = as.numeric(regiones[, 3])))
-        genes    <- gsub("[:]", ".", asd@junctionsPJU$gene_coordinates)
-        genes    <- gsub("[-]", ".", genes)
-        genes    <- strsplit2(genes, "[.]")
-        rownames(genes) <- asd@junctionsPJU$symbol
-        genes    <- unique(genes)
-        grgenes  <- GRanges(genes[, 1], ranges = IRanges(start = as.numeric(genes[, 2]), end = as.numeric(genes[, 3])))
-        overlap  <- data.frame(findOverlaps(regiones, grgenes, type="any"))
-        aa$locus[overlap$queryHits] <- rownames(genes)[overlap$subjectHits]
-      }else{
-        aa$locus <- NA
-      }
+      aa$locus <- NA
     }
     
     #Traemos los locus del bin si no estan
@@ -799,7 +779,11 @@
     aa$locus[locus_a_imputar] <- genes[locus_a_imputar]
 
     #Reordenamos las columnas
-    aa <- aa[, c(1, 11, 8, 2:7, 9:10)]
+    nombre_de_seniales <- c("b", "bjs", "ja", "jl")
+    if(class(otherSources) == "GRanges"){
+      nombre_de_seniales <- c(nombre_de_seniales, "otherSources")
+    }
+    aa <- aa[, c("region", "locus", "bin.event", nombre_de_seniales, "bin", "feature", "J3", "binreg"), with = FALSE]
     
     aa$locus_overlap <- "-"
     locus_overlap <- binbased(sr)$locus_overlap[binbased(sr)$locus %in% aa$locus[!is.na(aa$locus)]]
@@ -888,7 +872,8 @@
       }
       if(aa$jl[b] != 0){
         #Aca busco el cluster por region en lugar de buscar por juntura especifica
-        roi <- gsub("[Chr]", "", aa$region[b])
+        #roi <- gsub("Chr", "", aa$region[b], fixed = T)
+        roi <- aa$region[b]
         roi <- gsub("[:]", ".", roi)
         roi <- gsub("[-]", ".", roi)
         i <- which(original_signals$jl$cluster.range == roi)
@@ -998,10 +983,10 @@
     }
     
     aa <- aa[order(aa$b.fdr), ]
-    r <- strsplit2(unique(aa$region), "Chr")[, 2]
-    chr <- strsplit2(r, ":")[, 1]
-    chr <- sapply(chr, function(s){return(is.na(suppressWarnings(as.numeric(s))))})
-    aa$region[chr] <- r[chr] 
+    # r <- strsplit2(unique(aa$region), "Chr")[, 2]
+    # chr <- strsplit2(r, ":")[, 1]
+    # chr <- sapply(chr, function(s){return(is.na(suppressWarnings(as.numeric(s))))})
+    # aa$region[chr] <- r[chr] 
     
     #Finds events with bjs and locale and tries to merge them
     bjs_jl <- aa$b == 0 & aa$bjs == 1 & aa$ja == 0 & aa$jl == 1

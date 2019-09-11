@@ -3,10 +3,14 @@
 \alias{splicingReport}
 
 \title{
-  Differential junction usage estimation.
+  Splicing report
 }
 \description{
-  Estimate differential usage at junction level.
+  This function integrates differential usage information from different sources.
+  Receives bin usage and junction usage and merges them in three steps.
+  First merges all bin based junction information (jir, jes, jalt).
+  Then merges locale information with coverage information in the regions.
+  Finally merges anchor information with coverage information in the regions.
 }
 
 \usage{
@@ -26,24 +30,26 @@
 }
 
 \value{ 
-  An \code{ASpliSplicingReport} object with results of differential usage of junctions }
+  An \code{ASpliSplicingReport} object with junction differential usage report }
 
 \author{
   Estefania Mancini, Andres Rabinovich, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz
 }
 
 \examples{
-  # Create a transcript DB from gff/gtf annotation file.
-  # Warnings in this examples can be ignored.
-  
-  #as <- new("ASpliAS")
-  #targets <- 1
-  #a <- junctionDUreportExt(as, targets)
-  
+      ##Calculates junction differential usage from junction counts 
+      #j           <- jDUreport(asd, contrast, mergedBams = mergedBams)
+
+      ##Calculates bin differential usage from bin counts 
+      #gb          <- gbDUreport(counts, contrast)
+
+      ##Generate splicig reports from different sources
+      #sr          <- splicingReport(gb, j, counts)
+    
 }
 
 \seealso{
-  \code{\link{jDUreport}}, \code{\link{gbDUreport}}, \code{\link{ASpliSplicingReport}}
+    \code{\link{gbDUreport}}, \code{\link{jDUreport}}, \code{\link{ASpliSplicingReport}},  \code{\link{splicingReport}}
 }
 
 

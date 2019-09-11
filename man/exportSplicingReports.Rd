@@ -3,10 +3,10 @@
 \alias{exportSplicingReports}
 
 \title{
-  Differential junction usage estimation. COMPLETAR
+  Export splicing reports 
 }
 \description{
-  Estimate differential usage at junction level. COMPLETAR
+  Export splicing reports in easy to analyze HTML tables.
 }
 
 \usage{
@@ -31,17 +31,25 @@ exportSplicingReports( sr, output.dir="sr" , openInBrowser = F, maxBinFDR = 0.2,
 }
 
 \examples{
-  # Create a transcript DB from gff/gtf annotation file.
-  # Warnings in this examples can be ignored.
+  ##Calculates junction differential usage from junction counts 
+  #j           <- jDUreport(asd, contrast, mergedBams = mergedBams)
   
-  #as <- new("ASpliAS")
-  #targets <- 1
-  #a <- junctionDUreportExt(as, targets)
+  ##Calculates bin differential usage from bin counts 
+  #gb          <- gbDUreport(counts, contrast)
+  
+  ##Generate splicig reports from different sources
+  #sr          <- splicingReport(gb, j, counts)
+  
+  ##Integrate signals
+  #is          <- integrateSignals(sr, asd)
+  
+  ##Export splicing report
+  #exportSplicingReports(output.dir = "sr", sr)
   
 }
 
 \seealso{
-  \code{\link{splicingReport}}, \code{\link{ASpliSplicingReport}}
+  \code{\link{gbDUreport}}, \code{\link{jDUreport}}, \code{\link{splicingReport}}, \code{\link{ASpliSplicingReport}}
 }
 
 
