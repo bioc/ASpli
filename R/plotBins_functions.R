@@ -719,10 +719,10 @@
       if(mcols(bins)$feature[iE[iie]]%in%c("Io","I")){
         lines(c(start(bins[iE[iie]]),end(bins[iE[iie]])),c(ycollapsed,ycollapsed),col="orange",lwd=3)
       }else{
-        if(iiss$b==1 | iiss$bjs==1){
-         if(iiss$b==1 & iiss$bjs==0) cc <- "orange"
-         if(iiss$b==1 & iiss$bjs==1) cc <- "red"
-         if(iiss$b==0 & iiss$bjs==1) cc <- "yellow"
+        if(iiss$b!=0 | iiss$bjs!=0){
+         if(iiss$b!=0 & iiss$bjs==0) cc <- "orange"
+         if(iiss$b!=0 & iiss$bjs!=0) cc <- "red"
+         if(iiss$b==0 & iiss$bjs!=0) cc <- "yellow"
          rect(start(bins[iE[iie]]),ycollapsed-.45,end(bins[iE[iie]]),ycollapsed+.45,col=cc,border=NA)
         } 
       }
