@@ -6,7 +6,9 @@
   Differential junction usage estimation
 }
 \description{
-  Estimate differential usage at junction level.
+  Estimate differential usage at junction level. 
+  It makes separate estimates for different types of junctions.
+  Estimation is made using a generalized linear model. 
 }
 
 \usage{
@@ -19,7 +21,7 @@
 
 \arguments{
   \item{asd}{ 
-    An object of class \code{ASpliAS}
+    An object of class \code{ASpliAS} with results of PSI and PIR using experimental junctions
   }
   \item{minAvgCounts}{ 
     Minimum average counts for filtering.

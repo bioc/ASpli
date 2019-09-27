@@ -5,10 +5,10 @@
 \title{ Report PSI, PJU and PIR using experimental junctions }
 
 \description{ Given a bin, it is possible to calculate PSI/PIR metric using 
-junctions to estimate changes in the use of it along different conditions. 
-PSI or PIR metric is calculated for each bin and experimental condition. The 
-selection of which metric is used is based on the kind of splicing event 
-associated with each bin. 
+              junctions to estimate changes in the use of it along different conditions. 
+              PSI or PIR metric is calculated for each bin and experimental condition. The 
+              selection of which metric is used is based on the kind of splicing event 
+              associated with each bin. 
 }
  
 \usage{ 

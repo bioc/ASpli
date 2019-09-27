@@ -40,10 +40,16 @@
   
   junctions_of_interest <- .filterJunctionBySampleWithContrast(data[,start_J3:end_J3], targets=targets, threshold = minAvgCounts, filterWithContrasted, contrast )
   
+  if(nrow(junctions_of_interest) == 0) stop("No junctions to analyze! Perhaps reduce threshold?")
+  
   J1                    <- as.character(data$StartHit[rownames(data) %in% rownames(junctions_of_interest)])
   J2                    <- as.character(data$EndHit[rownames(data) %in% rownames(junctions_of_interest)])
   J3                    <- rownames(junctions_of_interest)
+  
+  if(length(J1) == 0 | length(J2) == 0 | length(J3) == 0) stop("No junctions to analyze! Perhaps reduce threshold")
   clusters              <- .makeClusters(J1, J2, J3, strongFilter)
+  
+  if(clusters$no == 0) stop("No junctions to analyze! Perhaps set strongFilter to FALSE?")
   
   countData             <- .makeCountDataWithClusters(data[names(clusters$membership),start_J3:end_J3], clusters)
   
@@ -117,6 +123,8 @@
   start_J3              <- 3+2*nrow(targets)
   
   Js                    <- .makeJunctions(data, targets, start_J1, start_J2, start_J3, minAvgCounts, filterWithContrasted, contrast, strongFilter)
+  
+  if(nrow(Js$J3) == 0) stop("No junctions to analyze! Perhaps set strongFilter to FALSE?")
   countData             <- .makeCountData(Js$J3, Js$J1, Js$J2)
   
   #We reduce data so dispersion estimates can be computed in a razonable ammount of time
@@ -177,6 +185,7 @@
   aux                  <- ltsp[["cluster"]][,!colnames(ltsp[["cluster"]])%in%"size"]
   colnames(aux)        <- c("cluster.LR", "pvalue", "FDR")
   anchorc(jdu)         <- aux
+
   
   #######
   #irPIR for annotated junctions
@@ -189,6 +198,8 @@
   
   data                  <- data[!is.na(data$J3), ]
   Js                    <- .makeJunctions(data, targets, start_J1, start_J2, start_J3, minAvgCounts, filterWithContrasted, contrast, strongFilter)
+  if(nrow(Js$J3) == 0) stop("No junctions to analyze! Perhaps set strongFilter to FALSE?")
+  
   countData             <- .makeCountData(Js$J3, Js$J1,  Js$J2)
   
   #We reduce data so dispersion estimates can be computed in a razonable ammount of time
@@ -249,6 +260,7 @@
   data                  <- data[!is.na(data$J3), ]
   
   Js                    <- .makeJunctions(data, targets, start_J1, start_J2, start_J3, minAvgCounts, filterWithContrasted, contrast, strongFilter)
+  if(nrow(Js$J3) == 0) stop("No junctions to analyze! Perhaps set strongFilter to FALSE?")
   
   countData             <- .makeCountData(Js$J3, Js$J1, Js$J2)
 
@@ -294,6 +306,8 @@
   data                  <- data[!is.na(data$J3), ]
   
   Js                    <- .makeJunctions(data, targets, start_J1, start_J2, start_J3, minAvgCounts, filterWithContrasted, contrast, strongFilter, alt = T)
+  if(nrow(Js$J3) == 0) stop("No junctions to analyze! Perhaps set strongFilter to FALSE?")
+  
   countData             <- .makeCountData(Js$J3, Js$J1 + Js$J2)
   
   ltsp                  <- .binsDUWithDiffSplice(countData, targets, contrast)#, test = "gene")
@@ -619,7 +633,10 @@
   ii                   <- rownames(data)[data$FDR < maxFDRForUniformityCheck]
   Uniformity           <- rep(NA, length=nrow(data))
   names(Uniformity)    <- rownames(data)
-  
+  if(length(ii) == 0){
+    message("No junctions with FDR < maxFDRForUniformityCheck to run uniformity test to")
+    return(Uniformity)  
+  }
   # +     pb <- txtProgressBar(style=3)
   # +     setTxtProgressBar(pb, i)
   # +     close(pb
