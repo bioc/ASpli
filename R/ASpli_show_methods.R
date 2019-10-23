@@ -236,12 +236,15 @@ setMethod( 'show', 'ASpliAS', function( object )  {
       cat("Object of class", class(object),"\n")
       cat("IR PIR: ", 
           dim(object@irPIR)[1], "intron bins analysed.",
+          sum(!is.na(object@irPIR$J3)), "intron bins passed the filters.",
           "Access using irPIR(object)", "\n")
       cat("ES PSI:", 
           dim(object@esPSI)[1], "exon bins analysed.",
+          sum(!is.na(object@esPSI$J3)), "exon bins passed the filters.",
           " Access using esPSI(object)", "\n")
       cat("AltSS PSI:", 
           dim(object@altPSI)[1], "exon bins analysed.",
+          sum(!is.na(object@altPSI$J3)), "exon bins passed the filters.",
           " Access using altPSI(object)", "\n")
       cat("Junctions PIR:", 
           dim(object@junctionsPIR)[1], "junctions analysed.",

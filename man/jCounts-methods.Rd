@@ -22,15 +22,16 @@ An object of class ASpliCounts.
 
 \item{features}{ An object of class ASpliFeatures.}
 
-\item{bam}{ A list with BAM files contents.}
+\item{bam}{ A list with BAM files contents or NULL to let the function read bam files.}
 
 \item{minReadLength}{ Read length of sequenced read. Default 100L }
 
 \item{threshold}{ Minimum  number of reads supporting junctions. Default=5 }
 
-\item{cores}{ Number of processing cores to use }
+\item{cores}{ Number of processing cores to use. If bam is NULL cores is 1. }
 
-\item{minAnchor}{ TODO}
+\item{minAnchor}{ An intronic junction must overlap completely and at least an minAnchor\% into the exon region and the intron region.
+                  The regions can be exon1-intron or intron-exon2.}
 }
 
 \value{ 

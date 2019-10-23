@@ -293,7 +293,7 @@
   iloc  <- b$cluster.fdr < l.fdr & 
     (!is.na(b$cluster.dparticipation) & abs(b$cluster.dparticipation) > l.inclussion)
   
-  lfs <- list(ibin1=ibin1,ibin2=ibin2,ibjs=ibjs,ianc=ianc,iloc=iloc)
+  lfs <- list(ibin1=which(ibin1),ibin2=which(ibin2),ibjs=which(ibjs),ianc=which(ianc),iloc=which(iloc))
   
   if(bDetectionSummary){
     .plotASpliDetectionSummary(sr,lfs,   bin.FC = bin.FC,
@@ -495,7 +495,7 @@
       
   b <- binbased(sr)
   b <- b[!is.na(b$length), ]
-  b <- b[lfs$ibin1 | lfs$ibin2, ]
+  b <- b[union(lfs$ibin1, lfs$ibin2), ]
   original_signals$b <- b
   
   #Define GRanges associated to bin splicing signals

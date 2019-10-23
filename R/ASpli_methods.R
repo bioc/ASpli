@@ -1304,10 +1304,10 @@ setMethod(
             }
           }, warning = function(warning_condition) {
               #message(warning_condition)   
-              dev.off()
+              #dev.off()
           }, error = function(error_condition) {
               #message(error_condition)
-              dev.off()
+              #dev.off()
           }, finally={
             
           })

@@ -125,7 +125,7 @@
 
   # This function get the counts of the junctions that overlaps the an 
   # intron/exon region of a bin. The junction must overlap completely and at 
-  # least an 8% into the exon region and the intron region.
+  # least an minAnchor% into the exon region and the intron region.
   # The regions can be exon1-intron or intron-exon2. All junctions are assumed 
   # to correspond to a intron.
   getExonIntronCounts <- function( jranges, targets, bams, readLength, 

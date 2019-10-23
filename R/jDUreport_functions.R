@@ -170,7 +170,17 @@
   
   #dPIR estimation
   dpir      <- data[rownames(jPIR),getConditions(targets)]
-  jPIR$dPIR <- apply(dpir,1,function(x){sum(x*contrast)}) 
+  jPIR$dPIR <- apply(dpir,1,function(x){
+    
+    aux <- x[which(contrast != 0)]
+    if(any(is.nan(aux))) {
+      aux <- NA
+    }else{
+      aux <- sum(x*contrast,na.rm = TRUE)  
+    }
+    
+    return(aux)
+  }) 
   
   #participation      <- jPIR[, grep("countsJ3", colnames(jPIR))]/(jPIR[, grep("countsJ1", colnames(jPIR))] + jPIR[, grep("countsJ2", colnames(jPIR))] + jPIR[, grep("countsJ3", colnames(jPIR))])
   #jPIR$participation <- apply(participation, 1, max)
@@ -232,7 +242,17 @@
   jirPIR                <- jirPIR[, c("J3", "logFC", "log.mean", "pvalue", "bin.fdr", "bin.LR", "NonUniformity")]
   
   dpir                  <- irPIR(asd)[rownames(jirPIR),getConditions(targets)]
-  jirPIR$dPIR           <- apply(dpir,1,function(x){sum(x*contrast)}) 
+  jirPIR$dPIR           <- apply(dpir,1,function(x){
+    
+    aux <- x[which(contrast != 0)]
+    if(any(is.nan(aux))) {
+      aux <- NA
+    }else{
+      aux <- sum(x*contrast,na.rm = TRUE)  
+    }
+    
+    return(aux)
+  }) 
   colnames(jirPIR)      <- c("J3", "logFC", "log.mean", "pvalue", "FDR", "LR", "NonUniformity","dPIR")
   jirPIR$multiplicity   <- "No"
   jirPIR$multiplicity[grep(";", jirPIR$J3)] <- "Yes"
@@ -282,7 +302,17 @@
   jesPSI                <- jesPSI[, c("event", "J3", "logFC", "log.mean", "pvalue", "bin.fdr", "bin.LR")]
   
   dpsi                  <- esPSI(asd)[rownames(jesPSI),getConditions(targets)]
-  jesPSI$dPSI           <- apply(dpsi,1,function(x){sum(x*contrast)}) 
+  jesPSI$dPSI           <- apply(dpsi,1,function(x){
+    
+    aux <- x[which(contrast != 0)]
+    if(any(is.nan(aux))) {
+      aux <- NA
+    }else{
+      aux <- sum(x*contrast,na.rm = TRUE)  
+    }
+    
+    return(aux)
+  }) 
   colnames(jesPSI)      <- c("event", "J3", "logFC", "log.mean", "pvalue", "FDR", "LR", "dPSI")
   jesPSI$multiplicity   <- "No"
   jesPSI$multiplicity[grep(";", jesPSI$J3)] <- "Yes"
@@ -327,7 +357,17 @@
   
   
   dpsi                  <- altPSI(asd)[rownames(jaltPSI),getConditions(targets)]
-  jaltPSI$dPSI          <- apply(dpsi,1,function(x){sum(x*contrast)}) 
+  jaltPSI$dPSI          <- apply(dpsi,1,function(x){
+    
+    aux <- x[which(contrast != 0)]
+    if(any(is.nan(aux))) {
+      aux <- NA
+    }else{
+      aux <- sum(x*contrast,na.rm = TRUE)  
+    }
+    
+    return(aux)
+  }) 
   colnames(jaltPSI)     <- c("event", "J3", "logFC", "log.mean", "pvalue", "FDR", "LR", "dPSI")
   jaltPSI$multiplicity  <- "No"
   jaltPSI$multiplicity[grep(";", jaltPSI$J3)] <- "Yes"
