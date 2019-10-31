@@ -839,7 +839,9 @@
           aa$bjs.nonuniformity[b] <- original_signals$bjs$cluster.nonuniformity[i[1]]
           aa$bjs.inclussion[b]    <- replace_na(original_signals$bjs$cluster.dPSI[i[1]], original_signals$bjs$cluster.dPIR[i[1]])  
         }else{
-          aa$bjs[b] <- "*"
+          if(aa$bjs[b] != 0){
+            aa$bjs[b] <- "*"
+          }
         }
       }
       if(aa$ja[b] != 0){

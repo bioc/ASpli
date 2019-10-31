@@ -696,7 +696,6 @@ setMethod(
 setGeneric (
   name = "DUreport.norm",
   def = function( counts, 
-                  targets, 
                   minGenReads  = 10,
                   minBinReads  = 5,
                   minRds = 0.05,
@@ -718,7 +717,6 @@ setMethod(
   f = "DUreport.norm",
   signature = "ASpliCounts",
   definition = function( counts, 
-                         targets, 
                          minGenReads  = 10,
                          minBinReads  = 5,
                          minRds = 0.05,
@@ -734,7 +732,7 @@ setMethod(
     offset = FALSE
     offsetAggregateMode = c( "geneMode", "binMode" )[1]
     offsetUseFitGeneX = TRUE    
-    .DUreport( counts, targets, minGenReads, minBinReads, minRds, offset, 
+    .DUreport( counts, counts@targets, minGenReads, minBinReads, minRds, offset, 
                offsetAggregateMode, offsetUseFitGeneX, contrast, forceGLM,
                ignoreExternal, ignoreIo, ignoreI, filterWithContrasted, verbose, threshold  )
   }
@@ -743,7 +741,6 @@ setMethod(
 setGeneric (
   name = "DUreport.offset",
   def = function( counts, 
-                  targets, 
                   minGenReads  = 10,
                   minBinReads  = 5,
                   minRds = 0.05,
@@ -762,7 +759,6 @@ setMethod(
   f = "DUreport.offset",
   signature = "ASpliCounts",
   definition = function( counts, 
-                         targets, 
                          minGenReads  = 10,
                          minBinReads  = 5,
                          minRds = 0.05,
@@ -777,7 +773,7 @@ setMethod(
                          verbose = FALSE
   ) { 
     offset = TRUE
-    .DUreport( counts, targets, minGenReads, minBinReads, minRds, offset, 
+    .DUreport( counts, counts@targets, minGenReads, minBinReads, minRds, offset, 
                offsetAggregateMode, offsetUseFitGeneX, contrast, forceGLM,
                ignoreExternal, ignoreIo, ignoreI, filterWithContrasted, verbose  )
   }
