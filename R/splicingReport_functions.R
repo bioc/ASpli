@@ -441,21 +441,21 @@
 # de tratarse de una region meramente "binica" o son la region en caso de venir de ja o jl.
 #bin.FC = 3; bin.fdr = 0.05; nonunif = 1; usenonunif = FALSE; bin.inclussion = 0.1; bjs.inclussion = 0.2; bjs.fdr = 0.1; a.inclussion = 0.3; a.fdr = 0.05; l.inclussion = 0.3; l.fdr = 0.05; otherSources = NULL; overlapType = "any"
 #bin.FC = 3;bin.fdr = 0.05;nonunif = 1;usenonunif = FALSE;bin.inclussion = 0.1;bjs.inclussion = 0.2;bjs.fdr = 0.1;a.inclussion = 0.3;a.fdr = 0.05;l.inclussion = 0.3;l.fdr = 0.05;otherSources = NULL;overlapType = "any"
-.integrateSignals<-function(sr = NULL,
-                            asd = NULL,
-                            bin.FC = 3,
-                            bin.fdr = 0.05,
-                            nonunif = 1,
-                            usenonunif = FALSE,
-                            bin.inclussion = 0.1,
-                            bjs.inclussion = 0.2,
-                            bjs.fdr = 0.1,
-                            a.inclussion = 0.3,
-                            a.fdr = 0.05,
-                            l.inclussion = 0.3,
-                            l.fdr = 0.05,
-                            otherSources = NULL,
-                            overlapType = "any"){
+.integrateSignals<-function(sr,
+                            asd,
+                            bin.FC,
+                            bin.fdr,
+                            nonunif,
+                            usenonunif,
+                            bin.inclussion,
+                            bjs.inclussion,
+                            bjs.fdr,
+                            a.inclussion,
+                            a.fdr,
+                            l.inclussion,
+                            l.fdr,
+                            otherSources,
+                            overlapType){
   
   if(class(sr) != "ASpliSplicingReport"){
     stop("sr must be an ASpliSplicingReport object")   
