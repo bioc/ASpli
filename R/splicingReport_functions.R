@@ -942,14 +942,16 @@
                 i <- which(original_signals$jl$cluster.range == aa$J3[b])
                 if(length(i) > 0){ 
                   aa$bin.event[b] <- "ES"
-                  #Vemos si podemos encontrar el bin asociado a este ES
-                  j <- which(aa$region == aa$J3[b])
+                  #Vemos si podemos encontrar el bin asociado a este ES o si podemos machear el bin del medio
+                  region_intermedia <- paste0(junturas[1, 1], ":", min(as.numeric(junturas[, 3])), "-", max(as.numeric(junturas[, 2])))
+                  j <- which(aa$region == aa$J3[b] | aa$region == region_intermedia)
                   if(length(j) > 0){ #Lo encontramos, sacamos directamente esta fila porque coincide con la que ya existe y tiene mas datos.
                     elementos_a_eliminar <- c(elementos_a_eliminar, b)
+                    aa[j[1], c("jl", "l.lr", "l.fdr", "l.participation", "l.dparticipation")] <- aa[b, c("jl", "l.lr", "l.fdr", "l.participation", "l.dparticipation")] 
                     #aa$b.fdr[b]   <- binbased(sr)$bin.fdr[j[1]]
                     #aa$b.logfc[b] <- binbased(sr)$bin.logFC[j[1]]
 	                  #aa$b[b]       <- 1
-                  }              
+                  }
                 }else{
                   aa$bin.event[b] <- "CSP"
                 }

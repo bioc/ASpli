@@ -20,11 +20,10 @@
 
 \usage{
   integrateSignals(sr = NULL, asd = NULL, bin.FC = 3, bin.fdr = 0.05,
-                 nonunif = 1, usenonunif = FALSE, bin.inclussion = 0.1,
-                 bjs.inclussion = 0.2, bjs.fdr = 0.1, a.inclussion =
-                 0.3, a.fdr = 0.05, l.inclussion = 0.3, l.fdr = 0.05,
-                 otherSources = NULL, overlapType =
-                 "any")
+                 nonunif = 1, usenonunif = FALSE, bin.inclussion = 0.2,
+                 bjs.inclussion = 10.3, bjs.fdr = 0.01, a.inclussion =
+                 0.3, a.fdr = 0.01, l.inclussion = 0.3, l.fdr = 0.01,
+                 otherSources = NULL, overlapType = "any")
 }
 
 \arguments{
