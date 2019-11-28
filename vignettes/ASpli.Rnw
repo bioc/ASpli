@@ -22,7 +22,7 @@ options(continue=" ")
 \floatname{captionedEq}{Equation}
 
 \title{\texttt{ASpli}: An integrative R package for analysing alternative 
-  splicing using RNAseq}
+  splicing using RNA-seq}
 
 \author{Estefania Mancini, Andres Rabinovich, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz}
 
@@ -34,7 +34,7 @@ options(continue=" ")
 
 \tableofcontents
 
-\section{Introduction}
+\section{Introduction with changes}
 
 Alternative splicing (AS) is a common mechanism of post-transcriptional gene 
 regulation in eukaryotic organisms that expands the functional and regulatory 
