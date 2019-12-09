@@ -783,7 +783,7 @@ setGeneric( name = 'gbDUreport',
             def = function( counts, minGenReads  = 10, minBinReads = 5, 
                             minRds = 0.05, contrast = NULL, forceGLM = FALSE,  
                             ignoreExternal = TRUE, ignoreIo = TRUE, ignoreI = FALSE, 
-                            filterWithContrasted = TRUE, verbose = TRUE ) 
+                            filterWithContrasted = TRUE, verbose = TRUE, formula = FALSE ) 
               standardGeneric( 'gbDUreport'))
 
 setMethod( 
@@ -799,23 +799,25 @@ setMethod(
                          ignoreIo = TRUE, 
                          ignoreI = FALSE, 
                          filterWithContrasted = TRUE,
-                         verbose = TRUE ) {
+                         verbose = TRUE, 
+                         formula = FALSE) {
     .DUreportBinSplice( counts, minGenReads, minBinReads, minRds, 
                         contrast, forceGLM, ignoreExternal, ignoreIo, ignoreI, 
-                        filterWithContrasted, verbose = TRUE ) 
+                        filterWithContrasted, verbose, formula ) 
   })
 
 
 setGeneric( name = "jDUreport",
             def = function (asd, 
-                            minAvgCounts              = 5, 
-                            contrast                  = NULL,
-                            filterWithContrasted      = TRUE,
-                            runUniformityTest         = FALSE,
-                            mergedBams                = NULL,
-                            maxPValForUniformityCheck = 0.2,
-                            strongFilter              = TRUE,
-                            maxConditionsForDispersionEstimate = 24
+                            minAvgCounts                       = 5, 
+                            contrast                           = NULL,
+                            filterWithContrasted               = TRUE,
+                            runUniformityTest                  = FALSE,
+                            mergedBams                         = NULL,
+                            maxPValForUniformityCheck          = 0.2,
+                            strongFilter                       = TRUE,
+                            maxConditionsForDispersionEstimate = 24,
+                            formula                            = FALSE
             ) standardGeneric("jDUreport") )
 
 
@@ -824,19 +826,20 @@ setMethod(
   signature = "ASpliAS",
   definition = function (
     asd,
-    minAvgCounts              = 5, 
-    contrast                  = NULL,
-    filterWithContrasted      = TRUE,
-    runUniformityTest         = FALSE,
-    mergedBams                = NULL,
-    maxPValForUniformityCheck = 0.2,
-    strongFilter              = TRUE,
-    maxConditionsForDispersionEstimate = 24
+    minAvgCounts                       = 5, 
+    contrast                           = NULL,
+    filterWithContrasted               = TRUE,
+    runUniformityTest                  = FALSE,
+    mergedBams                         = NULL,
+    maxPValForUniformityCheck          = 0.2,
+    strongFilter                       = TRUE,
+    maxConditionsForDispersionEstimate = 24,
+    formula                            = FALSE
   ) {
     
     .junctionDUreportExt( asd, minAvgCounts, contrast, 
                           filterWithContrasted, runUniformityTest, mergedBams, maxPValForUniformityCheck, strongFilter,
-                          maxConditionsForDispersionEstimate) 
+                          maxConditionsForDispersionEstimate, formula) 
   }
 )
 

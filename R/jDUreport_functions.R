@@ -1,14 +1,16 @@
 .junctionDUreportExt <- function(
     asd, 
-    minAvgCounts              = 5, 
-    contrast                  = NULL,
-    filterWithContrasted      = TRUE,
-    runUniformityTest         = FALSE,
-    mergedBams                = NULL,
-    maxFDRForUniformityCheck  = 0.1,
-    strongFilter              = FALSE,
+    minAvgCounts                       = 5, 
+    contrast                           = NULL,
+    filterWithContrasted               = TRUE,
+    runUniformityTest                  = FALSE,
+    mergedBams                         = NULL,
+    maxPValForUniformityCheck          = 0.2,
+    strongFilter                       = TRUE,
     maxConditionsForDispersionEstimate = 24,
-    maxFDRForParticipation    = 0.05
+    formula                            = FALSE,
+    maxFDRForParticipation             = 0.05   
+
   ){
   
   targets <- asd@targets
@@ -55,7 +57,7 @@
   
   #We reduce data so dispersion estimates can be computed in a reasonable ammount of time
   reduxData             <- .makeReduxData(countData, targets, contrast, maxConditionsForDispersionEstimate)  
-  ltsp                  <- .binsDUWithDiffSplice(reduxData$countData, reduxData$targets, reduxData$contrast)
+  ltsp                  <- .binsDUWithDiffSplice(reduxData$countData, reduxData$targets, reduxData$contrast, formula = formula)
   
   tsp                   <- ltsp[["junction"]]  #use junction statistics (notice bogus bin.fdr columnames) 
   
@@ -129,7 +131,7 @@
   
   #We reduce data so dispersion estimates can be computed in a razonable ammount of time
   reduxData             <- .makeReduxData(countData, targets, contrast, maxConditionsForDispersionEstimate)
-  ltsp                  <- .binsDUWithDiffSplice(reduxData$countData, reduxData$targets, reduxData$contrast)#, test = "gene")
+  ltsp                  <- .binsDUWithDiffSplice(reduxData$countData, reduxData$targets, reduxData$contrast, formula = formula)#, test = "gene")
 
   #keep only J3 rows
   tsp                   <- ltsp[["junction"]]
@@ -158,7 +160,7 @@
     data_unif             <- data[rownames(jPIR), getConditions(targets)[contrast != 0]]
     data_unif$FDR         <- jPIR$FDR
     message("Testing uniformity in junctionsPIR")
-    jPIR$NonUniformity       <- .testUniformity(data_unif, mergedBams, maxFDRForUniformityCheck, targets, contrast)
+    jPIR$NonUniformity       <- .testUniformity(data_unif, mergedBams, maxPValForUniformityCheck, targets, contrast)
   }else{
     jPIR$NonUniformity       <- rep(NA, nrow(jPIR)) 
   }
@@ -214,7 +216,7 @@
   
   #We reduce data so dispersion estimates can be computed in a razonable ammount of time
   reduxData             <- .makeReduxData(countData, targets, contrast, maxConditionsForDispersionEstimate)
-  ltsp                  <- .binsDUWithDiffSplice(reduxData$countData, reduxData$targets, reduxData$contrast)
+  ltsp                  <- .binsDUWithDiffSplice(reduxData$countData, reduxData$targets, reduxData$contrast, formula = formula)
   tsp                   <- ltsp[["junction"]]
   #keep only J3 data
   tsp                   <- tsp[-(grep("[.][1-2]$", rownames(tsp))), ]
@@ -232,7 +234,7 @@
     rownames(data_unif)   <- data[rownames(jirPIR), "J3"]
     data_unif$FDR         <- jirPIR$bin.fdr#pmin(jirPIR$bin.fdr,tsp$bin.fdr)  #corro unif test si bin o juntura son suficientemente significativos
     message("Testing uniformity in irPIR")
-    jirPIR$NonUniformity     <- .testUniformity(data_unif, mergedBams, maxFDRForUniformityCheck, targets, contrast)
+    jirPIR$NonUniformity     <- .testUniformity(data_unif, mergedBams, maxPValForUniformityCheck, targets, contrast)
   }else{
     jirPIR$NonUniformity     <- rep(NA, nrow(jirPIR))
   }
@@ -286,7 +288,7 @@
 
   #We reduce data so dispersion estimates can be computed in a razonable ammount of time
   reduxData             <- .makeReduxData(countData, targets, contrast, maxConditionsForDispersionEstimate)
-  ltsp                  <- .binsDUWithDiffSplice(reduxData$countData, reduxData$targets, reduxData$contrast)#, test = "gene")
+  ltsp                  <- .binsDUWithDiffSplice(reduxData$countData, reduxData$targets, reduxData$contrast, formula = formula)#, test = "gene")
   tsp                   <- ltsp[["junction"]]
   tsp                   <- tsp[-(grep("[.][1-2]$", rownames(tsp))), ]
   
@@ -340,7 +342,7 @@
   
   countData             <- .makeCountData(Js$J3, Js$J1 + Js$J2)
   
-  ltsp                  <- .binsDUWithDiffSplice(countData, targets, contrast)#, test = "gene")
+  ltsp                  <- .binsDUWithDiffSplice(countData, targets, contrast, formula = formula)#, test = "gene")
   tsp                   <- ltsp[["junction"]]
   tsp                   <- tsp[-(grep("[.][1-2]$", rownames(tsp))), ]
   

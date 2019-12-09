@@ -147,7 +147,8 @@
     ignoreIo = TRUE, 
     ignoreI = FALSE,
     filterWithContrasted = TRUE,
-	verbose = TRUE) {
+	  verbose = TRUE,
+    formula = FALSE) {
  
   targets <- counts@targets
   
@@ -160,13 +161,13 @@
   
   # Filter genes and calculates differential usage of genes
   du <- .DUreportGenes( du, counts, targets, minGenReads, minRds, contrast, 
-      forceGLM, filterWithContrasted, verbose = TRUE )
+      forceGLM, filterWithContrasted, verbose, formula )
   message("Genes DE completed")
 
   # Filter bins and calculates differential usage of bins 
   du <- .DUReportBinsWithDiffSplice( counts, targets, contrast, du, minGenReads, 
       minBinReads, minRds, ignoreExternal, ignoreIo, ignoreI, 
-	  filterWithContrasted )
+	  filterWithContrasted, formula )
   message("Bins DE completed")
   
   return( du )
@@ -182,13 +183,14 @@
     contrast = NULL,
     forceGLM = FALSE,
     filterWithContrasted = TRUE,
-    verbose = FALSE ) {
+    verbose = FALSE,
+    formula = FALSE) {
   
   dfGen <- .filterGenes( counts, targets, minGenReads, minRds, contrast, 
       filterWithContrasted, verbose )
   
   genesde <- .genesDE( df=dfGen, targets = targets,
-      contrast = contrast, forceGLM = forceGLM, verbose  )
+      contrast = contrast, forceGLM = forceGLM, verbose, formula  )
   
   genesDE( du ) <- genesde
   
@@ -263,14 +265,14 @@
 
 .DUReportBinsWithDiffSplice <- function( counts, targets, contrast, du, 
     minGenReads, minBinReads, minRds, ignoreExternal, ignoreIo, ignoreI, 
-	filterWithContrasted ) {
+	filterWithContrasted, formula ) {
   
   # Filter bins
   countData <- .filterBins( counts, targets, minGenReads, minBinReads, minRds, 
       ignoreIo, contrast, filterWithContrasted )
 
   binsdu <- .binsDUWithDiffSplice( countData[[2]], targets, contrast, 
-		  ignoreExternal, ignoreIo, ignoreI )[[1]]  
+		  ignoreExternal, ignoreIo, ignoreI, formula )[[1]]  
   #colnames(binsdu)[1]<-"locus"
   
   binsDU( du ) <- binsdu
@@ -513,7 +515,7 @@ return (dfBin)
 }
 
 .genesDE <- function( df, targets, contrast = NULL, forceGLM = FALSE,
-    verbose = FALSE ) { 
+    verbose = FALSE, formula = FALSE ) { 
   
   if (verbose) message("Genes differential expression:")
   
@@ -536,7 +538,7 @@ return (dfBin)
   
   justTwoConditions <- sum( contrast != 0 ) == 2
   
-  if( justTwoConditions & ! forceGLM ){
+  if( justTwoConditions & ! forceGLM & formula == FALSE){
     if (verbose) message("  Running exact test")
     er   <- estimateDisp( er )
     capture.output( er   <- estimateDisp( er ) )
@@ -549,13 +551,22 @@ return (dfBin)
     et   <- exactTest(er, pair=pair)
   } else {
     if (verbose) message("  Running GLM LRT")
-
-    design   <- model.matrix( ~0 + groupFactor, data = er$samples )
-    captured <- capture.output(
+    if(formula == FALSE){
+      design   <- model.matrix( ~0 + groupFactor, data = er$samples )
+      captured <- capture.output(
+          er     <- estimateDisp( er, design = design )
+      )
+      glf    <- glmFit( er, design = design)  
+      et     <- glmLRT( glf, contrast = contrast)
+    }else{
+      if(verbose) message("  Running with formula")
+      design   <- model.matrix( formula, data = er$samples )
+      captured <- capture.output(
         er     <- estimateDisp( er, design = design )
-    )
-    glf    <- glmFit( er, design = design)  
-    et     <- glmLRT( glf, contrast = contrast)
+      )
+      glf    <- glmFit( er, design = design)  
+      et     <- glmLRT( glf )
+    }
   } 
   
   fdr.gen <- p.adjust( et$table$PValue, method="BH" )
@@ -632,7 +643,7 @@ return (dfBin)
 }
 
 .binsDUWithDiffSplice <- function( countData, targets, contrast, 
-    ignoreExternal = FALSE, ignoreIo = TRUE, ignoreI = FALSE){
+    ignoreExternal = FALSE, ignoreIo = TRUE, ignoreI = FALSE, formula = FALSE){
   
   # Filter bins
   countData = countData[ ! ignoreExternal | countData$event != "external" ,] 
@@ -658,12 +669,21 @@ return (dfBin)
   # of factors. Therefore to preserve order group is converted to ordered factors 
   groupFactor <- factor( group, unique( group ), ordered = TRUE )
   
-  design <- model.matrix( ~0 + groupFactor, data = y$samples )
-  
-  y   <- estimateDisp( y, design )
-  fit <- glmFit( y, design )
-  ds  <- diffSpliceDGE( fit, contrast = contrast, geneid = "locus", 
-      exonid = NULL, verbose = FALSE )
+  if(formula == FALSE){
+    design <- model.matrix( ~0 + groupFactor, data = y$samples )
+    
+    y   <- estimateDisp( y, design )
+    fit <- glmFit( y, design )
+    ds  <- diffSpliceDGE( fit, contrast = contrast, geneid = "locus", exonid = NULL, verbose = FALSE )
+  }else{
+    message("Running with formula")
+    y$samples <- targets
+    design <- model.matrix( formula, data = y$samples )
+    
+    y   <- estimateDisp( y, design )
+    fit <- glmFit( y, design )
+    ds  <- diffSpliceDGE( fit, geneid = "locus", exonid = NULL, verbose = FALSE )    
+  }
   tsp <- topSpliceDGE( ds, test = "exon", FDR = 2, number = Inf )
   tspg<- topSpliceDGE( ds, test = "gene", FDR = 2, number = Inf )
   
