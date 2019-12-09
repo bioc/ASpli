@@ -6,6 +6,11 @@
   Differential junction usage estimation
 }
 \description{
+  Estimate differential expression at gene level and differential usage at bin 
+  level using diffSpliceDGE function from edgeR package. This is an alternative
+  approach to DUreport. The results at gene level are the same as the results
+  from DUreport. The results at bin level are slightly different.   
+  
   Estimate differential usage at junction level. 
   It makes separate estimates for different types of junctions.
   Estimation is made using a generalized linear model. 
