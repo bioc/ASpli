@@ -142,10 +142,22 @@
     
     
     hits <- lapply( bams, function( x ) { 
-          countOverlaps( exonIntron, x, ignore.strand = TRUE, 
-              minoverlap = readLength ) 
-        } )
-    
+      x <- GRanges(x)    
+      # seqnames   <- as.character(unique(data.frame(exonIntron)$seqnames))
+      # seqnames_x <- as.character(data.frame(x)$seqnames)
+      # hitsByBam  <- NULL
+      # for(i in seqnames){
+      #     print(i)
+      #     hitsIntermediate <- countOverlaps( exonIntron[data.frame(exonIntron)$seqnames == i, ], x[seqnames_x == i, ], ignore.strand = TRUE, minoverlap = readLength )
+      #     gc(reset = T)
+      #     if(is.null(hitsByBam)){
+      #       hitsByBam <- hitsIntermediate
+      #     }else{
+      #       hitsByBam <- c(hitsByBam, hitsIntermediate)  
+      #     }
+      # }
+      countOverlaps( exonIntron, x, ignore.strand = TRUE, minoverlap = readLength )      
+    } )    
     hits <- do.call( cbind.data.frame, hits )
     
     return( hits )
@@ -160,14 +172,12 @@
 
   # Extract the junction that has no gaps
   ungappedBams <- lapply( bam, function( x ) { x[ njunc( x ) == 0 , ] } ) 
-  
   # Get counts for junction overlapping the exon1-intron region and intron-exon2
   # region
   e1i <- getExonIntronCounts( jranges, targets, ungappedBams, readLength , 
       'e1i', cores = cores, minAnchor)
   ie2 <- getExonIntronCounts( jranges, targets, ungappedBams, readLength , 
       'ie2', cores = cores, minAnchor)  
-  
   # Calculates the PIR value 
   j1 <- .sumByCond( e1i,     targets )
   j2 <- .sumByCond( ie2,     targets )

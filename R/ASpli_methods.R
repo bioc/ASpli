@@ -419,7 +419,6 @@ setMethod(
     if(is.null(bam)) {
       ntargets <- nrow(targets)
       for(target in 1:ntargets){
-        
         if(ntargets > 1){
           #Load bam from current target
           bam <- loadBAM(targets[target, ])
@@ -429,7 +428,7 @@ setMethod(
                                               minReadLength, 
                                               targets[target, ], 
                                               features,
-                                              minAnchor = minAnchor)        
+                                              minAnchor = minAnchor)      
         }
   
         if(ncol(as@junctionsPIR) == 0){
@@ -781,7 +780,7 @@ setMethod(
 
 setGeneric( name = 'gbDUreport',
             def = function( counts, minGenReads  = 10, minBinReads = 5, 
-                            minRds = 0.05, contrast = NULL, forceGLM = FALSE,  
+                            minRds = 0.05, contrast = NULL, forceGLM = TRUE,  
                             ignoreExternal = TRUE, ignoreIo = TRUE, ignoreI = FALSE, 
                             filterWithContrasted = TRUE, verbose = TRUE, formula = FALSE ) 
               standardGeneric( 'gbDUreport'))
@@ -794,7 +793,7 @@ setMethod(
                          minBinReads = 5,
                          minRds = 0.05, 
                          contrast = NULL, 
-                         forceGLM = FALSE, 
+                         forceGLM = TRUE, 
                          ignoreExternal = TRUE,
                          ignoreIo = TRUE, 
                          ignoreI = FALSE, 
