@@ -782,7 +782,7 @@ setGeneric( name = 'gbDUreport',
             def = function( counts, minGenReads  = 10, minBinReads = 5, 
                             minRds = 0.05, contrast = NULL, forceGLM = TRUE,  
                             ignoreExternal = TRUE, ignoreIo = TRUE, ignoreI = FALSE, 
-                            filterWithContrasted = TRUE, verbose = TRUE, formula = FALSE ) 
+                            filterWithContrasted = TRUE, verbose = TRUE, formula = NULL, coef = NULL ) 
               standardGeneric( 'gbDUreport'))
 
 setMethod( 
@@ -799,10 +799,11 @@ setMethod(
                          ignoreI = FALSE, 
                          filterWithContrasted = TRUE,
                          verbose = TRUE, 
-                         formula = FALSE) {
+                         formula = NULL,
+                         coef = NULL) {
     .DUreportBinSplice( counts, minGenReads, minBinReads, minRds, 
                         contrast, forceGLM, ignoreExternal, ignoreIo, ignoreI, 
-                        filterWithContrasted, verbose, formula ) 
+                        filterWithContrasted, verbose, formula, coef ) 
   })
 
 
@@ -816,7 +817,8 @@ setGeneric( name = "jDUreport",
                             maxPValForUniformityCheck          = 0.2,
                             strongFilter                       = TRUE,
                             maxConditionsForDispersionEstimate = 24,
-                            formula                            = FALSE
+                            formula                            = NULL,
+                            coef                               = NULL
             ) standardGeneric("jDUreport") )
 
 
@@ -833,12 +835,13 @@ setMethod(
     maxPValForUniformityCheck          = 0.2,
     strongFilter                       = TRUE,
     maxConditionsForDispersionEstimate = 24,
-    formula                            = FALSE
+    formula                            = NULL,
+    coef                               = NULL
   ) {
     
     .junctionDUreportExt( asd, minAvgCounts, contrast, 
                           filterWithContrasted, runUniformityTest, mergedBams, maxPValForUniformityCheck, strongFilter,
-                          maxConditionsForDispersionEstimate, formula) 
+                          maxConditionsForDispersionEstimate, formula, coef) 
   }
 )
 
