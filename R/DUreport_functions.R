@@ -171,11 +171,13 @@
       coef <- nrow(contrast)
     }
     contrast           <- contrast[coef, ]
+    contrastAggregated <- aggregate(contrast~targets$condition,FUN=sum)
+    contrast <- setNames(contrastAggregated[,2],contrastAggregated[,1])[counts@condition.order]
     du@contrast        <- contrast    
-    #names(du@contrast) <- rownames(design)
   }
+  names(du@contrast) <- counts@condition.order
   
-  names(du@contrast) <- counts@condition.order    
+      
   # Generate conditions combining experimental factors
   #targets <- .condenseTargetsConditions( targets ) 
   

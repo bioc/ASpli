@@ -46,7 +46,10 @@
       coef <- nrow(contrast)
     }
     contrast           <- contrast[coef, ]
-    du@contrast        <- contrast
+    contrastAggregated <- aggregate(contrast~targets$condition,FUN=sum)
+    contrast <- setNames(contrastAggregated[,2],contrastAggregated[,1])[getConditions(targets)]
+    jdu@contrast        <- contrast    
+    
   }  
   jdu@contrast <- setNames(contrast, getConditions(targets))
   
