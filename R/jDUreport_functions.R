@@ -544,7 +544,7 @@
   
   design <- model.matrix( ~0 + groupFactor, data = y$samples )
   
-  y   <- estimateDisp( y, design )
+  y   <- estimateDisp( y, design , robust=TRUE)
   fit <- glmFit( y, design )
   ds  <- diffSpliceDGE( fit, contrast = contrast, geneid = "locus", 
                         exonid = NULL, verbose = FALSE )

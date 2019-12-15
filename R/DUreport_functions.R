@@ -562,8 +562,8 @@ return (dfBin)
   
   if( justTwoConditions & ! forceGLM & is.null(formula)){
     if (verbose) message("  Running exact test")
-    er   <- estimateDisp( er )
-    capture.output( er   <- estimateDisp( er ) )
+    er   <- estimateDisp( er , robust=TRUE)
+    capture.output( er   <- estimateDisp( er, robust=TRUE ) )
     pair <- which( contrast != 0 )
     
     # at this point pair must have just two elements.
@@ -576,7 +576,7 @@ return (dfBin)
     if(is.null(formula)){
       design   <- model.matrix( ~0 + groupFactor, data = er$samples )
       captured <- capture.output(
-          er     <- estimateDisp( er, design = design )
+          er     <- estimateDisp( er, design = design , robust=TRUE)
       )
       glf    <- glmFit( er, design = design)  
       et     <- glmLRT( glf, contrast = contrast)
@@ -584,7 +584,7 @@ return (dfBin)
       if(verbose) message("  Running with formula")
       design   <- model.matrix( formula, data = er$samples )
       captured <- capture.output(
-        er     <- estimateDisp( er, design = design )
+        er     <- estimateDisp( er, design = design , robust=TRUE)
       )
       glf    <- glmFit( er, design = design)  
       et     <- glmLRT( glf, coef = coef )
@@ -694,7 +694,7 @@ return (dfBin)
   if(is.null(formula)){
     design <- model.matrix( ~0 + groupFactor, data = y$samples )
     
-    y   <- estimateDisp( y, design )
+    y   <- estimateDisp( y, design, robust=TRUE )
     fit <- glmFit( y, design )
     ds  <- diffSpliceDGE( fit, contrast = contrast, geneid = "locus", exonid = NULL, verbose = FALSE )
   }else{
@@ -702,7 +702,7 @@ return (dfBin)
     y$samples <- targets
     design <- model.matrix( formula, data = y$samples )
     
-    y   <- estimateDisp( y, design )
+    y   <- estimateDisp( y, design , robust=TRUE)
     fit <- glmFit( y, design )
     ds  <- diffSpliceDGE( fit, coef = coef, geneid = "locus", exonid = NULL, verbose = FALSE )    
   }
@@ -962,7 +962,7 @@ return (dfBin)
       fc     <- targets$condition
       groupFactor <- factor( fc, unique( fc ), ordered = TRUE )
       design <- model.matrix(~0+groupFactor)
-      yg     <- estimateDisp(yg,design)
+      yg     <- estimateDisp(yg,design, robust=TRUE)
       fitg   <- glmFit(yg,design)
       maux   <- fitg$fitted.values + 10^-4
       rownames( maux ) <- rownames( dfGen)
@@ -1028,7 +1028,7 @@ return (dfBin)
   if( ( !forceGLM ) & is.null( mOffset ) & justTwoConditions ){
 
     captured <- capture.output(
-      er   <- estimateDisp( er )
+      er   <- estimateDisp( er, robust=TRUE )
     )
     pair <- which( contrast != 0 )
     testResult   <- exactTest( er, pair = pair )
@@ -1043,7 +1043,7 @@ return (dfBin)
     groupFactor <- factor( group, unique( group ), ordered = TRUE )
     design     <- model.matrix( ~0 + groupFactor, data = er$samples )
     captured <- capture.output(
-        er         <- estimateDisp( er, design = design ) 
+        er         <- estimateDisp( er, design = design , robust=TRUE) 
     )      
     glf        <- glmFit( er, design = design )  
     testResult <- glmLRT( glf, contrast = contrast )
