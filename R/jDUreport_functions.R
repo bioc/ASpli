@@ -90,7 +90,7 @@
 
   #for every junction, the maximal participation value observed across contrasted condiction
   #is considered.
-  mean.counts.per.condition     <- sapply(getConditions(targets)[contrast != 0], function(i){return(rowMeans(countData[rownames(jPSI), rownames(targets)[targets$condition %in% i]]))})
+  mean.counts.per.condition     <- sapply(getConditions(targets)[contrast != 0], function(i){return(rowMeans(countData[rownames(jPSI), rownames(targets)[targets$condition %in% i], drop = FALSE]))})
   participation                 <- aggregate(mean.counts.per.condition ~ jPSI$locus, FUN = function(r){return(rowSums(t(r)))})
   rownames(participation)       <- participation$locus
   participation                 <- participation[jPSI$locus, -1]
@@ -114,8 +114,8 @@
   #build localec
   ltsp       <- ltsp[["cluster"]]
   junturas   <- strsplit2(rownames(jPSI), "[.]")
-  rango      <- merge(aggregate(junturas[, 2] ~ jPSI$cluster, FUN=min), 
-                      aggregate(junturas[, 3] ~ jPSI$cluster, FUN=max))
+  rango      <- merge(aggregate(as.numeric(junturas[, 2]) ~ jPSI$cluster, FUN=min), 
+                      aggregate(as.numeric(junturas[, 3]) ~ jPSI$cluster, FUN=max))
   rango      <- apply(rango[jPSI$cluster, 2:3], 1, paste, collapse=".")
   rango      <- apply(cbind(junturas[, 1], rango), 1, paste, collapse=".")
   #rango      <- junturas[, 1], , collapse=".")
@@ -174,7 +174,7 @@
   jPIR                  <- tsp
 
   #  
-  mean.counts           <- rowMeans(countData[rownames(jPIR), rownames(targets)[targets$condition %in% getConditions(targets)[contrast != 0]]])
+  mean.counts           <- rowMeans(countData[rownames(jPIR), rownames(targets)[targets$condition %in% getConditions(targets)[contrast != 0]], drop = FALSE])
   jPIR$log.mean         <- log2(mean.counts)
   
 
@@ -189,9 +189,9 @@
   }
 
   #Add J1, J2 and J3 count data
-  jPIR      <- cbind(jPIR, countsJ1 = sapply(getConditions(targets)[contrast != 0], function(i){return(rowMeans(Js$J1[paste0(rownames(jPIR), ".1"), rownames(targets)[targets$condition %in% i]]))}))
-  jPIR      <- cbind(jPIR, countsJ2 = sapply(getConditions(targets)[contrast != 0], function(i){return(rowMeans(Js$J2[paste0(rownames(jPIR), ".2"), rownames(targets)[targets$condition %in% i]]))}))
-  jPIR      <- cbind(jPIR, countsJ3 = sapply(getConditions(targets)[contrast != 0], function(i){return(rowMeans(Js$J3[rownames(jPIR), rownames(targets)[targets$condition %in% i]]))}))
+  jPIR      <- cbind(jPIR, countsJ1 = sapply(getConditions(targets)[contrast != 0], function(i){return(rowMeans(Js$J1[paste0(rownames(jPIR), ".1"), rownames(targets)[targets$condition %in% i], drop = FALSE]))}))
+  jPIR      <- cbind(jPIR, countsJ2 = sapply(getConditions(targets)[contrast != 0], function(i){return(rowMeans(Js$J2[paste0(rownames(jPIR), ".2"), rownames(targets)[targets$condition %in% i], drop = FALSE]))}))
+  jPIR      <- cbind(jPIR, countsJ3 = sapply(getConditions(targets)[contrast != 0], function(i){return(rowMeans(Js$J3[rownames(jPIR), rownames(targets)[targets$condition %in% i], drop = FALSE]))}))
   
   #dPIR estimation
   dpir      <- data[rownames(jPIR),getConditions(targets)]
@@ -250,7 +250,7 @@
   tsp$bin.LR            <- ltsp$cluster[as.character(tsp$locus), "cluster.LR"]
   
   jirPIR                <- tsp[, c("logFC", "pvalue", "bin.fdr", "bin.LR")]
-  jirPIR$log.mean       <- log2(rowMeans(countData[rownames(jirPIR), rownames(targets)[targets$condition %in% getConditions(targets)[contrast != 0]]]))
+  jirPIR$log.mean       <- log2(rowMeans(countData[rownames(jirPIR), rownames(targets)[targets$condition %in% getConditions(targets)[contrast != 0]], drop = FALSE]))
 
   if(runUniformityTest){
     data_unif             <- data[rownames(jirPIR), getConditions(targets)[contrast != 0]]
@@ -283,9 +283,9 @@
   jirPIR$multiplicity[grep(";", jirPIR$J3)] <- "Yes"
   
   #Sacamos "cluster" de anchorj 
-  jirPIR        <- cbind(jirPIR, countsJ1 = sapply(getConditions(targets)[contrast != 0], function(i){return(rowMeans(Js$J1[paste0(rownames(jirPIR), ".1"), rownames(targets)[targets$condition %in% i]]))}))
-  jirPIR        <- cbind(jirPIR, countsJ2 = sapply(getConditions(targets)[contrast != 0], function(i){return(rowMeans(Js$J2[paste0(rownames(jirPIR), ".2"), rownames(targets)[targets$condition %in% i]]))}))
-  jirPIR        <- cbind(jirPIR, countsJ3 = sapply(getConditions(targets)[contrast != 0], function(i){return(rowMeans(Js$J3[rownames(jirPIR), rownames(targets)[targets$condition %in% i]]))}))
+  jirPIR        <- cbind(jirPIR, countsJ1 = sapply(getConditions(targets)[contrast != 0], function(i){return(rowMeans(Js$J1[paste0(rownames(jirPIR), ".1"), rownames(targets)[targets$condition %in% i], drop = FALSE]))}))
+  jirPIR        <- cbind(jirPIR, countsJ2 = sapply(getConditions(targets)[contrast != 0], function(i){return(rowMeans(Js$J2[paste0(rownames(jirPIR), ".2"), rownames(targets)[targets$condition %in% i], drop = FALSE]))}))
+  jirPIR        <- cbind(jirPIR, countsJ3 = sapply(getConditions(targets)[contrast != 0], function(i){return(rowMeans(Js$J3[rownames(jirPIR), rownames(targets)[targets$condition %in% i], drop = FALSE]))}))
   
   #jirPIR$dPIR   <- apply(jirPIR,1,function(x){sum(x*contrast)}) 
   #participation        <- jirPIR$countsJ3/(jirPIR$countsJ1 + jirPIR$countsJ2 + jirPIR$countsJ3)
@@ -321,7 +321,7 @@
   tsp$bin.LR            <- ltsp$cluster[as.character(tsp$locus), "cluster.LR"]  
 
   jesPSI                <- tsp[, c("logFC", "pvalue", "bin.fdr", "bin.LR")]
-  jesPSI$log.mean       <- log2(rowMeans(countData[rownames(jesPSI), rownames(targets)[targets$condition %in% getConditions(targets)[contrast != 0]]]))
+  jesPSI$log.mean       <- log2(rowMeans(countData[rownames(jesPSI), rownames(targets)[targets$condition %in% getConditions(targets)[contrast != 0]], drop = FALSE]))
   jesPSI$event          <- data[rownames(jesPSI), "event"]
   jesPSI$J3             <- data[rownames(jesPSI), "J3"]
   jesPSI                <- jesPSI[, c("event", "J3", "logFC", "log.mean", "pvalue", "bin.fdr", "bin.LR")]
@@ -342,9 +342,9 @@
   jesPSI$multiplicity   <- "No"
   jesPSI$multiplicity[grep(";", jesPSI$J3)] <- "Yes"
   
-  jesPSI      <- cbind(jesPSI, countsJ1 = sapply(getConditions(targets)[contrast != 0], function(i){return(rowMeans(Js$J1[paste0(rownames(jesPSI), ".1"), rownames(targets)[targets$condition %in% i]]))}))
-  jesPSI      <- cbind(jesPSI, countsJ2 = sapply(getConditions(targets)[contrast != 0], function(i){return(rowMeans(Js$J2[paste0(rownames(jesPSI), ".2"), rownames(targets)[targets$condition %in% i]]))}))
-  jesPSI      <- cbind(jesPSI, countsJ3 = sapply(getConditions(targets)[contrast != 0], function(i){return(rowMeans(Js$J3[rownames(jesPSI), rownames(targets)[targets$condition %in% i]]))}))
+  jesPSI      <- cbind(jesPSI, countsJ1 = sapply(getConditions(targets)[contrast != 0], function(i){return(rowMeans(Js$J1[paste0(rownames(jesPSI), ".1"), rownames(targets)[targets$condition %in% i], drop = FALSE]))}))
+  jesPSI      <- cbind(jesPSI, countsJ2 = sapply(getConditions(targets)[contrast != 0], function(i){return(rowMeans(Js$J2[paste0(rownames(jesPSI), ".2"), rownames(targets)[targets$condition %in% i], drop = FALSE]))}))
+  jesPSI      <- cbind(jesPSI, countsJ3 = sapply(getConditions(targets)[contrast != 0], function(i){return(rowMeans(Js$J3[rownames(jesPSI), rownames(targets)[targets$condition %in% i], drop = FALSE]))}))
   
   jes(jdu)              <- jesPSI
   
@@ -375,7 +375,7 @@
   tsp$bin.LR            <- ltsp$cluster[as.character(tsp$locus), "cluster.LR"]  
   
   jaltPSI               <- tsp[, c("logFC", "pvalue", "bin.fdr", "bin.LR")]
-  jaltPSI$log.mean      <- log2(rowMeans(countData[rownames(jaltPSI), rownames(targets)[targets$condition %in% getConditions(targets)[contrast != 0]]]))  
+  jaltPSI$log.mean      <- log2(rowMeans(countData[rownames(jaltPSI), rownames(targets)[targets$condition %in% getConditions(targets)[contrast != 0]], drop = FALSE]))  
   jaltPSI$event         <- data[rownames(jaltPSI), "event"]
   jaltPSI$J3            <- data[rownames(jaltPSI), "J3"]
   jaltPSI               <- jaltPSI[, c("event", "J3", "logFC", "log.mean", "pvalue", "bin.fdr", "bin.LR")]
@@ -398,9 +398,9 @@
   jaltPSI$multiplicity[grep(";", jaltPSI$J3)] <- "Yes"
 
   
-  jaltPSI      <- cbind(jaltPSI, countsJ1 = sapply(getConditions(targets)[contrast != 0], function(i){return(rowMeans(Js$J1[paste0(rownames(jaltPSI), ".1"), rownames(targets)[targets$condition %in% i]]))}))
-  jaltPSI      <- cbind(jaltPSI, countsJ2 = sapply(getConditions(targets)[contrast != 0], function(i){return(rowMeans(Js$J2[paste0(rownames(jaltPSI), ".2"), rownames(targets)[targets$condition %in% i]]))}))
-  jaltPSI      <- cbind(jaltPSI, countsJ3 = sapply(getConditions(targets)[contrast != 0], function(i){return(rowMeans(Js$J3[rownames(jaltPSI), rownames(targets)[targets$condition %in% i]]))}))
+  jaltPSI      <- cbind(jaltPSI, countsJ1 = sapply(getConditions(targets)[contrast != 0], function(i){return(rowMeans(Js$J1[paste0(rownames(jaltPSI), ".1"), rownames(targets)[targets$condition %in% i], drop = FALSE]))}))
+  jaltPSI      <- cbind(jaltPSI, countsJ2 = sapply(getConditions(targets)[contrast != 0], function(i){return(rowMeans(Js$J2[paste0(rownames(jaltPSI), ".2"), rownames(targets)[targets$condition %in% i], drop = FALSE]))}))
+  jaltPSI      <- cbind(jaltPSI, countsJ3 = sapply(getConditions(targets)[contrast != 0], function(i){return(rowMeans(Js$J3[rownames(jaltPSI), rownames(targets)[targets$condition %in% i], drop = FALSE]))}))
 
   jalt(jdu)             <- jaltPSI
   
