@@ -168,9 +168,10 @@
     design             <- model.matrix( formula, data = targets )
     contrast           <- ginv(design)
     if(is.null(coef)){
-      coef <- nrow(contrast)
+      coef <- nrow(contrast)-1
     }
-    contrast           <- contrast[coef, ]
+    contrast           <- contrast[coef + 1, ] #We add one because the first element is the intercept
+    contrast[abs(contrast) < 1e-5] <- 0  
     contrastAggregated <- aggregate(contrast~targets$condition,FUN=sum)
     contrast <- setNames(contrastAggregated[,2],contrastAggregated[,1])[counts@condition.order]
     du@contrast        <- contrast    
