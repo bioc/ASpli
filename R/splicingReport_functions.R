@@ -86,6 +86,9 @@
   
   grbines      <- GRanges(seqnames, IRanges(start, end), strand="*")
   
+  if(!all(unique(grbines@seqnames) %in% unique(grjunctions@seqnames))){
+    warning("Not every chromosome is present in both bins and locales.")
+  }
   overlap      <- data.frame(findOverlaps(grbines, grjunctions))
   
   bins <- binsDU(bdu)
