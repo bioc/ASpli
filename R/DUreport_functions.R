@@ -674,6 +674,7 @@ return (dfBin)
   countData = countData[ ! ignoreI | countData$feature != "I" ,] 
   
   # Define group and contrast
+  #targets$condition <- rep(c("adjacent_non_tumor_tissue", "tumor_tissue"), each=3)
   group <- targets$condition
   if( is.null( contrast ) ) contrast <- .getDefaultContrasts( group )
   

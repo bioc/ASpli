@@ -43,9 +43,9 @@
     design             <- model.matrix( formula, data = targets )
     contrast           <- ginv(design)
     if(is.null(coef)){
-      coef <- nrow(contrast)-1
+      coef <- nrow(contrast)
     }
-    contrast               <- contrast[coef + 1, ] #the first one is the intercept
+    contrast               <- contrast[coef, ] #the first one is the intercept
     contrast[abs(contrast) < 1e-5] <- 0  
     contrastAggregated <- aggregate(contrast~targets$condition,FUN=sum)
     contrast <- setNames(contrastAggregated[,2],contrastAggregated[,1])[getConditions(targets)]
@@ -195,7 +195,10 @@
   jPIR      <- cbind(jPIR, countsJ3 = sapply(getConditions(targets)[contrast != 0], function(i){return(rowMeans(Js$J3[rownames(jPIR), rownames(targets)[targets$condition %in% i], drop = FALSE]))}))
   
   #dPIR estimation
-  dpir      <- data[rownames(jPIR),getConditions(targets)]
+  icols                 <- which(colnames(data) %in% getConditions(targets))
+  icols                 <- icols[(length(icols) - nrow(targets) + 1):length(icols)]
+  
+  dpir      <- data[rownames(jPIR), icols]
   jPIR$dPIR <- apply(dpir,1,function(x){
     
     aux <- x[which(contrast != 0)]
@@ -267,7 +270,10 @@
   jirPIR$J3             <- data[rownames(jirPIR), "J3"]
   jirPIR                <- jirPIR[, c("J3", "logFC", "log.mean", "pvalue", "bin.fdr", "bin.LR", "NonUniformity")]
   
-  dpir                  <- irPIR(asd)[rownames(jirPIR),getConditions(targets)]
+  icols                 <- which(colnames(irPIR(asd)) %in% getConditions(targets))
+  icols                 <- icols[(length(icols) - nrow(targets) + 1):length(icols)]
+  
+  dpir                  <- irPIR(asd)[rownames(jirPIR), icols]
   jirPIR$dPIR           <- apply(dpir,1,function(x){
     
     aux <- x[which(contrast != 0)]
@@ -327,10 +333,18 @@
   jesPSI$J3             <- data[rownames(jesPSI), "J3"]
   jesPSI                <- jesPSI[, c("event", "J3", "logFC", "log.mean", "pvalue", "bin.fdr", "bin.LR")]
   
-  dpsi                  <- esPSI(asd)[rownames(jesPSI),getConditions(targets)]
+  icols                 <- which(colnames(esPSI(asd)) %in% getConditions(targets))
+  icols                 <- icols[(length(icols) - nrow(targets) + 1):length(icols)]
+  dpsi                  <- esPSI(asd)[rownames(jesPSI), icols]
+
+  #clipedContrast <- contrast
+  #clipedContrast[clipedContrast > 0] <- 1
+  #clipedContrast[clipedContrast < 0] <- -1
+  
   jesPSI$dPSI           <- apply(dpsi,1,function(x){
     
     aux <- x[which(contrast != 0)]
+    
     if(any(is.nan(aux))) {
       aux <- NA
     }else{
@@ -381,8 +395,10 @@
   jaltPSI$J3            <- data[rownames(jaltPSI), "J3"]
   jaltPSI               <- jaltPSI[, c("event", "J3", "logFC", "log.mean", "pvalue", "bin.fdr", "bin.LR")]
   
+  icols                 <- which(colnames(altPSI(asd)) %in% getConditions(targets))
+  icols                 <- icols[(length(icols) - nrow(targets) + 1):length(icols)]
   
-  dpsi                  <- altPSI(asd)[rownames(jaltPSI),getConditions(targets)]
+  dpsi                  <- altPSI(asd)[rownames(jaltPSI), icols]
   jaltPSI$dPSI          <- apply(dpsi,1,function(x){
     
     aux <- x[which(contrast != 0)]
