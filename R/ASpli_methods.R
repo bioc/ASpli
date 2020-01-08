@@ -71,6 +71,12 @@ setMethod(
   signature = "TxDb",
   definition = function ( genome, geneSymbols = NULL, logTo = "ASpli_binFeatures.log") {
     
+    #Normalize seqnames. If . present in name, changes it to _ and warns the user
+    if(length(grep("[.]", seqlevels(genome)) > 0)){
+      seqlevels(genome) <- gsub("[.]", "_", seqlevels(genome))
+      warning("Some seqnames had a '.' present in their names. ASpli had to normalize them using '_'.")
+    }
+    
     features <- new( Class = "ASpliFeatures" )
     
     if ( is.null( geneSymbols ) ) {
@@ -154,6 +160,7 @@ setMethod(
     features@bins <- fullT
     features@junctions <- junctions
     features@transcriptExons <- transcriptExons
+    
     
     return( features ) 
   })
@@ -269,7 +276,7 @@ setMethod(
     
     for(target in 1:ntargets){
       
-      if(ntargets > 1){
+      if(ntargets > 1 | is.null(bam)){
         #Verbose
         message(paste("Summarizing", rownames(targets)[target]))
         
@@ -328,7 +335,7 @@ setMethod(
         colnames(counts@ie2.counts)[ncol(counts@ie2.counts)] <- rownames(targets)[target]   
       }
       if(ntargets == 1) message("Read summarization by ie2 region completed")
-      
+
       # Count junctions
       junction.hits    <- .counterJunctions( features, bam, cores, maxISize )
       if(ncol(counts@junction.counts) == 0){
@@ -348,7 +355,13 @@ setMethod(
         counts@junction.counts[is.na(counts@junction.counts)] <- 0
       }
       if(ntargets == 1) message("Junction summarization completed")
-      
+      if(length(grep("NA", rownames(counts@junction.counts))) > 0){
+        print(target)
+        break
+      }
+      if(length(grep("NA", rownames(junction.hits ))) > 0){
+        print(target)
+      }
       gc()
       if(ntargets > 1){     
         sptm <- (proc.time() - ptm)[3]/target/60        

@@ -61,15 +61,17 @@
   data                  <- junctionsPJU(asd)
 
   #Only keep data related to current conditions. AR. AdHoc a borrar.
-  icols <-  c(1:8, 
-                which(colnames(data) %in% c(targets$condition, 
-                                            "StartHit", "EndHit", 
-                                            paste(targets$condition, rep(c("start", "end"), each=nrow(targets)), sep="."))
-                ))
-  columns <- colnames(data)[icols]
-  data <- data[, icols]
-  names(data) <- columns
-  
+  if(FALSE){
+    icols <-  c(1:8, 
+                  which(colnames(data) %in% c(targets$condition, 
+                                              "StartHit", "EndHit", 
+                                              paste(targets$condition, rep(c("start", "end"), each=nrow(targets)), sep="."))
+                  ))
+    columns <- colnames(data)[icols]
+    data <- data[, icols]
+    names(data) <- columns
+  }
+      
   start_J1              <- grep("StartHit", colnames(data)) + 1
   start_J2              <- grep("EndHit", colnames(data)) + 1
   start_J3              <- 9
@@ -156,12 +158,14 @@
   message("Running junctionsPIR test")
   data                  <- junctionsPIR(asd)
   
+  
   #Only keep data related to current conditions. AR. AdHoc a borrar.
-  icols <-  which(colnames(data) %in% c(targets$condition, "hitIntron", "hitIntronEvent"))
-  columns <- colnames(data)[icols]
-  data <- data[, icols]
-  names(data) <- columns
-
+  if(FALSE){
+    icols <-  which(colnames(data) %in% c(targets$condition, "hitIntron", "hitIntronEvent"))
+    columns <- colnames(data)[icols]
+    data <- data[, icols]
+    names(data) <- columns
+  }
     
   start_J1              <- 3
   start_J2              <- 3+nrow(targets)
@@ -252,11 +256,13 @@
   data                  <- irPIR(asd)
 
   #Only keep data related to current conditions. AR. AdHoc a borrar.
-  icols <-  which(colnames(data) %in% c(targets$condition, "event", "J1", "J2", "J3"))
-  columns <- colnames(data)[icols]
-  data <- data[, icols]
-  names(data) <- columns
-
+  if(FALSE){
+    icols <-  which(colnames(data) %in% c(targets$condition, "event", "J1", "J2", "J3"))
+    columns <- colnames(data)[icols]
+    data <- data[, icols]
+    names(data) <- columns
+  }
+  
   start_J1              <- grep("J1", colnames(data)) + 1
   start_J2              <- grep("J2", colnames(data)) + 1
   start_J3              <- grep("J3", colnames(data)) + 1
@@ -333,11 +339,13 @@
   data                  <- esPSI(asd)
   
   #Only keep data related to current conditions. AR. AdHoc a borrar.
-  icols <-  which(colnames(data) %in% c(targets$condition, "event", "J1", "J2", "J3"))
-  columns <- colnames(data)[icols]
-  data <- data[, icols]
-  names(data) <- columns
-
+  if(FALSE){
+    icols <-  which(colnames(data) %in% c(targets$condition, "event", "J1", "J2", "J3"))
+    columns <- colnames(data)[icols]
+    data <- data[, icols]
+    names(data) <- columns
+  }
+  
   start_J1              <- grep("J1", colnames(data)) + 1
   start_J2              <- grep("J2", colnames(data)) + 1
   start_J3              <- grep("J3", colnames(data)) + 1
@@ -404,10 +412,12 @@
   data                  <- altPSI(asd)
   
   #Only keep data related to current conditions. AR. AdHoc a borrar.
-  icols <-  which(colnames(data) %in% c(targets$condition, "event", "J1", "J2", "J3"))
-  columns <- colnames(data)[icols]
-  data <- data[, icols]
-  names(data) <- columns
+  if(FALSE){
+    icols <-  which(colnames(data) %in% c(targets$condition, "event", "J1", "J2", "J3"))
+    columns <- colnames(data)[icols]
+    data <- data[, icols]
+    names(data) <- columns
+  }
 
   start_J1              <- grep("J1", colnames(data)) + 1
   start_J2              <- grep("J2", colnames(data)) + 1
