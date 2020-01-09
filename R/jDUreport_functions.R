@@ -79,16 +79,16 @@
   
   junctions_of_interest <- .filterJunctionBySampleWithContrast(data[,start_J3:end_J3], targets=targets, threshold = minAvgCounts, filterWithContrasted, contrast )
   
-  if(nrow(junctions_of_interest) == 0) stop("No junctions to analyze! Perhaps reduce threshold?")
+  if(nrow(junctions_of_interest) == 0) stop("No junctions to analyze! Is minReadLength less than bam read length? ")
   
   J1                    <- as.character(data$StartHit[rownames(data) %in% rownames(junctions_of_interest)])
   J2                    <- as.character(data$EndHit[rownames(data) %in% rownames(junctions_of_interest)])
   J3                    <- rownames(junctions_of_interest)
   
-  if(length(J1) == 0 | length(J2) == 0 | length(J3) == 0) stop("No junctions to analyze! Perhaps reduce threshold")
+  if(length(J1) == 0 | length(J2) == 0 | length(J3) == 0) stop("No junctions to analyze! Is minReadLength less than bam read length?")
   clusters              <- .makeClusters(J1, J2, J3, strongFilter)
   
-  if(clusters$no == 0) stop("No junctions to analyze! Perhaps set strongFilter to FALSE?")
+  if(clusters$no == 0) stop("No junctions to analyze! Is minReadLength less than bam read length?")
   
   countData             <- .makeCountDataWithClusters(data[names(clusters$membership),start_J3:end_J3], clusters)
   
@@ -173,7 +173,7 @@
   
   Js                    <- .makeJunctions(data, targets, start_J1, start_J2, start_J3, minAvgCounts, filterWithContrasted, contrast, strongFilter)
   
-  if(nrow(Js$J3) == 0) stop("No junctions to analyze! Perhaps set strongFilter to FALSE?")
+  if(nrow(Js$J3) == 0) stop("No junctions to analyze! Is minReadLength less than bam read length?")
   countData             <- .makeCountData(Js$J3, Js$J1, Js$J2)
   
   #We reduce data so dispersion estimates can be computed in a razonable ammount of time
@@ -219,7 +219,7 @@
   
   #dPIR estimation
   icols                 <- which(colnames(data) %in% getConditions(targets))
-  icols                 <- icols[(length(icols) - nrow(targets) + 1):length(icols)]
+  icols                 <- icols[(length(icols) - length(getConditions(targets)) + 1):length(icols)]
   
   dpir      <- data[rownames(jPIR), icols]
   jPIR$dPIR <- apply(dpir,1,function(x){
@@ -269,7 +269,7 @@
   
   data                  <- data[!is.na(data$J3), ]
   Js                    <- .makeJunctions(data, targets, start_J1, start_J2, start_J3, minAvgCounts, filterWithContrasted, contrast, strongFilter)
-  if(nrow(Js$J3) == 0) stop("No junctions to analyze! Perhaps set strongFilter to FALSE?")
+  if(nrow(Js$J3) == 0) stop("No junctions to analyze! Is minReadLength less than bam read length?")
   
   countData             <- .makeCountData(Js$J3, Js$J1,  Js$J2)
   
@@ -353,7 +353,7 @@
   data                  <- data[!is.na(data$J3), ]
   
   Js                    <- .makeJunctions(data, targets, start_J1, start_J2, start_J3, minAvgCounts, filterWithContrasted, contrast, strongFilter)
-  if(nrow(Js$J3) == 0) stop("No junctions to analyze! Perhaps set strongFilter to FALSE?")
+  if(nrow(Js$J3) == 0) stop("No junctions to analyze! Is minReadLength less than bam read length?")
   
   countData             <- .makeCountData(Js$J3, Js$J1, Js$J2)
 
@@ -426,7 +426,7 @@
   data                  <- data[!is.na(data$J3), ]
   
   Js                    <- .makeJunctions(data, targets, start_J1, start_J2, start_J3, minAvgCounts, filterWithContrasted, contrast, strongFilter, alt = T)
-  if(nrow(Js$J3) == 0) stop("No junctions to analyze! Perhaps set strongFilter to FALSE?")
+  if(nrow(Js$J3) == 0) stop("No junctions to analyze! Is minReadLength less than bam read length?")
   
   countData             <- .makeCountData(Js$J3, Js$J1 + Js$J2)
   
