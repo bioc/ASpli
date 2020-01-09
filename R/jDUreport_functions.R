@@ -220,7 +220,7 @@
   #dPIR estimation
   icols                 <- which(colnames(data) %in% getConditions(targets))
   if(is.null(formula)){
-    icols                 <- icols[(length(icols) - length(getConditions(targets) + 1):length(icols)]
+    icols                 <- icols[(length(icols) - length(getConditions(targets)) + 1):length(icols)]
   }else{
     icols                 <- icols[(length(icols) - nrow(targets) + 1):length(icols)]
   }
@@ -308,7 +308,7 @@
   
   icols                 <- which(colnames(irPIR(asd)) %in% getConditions(targets))
   if(is.null(formula)){
-    icols                 <- icols[(length(icols) - length(getConditions(targets) + 1):length(icols)]
+    icols                 <- icols[(length(icols) - length(getConditions(targets)) + 1):length(icols)]
   }else{
     icols                 <- icols[(length(icols) - nrow(targets) + 1):length(icols)]
   }
@@ -384,7 +384,7 @@
   
   icols                 <- which(colnames(esPSI(asd)) %in% getConditions(targets))
   if(is.null(formula)){
-    icols                 <- icols[(length(icols) - length(getConditions(targets) + 1):length(icols)]
+    icols                 <- icols[(length(icols) - length(getConditions(targets)) + 1):length(icols)]
   }else{
     icols                 <- icols[(length(icols) - nrow(targets) + 1):length(icols)]
   }
@@ -459,7 +459,7 @@
   
   icols                 <- which(colnames(altPSI(asd)) %in% getConditions(targets))
   if(is.null(formula)){
-    icols                 <- icols[(length(icols) - length(getConditions(targets) + 1):length(icols)]
+    icols                 <- icols[(length(icols) - length(getConditions(targets)) + 1):length(icols)]
   }else{
     icols                 <- icols[(length(icols) - nrow(targets) + 1):length(icols)]
   }
