@@ -831,7 +831,8 @@ setGeneric( name = "jDUreport",
                             strongFilter                       = TRUE,
                             maxConditionsForDispersionEstimate = 24,
                             formula                            = NULL,
-                            coef                               = NULL
+                            coef                               = NULL,
+                            useSubset                          = FALSE
             ) standardGeneric("jDUreport") )
 
 
@@ -849,12 +850,13 @@ setMethod(
     strongFilter                       = TRUE,
     maxConditionsForDispersionEstimate = 24,
     formula                            = NULL,
-    coef                               = NULL
+    coef                               = NULL,
+    useSubset                          = FALSE
   ) {
     
     .junctionDUreportExt( asd, minAvgCounts, contrast, 
                           filterWithContrasted, runUniformityTest, mergedBams, maxPValForUniformityCheck, strongFilter,
-                          maxConditionsForDispersionEstimate, formula, coef) 
+                          maxConditionsForDispersionEstimate, formula, coef, useSubset) 
   }
 )
 

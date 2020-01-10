@@ -10,7 +10,8 @@
     maxConditionsForDispersionEstimate = 24,
     formula                            = NULL,
     coef                               = NULL,
-    maxFDRForParticipation             = 0.05   
+    maxFDRForParticipation             = 0.05,
+    useSubset                          = FALSE
 
   ){
   
@@ -61,7 +62,7 @@
   data                  <- junctionsPJU(asd)
 
   #Only keep data related to current conditions. AR. AdHoc a borrar.
-  if(FALSE){
+  if(useSubset){
     icols <-  c(1:8, 
                   which(colnames(data) %in% c(targets$condition, 
                                               "StartHit", "EndHit", 
@@ -160,7 +161,7 @@
   
   
   #Only keep data related to current conditions. AR. AdHoc a borrar.
-  if(FALSE){
+  if(useSubset){
     icols <-  which(colnames(data) %in% c(targets$condition, "hitIntron", "hitIntronEvent"))
     columns <- colnames(data)[icols]
     data <- data[, icols]
@@ -260,7 +261,7 @@
   data                  <- irPIR(asd)
 
   #Only keep data related to current conditions. AR. AdHoc a borrar.
-  if(FALSE){
+  if(useSubset){
     icols <-  which(colnames(data) %in% c(targets$condition, "event", "J1", "J2", "J3"))
     columns <- colnames(data)[icols]
     data <- data[, icols]
@@ -347,7 +348,7 @@
   data                  <- esPSI(asd)
   
   #Only keep data related to current conditions. AR. AdHoc a borrar.
-  if(FALSE){
+  if(useSubset){
     icols <-  which(colnames(data) %in% c(targets$condition, "event", "J1", "J2", "J3"))
     columns <- colnames(data)[icols]
     data <- data[, icols]
@@ -424,7 +425,7 @@
   data                  <- altPSI(asd)
   
   #Only keep data related to current conditions. AR. AdHoc a borrar.
-  if(FALSE){
+  if(useSubset){
     icols <-  which(colnames(data) %in% c(targets$condition, "event", "J1", "J2", "J3"))
     columns <- colnames(data)[icols]
     data <- data[, icols]
