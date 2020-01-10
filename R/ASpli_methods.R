@@ -1232,6 +1232,15 @@ setMethod(
       stop("asd must be an ASpliAS object")
     }
     
+    if(nrow(mergedBams) > 4 & makeGraphs == TRUE){
+      continue <- ""
+      while(!continue %in% c("y", "n")){
+        continue <- readline(prompt=paste("Warning, we are about to generate", nrow(mergedBams), "images for every event. This could take too long, do you want to continue? (y/n)"))
+      }
+      if(continue == "n"){
+        return()
+      }
+    }
     filters <- is@filters
     is <- is@signals
     
@@ -1247,6 +1256,7 @@ setMethod(
     }
     
     output.dir <- paste0(output.dir, "/", paste0(names(sr@contrast)[sr@contrast != 0], collapse="-"))
+    output.dir <- substr(output.dir, 1, 255) #maximum dir length is 255
     file.exists( output.dir ) || dir.create( output.dir, recursive = T )
     file.exists( paste0(output.dir, "/img") ) || dir.create( paste0(output.dir, "/img") )
     
@@ -1395,7 +1405,7 @@ setMethod(
     )    
     
     ffile <- paste0(normalizePath(output.dir), "/integratedSignals.html")
-    suppressWarnings(saveWidget(y, file = ffile, title = paste(names(sr@contrast)[sr@contrast != 0], collapse = " - ")))
+    suppressWarnings(saveWidget(y, file = ffile, title = paste(names(sr@contrast)[sr@contrast != 0], collapse = " - "), selfcontained = F))
     if(openInBrowser == T) browseURL(ffile)
     
   }
