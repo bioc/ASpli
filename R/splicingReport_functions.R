@@ -1052,3 +1052,12 @@
   
   return(is)
 }
+
+.meanLogCPMIs <- function(is, counts){
+  y <- countsb(counts)[, getConditions(counts@targets)]
+  y <- apply(cpm(y,log=TRUE),1,mean)
+  y <- data.frame(meanLogCPM = y)
+  f <- cbind(is@signals, meanLogCPM = y[is@signals$bin,])
+  return(f)
+}
+
