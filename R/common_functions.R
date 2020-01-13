@@ -26,6 +26,11 @@
 # create the names of the conditions of a targets by their factors
 .condenseTargetsConditions <- function ( targets, collapse = "_" ) {
   if( ! "condition" %in% colnames( targets ) ) {
+    for(i in 2:ncol(targets)){
+      if(!is.character(targets[, i])){
+        targets[, i] <- as.character(targets[, i])
+      }
+    }
     targets <- data.frame( 
         targets, 
         condition = apply( targets[ , -1 , drop = FALSE] ,1 ,paste, collapse = collapse),

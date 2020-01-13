@@ -64,7 +64,7 @@
   #Only keep data related to current conditions. AR. AdHoc a borrar.
   if(useSubset){
     icols <-  c(1:8, 
-                  which(colnames(data) %in% c(targets$condition, 
+                  which(colnames(data) %in% c(rownames(targets), targets$condition, 
                                               "StartHit", "EndHit", 
                                               paste(targets$condition, rep(c("start", "end"), each=nrow(targets)), sep="."))
                   ))
@@ -80,16 +80,16 @@
   
   junctions_of_interest <- .filterJunctionBySampleWithContrast(data[,start_J3:end_J3], targets=targets, threshold = minAvgCounts, filterWithContrasted, contrast )
   
-  if(nrow(junctions_of_interest) == 0) stop("No junctions to analyze! Is minReadLength less than bam read length? ")
+  if(nrow(junctions_of_interest) == 0) stop("No junctions to analyze! Is minReadLength less than bam read length? Maybe set strongFilter to FALSE? ")
   
   J1                    <- as.character(data$StartHit[rownames(data) %in% rownames(junctions_of_interest)])
   J2                    <- as.character(data$EndHit[rownames(data) %in% rownames(junctions_of_interest)])
   J3                    <- rownames(junctions_of_interest)
   
-  if(length(J1) == 0 | length(J2) == 0 | length(J3) == 0) stop("No junctions to analyze! Is minReadLength less than bam read length?")
+  if(length(J1) == 0 | length(J2) == 0 | length(J3) == 0) stop("No junctions to analyze! Is minReadLength less than bam read length? Maybe set strongFilter to FALSE?")
   clusters              <- .makeClusters(J1, J2, J3, strongFilter)
   
-  if(clusters$no == 0) stop("No junctions to analyze! Is minReadLength less than bam read length?")
+  if(clusters$no == 0) stop("No junctions to analyze! Is minReadLength less than bam read length? Maybe set strongFilter to FALSE?")
   
   countData             <- .makeCountDataWithClusters(data[names(clusters$membership),start_J3:end_J3], clusters)
   
@@ -162,7 +162,7 @@
   
   #Only keep data related to current conditions. AR. AdHoc a borrar.
   if(useSubset){
-    icols <-  which(colnames(data) %in% c(targets$condition, "hitIntron", "hitIntronEvent"))
+    icols <-  which(colnames(data) %in% c(rownames(targets), targets$condition, "hitIntron", "hitIntronEvent"))
     columns <- colnames(data)[icols]
     data <- data[, icols]
     names(data) <- columns
@@ -174,7 +174,7 @@
   
   Js                    <- .makeJunctions(data, targets, start_J1, start_J2, start_J3, minAvgCounts, filterWithContrasted, contrast, strongFilter)
   
-  if(nrow(Js$J3) == 0) stop("No junctions to analyze! Is minReadLength less than bam read length?")
+  if(nrow(Js$J3) == 0) stop("No junctions to analyze! Is minReadLength less than bam read length? Maybe set strongFilter to FALSE?")
   countData             <- .makeCountData(Js$J3, Js$J1, Js$J2)
   
   #We reduce data so dispersion estimates can be computed in a razonable ammount of time
@@ -262,7 +262,7 @@
 
   #Only keep data related to current conditions. AR. AdHoc a borrar.
   if(useSubset){
-    icols <-  which(colnames(data) %in% c(targets$condition, "event", "J1", "J2", "J3"))
+    icols <-  which(colnames(data) %in% c(rownames(targets), targets$condition, "event", "J1", "J2", "J3"))
     columns <- colnames(data)[icols]
     data <- data[, icols]
     names(data) <- columns
@@ -274,7 +274,7 @@
   
   data                  <- data[!is.na(data$J3), ]
   Js                    <- .makeJunctions(data, targets, start_J1, start_J2, start_J3, minAvgCounts, filterWithContrasted, contrast, strongFilter)
-  if(nrow(Js$J3) == 0) stop("No junctions to analyze! Is minReadLength less than bam read length?")
+  if(nrow(Js$J3) == 0) stop("No junctions to analyze! Is minReadLength less than bam read length? Maybe set strongFilter to FALSE?")
   
   countData             <- .makeCountData(Js$J3, Js$J1,  Js$J2)
   
@@ -349,7 +349,7 @@
   
   #Only keep data related to current conditions. AR. AdHoc a borrar.
   if(useSubset){
-    icols <-  which(colnames(data) %in% c(targets$condition, "event", "J1", "J2", "J3"))
+    icols <-  which(colnames(data) %in% c(rownames(targets), targets$condition, "event", "J1", "J2", "J3"))
     columns <- colnames(data)[icols]
     data <- data[, icols]
     names(data) <- columns
@@ -362,7 +362,7 @@
   data                  <- data[!is.na(data$J3), ]
   
   Js                    <- .makeJunctions(data, targets, start_J1, start_J2, start_J3, minAvgCounts, filterWithContrasted, contrast, strongFilter)
-  if(nrow(Js$J3) == 0) stop("No junctions to analyze! Is minReadLength less than bam read length?")
+  if(nrow(Js$J3) == 0) stop("No junctions to analyze! Is minReadLength less than bam read length? Maybe set strongFilter to FALSE?")
   
   countData             <- .makeCountData(Js$J3, Js$J1, Js$J2)
 
@@ -426,7 +426,7 @@
   
   #Only keep data related to current conditions. AR. AdHoc a borrar.
   if(useSubset){
-    icols <-  which(colnames(data) %in% c(targets$condition, "event", "J1", "J2", "J3"))
+    icols <-  which(colnames(data) %in% c(rownames(targets), targets$condition, "event", "J1", "J2", "J3"))
     columns <- colnames(data)[icols]
     data <- data[, icols]
     names(data) <- columns
@@ -439,7 +439,7 @@
   data                  <- data[!is.na(data$J3), ]
   
   Js                    <- .makeJunctions(data, targets, start_J1, start_J2, start_J3, minAvgCounts, filterWithContrasted, contrast, strongFilter, alt = T)
-  if(nrow(Js$J3) == 0) stop("No junctions to analyze! Is minReadLength less than bam read length?")
+  if(nrow(Js$J3) == 0) stop("No junctions to analyze! Is minReadLength less than bam read length? Maybe set strongFilter to FALSE?")
   
   countData             <- .makeCountData(Js$J3, Js$J1 + Js$J2)
   
