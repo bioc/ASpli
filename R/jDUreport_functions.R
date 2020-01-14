@@ -139,15 +139,20 @@
   # the participation and dparticipation cluster values come from the 
   # significant junction (jPSI$FDR<maxFDRForParticipation) presenting maximal participation value inside the cluster
   junturasDeInteres       <- jPSI[jPSI$FDR < maxFDRForParticipation, ]
-  participacion           <- aggregate(participation ~ cluster, junturasDeInteres, FUN = max)
-  delta                   <- aggregate(participation ~ cluster, junturasDeInteres, FUN = which.max)
-  dParticipation          <- c()
-  for(i in 1:nrow(delta)){
-    dParticipation <- c(dParticipation, junturasDeInteres[junturasDeInteres$cluster == delta$cluster[i], ][delta$participation[i], "dParticipation"])
+  if(nrow(junturasDeInteres) > 0){
+    participacion           <- aggregate(participation ~ cluster, junturasDeInteres, FUN = max)
+    delta                   <- aggregate(participation ~ cluster, junturasDeInteres, FUN = which.max)
+    dParticipation          <- c()
+    for(i in 1:nrow(delta)){
+      dParticipation <- c(dParticipation, junturasDeInteres[junturasDeInteres$cluster == delta$cluster[i], ][delta$participation[i], "dParticipation"])
+    }
+    names(dParticipation)   <- rownames(participacion) <- participacion[, 1]
+    ltsp$participation      <- participacion[rownames(ltsp), 2] #llena con NA las participaciones que no estan
+    ltsp$dParticipation     <- dParticipation[rownames(ltsp)] #llena con NA las participaciones que no estan
+  }else{
+    ltsp$participation      <- NA #llena con NA las participaciones que no estan
+    ltsp$dParticipation     <- NA #llena con NA las participaciones que no estan
   }
-  names(dParticipation)   <- rownames(participacion) <- participacion[, 1]
-  ltsp$participation      <- participacion[rownames(ltsp), 2] #llena con NA las participaciones que no estan
-  ltsp$dParticipation     <- dParticipation[rownames(ltsp)] #llena con NA las participaciones que no estan
   ltsp$size               <- as.numeric(table(jPSI$cluster)[rownames(ltsp)])
   ltsp                    <- ltsp[, c("size", "cluster.LR", "cluster.pvalue", "cluster.fdr", "range", "participation", "dParticipation")]
   colnames(ltsp)          <- c("size", "cluster.LR", "pvalue", "FDR", "range", "participation", "dParticipation")

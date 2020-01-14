@@ -852,7 +852,7 @@ setMethod(
     maxConditionsForDispersionEstimate = 24,
     formula                            = NULL,
     coef                               = NULL,
-    maxFDRForParticipation             = 0.05,
+    maxFDRForParticipation             = 0.2,
     useSubset                          = FALSE
   ) {
     
