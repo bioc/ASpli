@@ -443,7 +443,7 @@
 # con b, solamente de coverage, aparece con b y jl. Las junturas que aparecen reportadas al final son las que aparecen en el bin en caso
 # de tratarse de una region meramente "binica" o son la region en caso de venir de ja o jl.
 #bin.FC = 3; bin.fdr = 0.05; nonunif = 1; usenonunif = FALSE; bin.inclussion = 0.1; bjs.inclussion = 0.2; bjs.fdr = 0.1; a.inclussion = 0.3; a.fdr = 0.05; l.inclussion = 0.3; l.fdr = 0.05; otherSources = NULL; overlapType = "any"
-#bin.FC = 3;bin.fdr = 0.05;nonunif = 1;usenonunif = FALSE;bin.inclussion = 0.1;bjs.inclussion = 0.2;bjs.fdr = 0.1;a.inclussion = 0.3;a.fdr = 0.05;l.inclussion = 0.3;l.fdr = 0.05;otherSources = NULL;overlapType = "any"
+#bin.FC = 3;bin.fdr = 0.05;nonunif = 1;usenonunif = FALSE;bin.inclussion = 0.1;bjs.inclussion = 10.2;bjs.fdr = 10.1;a.inclussion = 0.3;a.fdr = 0.05;l.inclussion = 0.3;l.fdr = 0.05;otherSources = NULL;overlapType = "any"
 .integrateSignals<-function(sr,
                             asd,
                             bin.FC,
@@ -928,17 +928,37 @@
               
               #Vemos que tipo de bines atraviezan las junturas. Si son todos del mismo tipo, es alt
               hits        <- data.frame(findOverlaps(rango, rango_bines))
-              if(length(table(bines$feature[hits$subjectHits])) == 1){
+              #if(length(table(bines$feature[hits$subjectHits])) == 1){
+              tt <- table(bines$feature[hits$subjectHits])
+              tt <- tt[names(tt)!="Io"]
+              if(length(tt) == 1){
                 aa$bin.event[b] <- "Alt 5'/3'"
               }else{
                 #Vemos si se trata de un intron alt
                 hits        <- data.frame(findOverlaps(rango_intron, rango_bines))
-                if(length(table(bines$feature[hits$subjectHits])) == 1){
+                tt <- table(bines$feature[hits$subjectHits])
+                tt <- tt[names(tt)!="Io"]
+                if(length(tt) == 1){
                   aa$bin.event[b] <- "Alt 5'/3'"
                 }else{ #No parece ser alt, es complejo entonces
                   aa$bin.event[b] <- "CSP"
                 }
               }
+              
+              #Vemos si el evento es alternativo y si podemos encontrar el bin asociado a este evento
+              if(aa$bin.event[b]=="Alt 5'/3'"){
+                fo <- data.frame(findOverlaps(rango_intron,rango_bines,type = "equal"))
+                if(nrow(fo)==1){
+                  rbin <-  data.frame(rango_bines[fo$subjectHits])
+                  region_bin <- paste0(rbin[1, 1], ":", rbin[, 2], "-", rbin[, 3])
+                  j <- which(as.character(aa$region)== region_bin)
+                  if(length(j) > 0){ #Lo encontramos, sacamos directamente esta fila porque coincide con la que ya existe y tiene mas datos.
+                    elementos_a_eliminar <- c(elementos_a_eliminar, b)
+                    aa[j[1], c("jl", "l.lr", "l.fdr", "l.participation", "l.dparticipation")] <- aa[b, c("jl", "l.lr", "l.fdr", "l.participation", "l.dparticipation")] 
+                  }
+                  
+                } 
+              }  
             }else{
               #Vemos si es ES
               if(nrow(junturas) == 3){
