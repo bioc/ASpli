@@ -37,19 +37,29 @@ An object of class ASpliCounts.
 
 \value{ 
 An object of class ASpliAS. 
+
 \item{irPIR}{
   Reports event, e1i counts (J1), ie1 counts (J2), j_within (J3), PIR by 
   condition. J1, J2, J3 sum of junctions (J1, J2, J3) by condition. 
+  In irPIR(jcounts) data.frame, all the columns from J1 to J2 represent the J1 counts in the different samples for each bin. From J2 to J3, the J2 counts and from J3 to the first condition, the J3 counts. The last columns are the PIR metrics calculated for each condition. The PIR metric is calculated as:  
+  \deqn{ PIR = \frac{J1 + J2}{J1 + J2 + 2*J3}}{PIR = (J1 + J2)/(J1 + J2 + 2*J3) }
+  Where the junctions are the sum by condition.
 }
 
 \item{altPSI}{ 
   Reports event, J1 (start), J2 (end), J3 (exclusion), PSI. J1, J2, J3 sum of 
   junctions (J1, J2, J3) by condition. 
+  In esPSI(jcounts) data.frame, all the columns from J1 to J2 represent the J1 counts in the different samples for each bin. From J2 to J3, the J2 counts and from J3 to the first condition, the J3 counts. The last columns are the PSI metrics calculated for each condition. The PSI metric is calculated as:  
+  \deqn{ PSI = \frac{J12}{J12 + J3}}{PSI = (J12)/(J12 + J3) }  
+  Where J12 is J1 if it's an alt 5' event or J2 if it's an alt 3' event and the junctions are the sum by condition.
 }
 
 \item{esPSI}{ 
   Reports event, J1 (start), J2 (end), J3 (exclusion), PSI. J1, J2,
   J3 sum of junctions (J1, J2, J3) by condition. 
+  In esPSI(jcounts) data.frame, all the columns from J1 to J2 represent the J1 counts in the different samples for each bin. From J2 to J3, the J2 counts and from J3 to the first condition, the J3 counts. The last columns are the PSI metrics calculated for each condition. The PSI metric is calculated as:  
+  \deqn{ PSI = \frac{J1 + J2}{J1 + J2 + 2*J3}}{PSI = (J1 + J2)/(J1 + J2 + 2*J3) }  
+  Where the junctions are the sum by condition.  
 }
 
 \item{junctionsPIR}{
@@ -58,12 +68,17 @@ An object of class ASpliAS.
   well as new retention events.
   Reports hitIntron, hitIntronEvent, e1i counts (J1), ie1 counts (J2), j_within (J3), PIR by 
   condition.
+  In junctionsPIR(jcounts) data.frame, all the columns hitIntronEvent up to the first repetition of the samples names in the columns, represent the J1 counts in the different samples for each region. From there to the next time the names of the columns repeat themselves, the J2 counts and from there to the first condition, the J3 counts. The last columns are the PIR metrics calculated for each condition. The PIR metric is calculated as:  
+  \deqn{ PIR = \frac{J1 + J2}{J1 + J2 + 2*J3}}{PIR = (J1 + J2)/(J1 + J2 + 2*J3) }  
+  Where the junctions are the sum by condition.   
 }
 
 \item{junctionsPJU}{
   Given a junction, it is possible to analyze if it shares start, end or both 
   with another junction. If so, it is because there is alternative splicing.
   Reports for every junction, junction information (junction, gene, strand, multipleHit, symbol, gene_coordinates, bin_spanned, j_within_bin), StartHit with all the junctions sharing the start with this junction, $PJU_{J1}=J3/(J1+ J3)$ for each condition, EndHit with all the junctions sharing the end with this junction and $PJU_{J2}=J3/(J2+ J3)$ for each condition. 
+  All the columns between j_within_bin and StartHit are the counts for J3 in the different samples for each region. From there to EndHit, the J1 counts and $PJU_{J1}=J3/(J1+ J3)$ for each condition. Then after EndHit, the J2 counts and $PJU_{J2}=J3/(J2+ J3)$.
+  Rownames are J3 range. StartHit is J1 range and EndHit is J2 range.
 }
 
 }
@@ -85,26 +100,30 @@ An object of class ASpliAS.
   # Define bam files, sample names and experimental factors for targets.
   bamFileNames <- c( "A_C_0.bam", "A_C_1.bam", "A_C_2.bam", 
                      "A_D_0.bam", "A_D_1.bam", "A_D_2.bam" )
+
   targets <- data.frame( 
                row.names = paste0('Sample_',c(1:6)),
                bam = system.file( 'extdata', bamFileNames, package="ASpli" ),
-               factor1 = c( 'C','C','C','D','D','D') )
+               factor1 = c( 'C','C','C','D','D','D'),
+               subject = c(0, 1, 2, 0, 1, 2))
   
   # Read counts from bam files
-  counts   <- readCounts( features = features, targets = targets, minReadLength = 100, maxISize = 50000 )
+  gbcounts  <- readCounts( features = features, targets = targets, minReadLength = 100, maxISize = 50000 )
+  jcounts   <- jCounts(counts = gbcounts, features = features, minReadLength = 100)
   
   # Access summary and gene and bin counts and display them
-  counts
-  countsg(counts)
-  countsb(counts)
-
-  # Calculate PSI / PIR for bins and junction.
-  junctionCounts <- jCounts(counts = counts, features = features, minReadLength = 100)
-
-  # Access summary and bin and junction counts and metrics and display them
-  junctionCounts
-  irPIR(junctionCounts)
-  junctionsPJU(junctionCounts)
+  gbcounts
+  countsg(gbcounts)
+  countsb(gbcounts)
+  
+  # Access summary and junction counts and display them
+  jcounts
+  irPIR(jcounts)
+  esPSI(jcounts)
+  altPSI(jcounts)
+  junctionsPIR(jcounts)
+  junctionsPJU(jcounts)
+  
   
   # Export data
   writeAS( as = junctionCounts, output.dir = "only_as" )

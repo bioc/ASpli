@@ -225,11 +225,11 @@
   
   #dPIR estimation
   icols                 <- which(colnames(data) %in% getConditions(targets))
-  if(is.null(formula)){
-    icols                 <- icols[(length(icols) - length(getConditions(targets)) + 1):length(icols)]
-  }else{
-    icols                 <- icols[(length(icols) - nrow(targets) + 1):length(icols)]
-  }
+  #if(is.null(formula)){
+  icols                 <- icols[(length(icols) - length(getConditions(targets)) + 1):length(icols)]
+  #}else{
+  #  icols                 <- icols[(length(icols) - nrow(targets) + 1):length(icols)]
+  #}
   
   dpir      <- data[rownames(jPIR), icols]
   jPIR$dPIR <- apply(dpir,1,function(x){
@@ -313,11 +313,11 @@
   jirPIR                <- jirPIR[, c("J3", "logFC", "log.mean", "pvalue", "bin.fdr", "bin.LR", "NonUniformity")]
   
   icols                 <- which(colnames(irPIR(asd)) %in% getConditions(targets))
-  if(is.null(formula)){
-    icols                 <- icols[(length(icols) - length(getConditions(targets)) + 1):length(icols)]
-  }else{
-    icols                 <- icols[(length(icols) - nrow(targets) + 1):length(icols)]
-  }
+  #if(is.null(formula)){
+  icols                 <- icols[(length(icols) - length(getConditions(targets)) + 1):length(icols)]
+  #}else{
+  #  icols                 <- icols[(length(icols) - nrow(targets) + 1):length(icols)]
+  #}
   
   dpir                  <- irPIR(asd)[rownames(jirPIR), icols]
   jirPIR$dPIR           <- apply(dpir,1,function(x){
@@ -389,11 +389,11 @@
   jesPSI                <- jesPSI[, c("event", "J3", "logFC", "log.mean", "pvalue", "bin.fdr", "bin.LR")]
   
   icols                 <- which(colnames(esPSI(asd)) %in% getConditions(targets))
-  if(is.null(formula)){
-    icols                 <- icols[(length(icols) - length(getConditions(targets)) + 1):length(icols)]
-  }else{
-    icols                 <- icols[(length(icols) - nrow(targets) + 1):length(icols)]
-  }
+  #if(is.null(formula)){
+  icols                 <- icols[(length(icols) - length(getConditions(targets)) + 1):length(icols)]
+  #}else{
+  #  icols                 <- icols[(length(icols) - nrow(targets) + 1):length(icols)]
+  #}
   dpsi                  <- esPSI(asd)[rownames(jesPSI), icols]
 
   #clipedContrast <- contrast
@@ -464,11 +464,11 @@
   jaltPSI               <- jaltPSI[, c("event", "J3", "logFC", "log.mean", "pvalue", "bin.fdr", "bin.LR")]
   
   icols                 <- which(colnames(altPSI(asd)) %in% getConditions(targets))
-  if(is.null(formula)){
-    icols                 <- icols[(length(icols) - length(getConditions(targets)) + 1):length(icols)]
-  }else{
-    icols                 <- icols[(length(icols) - nrow(targets) + 1):length(icols)]
-  }
+  #if(is.null(formula)){
+  icols                 <- icols[(length(icols) - length(getConditions(targets)) + 1):length(icols)]
+  #}else{
+  #  icols                 <- icols[(length(icols) - nrow(targets) + 1):length(icols)]
+  #}
   
   dpsi                  <- altPSI(asd)[rownames(jaltPSI), icols]
   jaltPSI$dPSI          <- apply(dpsi,1,function(x){

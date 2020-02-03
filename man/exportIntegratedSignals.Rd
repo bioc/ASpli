@@ -36,7 +36,9 @@ exportIntegratedSignals( is, output.dir="is",
     An object of class \code{ASpliAS}
   }  
   \item{output.dir}{HTML reports output directory}
-  \item{mergedBams}{Dataframe with path to merged bams for each condition }
+  \item{mergedBams}{
+    Dataframe with two columns, bams and conditions. Bams are paths to merged bams for each condition to be ploted. 
+  }
   \item{jCompletelyIncluded}{If TRUE only plot junctions completely included in plot region. Else plot any overlapping junction in the region}
   \item{zoomRegion}{ Magnify plot region by this factor}
   \item{useLog}{Plot counts log}
@@ -51,24 +53,47 @@ exportIntegratedSignals( is, output.dir="is",
   Produces html reports
 }
 \author{
-  Estefania Mancini, Andres Rabinovich, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz
+  Andres Rabinovich, Estefania Mancini, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz
 }
 
 \examples{
-  ##Calculates junction differential usage from junction counts 
-  #j           <- jDUreport(asd, contrast, mergedBams = mergedBams)
+  # Create a transcript DB from gff/gtf annotation file.
+  # Warnings in this examples can be ignored. 
+  library(GenomicFeatures)
+  genomeTxDb <- makeTxDbFromGFF( system.file('extdata','genes.mini.gtf', 
+                                 package="ASpli") )
   
-  ##Calculates bin differential usage from bin counts 
-  #gb          <- gbDUreport(counts, contrast)
+  # Create an ASpliFeatures object from TxDb
+  features <- binGenome( genomeTxDb )
   
-  ##Generate splicig reports from different sources
-  #sr          <- splicingReport(gb, j, counts)
+  # Define bam files, sample names and experimental factors for targets.
+  bamFileNames <- c( "A_C_0.bam", "A_C_1.bam", "A_C_2.bam", 
+                     "A_D_0.bam", "A_D_1.bam", "A_D_2.bam" )
+
+  targets <- data.frame( 
+               row.names = paste0('Sample_',c(1:6)),
+               bam = system.file( 'extdata', bamFileNames, package="ASpli" ),
+               factor1 = c( 'C','C','C','D','D','D'))
   
-  ##Integrate signals
-  #is          <- integrateSignals(sr, asd)
+  # Read counts from bam files
+  gbcounts  <- readCounts( features = features, targets = targets, minReadLength = 100, maxISize = 50000 )
+  jcounts   <- jCounts(counts = gbcounts, features = features, minReadLength = 100)
   
-  ##Export integrated signals
-  #exportIntegratedSignals(is, output.dir = "is", sr, counts, features, mergedBams)
+  # Test for factor1
+  gbPaired <- gbDUreport(gbcounts, contrast = c(1, -1))
+  jPaired  <- jDUreport(jcounts, , contrast = c(1, -1))
+  
+  # Generate a splicing report merging bins and junctions DU
+  sr       <- splicingReport(gbPaired, jPaired, gbcounts)
+  is       <- integrateSignals(sr, jcounts)
+  
+  #Make merged bams dataframe
+  mergedBamsFileNames <- c( "A_C.bam", "A_D.bam" )
+  mergedBams <- data.frame(bams = system.file( 'extdata', mergedBamsFileNames, package="ASpli" ), 
+                           condition = c("C", "D"), stringsAsFactors = F)
+  
+  # Export integrated signals
+  exportIntegratedSignals(is, output.dir = "is", sr, gbcounts, features, jcounts, mergedBams, openInBrowser = T, makeGraphs = T, bforce = T )
   
 }
 

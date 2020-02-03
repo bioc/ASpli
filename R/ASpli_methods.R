@@ -1323,7 +1323,7 @@ setMethod(
           setTxtProgressBar(pb,i)
           tryCatch({
             if(bforce | !file.exists(paste0(normalizePath(output.dir), "/img/", r, "_gene.png"))){
-              png(width = 1400, height=700, filename = paste0(normalizePath(output.dir), "/img/", r, "_gene.png"))
+              png(width = 1400, height=700, filename = paste0(normalizePath(output.dir), "/img/", gsub("-", "_", gsub(":", "_", r)), "_gene.png"))
               .plotSplicingPattern(r, is, counts, features, mergedBams, sr, asd, genePlot = TRUE, jCompletelyIncluded, zoomRegion, useLog, tcex)
               dev.off()
         #      png(width = 1400, height=700, filename = paste0(normalizePath(output.dir), "/img/", r, ".png"))
@@ -1392,7 +1392,7 @@ setMethod(
             table.order([10, 'asc']).draw();
             table.column(0).nodes().to$().css({cursor: 'pointer'});
             var format = function(d) {
-             return '<div><h4>Gene view</h4></br><img src=\"img/' + d[1] + '_gene.png\" height=\"700\"></img></div>';
+             return '<div><h4>Gene view</h4></br><img src=\"img/' + d[1].replace(\":\", \"_\").replace(\"-\", \"_\") + '_gene.png\" height=\"700\"></img></div>';
             };
             table.on('click', 'td.details-control', function() {
                var td = $(this), row = table.row(td.closest('tr'));
