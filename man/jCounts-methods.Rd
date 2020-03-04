@@ -4,16 +4,15 @@
 
 \title{ Report PSI, PJU and PIR using experimental junctions }
 
-\description{ Given a bin, it is possible to calculate PSI/PIR metrics using 
-              junctions to estimate changes in the bin usage along different conditions. 
-              PSI or PIR metrics are calculated for each bin and experimental condition. The 
-              selection of which metric is used is based on the kind of splicing event 
+\description{ Summarize read overlaps against junctions.
+              Report PSI, PJU, PIR and counts for experimental junctions.
+              PSI or PIR metrics are calculated for each bin and experimental condition.
+              The selection of which metric is used is based on the kind of splicing event 
               associated with each bin. 
 }
  
 \usage{ 
- jCounts( counts, features, bam = NULL, minReadLength, threshold
-                 = 5, cores = 1, minAnchor = 10 )
+ jCounts( counts, features, bam = NULL, minReadLength, threshold = 5, cores = 1, minAnchor = 10 )
 }
 \arguments{
 \item{counts}{
@@ -36,48 +35,75 @@ An object of class ASpliCounts.
 }
 
 \value{ 
-An object of class ASpliAS. 
+An object of class ASpliAS.
+Accesors: irPIR, esPSI, altPSI, junctionsPIR, junctionsPJU
 
 \item{irPIR}{
-  Reports event, e1i counts (J1), ie1 counts (J2), j_within (J3), PIR by 
-  condition. J1, J2, J3 sum of junctions (J1, J2, J3) by condition. 
-  In irPIR(jcounts) data.frame, all the columns from J1 to J2 represent the J1 counts in the different samples for each bin. From J2 to J3, the J2 counts and from J3 to the first condition, the J3 counts. The last columns are the PIR metrics calculated for each condition. The PIR metric is calculated as:  
+event: Type of event asigned by ASpli when bining.
+J1: Semicolon separated list of all the junctions with an end matching the start of the intron.
+J2: Semicolon separated list of all the junctions with an end matching the end of the intron.
+J3: Semicolon separated list of all the junctions overlaping the intron.
+All the columns from J1 to J2 represent the J1 counts in the different samples for each bin. The counts are the sum of all the J1 junctions.
+All the columns from J2 to J3 represent the J2 counts in the different samples for each bin. The counts are the sum of all the J2 junctions.
+All the columns from J3 to the first condition represent the J3 counts in the different samples for each bin. The counts are the sum of all the J3 junctions.
+The last columns are the PIR metrics calculated for each condition. The PIR metric is calculated as:  
   \deqn{ PIR = \frac{J1 + J2}{J1 + J2 + 2*J3}}{PIR = (J1 + J2)/(J1 + J2 + 2*J3) }
   Where the junctions are the sum by condition.
 }
 
 \item{altPSI}{ 
-  Reports event, J1 (start), J2 (end), J3 (exclusion), PSI. J1, J2, J3 sum of 
-  junctions (J1, J2, J3) by condition. 
-  In esPSI(jcounts) data.frame, all the columns from J1 to J2 represent the J1 counts in the different samples for each bin. From J2 to J3, the J2 counts and from J3 to the first condition, the J3 counts. The last columns are the PSI metrics calculated for each condition. The PSI metric is calculated as:  
+event: Type of event asigned by ASpli when bining.
+J1(J2): Semicolon separated list of all the junctions with an end matching the end of alt5'SS(alt3'SS).
+J3: Semicolon separated list of all the junctions with an end matching the start of alt5'SS or the start of alt3'SS.
+All the columns from J1 to J2 represent the J1 counts in the different samples for each bin. The counts are the sum of all the J1 junctions.
+All the columns from J2 to J3 represent the J2 counts in the different samples for each bin. The counts are the sum of all the J2 junctions.
+All the columns from J3 to the first condition represent the J3 counts in the different samples for each bin. The counts are the sum of all the J3 junctions.
+The last columns are the PSI metrics calculated for each condition. The PSI metric is calculated as:  
   \deqn{ PSI = \frac{J12}{J12 + J3}}{PSI = (J12)/(J12 + J3) }  
   Where J12 is J1 if it's an alt 5' event or J2 if it's an alt 3' event and the junctions are the sum by condition.
 }
 
 \item{esPSI}{ 
-  Reports event, J1 (start), J2 (end), J3 (exclusion), PSI. J1, J2,
-  J3 sum of junctions (J1, J2, J3) by condition. 
-  In esPSI(jcounts) data.frame, all the columns from J1 to J2 represent the J1 counts in the different samples for each bin. From J2 to J3, the J2 counts and from J3 to the first condition, the J3 counts. The last columns are the PSI metrics calculated for each condition. The PSI metric is calculated as:  
+event: Type of event asigned by ASpli when bining
+J1: Semicolon separated list of all the junctions with an end on the alternative exon.
+J2: Semicolon separated list of all the junctions with an end on the alternative exon.
+J3: Semicolon separated list of all the junctions overlaping the alternative exon.
+All the columns from J1 to J2 represent the J1 counts in the different samples for each bin. The counts are the sum of all the J1 junctions.
+All the columns from J2 to J3 represent the J2 counts in the different samples for each bin. The counts are the sum of all the J2 junctions.
+All the columns from J3 to the first condition represent the J3 counts in the different samples for each bin. The counts are the sum of all the J3 junctions.
+The PSI metric is calculated as:  
   \deqn{ PSI = \frac{J1 + J2}{J1 + J2 + 2*J3}}{PSI = (J1 + J2)/(J1 + J2 + 2*J3) }  
   Where the junctions are the sum by condition.  
 }
 
 \item{junctionsPIR}{
-  PIR metric for each experimental junction using e1i and ie2 counts. Exclusion 
-  junction is the junction itself. This output helps to discover new introns as 
-  well as new retention events.
-  Reports hitIntron, hitIntronEvent, e1i counts (J1), ie1 counts (J2), j_within (J3), PIR by 
-  condition.
-  In junctionsPIR(jcounts) data.frame, all the columns hitIntronEvent up to the first repetition of the samples names in the columns, represent the J1 counts in the different samples for each region. From there to the next time the names of the columns repeat themselves, the J2 counts and from there to the first condition, the J3 counts. The last columns are the PIR metrics calculated for each condition. The PIR metric is calculated as:  
+PIR metric for each experimental junction using e1i and ie2 counts. Exclusion 
+junction is the junction itself. This output helps to discover new introns as 
+well as new retention events.
+hitIntron: If the junction matches a bin, the bin is shown here. 
+hitIntronEvent: If the junction matches a bin, the type of event asigned by ASpli to this bin.
+All the columns from hitIntronEvent up to the first repetition of the samples names in the columns, represent the J1 counts in the different samples for each region. 
+From there to the next time the names of the columns repeat themselves, the J2 counts and from there to the first condition, the J3 counts. 
+The last columns are the PIR metrics calculated for each condition. The PIR metric is calculated as:  
   \deqn{ PIR = \frac{J1 + J2}{J1 + J2 + 2*J3}}{PIR = (J1 + J2)/(J1 + J2 + 2*J3) }  
   Where the junctions are the sum by condition.   
 }
 
 \item{junctionsPJU}{
-  Given a junction, it is possible to analyze if it shares start, end or both 
-  with another junction. If so, it is because there is alternative splicing.
-  Reports for every junction, junction information (junction, gene, strand, multipleHit, symbol, gene_coordinates, bin_spanned, j_within_bin), StartHit with all the junctions sharing the start with this junction, $PJU_{J1}=J3/(J1+ J3)$ for each condition, EndHit with all the junctions sharing the end with this junction and $PJU_{J2}=J3/(J2+ J3)$ for each condition. 
-  All the columns between j_within_bin and StartHit are the counts for J3 in the different samples for each region. From there to EndHit, the J1 counts and $PJU_{J1}=J3/(J1+ J3)$ for each condition. Then after EndHit, the J2 counts and $PJU_{J2}=J3/(J2+ J3)$.
+  Given a junction, it is possible to analyze if it shares start, end or both with another junction. If so, it is because there is alternative splicing. 
+  Junction: name of the junction.
+  gene: gene it belongs to.
+  strand: gene strand.
+  multipleHit: if other gene overlaps the gene the junction belongs to.
+  symbol: gene symbol.
+  gene_coordinates: gene coordinates.
+  bin_spanned: semicolon separated list of all the bins spaned by this junction.
+  j_within_bin: other junctions in the bins.
+  StartHit: all the junctions sharing the start with this junction and $PJU_{J1}=J3/(J1+ J3)$ for each condition, 
+  EndHit: all the junctions sharing the end with this junction and $PJU_{J2}=J3/(J2+ J3)$ for each condition. 
+  All the columns between j_within_bin and StartHit are the counts for J3 in the different samples for each region. 
+  From there to EndHit, the J1 counts and $PJU_{J1}=J3/(J1+ J3)$ for each condition. 
+  Then after EndHit, the J2 counts and $PJU_{J2}=J3/(J2+ J3)$.
   Rownames are J3 range. StartHit is J1 range and EndHit is J2 range.
 }
 

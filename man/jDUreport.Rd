@@ -38,6 +38,7 @@
     Minimum average counts for filtering.
   }  
   \item{contrast}{
+  
     Define the comparison between conditions to be tested.
     \code{contrast} should be a vector with length equal to the number of 
     experimental conditions defined by \code{targets}. The values of this vector
@@ -88,12 +89,99 @@
 
 \value{ 
   An \code{ASpliJDU} object with results of differential usage at \code{junctions} level.
+  \item{localec}{
+  size: number of junctions belonging to the cluster.
+  cluster.LR: likelihood ratio of cluster differential usage.
+  pvalue: pvalue of cluster differential usage.
+  FDR: fdr of cluster differential usage.
+  range: cluster location.
+  participation: participation of the significant junction (FDR < maxFDRForParticipation) presenting maximal participation value inside the cluster
+  dParticipation: delta participation of the significant junction (FDR < maxFDRForParticipation) presenting maximal participation value inside the cluster 
+  }
+  \item{localej}{
+  cluster: name of the cluster the junction belongs to
+  log.mean: log of mean counts accross all conditions for this junction
+  logFC: log fold change of junction accross conditions
+  pvalue: pvalue of junction
+  FDR: FDR of junction
+  annotated: is junction annotated or new
+  participation: the maximal participation value observed across contrasted condictions
+  dParticipation: delta participation of the maximal participation value observed across contrasted condictions
+  From dParticipation to the end, junction counts for all samples
+  }  
+  \item{anchorc}{
+  cluster.LR: likelihood ratio of cluster differential usage.
+  pvalue: pvalue of cluster differential usage.
+  FDR: fdr of cluster differential usage.
+  }   
+  \item{anchorj}{
+  log.mean: log of mean counts accross all conditions for this junction
+  logFC: log fold change of junction accross conditions
+  LR: likelihood ratio of junction differential usage.
+  pvalue: pvalue of junction
+  FDR: FDR of junction
+  J1.pvalue: pvalue of J1 junction
+  J2.pvalue: pvalue of J2 junction
+  NonUniformity: if non uniformity test was performed, numbers closer to zero mean uniformity and closer to one mean non uniformity
+  dPIR: junction delta PIR
+  annotated: is junction annotated or new
+  From annotated to the end, junction counts for all samples
+  }   
+  \item{jir}{
+  J3: J3 junction/s
+  logFC: log fold change of junction accross conditions
+  log.mean: log of mean counts accross all conditions for this junction
+  pvalue: pvalue of junction
+  FDR: FDR of junction
+  LR: likelihood ratio of junction differential usage.  
+  NonUniformity: if non uniformity test was performed, numbers closer to zero mean uniformity and closer to one mean non uniformity
+  dPIR: junction delta PIR
+  multiplicity: do multiple junctions cross the region
+  From multiplicity to the end, junction counts for all samples
+  }      
+  \item{jes}{
+  event: type of event
+  J3: J3 junction/s
+  logFC: log fold change of junction accross conditions
+  log.mean: log of mean counts accross all conditions for this junction
+  pvalue: pvalue of junction
+  FDR: FDR of junction
+  LR: likelihood ratio of junction differential usage.  
+  dPSI: junction delta PSI
+  multiplicity: do multiple junctions cross the region
+  From multiplicity to the end, junction counts for all samples
+  }      
+  \item{jalt}{
+  event: type of event
+  J3: J3 junction/s
+  logFC: log fold change of junction accross conditions
+  log.mean: log of mean counts accross all conditions for this junction
+  pvalue: pvalue of junction
+  FDR: FDR of junction
+  LR: likelihood ratio of junction differential usage.  
+  dPSI: junction delta PSI
+  multiplicity: do multiple junctions cross the region
+  From multiplicity to the end, junction counts for all samples
+  }      
+  \item{contrast}{
+  Conditions contrasted by ASpli
+  }
 }
 
 \author{
   Estefania Mancini, Andres Rabinovich, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz
 }
 
+\seealso{
+  Accesors: \code{\link{localec}}, 
+            \code{\link{localej}},
+            \code{\link{anchorc}},
+            \code{\link{anchorj}},
+            \code{\link{jir}},
+            \code{\link{jes}},
+            \code{\link{jalt}},
+  Export:   \code{\link{writeJDU}}
+  
 \examples{
   
   # Create a transcript DB from gff/gtf annotation file.

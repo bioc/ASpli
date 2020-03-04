@@ -42,7 +42,86 @@
   An object of class ASpliCounts. Each slot is a dataframe containing features 
   metadata and read counts. Summarization is reported at gene, bin, junction 
   and intron flanking regions (E1I, IE2).
-
+  \item{countsg}{
+  symbol: gene symbol
+  locus_overlap: other genes overlaping this locus
+  gene_coordinates: gene coordinates
+  start: gene start
+  end: gene end
+  length: gene length
+  effective_length: gene effective lengh
+  From effective_length to the end, gene counts for all samples
+  }
+  \item{countsb}{
+  feature: bin type
+  event: type of event asigned by ASpli when bining.
+  locus: gene locus
+  locus_overlap: genes overlaping the same locus
+  symbol: gene symbol
+  gene_coordinates: gene coordinates
+  start: bin start
+  end: bin end
+  length: bin length
+  From length to the end, bin counts for all samples
+  }  
+  \item{countsj}{
+  junction: annotated junction matching the current junction.
+  gene: gene matching the current junction.
+  strand: gene strand for the current junction in case a gene matches with the junction.
+  multipleHit: semicolon separated list of junctions matching the current junction.
+  symbol: gene symbol.
+  gene_coordinates: gene coordinates.
+  bin_spanned: semicolon separated list of all the bins spaned by this junction.
+  j_within_bin: other junctions in the bins.
+  From j_within_bin to the end, junction counts for all samples.
+  }   
+  \item{countse1i}{
+  event: type of event asigned by ASpli when bining.
+  locus: gene locus
+  locus_overlap: genes overlaping the same locus
+  symbol: gene symbol
+  gene_coordinates: gene coordinates
+  start: bin start
+  end: bin end
+  length: bin length
+  From length to the end, bin counts for all samples
+  }   
+  \item{countsie2}{
+  event: type of event asigned by ASpli when bining.
+  locus: gene locus
+  locus_overlap: genes overlaping the same locus
+  symbol: gene symbol
+  gene_coordinates: gene coordinates
+  start: bin start
+  end: bin end
+  length: bin length
+  From length to the end, bin counts for all samples
+  }      
+  \item{rdsg}{
+  symbol: gene symbol
+  locus_overlap: other genes overlaping this locus
+  gene_coordinates: gene coordinates
+  start: gene start
+  end: gene end
+  length: gene length
+  effective_length: gene effective lengh
+  From effective_length to the end, gene counts/effective_length for all samples
+  }
+  \item{countsb}{
+  feature: bin type
+  event: type of event asigned by ASpli when bining.
+  locus: gene locus
+  locus_overlap: genes overlaping the same locus
+  symbol: gene symbol
+  gene_coordinates: gene coordinates
+  start: bin start
+  end: bin end
+  length: bin length
+  From length to the end, bin counts/length for all samples
+  }    
+  \item{condition.order}{
+    The order in which ASpli is reading the conditions. This is useful for contrast tests, in order to make sure which conditions are being contrasted.
+  }
 }
 \author{
   Estefania Mancini, Andres Rabinovich, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz 

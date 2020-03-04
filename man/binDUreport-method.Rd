@@ -7,9 +7,7 @@
 }
 \description{
   Estimate differential expression at gene level and differential usage at bin 
-  level using diffSpliceDGE function from edgeR package. This is an alternative
-  approach to DUreport. The results at gene level are the same as the results
-  from DUreport. The results at bin level are slightly different.    
+  level using diffSpliceDGE function from edgeR package.  
 }
 
 \usage{
@@ -96,6 +94,34 @@
 
 \value{ 
   An ASpliDU object with results at \code{genes}, \code{bins} level.
+  \item{genesDE}{
+  symbol: gene symbol
+  locus_overlap: genes overlaping the same locus
+  gene_coordinates: gene coordinates
+  start: gene start
+  end: gene end
+  length: gene length
+  effective_length: gene effective length
+  logFC: gene log2 fold change between conditions
+  pvalue: p-value 
+  gen.fdr: fdr corrected p-value for multiple testing
+  }
+  \item{binsDU}{
+  feature: bin type
+  event: type of event asigned by ASpli when bining.
+  locus: gene locus
+  locus_overlap: genes overlaping the same locus
+  symbol: gene symbol
+  gene_coordinates: gene coordinates
+  start: bin start
+  end: bin end
+  length: bin length
+  logFC: bin log2 fold change between conditions
+  pvalue: p-value 
+  bin.fdr: fdr corrected p-value for multiple testing
+  }
+  
+
 }
 
 \author{

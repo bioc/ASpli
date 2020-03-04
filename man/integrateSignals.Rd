@@ -90,12 +90,49 @@ For each of the other unclassified events, it checs if its an exonic feature. If
 }
 
 \value{ 
-  A \code{ASpliIntegratedSignals} with integrated signals }
+  A \code{ASpliIntegratedSignals} with integrated signals
+  \item{signals}{
+  region: region of event
+  locus: locus of event
+  bin.event: type of event
+  b: 1 if coverage evidence of differential usage, 0 if not
+  bjs: 1 if bin junction evidence of differential usage, 0 if not
+  ja: 1 if junction anchor evidence of differential usage, 0 if not
+  jl: 1 if junction locale evidence of differential usage, 0 if not
+  bin: bin in the region
+  feature: feature type
+  J3: J3 junctions accross the region
+  binreg: bin region without chromosome
+  locus_overlap: other genes overlaping this locus
+  b.fdr: coverage fdr evidence of differential usage
+  b.logfc: coverage log fold change evidence of differential usage
+  bjs.lr: bin junction likelihood ratio evidence of differential usage
+  bjs.fdr: bin junction fdr evidence of differential usage
+  bjs.logfc: bin junction log fold change evidence of differential usage
+  bjs.nonuniformity: if non uniformity test was performed, numbers closer to zero mean uniformity and closer to one mean non uniformity
+  bjs.inclussion: junction PIR or PSI
+  a.lr: anchorage likelihood ratio evidence of differential usage
+  a.fdr: anchorage fdr evidence of differential usage
+  a.logfc: anchorage log fold change evidence of differential usage
+  a.nonuniformity: if non uniformity test was performed, numbers closer to zero mean uniformity and closer to one mean non uniformity
+  a.dpir: junction delta PIR
+  l.lr: anchorage likelihood ratio evidence of differential usage
+  l.fdr: anchorage fdr evidence of differential usage
+  l.participation: participation of the significant junction (FDR < maxFDRForParticipation) presenting maximal participation value inside the cluster
+  l.dparticipation: delta participation of the significant junction (FDR < maxFDRForParticipation) presenting maximal participation value inside the cluster 
+  meanLogCPM: mean log of CPM
+  }   
+  \item{filters}{
+  Filters used when integrating signals
+  }
+}
 
 \author{
   Andres Rabinovich, Estefania Mancini, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz
 }
-
+  Accesors: \code{\link{signals}}, 
+            \code{\link{filters}},
+  Export:   \code{\link{exportIntegratedSignals}}
 \examples{
   # Create a transcript DB from gff/gtf annotation file.
   # Warnings in this examples can be ignored. 
