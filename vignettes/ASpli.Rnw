@@ -102,8 +102,9 @@ TxDb <- makeTxDbFromGFF(
 The workflow intended to be used with \texttt{ASpli} is divided in four main 
 steps (Figure \ref{fig:ASpliStructure}). For each of these steps
 ASpli provides a single or few functions to use:
+CHEQUEAR NOMBRES DE FUNCIONES. HAY QUE PONERLAS aca tambien
 \begin{enumerate}
-  \item Reading of genomic alignments: \texttt{ loadBAM() } and Feature extraction: \texttt{ binGenome() }
+  \item INPUT DATA: Reading of genomic alignments: \texttt{ loadBAM() } and Feature extraction: \texttt{ binGenome() }
   \item Read counting: \texttt{ readCounts() }, \texttt{ binCounts() }, \texttt{ junctionsCounts() }
   \item Differential gene expression and bin usage: \texttt{ binDUreport(), \texttt{ junctionDUreport() } }
   \item Reports: \texttt{ splicingReport() }, \texttt{ integrateSignals() }
@@ -112,9 +113,10 @@ ASpli provides a single or few functions to use:
 At each step it is possible to export results in a friendly manner. 
 See Section \ref{sec:output}:\nameref{sec:output} for more details.
 
-ASpli defines four major objects classes used to store data and perform
+ASpli defines XXX four major objects classes used to store data and perform
 operations related to a single task. Throughout this vignette each of these will
 be discussed in detail, however they are presented here:
+CHEQUEAR
 \begin{description}
   \item[ASpliFeatures] Contains data extracted from annotation, such genomic
   coordindates of genes.
@@ -218,9 +220,6 @@ The \texttt{binGenome} method is a one-stop function to perform:
 \end{itemize}
 
 
-
-%\subsubsection{Naming conventions for bins and junctions }
-%\label{sectionBinG}
 Subgenic features are named as follow. For an hypothetical gene named GeneAAA:
 \begin{itemize}
   \item \textbf{GeneAAA:E001}: defines first exonic bin
@@ -240,9 +239,6 @@ bins are named as exons.
 
 
 \texttt{binGenome}'s output is an object of class \texttt{ASpliFeatures}.
-%Method \texttt{binGenome} accepts an additional optional argument
-%\texttt{geneSymbols} used to assign symbols to genes (i.e. common name or a short
-%description).
 
 Methods \texttt{featuresg}, \texttt{featuresb}, \texttt{featuresj} can be used to
 access genes, bins and junctions coordinates as \texttt{GRanges-List} (for the first case)
