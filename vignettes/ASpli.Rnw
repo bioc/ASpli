@@ -76,15 +76,13 @@ Some other packages depend on operating system packages and should be installed 
 
 \subsection{Required data}
 
-ASpli requires a single \texttt{BAM} file for each sample in the experiment.
-Also, a gene annotation file is mandatory (usually a \texttt{GTF}/\texttt{GFF}
-file). \texttt{Make sure all files use the same coordinate system}.
+ASpli requires the \texttt{BAM} and \texttt{BAI} files for each sample in the experiment and the gene annotation in the format of TxDb. Please, \texttt{make sure all files use the same coordinate system}.
 
-\subsection{Building a \texttt{TxDb} of your genome}
+\subsection*{Building a \texttt{TxDb} of your genome}
 Gene annotation is handled using \texttt{TxDb} objects, which are provided by
-\texttt{GenomicFeatures} package. The building of a \texttt{TxDb} object might 
-be time consuming, depending on the size of your genome. If a \texttt{TxDb} has
-been already created, we strongly recommend saving it as a \texttt{sqlite} file
+\texttt{GenomicFeatures} package. 
+The building of a \texttt{TxDb} object might be time consuming, depending on the size of your genome.
+If a \texttt{TxDb} has been already created, we strongly recommend saving it as a \texttt{sqlite} file
 and reloading it any time the analysis is run. The \texttt{GenomicFeatures} 
 package provides functions to create TxDb objects based on data downloaded from
 UCSC Genome Bioinformatics, BioMart or gff/gtf files. See "Creating New TxDb 
@@ -110,20 +108,18 @@ CHEQUEAR NOMBRES DE FUNCIONES. HAY QUE PONERLAS aca tambien
   \item Reports: \texttt{ splicingReport() }, \texttt{ integrateSignals() }
 \end{enumerate}
 
-At each step it is possible to export results in a friendly manner. 
+At each step it is possible to export results easily. 
 See Section \ref{sec:output}:\nameref{sec:output} for more details.
 
 ASpli defines XXX four major objects classes used to store data and perform
-operations related to a single task. Throughout this vignette each of these will
-be discussed in detail, however they are presented here:
+operations:
 CHEQUEAR
 \begin{description}
-  \item[ASpliFeatures] Contains data extracted from annotation, such genomic
-  coordindates of genes.
+  \item[ASpliFeatures] Contains genomic coordinates
   \item[GAlignments] Contains BAM alignments in format GRanges
-  \item[ASpliCounts] Contains counts of aligned reads to each genomic featur
+  \item[ASpliCounts] Contains number of reads overlapping each genomic feature
   \item[ASpliJCounts] Contains counts of aligned junctions 
-  \item[ASpliDU] Contains results of Differential expression and usage analysis.
+  \item[ASpliDU] Contains results of Differential expression and usage
   \item[ASpliJDU] Contains results of Differential Junctions usage
   \end{description}
 
@@ -139,8 +135,7 @@ Each arrow represents one of the main steps of a typical analysis. Rounded boxes
 \subsubsection{Splicing event assignation} \label{sec:eventAssign}
 % Agregar definicion de los bins Io
 \label{sec:binDefinition}
-Sub-genic features such as exons and introns are analyzed using existing
-annotations by splitting the genome into non-overlapping features called bins, 
+Sub-genic features such as exons and introns are analyzed using the annotation by splitting the genome into non-overlapping features called bins, 
 following the methodology proposed for DEXSeq \cite{pmid22722343}. Exon and intron 
 coordinates are then extracted from the annotation, but only those from 
 multi-exonic genes are saved for further evaluation. When more than one isoform 
@@ -269,7 +264,7 @@ features      <- binGenome( aTxDb, geneSymbols = symbols )
 features
 @
 
-\subsubsection{Defining the targets}
+\subsubsection{Target definition}
 \label{sec:targetsDef}
 
 Sample names, genomic alignment file names and experimental factors should be specified in a 
@@ -335,7 +330,7 @@ bam <- loadBAM(targets)
 @
 
 
-\subsection{Counting reads overlapping features} 
+\subsection{Read counting} 
 
 \label{sec:rcounts}
 The method \texttt{readCounts} allows to count the number of reads that overlaps each feature of interest (i.e. genes,
@@ -393,11 +388,11 @@ writeRds(counts=counts, output.dir = "example")
 @
 
 
-\subsubsection*{Details: Counting intron flanking regions }
+\subsubsection*{Additional considerations}
 \label{sec:intronFlanking}
-
-Every intron is considered as a potential retained intron. 
-In order to analyze putative retention events for intron I, \texttt{ASpli} considers the 
+\begin{itemize}
+\item Every intron is considered as a potential retained intron. 
+To analyze putative retention events for intron I, \texttt{ASpli} considers the 
 corresponding adjacent 5' and 3' exons (E1 and E2, following
 the order in the genomic coordinates, regardless of the sense of the strand). Then, following 
 \cite{pmid25258385}, new artificial ranges that overlap the two retention regions E1I 
@@ -411,7 +406,7 @@ the order in the genomic coordinates, regardless of the sense of the strand). Th
   \item \texttt{ minAnchor } is 10\% of read length by default (parameter
   \texttt{minAnchor} )
 \end{itemize}
-
+\textbf{Please check before start the read length of your sequenced library}
 TODO - EXPLICAR MEJOR  \\
 Only those reads which minimum overlap \textit{readLength} and without gap in 
 this interval are considered. Accordingly, only sequences aligned within those 
@@ -427,21 +422,18 @@ ie2Counts <- countsie2(counts)
 
 @
 
-\subsubsection*{Additional considerations}
-tal vez intron flanking counts va aca tab?
-For a given gene, the count number is computed as
+
+\item For a given gene, the count number is computed as
 the number of reads overlapping any exon included in the corresponding annotated gene model. If a
-single read overlaps more than one exon, it is counted only once. Note that a read can
-overlap two different genes, in this case it is counted for both of them.
+single read overlaps more than one exon, it is counted only once. Note that \textbf{one read can
+overlap two different genes, in this case it is counted for both of them}.
  
-In order to estimate read densities, effective gene lengths are
-considered. The effective length is calculated as the sum of the length of
-exonic bins and alternative bins (i.e. all bins except intronic bins).
+\item Effective length: is calculated as the sum of the length of exonic bins and alternative bins (i.e. all bins except intronic bins).
 
 %Some reads might overlap to more than one bin and could be counted several
 % times.
 % Hay que aclarar en que situaciones ocurre esto.
-Junctions are extracted from BAM files. They are defined as those reads
+\item Junctions are extracted from BAM files. They are defined as those reads
 that aligned against disjoint region of the reference genome(N operator of CIGAR notation
 for aligned reads \cite{pmid19505943} ), and are essential piece of information for alternative
 splicing event quantification and discovery. Junction alignment
@@ -449,7 +441,7 @@ quality/confidence is extremely important and it should be controlled at the
 moment of the alignment step.
 
 
-
+\end{itemize}
 \subsubsection{The ASpliCounts object }
 \subsubsection*{The binCounts and ASpliJCounts objects }
 \label{sec:countsContents}
@@ -626,16 +618,16 @@ $k$ respectively. $g_{jk}$ is the raw gene count for gene $j$ in sample $k$ and 
   \item Use gene counts (gene mode):
   \begin{enumerate}
      \item Use only raw counts.
-     \item Fit a generalized linear model from gen counts.	
+     \item Fit a generalized linear model from gene counts.	
   \end{enumerate}
   \item Use the sum of exonic bins from each gene (bin mode). Notice that in this mode some reads might be
-  counted more than onece, because they might  overlap to more than one bin. This mode is not available for junctions.
+  counted more than once, because they might  overlap to more than one bin. This mode is not available for junctions.
 \end{itemize}       
 
 
-   \item {\bf diffSpliceDGE}. This alternative delegates differential bin usage estimation to \texttt{edgeR}'s 
+   \item {\bf diffSpliceDGE}. This alternative use differential bin usage estimation to \texttt{edgeR}'s 
          \texttt{ diffSpliceDGE }. This is available only for bins. This method uses an strategy
-          similar to the offset methodology. ASpli allow its use with the method \texttt{DUreportBinSplice}.
+          similar to the offset methodology. ASpli allows its use with the method \texttt{DUreportBinSplice}.
 \end{enumerate}
 
 
@@ -643,8 +635,7 @@ $k$ respectively. $g_{jk}$ is the raw gene count for gene $j$ in sample $k$ and 
 
 Count data of bins and junctions can be used to get an integrative view of 
 alternative splicing events. The method \texttt{AsDiscover} will produce an
-\texttt{ASpliAS} object containing comprehensive results that can be used as
-supporting evidence of alternative splicing usage of bins. 
+\texttt{ASpliAS} object containing comprehensive results that support evidence of alternative usage of bins. 
 
 <<AsDiscover, echo=TRUE, eval=FALSE>>=
 as <- AsDiscover( counts, targets, features, bam, readLength=100L, 
@@ -667,10 +658,10 @@ computation.
 
 The analysis will consider junctions that are completely included within a
 unique gene and have more than a minimum number of reads supporting them, by
-default this number is five.
+default this number is five. (Default = 5)
 
-For each experimental junction identified, it is also reported if it is novel
-and which bins are spanned. In addition, it is stated if the junction is 
+For each experimental junction identified, it is also reported if it is novel ({\textit known CHEQUEAR})
+and which bins it spans. In addition, it is stated if the junction is 
 completely included in an annotated bin, which would indicate that the AS event
 is a possible \emph{exintron} \cite{pmid25934563}.
 
@@ -693,7 +684,6 @@ allBins      <- joint( as )
 # Export results to files
 writeAS(as=as, output.dir="example")
 @
-
 
 \subsubsection*{Details: PIR and PSI metrics}
 \label{sec:psir}
@@ -721,7 +711,6 @@ of this threshold is five counts).
     junctions}
     \label{fig:pirEq}
 \end{figure}
-
 
 For each bin, a PIR or a PSI  metric is calculated, depending on the splicing
 event category assigned to that bin (see section \secref{sec:eventAssign}). If
@@ -858,9 +847,7 @@ function.
 \label{sec:de}
 
 The first step of the gene DE analysis pipeline is the selection of those
-annotated genes that are considered to be expressed, or at least that can be
-confidently detected. For this, the average number of reads for each gene
-and condition and the average read density for each gene and condition are
+annotated genes that are considered to be expressed. For this, the average number of reads for each gene and condition and the average read density for each gene and condition are
 calculated as shown below:
 
 \begin{eqnarray*}
@@ -888,7 +875,7 @@ analysis with the same methodology and give the same results.
 
 Each condition in the analysis is weighted by contrast vector that ultimately
 defines the comparison that will be done. For a simple pair comparison between
-\texttt{Control} and \texttt{Trat} conditions, represeted as $Trat - Control$ 
+\texttt{Control} and \texttt{Treat} conditions, represented as $Treat - Control$ 
 can be expressed as:
 
 <<export, echo=TRUE, eval=FALSE>>=
@@ -896,7 +883,7 @@ contrast <- c( -1, 1 )
 @
 
 Assuming that the order of the conditions given by \texttt{getConditions}
-methods is \texttt{ [ 'Control', 'Trat' ]}. 
+methods is \texttt{ [ 'Control', 'Treat' ]}. 
 
 
 \subsubsection{Usage of \texttt{DUreport}, \texttt{DUreportBinSplice} and
@@ -930,45 +917,50 @@ Where the accepted parameters are:
   \secref{sec:targetsDef}.
   \item[minGenReads] minimum value for reads in any condition required for a
   gene to be considered as expressed (see \secref{sec:de} ). The default value
-  is 10.
+  is 10.(Default=10)
   \item[minBinReads] minimum value for reads in any condition required for a
   bin to be included in the analysis (see \secref{sec:du} ). The default value
-  is 5.
+  is 5.(Default=5)
   \item[minRds] minimum value for read density for genes and bins required to be
-  considered in the analysis. The default value is 0.05.
+  considered in the analysis. The default value is 0.05. (Default=0.05)
+  
   \item[offset] a logical value that indicates, if \texttt{TRUE}, that an offset
   vector should be estimated and used in the analysis. If \texttt{FALSE}, bin
   counts by gene counts adjustment is used instead. The default value is 
-  \texttt{FALSE} ( see \secref{sec:du} )
+  \texttt{FALSE} ( see \secref{sec:du} ) (Default=FALSE)
+  
   \item[offsetAggregateMode] a character value that specifies if gene mode or
   bin mode of offset estimation should be used. It is only relevant when
   \item[offset] argument is \texttt{TRUE} (see \secref{sec:du}). The default
-  value is \texttt{geneMode}.
+  value is \texttt{geneMode}. (Default=geneMode)
+  
   \item[offsetUseFitGeneX] a logical value that indicates if
   the offset vector should be computed using a GLM. This is only relevant when \texttt{offset}
   argument is \texttt{TRUE} and \texttt{offsetAggregateMode} argument is
-  \texttt{geneMode} (see \secref{sec:du}). The default value is \texttt{TRUE}.
+  \texttt{geneMode} (see \secref{sec:du}). The default value is \texttt{TRUE}. (Default=TRUE)
+  
+  
   \item[contrast] is a vector representing the coefficients for each unique
   condition in the analysis. They are assigned in the order given by
   \texttt{getConditions} method (see \secref{sec:targetsDef}). The default value
   is \texttt{NULL} which correspond to a vector with value -1 in the first
   position, 1 in the second, and zero for the remaining positions. This is for
   the paired comparison of the second condition versus the first condition.
+  
   \item[forceGLM] a logical value that indicates that fitting a GLM should be
   used in the analysis for paired comparison, instead of an extact test (used
   by default for this type of comparison). The default value if \texttt{FALSE}.
   \item[ignoreExternal] a logical value indicating that external bins should
-  be ignored in the analysis. The default value is \texttt{TRUE}.
+  be ignored in the analysis. The default value is \texttt{TRUE}. (Default=TRUE)
+  
   \item[ignoreIo] a logical value indicating that original intron bins should
-  be ignored in the analysis. The default value is \texttt{TRUE}.
+  be ignored in the analysis. The default value is \texttt{TRUE}. (Default=TRUE)
   \item[ignoreI] a logical value indicating that only exons should be included
   in the analysis. The default value is \texttt{FALSE}.
-  \item[filterWithConstrasted] a logical value that specifies that gene and
-  bin filtering when more than two conditions are present, should be done only
-  with the data of those conditions and ignore the others. The default value
-  id \texttt{FALSE}, it is strongly recommended to do not change this value.
-  \item[verbose] a logical value that indicates that detailed information
-  about each step in the analysis will be presented to the user.
+  
+  \item[filterWithConstrasted] a logical value that specifies that gene and   bin filtering when more than two conditions are present, should be done only with the data of those conditions and ignore the others. It is strongly recommended not to change this value.  (Default value=FALSE)
+  
+  \item[verbose] a logical value that indicates that detailed information about each step in the analysis will be presented to the user.
   
 \end{description}
 
@@ -995,13 +987,13 @@ Where the accepted parameters are:
   \item[targets] a targets data frame built as explained in 
   \secref{sec:targetsDef}.
   \item[minGenReads] minimum value for reads in any condition required for a
-  gene to be considered as expressed (see \secref{sec:de} ). The default value
-  is 10.
+  gene to be considered expressed (see \secref{sec:de} ). The default value
+  is 10. (Default=10)
   \item[minBinReads] minimum value for reads in any condition required for a
   bin to be included in the analysis (see \secref{sec:du} ). The default value
-  is 5.
+  is 5.(Default=5)
   \item[minRds] minimum value for read density for genes and bins required to be
-  considered in the analysis. The default value is 0.05.
+  considered in the analysis. The default value is 0.05. (Default=0.05)
   \item[contrast] is a vector representing the coefficients for each unique
   condition in the analysis. They are assigned in the order given by
   \texttt{getConditions} method (see \secref{sec:targetsDef}). The default value
@@ -1078,8 +1070,7 @@ The three methods described above return an \texttt{ASpliDU} object.
 This object contains the results for genes DE, bins DU and junction DU, which
 can be consulted through their respective accessor methods: \texttt{genesDE},
 \texttt{binsDU} and \texttt{junctionsDU}. See next section
-(\secref{sec:asplidu}) for details about the specific contents of the data
-obtained with these methods.
+(\secref{sec:asplidu}) for details.
 
 \subsubsection{Contents of ASpliDU object}
 \label{sec:asplidu}
@@ -1090,10 +1081,9 @@ results.
 
 \begin{itemize}
   \item Results for genes differential expression analysis can be accessed with
-  \texttt{genesDE}. This method returns a \texttt{data.frame}
-  object which columns are specified below.
+  \texttt{genesDE}. This method returns a \texttt{data.frame} which columns are specified below.
     \begin{description}
-      \item[row.names] Gene name as is found in annotation.
+      \item[row.names] Gene name 
       \item[symbol] An optional common name for the gene, that must be provided at
       the moment of feature extraction (see section
       \secref{sec:binDefinition}).
@@ -1116,13 +1106,13 @@ results.
   \texttt{junctionPIR} method. The returning value is a \texttt{data.frame} with
   columns:
     \begin{description}
-      \item[row.names] Bin name as given in section \ref{sectionBinG}:\nameref{sectionBinG}.
-      \item[feature] Is the kind of bin: \textbf{E} for exonic bins, \textbf{I}
-      for intronic bins and \textbf{Io} for introns before splitting.
-      \item[event] Splicing event asigned to the bin (see section
+      \item[row.names] Bin name. See section \ref{sectionBinG}:\nameref{sectionBinG}.
+      \item[feature] Type of bin: \textbf{E} for exonic, \textbf{I}
+      for intronic and \textbf{Io} for original introns. See section \ref{sectionBinG}:\nameref{sectionBinG}.
+      \item[event] Alternative splicing event asigned to the bin (see section
       \ref{sec:binDefinition}:\nameref{sec:eventAssign})
       \item[locus] The name of the locus that contains the bin.
-      \item[locus\_overlap] Show the names of all other overlapping \textit{loci}.
+      \item[locus\_overlap] All other overlapping \textit{loci}.
       \item[symbol] An optional common name for the gene, that must be provided at
       the moment of feature extraction (see section \ref{sec:binDefinition}:\nameref{sec:binDefinition}).
       \item[gene\_coordinates] Show the genomic coordinates of the gene with
@@ -1136,8 +1126,8 @@ results.
       \item[gen.fdr] The pvalue adjusted by \textbf{Benjamini-Hochberg} method.
       \\
     \end{description}
-  \item Results for experimental junctions assuming that the bearing
-  exons are involved in alternative splice events can be accessed with
+  \item Results for experimental junctions assuming those
+  exons are involved in alternative splicing events can be accessed with
   \texttt{junctionPSI} method. The returning value is a \texttt{data.frame} with
   columns:
     \begin{description}
@@ -1412,12 +1402,11 @@ possible to force to one of them setting the argument \texttt{useBarPlots} in
   \label{fig:plotbinEx2} 
 \end{figure}
 
-\subsection*{Utility functions}
+\subsection*{Useful functions}
 
-ASpli includes many functions that help the use to manipulate and interrogate
-the different ASpli objects.
+ASpli includes many functions that help the use to manipulate the different ASpli objects.
 
-\subsubsection{Consulting data in \texttt{ASpliDU} objects}
+\subsubsection{Access data in \texttt{ASpliDU} objects}
 
 ASpliDU objects can contain data for gene, bins and/or junctions depending on
 what function was used to create it. \texttt{DUreport} and
@@ -1436,14 +1425,13 @@ containsGenesAndBins( du )
 
 \subsubsection*{Filtering \texttt{ASpliCount} objects}
 
-Genes, bins and junctions present in an \texttt{ASpliCount} object can be
+Genes, bins and junctions stored in an \texttt{ASpliCount} object can be
 filtered by abundance according to several statments:
 \begin{itemize}
   \item number of counts or read density.
   \item mean value or minimum value.
   \item grouping by condition or on the whole set.
-  \item all conditions must meet the selection criteria or at least one
-  condition must do it.
+  \item all conditions must pass the selection criteria or at least one condition must do it.
 \end{itemize}
 
 \texttt{filterReadCounts} method allow this filtering. Here there are some
@@ -1455,11 +1443,10 @@ examples:
 
 \subsubsection*{Filtering \texttt{ASpliDU} objects}
 Results present in \texttt{ASpliDU} can be filtered by \textbf{logFC} and
-\textbf{FDR} with \texttt{filterDU} function. Elements with and \textbf{FDR}
-value lower or equal to a given threshold, and with an absolute \textbf{logFC}
-greater or equal to a given value are kept. Default values for \textbf{logFC} and
-\textbf{FDR} threshold values are 0 and 1 respectively, in other words, is not
-filtered by that value.
+\textbf{FDR} with \texttt{filterDU} function. Features with and \textbf{FDR}
+value below to a given threshold (Default=1), and with an absolute \textbf{logFC}
+greater than a given value (Default=0) are kept. \textit{SACAR (in other words, is not
+filtered by that value).}
 
 <<filterDU1, echo=TRUE, eval=FALSE>>=
 # Filter genes that changes at least a 50 percent their expression with a 
@@ -1506,7 +1493,7 @@ bamSmall <- subsetBams( bams, targets, c("A_C", "A_C") )
 
 \subsubsection*{Merging DU and junction data for bins}
 
-\texttt{mergeBinDUAS} function merge bin data from DU analysis contained in an
+\texttt{mergeBinDUAS} function merges bin data from DU analysis contained in an
 \texttt{ASpliDU} object and bin data from junction repertoire usage and PSI/PIR
 metrics contained in an \texttt{ASpliAS} object. Also a delta PSI/PIR value is
 calculated from a contrast vector.
@@ -1520,7 +1507,7 @@ mergeBinDUAS(du,as, targets)
 \section{Example data}
 
 \subsection{Synthetic data set}
-ASpli contains a small synthetic data set to test de complete working pipeline.
+ASpli contains a small synthetic data set to test the complete working pipeline.
 It consist of a genome with ten genes with multiple isoforms, a set of
 \textbf{BAM} files from an experiment with two$\times$two factorial design, and
 a \textbf{GTF} file with the corresponding annotation. The two factors in this
@@ -1552,8 +1539,7 @@ and \textbf{B.D}. There are three replicates for each conditition (see table
   \label{tab:Ex01}
 \end{table}
 
-The firts step of the workflow is to load the annotation from the reference
-sequence and extract their features.
+The firts step of the workflow is to build the TxDb object and extract their features.
 
 <<Ex01.a, echo=TRUE, eval=FALSE>>=
 
@@ -1570,8 +1556,7 @@ features <- binGenome( genomeTxDb )
 
 @
 
-Also, the exprimental sequencing data must be loaded, and the experimental
-samples, and factors should be defined.
+Then load the alignment and define your tragets:
 
 <<Ex01.b, echo=TRUE, eval=FALSE>>=
 
@@ -1596,15 +1581,14 @@ getConditions(targets)
 bams = loadBAM(targets)
 @
 
-After the targets are defined and the sequence data is read, you can continue to
-assign the number of counts to each feature.
+Next step is to overlap the reads and the features:
 
 <<Ex01.c, echo=TRUE, eval=FALSE>>=
 counts <- readCounts( features, bams, targets, readLength = 100, 
                       maxISize = 5000 )
 @
 
-Now you can run the DE/DU analysis, here will be avaualted a test to hypothesis
+Now you can run the DE/DU analysis. We will test the hypothesis
 that the expression of some genes respond to the interaction of \textbf{f1} and
 \textbf{f2}. In other words, that the observed effect of applying the two
 factors can not be explained by the independent contribution of each factor.
@@ -1663,12 +1647,12 @@ plotGenomicRegions( features,'GENE10:E002', genomeTxDb, targets )
 \subsection{Real data set}
 
 It is possible to run a demo of \texttt{ASpli} using public \RNAseq data 
-available via Bioconductor. It requieres installing of 
-\texttt{RNAseqData.HNRNPC.bam.chr14} package and loading  an small TranscriptDb
-of Human Genome only for chromosome 14. This subset of reads is part of an
-experiment intended to analyze splicing factors and their relationship with 
-exonization of Alu elements \cite{Zarnack2013453}. We load the package and the 
-genome:
+available via Bioconductor. The package 
+\texttt{RNAseqData.HNRNPC.bam.chr14} contains reads aligned to Chromosome 14 which come from an 
+experiment intended to analyze the effect of the HNRNPC splicing factor knock down.
+
+exonization of Alu elements and alternative splicing \cite{Zarnack2013453}. 
+We load the package and the annotation:
 %<<librariesEx, echo=TRUE, eval=TRUE>>=
 <<Ex02.a, echo=TRUE, eval=FALSE>>=
 library(RNAseqData.HNRNPC.bam.chr14)
@@ -1684,13 +1668,13 @@ chr14 <- system.file("extdata","chr14.sqlite", package="ASpli")
 genome <- loadDb(chr14)
 @
 
-And now we are ready to start the complete analysis.
+And now we are ready to start the whole analysis.
 %<<binGenome, echo=TRUE, eval=TRUE>>=
 <<Ex02.c, echo=TRUE, eval=FALSE>>=
 features <- binGenome(genome) 
 @
 
-This data set contains data for of two conditions \textbf{KD} and \textbf{CT}
+This data set contains data for two conditions \textbf{KD} and \textbf{CT}
 with four replicates each one. 
 Create targets object using the information of the available files:
 %<<targetsEx, echo=TRUE, eval=TRUE>>=
@@ -1706,7 +1690,7 @@ Then, load the bam files:
 <<Ex02.e, echo=TRUE, eval=FALSE>>=
 bam <- loadBAM(targets)
 @
-Overlap alignments against features:
+Overlap alignments with the features:
 %<<todosJuntos, eval=TRUE>>=
 <<Ex02.f, eval=FALSE>>=
 counts <- readCounts( features, bam, targets, readLength=100L, maxISize=50000 )
