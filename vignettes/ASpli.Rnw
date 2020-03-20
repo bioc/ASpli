@@ -1225,7 +1225,7 @@ Where the junctions are the sum by condition.
 \end{itemize}
 
 
-
+ultimo dia deadline
 
 \end{itemize}
 
