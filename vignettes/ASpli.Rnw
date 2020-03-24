@@ -533,7 +533,7 @@ Results are stored in an \texttt{ASpliJDU} object. Note that this analysis consi
 of these AS events under different experimental conditions are original  KEYYYY functions of the package}
 
 \subsection{Integrative reports} \label{sec:integration}
-\subsubsection{Splicing reports}
+\subsubsection{\texttt{splicingReport}: integrates bin's and junction's usage using multiple sources}
 
 <<jDUreport, echo=TRUE, eval=FALSE>>=
 sr      <- splicingReport(gb, 
@@ -541,19 +541,26 @@ sr      <- splicingReport(gb,
                           counts)
 @
 
-This function integrates differential usage information using/from multiple sources. It uses bin's usage and junction's usage and merges them in three steps. 
+It returns different usage derived from different sources:
+
 \begin{enumerate}
-\item Merges all bins with annotated junction information (jir, jes, jalt). 
+\item Merges all bins with annotated junction information (\textt{jir, jes, jalt}). 
 \item Finds all bins that overlap locale J3 junctions (the junctions that cover the entire locale region) and merges them. \item Does the same with anchor.
 \end{enumerate}
 
-\subsubsection{Integrate signals}
-Integrates differential usage in specific regions. It returns the signals present in this specific region filtered by different parameters. \\
-To prepare this table, the region is marked with a 1 in the corresponding signal if the signal in that region was originated in that particular event. If other signals match the region, the other signals are also marked as 1. If other signals overlap but don't match, then those signals are marked with 
+\subsubsection{\texttt{Integrate signals}:Integrates differential usage in specific regions. 
+}
+It returns signals present in this specific region filtered by different parameters. 
+\begin{enumerate}
+\item the region is marked with a 1 in the corresponding signal
+if the signal in that region was originated in that particular event. 
+\item If other signals are found in the region, the other signals are also marked as 1. If other signals overlap but don't match, then those signals are marked with 0
+\end{enumerate}
+
 <<jDUreport, echo=TRUE, eval=FALSE>>=
 is      <- integrateSignals(sr, asd)
 @
-
+Parameters:
 \begin{itemize}
 \item sr: An object of class ASpliSplicingReport
 \item asd: An object of class ASpliDU
@@ -572,9 +579,28 @@ otherSources. If user wants to compare ASpli results with results from other met
 \item overlapType: Type of regions overlap matching between the different signals. Defaults to "any" and can be any of the following: "any", "start", "end", "within", "equal".
 \end{itemize}
 
+\subsubsection{\texttt{exportSplicingReport}: Export splicing reports in HTML pages.} \label{sec:reports}
+This is one of the most appealing function in \texttt{ASpli}. The result is an HTML page, where you can easily browse your final tables and analyze grpahilcally most interesteing regions.
+It requieres the main objects have been prepared during the pipeline. You will find the html page inside your input folder:
+<<jDUreport, echo=TRUE, eval=FALSE>>=
+exportSplicingReports( sr, 
+                       output.dir="sr",
+                       openInBrowser = F, 
+                       maxBinFDR = 0.2, 
+                       maxJunctionFDR = 0.2 )
+@
 
-\subsubsection{Reports: exportSplicingReport()} \label{sec:reports}
+Arguments:
+\begin{itemize}
+\item sr:	An object of class ASpliSplicingReport
+\item output.dir: HTML reports output directory openInBrowser	
+\item maxBinFDR (Default = 0.2) Only show bins with FDR < maxBinFDR
+\item maxJunctionFDR (Default = 0.2): Only show junctions with FDR < maxJunctionFDR
+\end{itemize}
+
+
 \subsection{Details Ouputs}
+Here is the content of all the info present in \texttt{ASpli} objects. Some of them are common in several tables.
 \label{sec:outputs}
 ASpliCounts:
 \begin{itemize}
@@ -760,25 +786,33 @@ The firts step of the workflow is to build the TxDb object and extract their fea
 
 <<Ex01.a, echo=TRUE, eval=FALSE>>=
 library( GenomicFeatures )
-# gtfFileName contains the full path to the example gtf file in your system.
+@
+Load an small gtf. In this case \texttt{gtfFileName} contains the full path to the example gtf file in your system.
+
+
+<<Ex01.a, echo=TRUE, eval=FALSE>>=
 gtfFileName <- aspliExampleGTF()
+@
 
-# Create a TxDb object using makeTxDbFromGFF function from GenomicFeatures 
-# package
+Then, create a TxDb object using \texttt{makeTxDbFromGFF}   
+<<Ex01.a, echo=TRUE, eval=FALSE>>=
 genomeTxDb <- makeTxDbFromGFF( gtfFileName )
+@
 
-# Extract the genomic features
+Extract the genomic features and inspect them:
+<<Ex01.a, echo=TRUE, eval=FALSE>>=
 features <- binGenome( genomeTxDb )
+@
 
 @
 
-Then load the alignment and define your tragets:
+Then load the alignment and define your tragets.
+\texttt{aspliExampleBAMList()} provides you with a full path of some BAMs files.
 <<Ex01.b, echo=TRUE, eval=FALSE>>=
-
-# BAMFiles contains the full path of the BAM files in your system
-BAMFiles <- aspliExampleBAMList( )
-
-# Define the targets
+BAMFiles <- aspliExampleBamList()
+@
+Define the targets:
+<<Ex01.b, echo=TRUE, eval=FALSE>>=
 targets <- data.frame( 
   row.names = paste0('Sample',c(1:12)),
   BAM = BAMFiles,
@@ -788,10 +822,12 @@ targets <- data.frame(
           'C','C','C','D','D','D'),
   stringsAsFactors = FALSE
 )
+@
 
-# Examinate the condition names
+Define conditions:
+<<Ex01.b, echo=TRUE, eval=FALSE>>=
 getConditions(targets)
-
+@
 # Load the BAM files
 BAMs = loadBAM(targets)
 @
