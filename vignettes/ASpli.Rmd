@@ -78,16 +78,22 @@ and reloading it any time the analysis is run.
 
 
 ## A simple case
-Here is an example, using default parameters for a pairwise comparison between 2 conditions: Control and treatment, 3 replicates each:
+Here is an example, using default parameters for a pairwise comparison between 2 conditions: Control and treatment, 3 replicates each.
+Extract features from genome and define targets:
 ```{r quickStart,  eval=FALSE}
 genome <- loadDb("txdb.sqlite")
-BAMs <- NULL
 features    <- binGenome(genome)
+```
+Read counting: 
+```{r quickStart1,  eval=FALSE}
 targets <- data.frame(
   BAM = c("CT_1.BAM", "CT_2.BAM","CT_3.BAM",
             "TR_1.BAM", "TR_2.BAM", "TR_3.BAM"),
   genotype = c( "CT", "CT", "CT",  "TR", "TR", "TR" ),
   stringsAsFactors = FALSE )
+mBAMs <- data.frame(
+  BAM=c("CT.BAM", "TR.BAM"),
+  condition=c("CT","TR"))
 counts      <-  gbCounts(features = features, 
                          BAM = BAMs, 
                          targets = targets, 
@@ -97,18 +103,21 @@ asd         <-  jCounts(counts = counts,
                         features = features,
                         BAM= BAMs, 
                         minReadLength =125L)
-mBAMs <- data.frame(
-  BAM=c("CT.BAM", "TR.BAM"),
-  condition=c("CT","TR"))
+```
+Estimate differential signals:
+```{r quickStart3,  eval=FALSE}
 contrasts  <- list(A_B = c(-1, 1))
 gb      <- gbDUreport(counts, contrast = c(-1, 1))
 jdur    <- jDUreport(asd, contrast =  c(-1, 1),
                      runUniformityTest = TRUE,
                      mergedBAMs = mBAMs,
                      strongFilter=TRUE)
+```
+Summarize results:
+```{r quickStart4,  eval=FALSE}
 sr      <- splicingReport(gb, jdur, counts)
 is      <- integrateSignals(sr,asd)
-reports <- list(gb=gb,j=jdur,sr=sr,is=is)
+exportSplicingReports( sr, output.dir="sr")
 ```
 
 ## Using *ASpli*
@@ -130,7 +139,7 @@ At each step it is possible to export intermediate results.
 See Section \ref{sec:outputs}:\nameref{sec:outputs} for more details.
 ![ASpli core Funcionalities ](images/ASpliCoreFunctionality.png)
 
-## Splicing event assignation \label{sec:eventAssign}
+## Splicing event assignment \label{sec:eventAssign}
 
 Sub-genic features such as exons and introns are analyzed using the annotation by splitting the genome into non-overlapping features called bins, 
 following the methodology proposed for DEXSeq \cite{pmid22722343}. Exon and intron 
@@ -142,11 +151,11 @@ classified into {\em exclusively exonic bins}, {\em exclusively intronic bins}, 
 transcripts. Those bins that are exonic and intronic in different isoforms are named *AS bins*](images/binDefinition.pdf)
 \label{fig:binDefinition}
 
-Each AS bin is assigned to a type of splicing event. The assignation is
+Each AS bin is assigned to a type of splicing event. The assignment is
 made using *minimum  local gene models* considering unique patterns of three bins: the bin being evaluated and 
 the two neighbor bins (one to the left, one to 
-the right). Figure (\ref{fig:binAssignation}) shows examples of  splicing event categorization for different 
-*minimum local gene models*. When the minimum local gene model contains two isoforms (see first row of figure \ref{fig:binAssignation}) bins are labelled as follow:
+the right). Figure (\ref{fig:binAssignment}) shows examples of  splicing event categorization for different 
+*minimum local gene models*. When the minimum local gene model contains two isoforms (see first row of figure \ref{fig:binAssignment}) bins are labelled as follow:
 
 * **ES** Exon skipping
 * **IR** Intron retention
@@ -154,16 +163,16 @@ the right). Figure (\ref{fig:binAssignation}) shows examples of  splicing event 
 * **ALt3'SS** Alternative 3' splicing site
 
 When the minimum gene model contains three, four or five isoforms (no more than five non redundant isoforms can exist in the minimum gene model), labels of bins are similar to the ones defined previously but have an extra '*'
-character ( **IR**, **ES**, **Alt5'SS**, **Alt3'SS**) in order to show that more than two isoforms exist and, therefore, the results should be used with caution (see rows 2-4 of figure \ref{fig:binAssignation}). 
+character ( **IR**, **ES**, **Alt5'SS**, **Alt3'SS**) in order to show that more than two isoforms exist and, therefore, the results should be used with caution (see rows 2-4 of figure \ref{fig:binAssignment}). 
 This type of splicing events involve intronic subgenic regions sourrounded by exons in at least one isoform (**IR**), and exonic subgenic regions sourrounded by two introns in at least one isoform (**ES**). Minimum local gene models that do not fit in those categories are typified as **Alt5'SS** or **Alt3'SS** if they present exonic regions sourrounded by intronic and exonic neighbor subgenic regions.
 
-In some cases, it is not possible to make a simple assignation for a bin with assumptions made here, those bins are labelled as **Undefined AS** (last row of figure \ref{fig:binAssignation}).
+In some cases, it is not possible to make a simple assignment for a bin with assumptions made here, those bins are labelled as **Undefined AS** (last row of figure \ref{fig:binAssignment}).
 
 Those bins that overlap with the beginning or end of any transcript are labelled as **external**. Please note that an external bin of a transcript may overlap to a non external bin of another transcript, in these cases the bin is still labelled as **external**. In addition to these non overlapping bins, full introns are extracted from annotation and labelled as **Io** )
 
-![Summary of assignation of splicing events to bins from minimum gene model. The bin being evaluated has a green background highlight. The blue boxes represents exons, while the little light orange boxes represent introns. Gene
+![Summary of assignment of splicing events to bins from minimum gene model. The bin being evaluated has a green background highlight. The blue boxes represents exons, while the little light orange boxes represent introns. Gene
 models shown are plus sense strand.](images/event_assignment.pdf)
-\label{fig:binAssignation}
+\label{fig:binassignment}
 
 #### *binGenome()* \label{sectionBinG}
 
@@ -171,7 +180,7 @@ The *binGenome* method is a one-stop function to perform:
 
 * subgenic splitting of genes into bins
 * junction, gene and bin coordinates definition
-* bin splicing event assignation
+* bin splicing event assignment
 
 Subgenic features are labelled as follow. For an hypothetical gene named GeneAAA:
 
@@ -181,7 +190,7 @@ Subgenic features are labelled as follow. For an hypothetical gene named GeneAAA
 * **GeneAAA:J001**: defines first annotated junction of GeneAAA
 * **chr.start.end**: defines an experimental junction
 
-Bins and junctions are consecutively named from 5' to 3' of reference sequence. This implies that lower numbers are always closer to the 5' of forward strand. Alternative splicing bins are named as exons.
+Bins and junctions are consecutively named from 5' to 3' of reference sequence, , irrespective of their gene's strand. This implies that lower numbers are always closer to the 5' of forward strand. Alternative splicing bins are named as exons.
 
 *binGenome*'s output is an object of class *ASpliFeatures*. 
 Methods *featuresg*, *featuresb*, *featuresj* can be used to access genes, bins and junctions coordinates as *GRanges* (*GRanges* objects defined in the *GenomicRanges* package.) 
@@ -250,7 +259,6 @@ The method  *gbCounts()* allows to count the number of reads that overlaps each 
 
 ```{r gbCounts,  eval=FALSE}
 counts      <-  gbCounts(features, 
-                         BAM, 
                          targets, 
                          minReadLength,
                          maxISize,
@@ -258,11 +266,9 @@ counts      <-  gbCounts(features,
 ```
 
 * *features*: An object of class *ASpliFeatures*. It is a list of GRanges at gene, bin and junction level
-* *BAM*: List of GAlignments objects corresponding to BAM files of samples. If NULL is passed (default), BAM files are read and processed sequentially. This is usually preferred if machine has low resources.**bold{(hay alguna alternatvia a esto?)}
 * *targets*: A dataframe containing sample, BAM and experimental factors columns, as defined in section \secref{sec:targetsDef}. 
 * *minReadLength*: Read length of sequenced library. It is used for computing E1I and IE2 read summarization. If you have different read length, use the smallest, otherwise no E1I or IE2 will be found.
 * *maxISize*: Maximum intron expected size. Junctions longer than *maxISize* will be dicarded  \cite{Hong01122006}.
-* *cores*: Number of cores to use (Default=1). If *BAM* = NULL, only 1 core will be used independently of this parameter.
 * *minAnchor*: Minimum percentage of read that should be aligned to an exon-intron boundary (see \secref{sec:intronFlanking} ). 
 
 The result of *gbCounts()* method is an object of class 
@@ -316,10 +322,8 @@ PSI or PIR metrics are calculated for each bin and experimental condition. The s
 ```{r asd,  eval=FALSE}
 asd         <-  jCounts(counts, 
                         features,
-                        BAM, 
                         minReadLength,
                         threshold,
-                        cores,
                         minAnchor)
 ```
 
@@ -349,12 +353,12 @@ writeAS(as=asd, output.dir="example")
 * To provide an integrative view of the AS events being analyzed, splice junction information is used to analyze differential bin usage. PSI (percent of inclusion) and PIR (percent of intron retention) metrics, which are extensively used to quantify AS \cite{pmid21057496}, are calculated for bins junctions (see figure
 \ref{fig:pirEq} ). 
 * The PIR and PSI metrics complement the count-centric analysis and provide independent experimental support for the existence of novel AS events, based on the identification of corresponding changes in nearby splice junctions. 
-* Only those junctions with a minimum number of counts (default=5) in **bold{all} samples of at least 1 condition are used for PIR/PSI analysis.
-* For each bin, a PIR or a PSI  metric is calculated, depending on the splicing event category assigned to that bin (see section \secref{sec:eventAssign}). If no splice event was assigned (\textit{ this bin is not alternative}), an exon will be considered to be involved in a putative exon skiping splicing event, and an intron will be considered to be involved in a putative intron retention splicing event.
+* Only those junctions with a minimum number of counts (default=5) in **all** samples of at least 1 condition are used for PIR/PSI analysis.
+* For each bin, a PIR or a PSI  metric is calculated, depending on the splicing event category assigned to that bin (see section \secref{sec:eventAssign}). If no splice event was assigned (*this bin is not alternative*), an exon will be considered to be involved in a putative exon skiping splicing event, and an intron will be considered to be involved in a putative intron retention splicing event.
 * PIR value is computed for every junction, assuming 
 every detected junction is a putative intron that could be retained. Every junction defines a 5' and a 3' splicing site, which can be exclusive for this junction or shared with another ones. In this case, this is an evidence of an exon skipping or an alternative 5' or 3' splicing site event. Despite it is not possible to infer the type of event, changes in this PSI value is helpful to detect new alternative splicing cases. The details of the formulas are shown in figure \ref{fig:psir_junc}.
 
-![caption{PSI and PIR metrics estimation and their relationship with junctions](images/psi_pir2.pdf)
+![PSI and PIR metrics estimation and their relationship with junctions](images/psi_pir2.pdf)
 \label{fig:pirEq}
 
 ![PSI and PIR metrics for junctions](images/psi_pir_junc.pdf)

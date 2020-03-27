@@ -84,16 +84,22 @@ and reloading it any time the analysis is run.
 
 
 \subsection{A simple case}
-Here is an example, using default parameters for a pairwise comparison between 2 conditions: Control and treatment, 3 replicates each:
-<<quickStart, echo=TRUE, eval=FALSE>>=
+Here is an example, using default parameters for a pairwise comparison between 2 conditions: Control and treatment, 3 replicates each. \\
+Extract features from genome and define targets:
+<<quickStart1, echo=TRUE, eval=FALSE>>=
 genome <- loadDb("txdb.sqlite")
-BAMs <- NULL
 features    <- binGenome(genome)
 targets <- data.frame(
   BAM = c("CT_1.BAM", "CT_2.BAM","CT_3.BAM",
             "TR_1.BAM", "TR_2.BAM", "TR_3.BAM"),
   genotype = c( "CT", "CT", "CT",  "TR", "TR", "TR" ),
   stringsAsFactors = FALSE )
+mBAMs <- data.frame(
+  BAM=c("CT.BAM", "TR.BAM"),
+  condition=c("CT","TR"))
+@
+Read counting: 
+<<quickStart2, echo=TRUE, eval=FALSE>>=
 counts      <-  gbCounts(features = features, 
                          BAM = BAMs, 
                          targets = targets, 
@@ -103,18 +109,21 @@ asd         <-  jCounts(counts = counts,
                         features = features,
                         BAM= BAMs, 
                         minReadLength =125L)
-mBAMs <- data.frame(
-  BAM=c("CT.BAM", "TR.BAM"),
-  condition=c("CT","TR"))
-contrasts  <- list(A_B = c(-1, 1))
-gb      <- gbDUreport(counts, contrast = c(-1, 1))
-jdur    <- jDUreport(asd, contrast =  c(-1, 1),
+@
+Estimate differential signals:
+<<quickStart3, echo=TRUE, eval=FALSE>>=
+contrasts <- list(A_B = c(-1, 1))
+gb        <- gbDUreport(counts, contrast = c(-1, 1))
+jdur      <- jDUreport(asd, contrast =  c(-1, 1),
                      runUniformityTest = TRUE,
                      mergedBAMs = mBAMs,
                      strongFilter=TRUE)
+@
+Summarize results:
+<<quickStart4, echo=TRUE, eval=FALSE>>=
 sr      <- splicingReport(gb, jdur, counts)
 is      <- integrateSignals(sr,asd)
-reports <- list(gb=gb,j=jdur,sr=sr,is=is)
+exportSplicingReports( sr, output.dir="sr")
 @ 
 
 \section{Using \texttt{ASpli}}
@@ -146,7 +155,7 @@ See Section \ref{sec:outputs}:\nameref{sec:outputs} for more details.
 \caption{ ASpli core Funcionalities }
 \label{fig:ASpliStructure}
 \end{figure}
-\subsection{Splicing event assignation} \label{sec:eventAssign}
+\subsection{Splicing event assignment} \label{sec:eventAssign}
 \label{sec:binDefinition}
 Sub-genic features such as exons and introns are analyzed using the annotation by splitting the genome into non-overlapping features called bins, 
 following the methodology proposed for DEXSeq \cite{pmid22722343}. Exon and intron 
@@ -165,11 +174,11 @@ classified into {\em exclusively exonic bins}, {\em exclusively intronic bins}, 
 
 
 
-Each AS bin is assigned to a type of splicing event. The assignation is
+Each AS bin is assigned to a type of splicing event. The assignment is
 made using {\em minimum  local gene models} considering unique patterns of three bins: the bin being evaluated and 
 the two neighbor bins (one to the left, one to 
-the right). Figure (\ref{fig:binAssignation}) shows examples of  splicing event categorization for different 
-{\em minimum local gene models}. When the minimum local gene model contains two isoforms (see first row of figure \ref{fig:binAssignation}) bins are labelled as follow:
+the right). Figure (\ref{fig:binAssignment}) shows examples of  splicing event categorization for different 
+{\em minimum local gene models}. When the minimum local gene model contains two isoforms (see first row of figure \ref{fig:binAssignment}) bins are labelled as follow:
 
 \begin{itemize}
   \item \textbf {ES} Exon skipping
@@ -180,19 +189,19 @@ the right). Figure (\ref{fig:binAssignation}) shows examples of  splicing event 
 
 When the minimum gene model contains three, four or five isoforms (no more than five non redundant isoforms can exist in the minimum gene model), labels of bins are similar to the ones defined previously but have an extra '*'
 character ( \textbf{IR*}, \textbf{ES*}, \textbf{Alt5'SS*}, 
-\textbf{Alt3'SS*}) in order to show that more than two isoforms exist and, therefore, the results should be used with caution (see rows 2-4 of figure \ref{fig:binAssignation}). 
+\textbf{Alt3'SS*}) in order to show that more than two isoforms exist and, therefore, the results should be used with caution (see rows 2-4 of figure \ref{fig:binAssignment}). 
 This type of splicing events involve intronic subgenic regions sourrounded by exons in at least one isoform (\textbf{IR*}), and exonic subgenic regions sourrounded by two introns in at least one isoform (\textbf{ES*}). Minimum local gene models that do not fit in those categories are typified as \textbf{Alt5'SS*} or \textbf{Alt3'SS*} if they present exonic regions sourrounded by intronic and exonic neighbor subgenic regions.
 
-In some cases, it is not possible to make a simple assignation for a bin with assumptions made here, those bins are labelled as \textbf{Undefined AS} (last row of figure \ref{fig:binAssignation}).
+In some cases, it is not possible to make a simple assignment for a bin with assumptions made here, those bins are labelled as \textbf{Undefined AS} (last row of figure \ref{fig:binAssignment}).
 
 Those bins that overlap with the beginning or end of any transcript are labelled as \textbf{external}. Please note that an external bin of a transcript may overlap to a non external bin of another transcript, in these cases the bin is still labelled as \textbf{external}. In addition to these non overlapping bins, full introns are extracted from annotation and labelled as \textbf{Io} )
 
 \begin{figure}[ht!]
 \centering
 \includegraphics[width=0.9\textwidth]{images/event_assignment.pdf}
-\caption{ Summary of assignation of splicing events to bins from minimum gene model. The bin being evaluated has a green background highlight. The blue boxes represents exons, while the little light orange boxes represent introns. Gene
+\caption{ Summary of assignment of splicing events to bins from minimum gene model. The bin being evaluated has a green background highlight. The blue boxes represents exons, while the little light orange boxes represent introns. Gene
 models shown are plus sense strand. }
-\label{fig:binAssignation}
+\label{fig:binAssignment}
 \end{figure}
 
 \subsubsection{\texttt{binGenome()} method }
@@ -202,7 +211,7 @@ The \texttt{binGenome} method is a one-stop function to perform:
 \begin{itemize}
  \item subgenic splitting of genes into bins
  \item junction, gene and bin coordinates definition
- \item bin splicing event assignation
+ \item bin splicing event assignment
 \end{itemize}
 
 
@@ -215,7 +224,7 @@ Subgenic features are labelled as follow. For an hypothetical gene named GeneAAA
   \item \textbf{chr.start.end}: defines an experimental junction
 \end{itemize}
 
-Bins and junctions are consecutively named from 5' to 3' of reference sequence. This implies that lower numbers are always closer to the 5' of forward strand. Alternative splicing bins are named as exons.
+Bins and junctions are consecutively named from 5' to 3' of reference sequence, irrespective of their gene's strand. This implies that lower numbers are always closer to the 5' of forward strand. Alternative splicing bins are named as exons.
 
 \texttt{binGenome}'s output is an object of class \texttt{ASpliFeatures}. 
 Methods \texttt{featuresg}, \texttt{featuresb}, \texttt{featuresj} can be used to access genes, bins and junctions coordinates as \texttt{GRanges} (\texttt{GRanges} objects defined in the \texttt{GenomicRanges} package.) 
@@ -459,7 +468,6 @@ Exclusive parameters:
 The differential junction usage estimation is performed using diffSpliceDGE function from edgeR package. 
 
 All junctions related to the same event are clustered and define the event \textit{gene}. Then, each/every junction is tested against this \textit{gene} in a similar fashion that bins are tested against their gene in diffSpliceDGE. Localec are clusters made of junctions that share start and end with at least another junction in the cluster.
-
 
 
 <<jDUreport, echo=TRUE, eval=FALSE>>=
