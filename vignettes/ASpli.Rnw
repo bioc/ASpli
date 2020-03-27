@@ -270,7 +270,7 @@ targets_2 <- data.frame( row.names = c( 'CT_t1_r1',  'CT_t1_r2',
 
 The name of the each experimental condition is determined from the experimental factors levels defined in the \textbf{targets} dataframe. They can be check using the \texttt{getConditions()} function. 
 
-<<targetsDF2, echo=TRUE, eval=FALSE>>=
+<<targetsDF2b, echo=TRUE, eval=FALSE>>=
 getConditions( targets_2 )
 @
 
