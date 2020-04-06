@@ -24,7 +24,7 @@ options(continue=" ")
 \title{\texttt{ASpli}: An integrative R package for analysing alternative 
   splicing using \RNAseq}
 
-\author{Estefania Mancini, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz}
+\author{Estefania Mancini, Andres Rabinovich, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz}
 
 \begin{document}
 
