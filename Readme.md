@@ -1,7 +1,7 @@
 # An integrative R package for analysing alternative splicing using RNAseq
 
 ## Authors
-Estefania Mancini, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz
+Estefania Mancini, Andres Rabinovich, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz
 
 ## Introduction
 
