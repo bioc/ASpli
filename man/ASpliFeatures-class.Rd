@@ -9,7 +9,6 @@
 \alias{featuresg,ASpliFeatures-method}
 \alias{featuresj,ASpliFeatures-method}
 \alias{readCounts,ASpliFeatures-method}
-\alias{plotGenomicRegions,ASpliFeatures-method}
 \alias{featuresb<-,ASpliFeatures,GRanges-method}
 \alias{featuresg<-,ASpliFeatures,GRangesList-method}
 \alias{featuresj<-,ASpliFeatures,GRanges-method}
@@ -26,4 +25,4 @@
   }
 }
 
-\author{ Estefania Mancini, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz}
+\author{ Estefania Mancini, Andres Rabinovich, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz}

@@ -52,12 +52,9 @@ exportMethods(
     "junctionDUreport",
     "containsGenesAndBins",
     "containsJunctions",
-    "plotBins",
-    "plotGenomicRegions",
     "subset",
     "mergeBinDUAS",
-    "filterDU"
-    
+    "filterDU" 
 )
 exportClasses(
     "ASpliAS",

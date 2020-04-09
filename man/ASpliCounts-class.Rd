@@ -17,7 +17,6 @@
 \alias{junctionDUreport,ASpliCounts-method}
 \alias{DUreportBinSplice,ASpliCounts-method}
 \alias{DUreport,ASpliCounts-method}
-\alias{plotBins,ASpliCounts-method}
 \alias{rdsb,ASpliCounts-method}
 \alias{rdsg,ASpliCounts-method}
 \alias{rdsb<-,ASpliCounts,data.frame-method}
@@ -65,4 +64,4 @@
 	 }
 }
 
-\author{ Estefania Mancini, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz}
+\author{ Estefania Mancini, Andres Rabinovich, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz}
