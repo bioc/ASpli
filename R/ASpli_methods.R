@@ -1299,11 +1299,11 @@ setMethod(
     # is[,bjs.lr:=signif(as.numeric(bjs.lr), 4)]
     # is[,bjs.fdr:=signif(as.numeric(bjs.fdr), 4)]
      
-    is$bjs.inclussion_sign <- as.factor(replace_na(sign(as.numeric(is$bjs.inclussion)), 0))     
-    is$a.dpir_sign <- as.factor(replace_na(sign(as.numeric(is$a.dpir)), 0))    
+    is$bjs.inclussion_sign <- as.factor(.my_replace_na(sign(as.numeric(is$bjs.inclussion)), 0))     
+    is$a.dpir_sign <- as.factor(.my_replace_na(sign(as.numeric(is$a.dpir)), 0))    
     is$a.dpir      <- abs(is$a.dpir)
     
-   
+
     message("Generating graphs...")
     if(!is.numeric(ntop)){
         ntop <- length(is$region)

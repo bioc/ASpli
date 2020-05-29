@@ -92,3 +92,8 @@
   return ( result )
 }
 
+.my_replace_na<-function(x,val){
+  x[is.na(x)]<-val
+}
+
+
