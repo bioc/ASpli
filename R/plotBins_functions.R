@@ -517,7 +517,7 @@
 #.plotSplicingPattern(region, iss, counts, f, mergedBAMs, sr, chrMap = chrMap)
 
 .plotSplicingPattern<-function(region=NULL,iss,counts,f,mergedBAMs,sr,asd,genePlot=TRUE,jCompletelyIncluded=TRUE,
-                              zoomRegion=1.5,useLog=FALSE,tcex=1){
+                              zoomRegion=1.5,useLog=FALSE,tcex=2){
   #region <- r
   #iss <- is
   #counts
@@ -717,13 +717,17 @@
   if(length(iE)>0){
     for(iie in seq_along(iE)){
       if(mcols(bins)$feature[iE[iie]]%in%c("Io","I")){
-        lines(c(start(bins[iE[iie]]),end(bins[iE[iie]])),c(ycollapsed,ycollapsed),col="orange",lwd=3)
+        lines(c(start(bins[iE[iie]]),end(bins[iE[iie]])),
+              c(ycollapsed,ycollapsed),col="orange",lwd=3)
       }else{
         if(iiss$b!=0 | iiss$bjs!=0){
          if(iiss$b!=0 & iiss$bjs==0) cc <- "orange"
          if(iiss$b!=0 & iiss$bjs!=0) cc <- "red"
          if(iiss$b==0 & iiss$bjs!=0) cc <- "yellow"
-         rect(start(bins[iE[iie]]),ycollapsed-.45,end(bins[iE[iie]]),ycollapsed+.45,col=cc,border=NA)
+         rect(start(bins[iE[iie]]),
+              ycollapsed-.45,
+              end(bins[iE[iie]]),
+              ycollapsed+.45,col=cc,border=NA)
         } 
       }
     }
@@ -772,7 +776,7 @@
   jcoords1<-c()
   if(length(ijs)>0){
     #jcoords1          <- matrix(as.numeric(aux[ijs,]),ncol=3)
-    jcoords1          <- data.frame(aux[ijs,],stringsAsFactors = FALSE)
+    jcoords1          <- data.frame(aux[ijs,,drop=FALSE],stringsAsFactors = FALSE)
     jcoords1[,2] <- as.numeric(jcoords1[,2])
     jcoords1[,3] <- as.numeric(jcoords1[,3])
     rownames(jcoords1)<-js[ijs]
@@ -796,7 +800,7 @@
   if(length(ijs)>0){
     #jcoords2          <- matrix(as.numeric(aux[ijs,]),ncol=3)
     jcoords2          <- aux[ijs,]
-    jcoords2          <- data.frame(aux[ijs,],stringsAsFactors = FALSE)
+    jcoords2          <- data.frame(aux[ijs,,drop=FALSE],stringsAsFactors = FALSE)
     jcoords2[,2] <- as.numeric(jcoords2[,2])
     jcoords2[,3] <- as.numeric(jcoords2[,3])
     
@@ -843,7 +847,10 @@
       jcount0 <- .countJbyCondition(jcoords0,counts)[,mergedBAMs[icond,2],drop=FALSE]
       jok     <- rownames(jcount0)[jcount0>5*nrep]
       nj0     <- length(jok)
-      if(nj0>0)  jjcoords0  <- jcoords0[jok,,drop=FALSE]
+      if(nj0>0){
+        jjcoords0  <- jcoords0[jok,,drop=FALSE]
+        jcount0    <- jcount0[jok,,drop=FALSE]
+      }  
     }
     
     jjcoords1<-jcoords1
@@ -949,7 +956,7 @@
         #yij <- nj0+ij
         yij  <- ij * njlevels*0.8/(nj1+nj2-length(j12))
         lines(jcoords[ij,2:3],rep(yij,2),lwd=max(1,ww[rownames(jcoords)[ij],1]),col=ccolor[ij])
-        points(jcoords[ij,2:3],rep(yij,2),pch=18,cex=0.5,col=ccolor[ij])
+        points(jcoords[ij,2:3],rep(yij,2),pch=18,cex=2,col=ccolor[ij])
         text(mean(as.numeric(jcoords[ij,2:3])),yij,jcounts[ij],pos=2,cex=tcex)
       }
       
@@ -959,18 +966,20 @@
     #coverage
     xx <- as.numeric(c(start(bins[1]),end(bins[nbines])))
     if(useLog){
+      yylim[yylim==0]<-0.1
+      ad[ad[,3]==0,3]<-0.1
       plot(0.01,typ="n",xlim=xx,ylim=yylim,axes=FALSE,xlab="",ylab="",log="y")
     }else{
       plot(0,typ="n",xlim=xx,ylim=yylim,axes=FALSE,xlab="",ylab="")
     }
-    polygon(c(ad[1,2],ad[,2],ad[nrow(ad),2]), c(0.01,ad[,3],0.01)
+    polygon(c(ad[1,2],ad[,2],ad[nrow(ad),2]),c(0.01,ad[,3],0.01)
             ,border=NA,col=topo.colors(nConditions,1)[icond],fillOddEven = TRUE)
     lines(c(ad[1,2],ad[,2],ad[nrow(ad),2]),  c(0.01,ad[,3],0.01),
           col=topo.colors(nConditions,1)[icond])
     text(ad[1,2],0.01,paste0("[0-",max(ad[,3]),"]"),cex=tcex,adj=c(-.25,-.5))
     
-    if(nj1>0)abline(v=unique(c(jcoords1[,2],jcoords1[,3])),col="lightblue",lty=3)
-    if(nj2>0)abline(v=unique(c(jcoords2[,2],jcoords2[,3])),col="lightgreen",lty=3)
+    if(nj1>0)abline(v=unique(c(jcoords1[,2],jcoords1[,3])),col="lightgreen",lty=3)
+    if(nj2>0)abline(v=unique(c(jcoords2[,2],jcoords2[,3])),col="lightblue",lty=3)
     
     #remarco la roi original
     if(icond==1){
