@@ -1098,6 +1098,10 @@ setMethod(
         }else{
             b <- b[union(which(b$bin.fdr < maxBinFDR), which(b$cluster.fdr < maxJunctionFDR)), ] 
         }
+        if(nrow(b)==0){
+          cat("Not a single",s,"event passed the filtering step. You might consider relaxing thresholds.\n")
+          next
+        }
       	columnas_numericas <- which(sapply(b, class) == "numeric")
 	      b[, columnas_numericas] <- apply(b[, columnas_numericas], 2, function(s){return(signif(as.numeric(s), digits = 4))})
         titulo <- paste0('ASpli: ', s, ". Contrasts: ", paste(names(sr@contrast)[sr@contrast != 0], collapse = " - "))
