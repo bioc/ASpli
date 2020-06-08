@@ -1,8 +1,30 @@
+# <<targetsDF2, echo=TRUE, eval=FALSE>>=
+# <<Ex02.a, echo=TRUE, eval=FALSE>>=
+# <<Ex02.b, echo=TRUE, eval=FALSE>>=
+# <<Ex02.c, echo=TRUE, eval=FALSE>>=
+# <<Ex02.d, echo=TRUE, eval=FALSE>>=
+# <<Ex02.e, echo=TRUE, eval=FALSE>>=
+# <<Ex02.f, echo=TRUE, eval=FALSE>>=
+# <<Ex02.f, echo=TRUE, eval=FALSE>>=
+# <<Ex02.i, echo=TRUE, eval=FALSE>>=
+# <<Ex02.j, echo=TRUE, eval=FALSE>>=
+# <<Ex02.j, echo=TRUE, eval=FALSE>>=
+# <<Ex02.k2, echo=TRUE, eval=FALSE>>=
+# <<Ex02.l, echo=TRUE, eval=FALSE>>=
+# <<Ex02.kk, echo=TRUE, eval=FALSE>>=
+# <<Ex02.kk, echo=TRUE, eval=FALSE>>=
+# <<Ex02.m, echo=TRUE, eval=FALSE>>=
+# <<Ex04, echo=TRUE, eval=FALSE>>=
+# <<Ex05, echo=TRUE, eval=FALSE>>=
+
 \documentclass{article}
 <<style, echo=FALSE, results=tex>>=
 BiocStyle::latex()
 options(continue=" ")
 @
+
+
+
 \usepackage{verbatim} 
 \usepackage{caption} 
 \usepackage{cite}
@@ -22,12 +44,14 @@ options(continue=" ")
 \author{Estefania Mancini, Andres Rabinovich, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz}
 
 \begin{document}
-
 \SweaveOpts{concordance=TRUE}
+
+%\SweaveOpts{concordance=TRUE}
 
 \maketitle
 
 \tableofcontents
+
 
 \section{Introduction}
 
@@ -48,7 +72,7 @@ AS events.
 %annotated and novel AS events. ASpli can be used to analyze both simple 
 %and complex experimental designs involving multiple experimental conditions.
 
-<<loadAspli, echo=FALSE, eval=FALSE>>=
+<<loadAspli, echo=FALSE, eval=TRUE>>=
 devtools::load_all("~/Projects/RNAseq/ASpli/gitlab/ASpli")
 @
 
@@ -59,6 +83,9 @@ Here is an example for a pairwise comparison between 2 conditions (Control vs Tr
 
 Extract features from genome, define {\em targets} data.frame with phenotype data, and
 {\em mBAMs} data.frame with phenotype data for merged BAMs:
+
+
+
 <<quickStart1, echo=TRUE, eval=FALSE>>=
 genome   <- loadDb("txdb.sqlite")
 features <- binGenome(genome)
@@ -143,18 +170,19 @@ The building of a \texttt{TxDb} object might be time consuming, depending on the
 @
 
 Please, \texttt{make sure all files use the same coordinate system}.
-\item Optionally: replicate merged \texttt{BAM} files for each contrasted condition are needed to estimate uniform coverage statistics and to generate graphical reports through the {\texttt exportIntegratedSignals} function. 
+\item IMPORTANT: replicate merged \texttt{BAM} files for each contrasted condition are needed to estimate uniform coverage statistics and to generate graphical reports through the {\texttt exportIntegratedSignals} function. 
 
 \end{itemize}
 
 
 \section{Using \texttt{ASpli}}
 The workflow intended to be used with \texttt{ASpli} is divided in four main steps (Figure \ref{fig:ASpliStructure}). \begin{enumerate}
-  \item Extract features from genome TxDb: \texttt{ binGenome() }
-  \item Counting:  \texttt{ gbCounts()},  \texttt{ jCounts()}
-  \item Differential signals:\texttt{ gbDUreport()}, 
+  \item Extracting features from genome TxDb: \texttt{ binGenome() }
+  \item Counting reads:  \texttt{ gbCounts()},  \texttt{ jCounts()}
+  \item Estimating differential signals:\texttt{ gbDUreport()}, 
   \texttt{jDUreport()}
-  \item Reports: \texttt{ splicingReport() }, \texttt{ integrateSignals() }
+  \item Generering reports: \texttt{ splicingReport() }, \texttt{ integrateSignals() }
+  \item Exporting html reports: \texttt{ exportSplicingReport() }, \texttt{ exportIntegrateSignals() }
 \end{enumerate}
 
 
@@ -162,7 +190,8 @@ The main objects classes used to store data and perform operations are:
 \begin{itemize}
   \item \texttt{ASpliFeatures}: Contains genomic coordinates
   \item \texttt{ASpliCounts}: Contains number of reads overlapping each genomic feature
-  \item \texttt{ASpliAS}: Contains counts of aligned junctions   \item \texttt{ASpliDU}: Contains results of Differential expression and usage
+  \item \texttt{ASpliAS}: Contains counts of aligned junctions   
+  \item \texttt{ASpliDU}: Contains results of Differential expression and usage
   \item \texttt{ASpliJDU}: Contains results of Differential Junctions usage
   \item \texttt{ASpliSplicingReport}: Contains differential usage information using different evidences
   \item \texttt{ASpliIntegratedSignals}: Contains signals present in the region
@@ -269,7 +298,7 @@ When it is not possible to get a clear splicing-type assignation (last row of Fi
 BAM file names and experimental factors should be provided as a dataframe 
 that has as many rows as samples. The first column  should be named \textit{bam} and should contain the path to a BAM file. Next columns should be used to specify the different experimental factors for each sample. %For a single factor experiment with 2 conditions (Control and Treatment) and 2 replicates for each condition, \textbf{targets} dataframe could be defined as follow:
 
-%<<targetsDF, echo=TRUE, eval=TRUE>>=
+%<<targetsDF, echo=TRUE, eval=FALSE>>=
 %targets <- data.frame(
 %  bam = c("path_to_bams/CT_1.BAM", "path_to_bams/CT_2.BAM","path_to_bams/CT_3.BAM",
 %          "path_to_bams/TR_1.BAM", "path_to_bams/TR_2.BAM","path_to_bams/TR_3.BAM"),
@@ -299,11 +328,10 @@ BAMFiles <- c("path_to_bams/CT_time1_rep1.BAM", "path_to_bams/CT_time1_rep2.BAM"
 
 The {\em targets} data frame contains experimental factor values for each sample. \texttt{ASpli} generates simple code-name for each experimental condition concatenating the corresponding factor levels. They can be check using the \texttt{getConditions()} function. 
 
-<<targetsDF2b, echo=TRUE, eval=FALSE>>=
+<<targetsDF2b, echo=TRUE, eval=TRUE>>=
 getConditions( targets )
 @
-  
-The order of the conditions given by \texttt{getConditions} is the same that in contrast argument of DUreport.norm function.
+
 
 \textbf{Important 1} The keyword {\em condition} is internally used by \texttt{ASpli} to store experimental condition code-names and SHOULD NOT be used as an experimental factor name in the definition of the {\em targets} data.frame. 
 
@@ -348,6 +376,10 @@ writeRds(counts=counts, output.dir = "example")
 \paragraph{Additional considerations}
 \label{sec:intronFlanking}
 \begin{itemize}
+\item At gene-level, for a given gene, the read count number is computed as
+the number of reads overlapping any exon included in the corresponding annotated gene model. If a single read overlaps more than one exon, it is counted only once. Note that \textbf{one read can
+overlap two different genes, in this case it is counted for both of them}.
+
 \item Every intron is considered as a potential retained intron.  To analyze putative inton retention events, \texttt{ASpli} considers the  corresponding upstream and downstream exons (E1 and E2, always in the forward sense). Then, following \cite{pmid25258385}, new artificial ranges that overlap the two retention regions E1I 
 (connecting exon E1 and intron I) and IE2 (connecting intron I and exon E2) are defined:
 
@@ -361,9 +393,7 @@ writeRds(counts=counts, output.dir = "example")
 where I$_{s}$ and I$_{e}$ are the intron start and end coordinates respectively. \texttt{ minAnchor } is 10\% of read length by default (parameter \texttt{minAnchor} )
 
 
-\textbf{Please check before start the read length of your sequenced library}
-Only those reads which minimum overlap \textit{minReadLength} and without gap in this interval are considered. 
-As a consequence, only reads aligned \textbf{within} those two exons/introns are counted. 
+\textbf{Please check before start the read length of your sequenced library} Only those reads whith minimum overlap \textit{minReadLength} with either $E1I$ or $IE2$ will be considered and counted. 
 
 To access this data:
 <<gbCountAccessors2, echo=TRUE, eval=FALSE>>=
@@ -371,9 +401,6 @@ e1iCounts <- countse1i(counts)
 ie2Counts <- countsie2(counts)
 @
 
-\item For a given gene, the read count number is computed as
-the number of reads overlapping any exon included in the corresponding annotated gene model. If a single read overlaps more than one exon, it is counted only once. Note that \textbf{one read can
-overlap two different genes, in this case it is counted for both of them}.
  
 \item Effective length: is the sum of the length of exonic bins and alternative bins (i.e. all bins except intronic bins).
 
@@ -576,7 +603,7 @@ Summary of arguments:
 \item asd: An object of class \texttt{ASpliAS} with results of PSI and PIR using experimental junction
 \item minAvgCounts (Default=5): Minimum average counts for filtering. 
 \item runUniformityTest  (Defaults =   FALSE): Run uniformity test on \textbf{Intron Retention} in order to detect non-uniform read coverage along the intron. This test compares the standard deviation of the inner intron region (11 bases from both ends) to the mean of both intron ends. Numbers closer to 0 mean more uniform coverage. This is an experimental feature, requires the existence of one merged BAM per experimental condition and takes some time to run. 
-\item mergedBAMs: Path to merged BAMs for each testing condition. \textit{ If no merged BAMs exist (for example, paired samples without replicates), use the same BAMs as targets.}
+\item mergedBAMs: Should be specified if {\em runUniformityTest}=TRUE. Path to merged BAMs for each testing condition. \textit{ If no merged BAMs exist (for example, paired samples without replicates), use the same BAMs as targets.}
 \item maxPValForUniformityCheck: To speed up uniformity test only check junctions with pval < maxPValForUniformityCheck (Default=0.2)
 \item strongFilter: If strongFilter is TRUE, then we discard junction clusters with at least one junction that doesn't pass the filter.
 \item  maxConditionsForDispersionEstimate: In order to reduce resource usage, estimate dispersion for statistics tests with a reduced number of conditions.
@@ -631,7 +658,7 @@ Accesors:
 
 \texttt{binbased(sr)} data.frame combines information from bins and annotated junctions. For each case, either $\Delta PSI$ or $\Delta PIR$ statistics is reported based on the {\em bin} splicing type. \texttt{localebased(sr)}  is a data.frame with information from bins and {\em locale} junctions. Statistics for each junction are located in columns prefixed with "junction" and statistics for the corresponding cluster are prefixed with the "cluster" keyword. Changes in {\em participation} coefficients are also reported. If {\em locale} clusters matched a {\em bin}, the coresponding bin statistics are also included. The data structure of \texttt{anchorbased(sr)} data.frame is similar to the {\em localebased(sd)} one. All data.frames also include junction count records for debugging purposes.
 
-Export tab delimited table (see \secref{sec:reports} for interactive html reports):
+Export tab delimited table (see \ref{sec:reports} for interactive html reports):
 
 <<splicingReportA, echo=TRUE, eval=FALSE>>=
 writeSplicingReport( sr, output.dir = "test")
@@ -640,7 +667,7 @@ writeSplicingReport( sr, output.dir = "test")
 \subsubsection{\texttt{integrateSignals()}: Region specific summarization of differential usage signals.}
 This function integrates different usage signals reported in overlaping genomic regions:
 \begin{itemize}
-\item bin signal:  a bin is called differentially-used by ASpli if it displays statistically significant coverage changes (fdr $< 0.05$, by default) and, additionally, one of the two supplementary conditions hold: either the bin fold-change level is greater than a given threshold (3 fold changes, by default) or changes in inclusion levels of bin-supporting junctions ($\Delta PIR$ or $\Delta PSI$ according to the bin class surpasses a predefined threshold ($0.2$ by default).
+\item bin signal:  a bin is called differentially-used by ASpli if it displays statistically significant coverage changes (fdr $< 0.05$, by default) and, additionally, one of the two supplementary conditions hold: either the bin fold-change level is greater than a given threshold (3 fold changes, by default) or changes in inclusion levels of bin-supporting junctions ($\Delta PIR$ or $\Delta PSI$ according to the bin class) surpass a predefined threshold ($0.2$ by default).
 
 \item {\em anchorage} signal: statistically significant changes are found at the cluster level (cluster.fdr $<0.05$ by default) for the considered $\{J_1,J_2,J_3\}$ junction set (see upper panel of Fig \ref{fig:psir_junc}) and, at the same time, $|\Delta PIR_{J_3}|$ is larger than a given threshold (0.3 by default).  
 
@@ -708,7 +735,19 @@ Accesors:
 
 In this example a bin-signal ({\em b}) was found in region {\em Chr1:406793-406902}. A matching bin-junction supporting signal was also reported ({\em bjs}), so both discoveries were merged. Finally, a significant {\em locale} cluster overlapped the region, but genomic ranges did not match, so an * was used for that signal.
 
+\paragraph{Event assignement} We adopted the following heuristics to classify the region-centered integrated splicing signals. Eventhough we found this classification scheme usefull in most situations, it is strongly advised to use it as a preliminary categorization of events. Further examination is advised in order to disentangle complex splicing patterns. 
 
+\begin{enumerate}
+\item For each region with {\em bin-coverage} signal, we try to find a matching region in {\em binbased(sr)} table. If a match is found, we assign that event to the corresponding bin-event class and report the corresponding statistical information. Otherwise, the signal is marked as \textbf{*}.
+\item For each region with {\em bin-junction support} (bjs) signal, we try to find a matching J3-junction in {\em binbased(sr)} table. If a match is found, junction statistics are retrieved. Otherwise, the signal is marked as \textbf{*} in the {\em bjs} column. 
+\item For each region with {\em anchorage-signal}, we try to find a matching J3-junction in {\em anchorbased(sr)} table. If a match is found, junction statistics are retrieved. Otherwise, we try to find a matching J3-junction of a {\em Io bin} in the {\em binbased(sr)} table. If a match is found, the event is marked as \textbf{IoR}. Otherwise, we try to find a {\em bin-signal} matching region. In case no match is reported at this instance the event is marked as {\em Novel Alternative Splicing Pattern} \textbf{NASP}. If a match is reported but the bin is marked as \textbf{*}, then the event is marked as {\em Complex Splicing Pattern} \textbf{CSP}. Finally, if no J3-junction in {\em anchorbased(sr)} table is found, the signal is marked as \textbf{*}. 
+\item For each region with {\em locale signal}, we look for a matching cluster  in {\em localebased(sr)} table. If any, we retrieve the statistical information from that cluster. Otherwise we try to find a cluster with a matching J3 junction. If no match is found, then the {\em locale} signal columns is marked with an \textbf{*}. In order to categorize the event we adopte the following heuristic: 
+\begin{enumerate}
+\item If all junctions share the same end or start coordinates, we check if all bins in between are of the same type (i.e. exons or introns). If this is the case, then this is an \textbf{Alt 5'/3'} event. Otherwise, the event is marked as \textbf{CSP}. 
+\item If the cluster is composed of three junctions and not all junctions share the same end or start, we check it there is a cluster with a matching J3-junction. If this is the case, the event is labelled as an \textbf{ES} event. Otherwise, it is marked as a \textbf{CSP} event. If some of the junctions in the cluster were novel, then the event is classified as a novel one: \textbf{NASP}. 
+\item For each of the other unclassified events, we check whether they involve {\em exonic} features. If this were the case, we mark them as {\em alternative splicing affecting a consensus exon} \textbf{ASCE} events. On the other hand, for {\em intronic} features, if some signals were marked as \textbf{*} we clasify the event as \textbf{CSP}. Othewise, the event is marked as an \textbf{IR}.
+\end{enumerate}
+\end{enumerate}
 
 \subsubsection{\texttt{exportSplicingReport}: Export splicing reports in HTML pages.} \label{sec:reports}
 
@@ -757,7 +796,7 @@ Arguments:
 \item features: An object of class ASpliFeatures
 \item asd: An object of class ASpliAS
 \item output.dir: HTML reports output directory 
-  \item{mergedBams}{
+\item{mergedBams}{
     Dataframe with two columns, bams and conditions. Bams are paths to merged bam files for each condition. These will be used to produce coverage plots if {\em mageGraph}=TRUE. 
   }
   \item{jCompletelyIncluded}{If TRUE only plot junctions completely included inside the plot region. Otherwise plot any overlapping junctions, not necessarily contained in the region of interest}
@@ -861,7 +900,7 @@ features <- binGenome( genomeTxDb )
 
 @
 
-Then load the alignment and define your tragets.
+Then you should define your {\em targets} table.
 \texttt{aspliExampleBAMList()} provides the full path to the BAMs files.
 <<Ex02.e, echo=TRUE, eval=TRUE>>=
 BAMFiles <- aspliExampleBamList()
@@ -879,7 +918,7 @@ targets <- data.frame(
 @
 
 Experimental conditions are inferred from the experimental factors appearing in the {\em target} data.frame:
-<<Ex02.g, echo=TRUE, eval=FALSE>>=
+<<Ex02.g, echo=TRUE, eval=TRUE>>=
 getConditions(targets)
 #[1] "A_C" "A_D" "B_C" "B_D"
 @
@@ -913,14 +952,14 @@ asd         <-  jCounts(counts          = counts,
 At this point we can start asking different questions regarding differential gene expression and splicing patterns. \texttt{ASpli} allows to do this by defining {\em contrasts} or by using the {\em formula} approach. This feature allows the user to choose the framework that better (i.e. more easily) serve to test the sought effect.
 
 \subsubsection{The contrast approach}\label{sec:contrast}
-Table \ref{tab:Contrasts01} shows different examples of contrasts that can be used to test for different hypothesis:
+Table \ref{tab:Contrasts01} shows different contrasts that can be used to test different hypothesis:
 
 \begin{table}[H]
   \noindent\makebox[\textwidth]{%
     \begin{tabular}{p{9cm}p{2cm}}
     Test & contrast\\ \hline
-    AS between \textbf{f2}:C and D conditions, for \textbf{f1}=A samples & c(-1, 1, 0, 0)\\
-    AS between \textbf{f2}:C and D conditions, for \textbf{f1}=B samples & c( 0, 0,-1, 1)\\
+    AS between \textbf{f2} C and D conditions, for \textbf{f1}=A samples & c(-1, 1, 0, 0)\\
+    AS between \textbf{f2} C and D conditions, for \textbf{f1}=B samples & c( 0, 0,-1, 1)\\
     Interaction effect (i.e. differences between the above-mentioned contrasts) & c( 1,-1,-1, 1)\\
     \end{tabular}}
   \caption{Test and contrasts.}
@@ -934,9 +973,9 @@ A and B \textbf{f1} levels. The interaction contrast corresponds to:
 I = ( B.D - B.C ) - ( A.D - A.C ) 
 \end{equation}
 
-As Table \ref{tab:Contrasts01} shows, the coefficients of the terms in this expression can be 
-represented in the {\em contrast} vector $[ 1,-1,-1, 1]$, where we have taken the order given
-by \texttt{getConditions} function in consideration.
+As Table \ref{tab:Contrasts01} shows, taking in consideration the order given
+by \texttt{getConditions} function, the coefficients of the terms in this expression can be 
+represented as the {\em contrast} vector $[ 1,-1,-1, 1]$.
 
 
 We estimate gene differential expression and annotation-based differential splicing patterns for the contrast of interest as follow:  
@@ -945,36 +984,29 @@ gb      <- gbDUreport(counts,contrast = c( 1, -1, -1, 1 ) )
 @
 
 \texttt{genesDE()} and \texttt{binsDU()} accesors report the statistical significance results. We can see that in this example no evidence of a statistically significant interaction term was found at gene expression level. However, 9 out of 14 bins displayed statistically significant interaction effect (fdr < 0.01) 
-<<Ex02.k, echo=TRUE, eval=TRUE>>=
+<<Ex02.k2, echo=TRUE, eval=TRUE>>=
 genesDE(gb)
 binsDU(gb)
 @
 
 
 The analysis of annotation-free junction-based AS events can be done with \footnote{Note that as we required to compute non-uniform intron coverage, we should specify merged-BAMs information}:
-<<Ex02.l, echo=FALSE, eval=TRUE>>=
-jdur    <- jDUreport(asd, 
-                     contrast =  c( 1, -1, -1, 1 ) ,
-                     runUniformityTest = TRUE,
-                     mergedBams = mBAMs)
-@
-<<Ex02.la, echo=TRUE, eval=FALSE>>=
-jdur    <- jDUreport(asd, 
-                     contrast =  c( 1, -1, -1, 1 ) ,
-                     runUniformityTest = TRUE,
-                     mergedBams = mBAMs)
+<<Ex02.l, echo=TRUE, eval=TRUE>>=
+jdur    <- jDUreport(asd, contrast =  c( 1, -1, -1, 1 ))
 @
 
-Results for junction-based events matching bin ranges can be accessed through \texttt{jir(jdur)}, \texttt{jes(jdur)} and \texttt{jalt(jdur)} accesors (see \secref{sec:jdureport}).
+Results for junction-based events matching bin ranges can be accessed through \texttt{jir(jdur)}, \texttt{jes(jdur)} and \texttt{jalt(jdur)} accesors (see \ref{sec:jdureport}).
 
 Here we show the output corresponding to results of the {\em locale}-junction cluster analysis.
 Information regarding {\em locale} cluster-level tests can be retrieved using:
 <<Ex02.kk, echo=TRUE, eval=TRUE>>=
 localec(jdur)
 @
-Rows are ordered by FDR values. Row names correspond to cluster-ids. The {\em participation} and {\em dParticipation} values for the cluster junction displaying the most significant changeare shown in the last two columns of the table. Note that NA's are reported for cluster-7 as no statistically significant changes were found for any junction of that cluster. 
+Row-names correspond to cluster-ids. Rows are ordered by FDR values. The {\em participation} and {\em dParticipation} values reported for each cluster correspond to the values obtained for the cluster's junction presenting the largest and most significant participation change. Note that NA's are reported for cluster-7 as no statistically significant changes were found for any junction of that cluster. 
 
-<<Ex02.kk, echo=TRUE, eval=TRUE>>=
+
+{\em localej(jdur)} shows locale-information for each analyzed junction, reporting results of statistical tests at junction level in the first 8 columns:
+<<Ex02.kkk, echo=TRUE, eval=TRUE>>=
 localej(jdur)[,1:8]
 @
 
@@ -1003,10 +1035,12 @@ This formula correspond to the following model matrix:
 <<Ex05, echo=TRUE, eval=TRUE>>=
  model.matrix(form,targets)
 @
-Table \ref{tab:Formulas01} summarizes three statistical comparisons that could be implemented considering the second, third and fourth coefficient of the model:
+
+Table \ref{tab:Formulas01} summarizes three statistical comparisons that could be easily implemented considering the second, third and fourth coefficient of the model:
+
 \begin{table}[H]
   \noindent\makebox[\textwidth]{%
-    \begin{ccc}
+    \begin{tabular}{ccc}
     Test & contrast & coefficient\\ \hline
     B.C-A.C & c(-1, 0, 1, 0) & 2\\
     A.D-A.C & c(-1, 1, 0, 0) & 3\\
@@ -1015,6 +1049,20 @@ Table \ref{tab:Formulas01} summarizes three statistical comparisons that could b
   \caption{Experimental design of the example data set.}
   \label{tab:Formulas01}
 \end{table}
+% 
+% \begin{table}[H]
+%   \begin{center}
+%     \begin{tabular}{lllll}
+%     sample   & f1 & f2 & replicate & condition \\ \hline
+%     1        & A  & C  & 0         & A.C       \\
+%     4        & A  & D  & 0         & A.D       \\
+%     7        & B  & C  & 0         & B.C       \\
+%     10       & B  & D  & 0         & B.D       \\
+%     \end{tabular}
+%   \end{center}
+%   \caption{Experimental design for a minimalistic paired design}
+%   \label{tab:ExPaired}
+% \end{table}
 
 In this way, to test for an interaction effect with the {\em formula} framework, we should run:
 <<Ex02.k, echo=TRUE, eval=FALSE>>=
@@ -1026,8 +1074,8 @@ jdur    <- jDUreport(asd, formula = form, coef = 4 ,
 
 \subsection{Paired experimental design}
 
-The {\em formula} approach can easily handle paired designs.
-We will consider a subset of the originally included samples to simulate a paired experiment (see Table \ref{tab:ExPaired}). In this case \textbf{f1} could denote experimental units and \textbf{f2} levels, treatment/control conditions. 
+The {\em formula} approach becomes extremely useful, for instance, to handle paired designs.
+We will consider a subset of the originally included samples to simulate a paired experiment (see Table \ref{tab:ExPaired}). In this case \textbf{f1} could denote experimental units and \textbf{f2} levels, treatment-control conditions. 
 
 \begin{table}[H]
   \begin{center}
@@ -1045,15 +1093,25 @@ We will consider a subset of the originally included samples to simulate a paire
 
 
 <<Ex02.kp, echo=TRUE, eval=FALSE>>=
-targets <- targets[c(1,4,7,10),]
-formula <- formula(~f1+f2)
-gb   <- gbDUreport(counts, formula = form)
-jdur <- jDUreport(asd    , formula = form)
+targetPaired <- targets[c(1,4,7,10),]
+
+counts <- gbCounts(features = features,targets = targetPaired,
+                   minReadLength=100,maxISize=5000,minAnchor = 10)
+asd    <- jCounts(counts=counts,features=features,
+                   minReadLength=100,threshold=5, minAnchor=10)
+
+form   <- formula(~f1+f2)
+gb     <- gbDUreport(counts, formula = form)
+jdur   <- jDUreport(asd    , formula = form)
 
 sr <- splicingReport(gb, jdur, counts = counts)
-is <- integrateSignals(sr,asd)
+is <- integrateSignals(sr,asd,bjs.fdr = 0.1, bjs.inclussion = 0.1, l.inclussion=0.001,l.fdr = 1)
+
+exportSplicingReports(sr,output.dir="paired")
+exportIntegratedSignals(is,output.dir="paired",sr,counts,features,asd,mBAMs,tcex=2)
 @
 
+Note: for a large number of experimental units you might disable the generation of graphs setting the option \texttt{makeGraphs=FALSE} in \textttt{exportIntegratedSignals} function call.
 
 
 \section{Appendix: Detailed Ouputs}
