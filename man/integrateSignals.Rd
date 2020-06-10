@@ -130,9 +130,8 @@ For each of the other unclassified events, it checs if its an exonic feature. If
 \author{
   Andres Rabinovich, Estefania Mancini, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz
 }
-  Accesors: \code{\link{signals}}, 
-            \code{\link{filters}},
-  Export:   \code{\link{exportIntegratedSignals}}
+
+
 \examples{
   # Create a transcript DB from gff/gtf annotation file.
   # Warnings in this examples can be ignored. 
@@ -173,8 +172,12 @@ For each of the other unclassified events, it checs if its an exonic feature. If
 }
 
 \seealso{
+Accesors: \link{signals}, 
+          \link{filters},
+Export:   \link{exportIntegratedSignals}
   \code{\link{gbDUreport}}, \code{\link{jDUreport}}, \code{\link{ASpliSplicingReport}},  \code{\link{splicingReport}}, \
   code{\link{ASpliIntegratedSignals}}
+
 }
 
 

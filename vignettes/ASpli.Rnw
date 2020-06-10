@@ -1,22 +1,3 @@
-# <<targetsDF2, echo=TRUE, eval=FALSE>>=
-# <<Ex02.a, echo=TRUE, eval=FALSE>>=
-# <<Ex02.b, echo=TRUE, eval=FALSE>>=
-# <<Ex02.c, echo=TRUE, eval=FALSE>>=
-# <<Ex02.d, echo=TRUE, eval=FALSE>>=
-# <<Ex02.e, echo=TRUE, eval=FALSE>>=
-# <<Ex02.f, echo=TRUE, eval=FALSE>>=
-# <<Ex02.f, echo=TRUE, eval=FALSE>>=
-# <<Ex02.i, echo=TRUE, eval=FALSE>>=
-# <<Ex02.j, echo=TRUE, eval=FALSE>>=
-# <<Ex02.j, echo=TRUE, eval=FALSE>>=
-# <<Ex02.k2, echo=TRUE, eval=FALSE>>=
-# <<Ex02.l, echo=TRUE, eval=FALSE>>=
-# <<Ex02.kk, echo=TRUE, eval=FALSE>>=
-# <<Ex02.kk, echo=TRUE, eval=FALSE>>=
-# <<Ex02.m, echo=TRUE, eval=FALSE>>=
-# <<Ex04, echo=TRUE, eval=FALSE>>=
-# <<Ex05, echo=TRUE, eval=FALSE>>=
-
 \documentclass{article}
 <<style, echo=FALSE, results=tex>>=
 BiocStyle::latex()
@@ -60,7 +41,7 @@ the early days of NGS (Next generation sequencing) technologies.  Since then, ev
 data availability and the development of increasingly sophisticated analysis methods have uncovered 
 the complexity of the general splicing repertoire.  
 
-In this vignette we describe how to use \tettt{ASpli}, an integrative and user-friendly
+In this vignette we describe how to use \texttt{ASpli}, an integrative and user-friendly
 R package that facilitates the analysis of changes in both annotated and novel 
 AS events. 
 
@@ -73,7 +54,8 @@ AS events.
 %and complex experimental designs involving multiple experimental conditions.
 
 <<loadAspli, echo=FALSE, eval=TRUE>>=
-devtools::load_all("~/Projects/RNAseq/ASpli/gitlab/ASpli")
+devtools::load_all("~/Documents/ASpli")
+
 @
 
 
@@ -137,7 +119,7 @@ exportIntegratedSignals(is,sr=sr,
 \section{Getting started}
 
 \subsection{Installation}
-\textt{ASpli} is available at Bioconductor site and can be installed following these steps:
+\texttt{ASpli} is available at Bioconductor site and can be installed following these steps:
 \texttt{biocLite()}:
 <<installation, echo=TRUE, eval=FALSE>>=
 if (!requireNamespace("BiocManager", quietly = TRUE))
@@ -967,7 +949,7 @@ Table \ref{tab:Contrasts01} shows different contrasts that can be used to test d
 \end{table}
 
 To continue our mini-tutorial we will focus on the last contrast of Table \ref{tab:Contrasts01}. We will
-test whether the differential patterns observed between D and C levels of \tetbf{f2} are different for 
+test whether the differential patterns observed between D and C levels of \textbf{f2} are different for 
 A and B \textbf{f1} levels. The interaction contrast corresponds to:
 \begin{equation}
 I = ( B.D - B.C ) - ( A.D - A.C ) 
@@ -1111,7 +1093,7 @@ exportSplicingReports(sr,output.dir="paired")
 exportIntegratedSignals(is,output.dir="paired",sr,counts,features,asd,mBAMs,tcex=2)
 @
 
-Note: for a large number of experimental units you might disable the generation of graphs setting the option \texttt{makeGraphs=FALSE} in \textttt{exportIntegratedSignals} function call.
+Note: for a large number of experimental units you might disable the generation of graphs setting the option \texttt{makeGraphs=FALSE} in \texttt{exportIntegratedSignals} function call.
 
 
 \section{Appendix: Detailed Ouputs}
