@@ -528,7 +528,7 @@
     warning("transcriptExons(f) has only one element. This could imply that something is wrong with the ASpliFeature object.\n")
   }
   
-  exones = transcriptExons(f)
+  variants = transcriptExons(f)
   
   
   #alturas relativas de paneles de coverage y junturas
@@ -644,7 +644,7 @@
   }
   
   #Armado del layout
-  if(is.null(exones)){
+  if(is.null(variants)){
     hh <- c(rep(c(hCov,hJun)/nConditions,nConditions),0.1)
     hh <- hh/sum(hh)
   }else{
@@ -659,19 +659,20 @@
   rownames(mergedBAMs)<-mergedBAMs[,1]
   
   
-  # Si hay exones...dibujo variantes
-  if(!is.null(exones)){
-    transcriptGene<-strsplit2(names(exones),".",fixed=TRUE)[,1]
+  # Si hay variants...dibujo variantes
+  if(!is.null(variants)){
+    #transcriptGene<-strsplit2(names(variants),".",fixed=TRUE)[,1]
+    transcriptGene <- mcols(variants)[,"gene"]
     
     ig<-which(transcriptGene%in%geneName)
-    tex <- exones[ig]
+    tex <- variants[ig]
     tex <- tex[order(names(tex))]
     
-    limExones<-unlist(lapply(tex,function(x){
+    limvariants<-unlist(lapply(tex,function(x){
       return(c(start(x),end(x)))
     }))
     
-    plot(0,typ="n",xlim=range(limExones),ylim=c(0,length(tex)+3),axes=FALSE,xlab="",ylab="")
+    plot(0,typ="n",xlim=range(limvariants),ylim=c(0,length(tex)+3),axes=FALSE,xlab="",ylab="")
     
     if(length(tex)>1 | !genePlot){
       for(itex in 1:length(tex)){
@@ -694,7 +695,7 @@
   nbines <- length(bins)
   delta <- end(bins[nbines])-start(bins[1])
   
-  if(is.null(exones)){
+  if(is.null(variants)){
     plot(0,typ="n",xlim=c(start(bins[1]),end(bins[nbines])),ylim=c(-.5,.5),axes=FALSE,xlab="",ylab="")
   }
   lines(c(start(bins[1]),end(bins[nbines])),c(ycollapsed,ycollapsed),col="gray")
