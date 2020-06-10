@@ -155,6 +155,10 @@ setMethod(
     fullT <- c(exons.introns,intron.orig)
     
     transcriptExons <- exonsBy(genome, use.names=TRUE)
+
+    tByGene    <- transcriptsBy(genome, by = "gene")
+    geneNames  <-DataFrame(gene=rep(names(tByGene),elementNROWS(tByGene)))
+    mcols( transcriptExons ) <- append ( mcols( transcriptExons ), geneNames )
     
     features@genes <- genes.by.exons
     features@bins <- fullT
