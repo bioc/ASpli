@@ -205,18 +205,19 @@ setMethod(
 # gbCounts is a wrapper around readCounts for improved legibility
 setGeneric (
   name = "gbCounts",
-  def = function( features, bam=NULL, targets, cores = 1, minReadLength, maxISize, 
+  def = function( features, 
+                  targets, minReadLength, maxISize, 
                   minAnchor = 10)
     standardGeneric("gbCounts") )
 
 setMethod(
   f = "gbCounts",
   signature = "ASpliFeatures",
-  definition = function( features, bam=NULL, targets, cores = 1, minReadLength,  
+  definition = function( features, targets,  minReadLength,  
                          maxISize, minAnchor = 10) {
     
     
-    return(readCounts( features, bam=bam, targets, cores = cores, minReadLength, maxISize, minAnchor = minAnchor))
+    return(readCounts( features, targets, minReadLength, maxISize, minAnchor = minAnchor))
   }
 )
 
@@ -225,10 +226,8 @@ setGeneric (
   name= "jCounts",
   def = function( counts, 
                   features, 
-                  bam = NULL, 
                   minReadLength, 
                   threshold = 5, 
-                  cores = 1,
                   minAnchor = 10) standardGeneric("jCounts") )
 
 setMethod(
@@ -236,29 +235,28 @@ setMethod(
   signature = "ASpliCounts",
   definition = function( counts, 
                          features, 
-                         bam = NULL, 
                          minReadLength, 
                          threshold = 5, 
-                         cores = 1,
                          minAnchor = 10) {
-    return(AsDiscover( counts, features, bam = bam, minReadLength, threshold, cores, minAnchor ))
+    return(AsDiscover( counts, features, minReadLength, threshold,  minAnchor ))
   }
 )
 
 # readCounts
 setGeneric (
   name = "readCounts",
-  def = function( features, bam=NULL, targets, cores = 1, minReadLength, maxISize, 
+  def = function( features, targets, minReadLength, maxISize, 
                   minAnchor = 10)
     standardGeneric("readCounts") )
 
 setMethod(
   f = "readCounts",
   signature = "ASpliFeatures",
-  definition = function( features, bam=NULL, targets, cores = 1, minReadLength,  
+  definition = function( features, targets, minReadLength,  
                          maxISize, minAnchor = 10) {
     
-    
+    bam=NULL
+    cores=1
     #Create result object
     counts <- new(Class="ASpliCounts")
     
@@ -289,7 +287,7 @@ setMethod(
       }      
       
       # Count Genes
-      gene.hits <- .counterGenes( bam, featuresg( features ), cores )
+      gene.hits <- .counterGenes( bam, featuresg( features ))
       if(ncol(counts@gene.counts) == 0){
         counts@gene.counts <- gene.hits
       }else{
@@ -300,7 +298,7 @@ setMethod(
       
       # Count exons 
       bins <- featuresb( features )
-      exons.hits <- .counterBin( bam, bins, gene.hits, cores )
+      exons.hits <- .counterBin( bam, bins, gene.hits)
       if(ncol(counts@exon.intron.counts) == 0){
         counts@exon.intron.counts <- exons.hits
       }else{
@@ -318,7 +316,7 @@ setMethod(
       e1i <- introns
       start( e1i ) <- start( introns ) - ( minReadLength - minA )
       end( e1i )   <- start( introns ) + ( minReadLength - minA )
-      e1i.hits     <- .counterJbin(bam, e1i, gene.hits, cores, minReadLength)
+      e1i.hits     <- .counterJbin(bam, e1i, gene.hits, minReadLength)
       if(ncol(counts@e1i.counts) == 0){
         counts@e1i.counts <- e1i.hits
       }else{
@@ -331,7 +329,7 @@ setMethod(
       ie2 <- introns
       start( ie2 ) <- end( introns ) - ( minReadLength - minA )
       end( ie2 )   <- end( introns ) + ( minReadLength - minA )
-      ie2.hits     <- .counterJbin( bam, ie2, gene.hits, cores, minReadLength )
+      ie2.hits     <- .counterJbin( bam, ie2, gene.hits, minReadLength )
       if(ncol(counts@ie2.counts) == 0){
         counts@ie2.counts <- ie2.hits
       }else{
@@ -341,7 +339,7 @@ setMethod(
       if(ntargets == 1) message("Read summarization by ie2 region completed")
 
       # Count junctions
-      junction.hits    <- .counterJunctions( features, bam, cores, maxISize )
+      junction.hits    <- .counterJunctions( features, bam, maxISize )
       if(ncol(counts@junction.counts) == 0){
         counts@junction.counts <- junction.hits
       }else{
@@ -396,10 +394,8 @@ setGeneric (
   name= "AsDiscover",
   def = function( counts, 
                   features, 
-                  bam = NULL, 
                   minReadLength, 
                   threshold = 5, 
-                  cores = 1,
                   minAnchor = 10) standardGeneric("AsDiscover") )
 
 setMethod(
@@ -407,12 +403,12 @@ setMethod(
   signature = "ASpliCounts",
   definition = function( counts, 
                          features, 
-                         bam = NULL, 
                          minReadLength, 
                          threshold = 5, 
-                         cores = 1,
                          minAnchor = 10) {
     
+    bam = NULL
+    cores=1
     targets <- counts@targets
     
     as  <- new(Class = "ASpliAS")
@@ -440,8 +436,6 @@ setMethod(
           #Load bam from current target
           bam <- loadBAM(targets[target, ])
           junctionsPIR <- .junctionsDiscover( df=jcounts, 
-                                              bam, 
-                                              cores = cores , 
                                               minReadLength, 
                                               targets[target, ], 
                                               features,
@@ -471,8 +465,6 @@ setMethod(
     }else{
       
       junctionsPIR <- .junctionsDiscover( df=jcounts, 
-                                          bam, 
-                                          cores = cores , 
                                           minReadLength, 
                                           targets, 
                                           features,
@@ -716,7 +708,6 @@ setGeneric (
                   minBinReads  = 5,
                   minRds = 0.05,
                   contrast = NULL,
-                  forceGLM = FALSE,
                   ignoreExternal = TRUE,
                   ignoreIo = TRUE, 
                   ignoreI = FALSE,
@@ -737,7 +728,6 @@ setMethod(
                          minBinReads  = 5,
                          minRds = 0.05,
                          contrast = NULL,
-                         forceGLM = FALSE,
                          ignoreExternal = TRUE,
                          ignoreIo = TRUE, 
                          ignoreI = FALSE,
@@ -749,7 +739,7 @@ setMethod(
     offsetAggregateMode = c( "geneMode", "binMode" )[1]
     offsetUseFitGeneX = TRUE    
     .DUreport( counts, counts@targets, minGenReads, minBinReads, minRds, offset, 
-               offsetAggregateMode, offsetUseFitGeneX, contrast, forceGLM,
+               offsetAggregateMode, offsetUseFitGeneX, contrast, 
                ignoreExternal, ignoreIo, ignoreI, filterWithContrasted, verbose, threshold  )
   }
 )
@@ -763,7 +753,6 @@ setGeneric (
                   offsetAggregateMode = c( "geneMode", "binMode" )[1],
                   offsetUseFitGeneX = TRUE,
                   contrast = NULL,
-                  forceGLM = FALSE,
                   ignoreExternal = TRUE,
                   ignoreIo = TRUE, 
                   ignoreI = FALSE,
@@ -781,7 +770,6 @@ setMethod(
                          offsetAggregateMode = c( "geneMode", "binMode" )[1],
                          offsetUseFitGeneX = TRUE,
                          contrast = NULL,
-                         forceGLM = FALSE,
                          ignoreExternal = TRUE,
                          ignoreIo = TRUE, 
                          ignoreI = FALSE,
@@ -790,16 +778,19 @@ setMethod(
   ) { 
     offset = TRUE
     .DUreport( counts, counts@targets, minGenReads, minBinReads, minRds, offset, 
-               offsetAggregateMode, offsetUseFitGeneX, contrast, forceGLM,
-               ignoreExternal, ignoreIo, ignoreI, filterWithContrasted, verbose  )
+               offsetAggregateMode, offsetUseFitGeneX, contrast,                ignoreExternal, ignoreIo, ignoreI, filterWithContrasted, verbose  )
   }
 )
 
 setGeneric( name = 'gbDUreport',
-            def = function( counts, minGenReads  = 10, minBinReads = 5, 
-                            minRds = 0.05, contrast = NULL, forceGLM = TRUE,  
-                            ignoreExternal = TRUE, ignoreIo = TRUE, ignoreI = FALSE, 
-                            filterWithContrasted = TRUE, verbose = TRUE, formula = NULL, coef = NULL ) 
+            def = function( counts, 
+                            minGenReads  = 10, minBinReads = 5, 
+                            minRds = 0.05, contrast = NULL, 
+                            ignoreExternal = TRUE, ignoreIo = TRUE, 
+                            ignoreI = FALSE, 
+                            filterWithContrasted = TRUE, 
+                            verbose = TRUE, 
+                            formula = NULL, coef = NULL ) 
               standardGeneric( 'gbDUreport'))
 
 setMethod( 
@@ -810,7 +801,6 @@ setMethod(
                          minBinReads = 5,
                          minRds = 0.05, 
                          contrast = NULL, 
-                         forceGLM = TRUE, 
                          ignoreExternal = TRUE,
                          ignoreIo = TRUE, 
                          ignoreI = FALSE, 
@@ -819,7 +809,7 @@ setMethod(
                          formula = NULL,
                          coef = NULL) {
     .DUreportBinSplice( counts, minGenReads, minBinReads, minRds, 
-                        contrast, forceGLM, ignoreExternal, ignoreIo, ignoreI, 
+                        contrast, ignoreExternal, ignoreIo, ignoreI, 
                         filterWithContrasted, verbose, formula, coef ) 
   })
 
@@ -860,9 +850,19 @@ setMethod(
     useSubset                          = FALSE
   ) {
     
-    .junctionDUreportExt( asd, minAvgCounts, contrast, 
-                          filterWithContrasted, runUniformityTest, mergedBams, maxPValForUniformityCheck, strongFilter,
-                          maxConditionsForDispersionEstimate, formula, coef, maxFDRForParticipation, useSubset) 
+    .junctionDUreportExt( asd, 
+                          minAvgCounts, 
+                          contrast, 
+                          filterWithContrasted, 
+                          runUniformityTest, 
+                          mergedBams, 
+                          maxPValForUniformityCheck, 
+                          strongFilter,
+                          maxConditionsForDispersionEstimate, 
+                          formula, 
+                          coef, 
+                          maxFDRForParticipation, 
+                          useSubset) 
   }
 )
 
@@ -976,30 +976,11 @@ setMethod(
   f = "writeDU",
   signature = "ASpliDU",
   definition = function( du, output.dir="du" ) {
-    
-    #paths <- list()
-    # Creates output folder structure
-    #if ( containsGenesAndBins( du ) ) {
-    #  genesFile     <- file.path( output.dir, "genes","gene.de.tab" )       
-    #  exonsFile     <- file.path( output.dir, "exons", "exon.du.tab")       
-    #  intronsFile   <- file.path( output.dir, "introns", "intron.du.tab")
-    #  paths <- append( paths, list( genesFile, exonsFile, intronsFile  ))
-    #}
-    
-    #if ( containsJunctions( du ) ) {
-    #  junctionsFile <- file.path( output.dir, "junctions", "junction.du.tab")
-    #  paths <- append( paths , list( junctionsFile ) )
-    #}
-    
+
     file.exists( output.dir ) || dir.create( output.dir , recursive = T)
     output.dir <- paste(output.dir, paste(names(du@contrast)[du@contrast != 0], collapse="-"), sep="/")
     file.exists( output.dir ) || dir.create( output.dir , recursive = T )
 
-
-    #for (filename in paths ) {
-    #  dir.create( dirname( filename ) )
-    #}
-    
     if ( containsGenesAndBins( du ) ) {
       # Export Genes  
       write.table( genesDE( du ), paste(normalizePath(output.dir), "gene.de.tab", sep="/"), sep = "\t", quote = FALSE, 
@@ -1009,7 +990,6 @@ setMethod(
       exonBins <- binsDU(du)[binsDU(du)$feature == "E",]
       exonBins <- exonBins[exonBins$event !="IR",]
       write.table( exonBins, paste(normalizePath(output.dir), "exon.du.tab", sep="/"), sep="\t", quote=FALSE, col.names=NA)
-      
       
       # Export Introns 
       intronBins <- rbind( 
@@ -1278,16 +1258,7 @@ setMethod(
     is$feature <- as.factor(is$feature)
     is$bin.event <- as.factor(is$bin.event)
     
-    
-    
-    # is[,b:=as.factor(b)]
-    # is[,bjs:=as.factor(bjs)]
-    # is[,ja:=as.factor(ja)]
-    # is[,jl:=as.factor(jl)]
-    # is[,feature:=as.factor(feature)]
-    # is[,bin.event:=as.factor(bin.event)]
-    # 
-
+  
     is$b.fdr <- signif(as.numeric(is$b.fdr), 4)
     is$b.logfc <- signif(as.numeric(is$b.logfc), 4)    
     is$bjs.lr <- signif(as.numeric(is$bjs.lr), 4)
@@ -1302,10 +1273,6 @@ setMethod(
     is$l.participation <- signif(as.numeric(is$l.participation), 4)    
     is$l.dparticipation <- signif(as.numeric(is$l.dparticipation), 4)
     is$a.dpir <- signif(as.numeric(is$a.dpir), 4)        
-    # is[,b.fdr:=signif(as.numeric(b.fdr), 4)]
-    # is[,b.logfc:=signif(as.numeric(b.logfc), 4)]
-    # is[,bjs.lr:=signif(as.numeric(bjs.lr), 4)]
-    # is[,bjs.fdr:=signif(as.numeric(bjs.fdr), 4)]
      
     is$bjs.inclussion_sign <- as.factor(.my_replace_na(sign(as.numeric(is$bjs.inclussion)), 0))     
     is$a.dpir_sign <- as.factor(.my_replace_na(sign(as.numeric(is$a.dpir)), 0))    
@@ -1334,9 +1301,6 @@ setMethod(
               png(width = 1400, height=700, filename = paste0(normalizePath(output.dir), "/img/", gsub("-", "_", gsub(":", "_", r)), "_gene.png"))
               .plotSplicingPattern(r, is, counts, features, mergedBams, sr, asd, genePlot = TRUE, jCompletelyIncluded, zoomRegion, useLog, tcex)
               dev.off()
-        #      png(width = 1400, height=700, filename = paste0(normalizePath(output.dir), "/img/", r, ".png"))
-        #      .plotSplicingPattern(r, is, counts, features, mergedBams, sr, genePlot = FALSE, jCompletelyIncluded, zoomRegion, useLog, tcex)
-        #      dev.off()
             }
           }, warning = function(warning_condition) {
               #message(warning_condition)   
@@ -1463,33 +1427,6 @@ setMethod( f = 'filterSignals',
                              l.fdr, 
                              bDetectionSummary ) } )
 
-
-# ---------------------------------------------------------------------------- #
-
-# ---------------------------------------------------------------------------- #
-# Filter ASpliCounts by reads counts and read densisty
-#setGeneric( name = 'filterReadCounts',
-#    def = function (counts) standardGeneric( 'filterReadCounts') )
-#
-#
-#
-#setMethod( f = 'filterReadCounts',
-#    signature = 'ASpliCounts',
-#    definition = function( counts, targets, minGenRead = 10, minRdReads= 0.05,
-#        types = c( 'minByGeneSet', 'minByGeneCondition', 'avgByGeneCondition') ) )
-
-# filtering parameters
-# ------------------------------------------------ #
-# quantifier | grouping | what   | whom  | filter  #
-# ------------------------------------------------ #
-# min        | set      | count  | gene  | all     #
-# avg        | cond.    | rd     | bin   | any     #
-#            |          |        | junc. |         #
-# -------------------------------------------------#
-
-# ---------------------------------------------------------------------------- #
-
-
 # ---------------------------------------------------------------------------- #
 # plotBins
 setGeneric( name = "plotBins",
@@ -1549,10 +1486,6 @@ setMethod(
   } 
 )
 # ---------------------------------------------------------------------------- # 
-
-
-
-
 # ---------------------------------------------------------------------------- #
 # plotGenomicRegions
 setGeneric( 
@@ -1642,6 +1575,5 @@ setMethod(
       verbose )
   }
 )
-
 # ---------------------------------------------------------------------------- #
 

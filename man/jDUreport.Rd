@@ -30,7 +30,7 @@ Estimate differential usage at junction level.
 
 \arguments{
 \item{asd}{ An object of class \code{ASpliAS} with results of PSI and PIR using experimental junctions}
-\item{minAvgCounts<}{ Minimum average counts for filtering.}  
+\item{minAvgCounts}{ Minimum average counts for filtering}  
 \item{contrast}{ Define the comparison between conditions to be tested.
   \code{contrast} should be a vector with length equal to the number of 
     experimental conditions defined by \code{targets}. The values of this vector

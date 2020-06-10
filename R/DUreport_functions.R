@@ -8,7 +8,6 @@
     offsetAggregateMode = c( "geneMode", "binMode" )[1],
     offsetUseFitGeneX = TRUE,
     contrast = NULL,
-    forceGLM = FALSE,
     ignoreExternal = TRUE,
     ignoreIo = TRUE, 
     ignoreI = FALSE,
@@ -29,7 +28,7 @@
   
   # Filter genes and calculates differential usage of genes
   du <- .DUreportGenes( du, counts, targets, minGenReads, minRds, contrast, 
-      forceGLM, filterWithContrasted, verbose )
+      filterWithContrasted, verbose )
 
   # Filter bins and calculates differential usage of bins 
   du <- .DUReportBins( du, 
@@ -42,7 +41,6 @@
                        offsetUseFitGeneX, 
                        offset, 
                        contrast, 
-                       forceGLM, 
                        ignoreExternal, 
                        ignoreIo, 
                        ignoreI,
@@ -53,7 +51,7 @@
   #Adds junctionDUreport if offset is FALSE
   if(offset == FALSE) du <- .junctionDUreport(counts = counts, targets = targets, appendTo = du, 
                                               minGenReads = minGenReads, minRds = minRds, threshold = threshold,
-                                              contrast = contrast, forceGLM = forceGLM)
+                                              contrast = contrast)
 
   return( du )
 }
@@ -67,8 +65,7 @@
     threshold = 5,
     offset   = FALSE,
     offsetUseFitGeneX = TRUE,
-    contrast = NULL,
-    forceGLM = FALSE 
+    contrast = NULL
     # ------------------------------------------------------------------------ #
     # Comment to disable priorcounts usage in bin normalization 
     # , priorCounts = 0 
@@ -120,11 +117,11 @@
       targets = targets,
       mOffset = mOffset,
       contrast = contrast,
-      forceGLM = forceGLM 
+      priorCounts = 0  
       # ------------------------------------------------------------------ # 
       # Comment to disable priorcounts usage in normalizefeatuebygen.         
 #          ,priorCounts = priorCounts
-      ,priorCounts = 0  
+      
   # ------------------------------------------------------------------ # 
   )
   
@@ -142,7 +139,6 @@
     minBinReads  = 5,
     minRds = 0.05,
     contrast = NULL,
-    forceGLM = FALSE,
     ignoreExternal = TRUE, 
     ignoreIo = TRUE, 
     ignoreI = FALSE,
@@ -184,7 +180,7 @@
   
   # Filter genes and calculates differential usage of genes
   du <- .DUreportGenes( du, counts, targets, minGenReads, minRds, contrast, 
-      forceGLM, filterWithContrasted, verbose, formula, coef )
+       filterWithContrasted, verbose, formula, coef )
   message("Genes DE completed")
 
   # Filter bins and calculates differential usage of bins 
@@ -203,7 +199,6 @@
     minGenReads  = 10,
     minRds = 0.05,
     contrast = NULL,
-    forceGLM = FALSE,
     filterWithContrasted = TRUE,
     verbose = FALSE,
     formula = NULL,
@@ -213,7 +208,7 @@
       filterWithContrasted, verbose )
   
   genesde <- .genesDE( df=dfGen, targets = targets,
-      contrast = contrast, forceGLM = forceGLM, verbose, formula, coef  )
+      contrast = contrast, verbose, formula, coef  )
   
   genesDE( du ) <- genesde
   
@@ -232,7 +227,6 @@
     offsetUseFitGeneX, 
     offset, 
     contrast, 
-    forceGLM, 
     ignoreExternal, 
     ignoreIo, 
     ignoreI,
@@ -269,7 +263,6 @@
       targets = targets,
       mOffset = mOffset,
       contrast = contrast,
-      forceGLM = forceGLM,
       ignoreExternal = ignoreExternal,
       ignoreIo = ignoreIo, 
       ignoreI = ignoreI
@@ -537,7 +530,7 @@ return (dfBin)
   return( contrast )
 }
 
-.genesDE <- function( df, targets, contrast = NULL, forceGLM = FALSE,
+.genesDE <- function( df, targets, contrast = NULL,
     verbose = FALSE, formula = NULL, coef = NULL ) { 
   
   if (verbose) message("Genes differential expression:")
@@ -561,7 +554,7 @@ return (dfBin)
   
   justTwoConditions <- sum( contrast != 0 ) == 2
   
-  if( justTwoConditions & ! forceGLM & is.null(formula)){
+  if( justTwoConditions & !  is.null(formula)){
     if (verbose) message("  Running exact test")
     er   <- estimateDisp( er , robust=TRUE)
     capture.output( er   <- estimateDisp( er, robust=TRUE ) )
@@ -617,7 +610,7 @@ return (dfBin)
       ignoreIo = TRUE, 
       ignoreI = FALSE,
       contrast = NULL,
-      forceGLM = FALSE,
+
       mOffset  = NULL,
       priorCounts = 0,
       verbose = TRUE) {
@@ -641,7 +634,7 @@ return (dfBin)
   
   # -------------------------------------------------------------------------- #
   # perform edgeR extact or glm test 
-  et <- .edgeRtest( df, dfGen, targets, mOffset, contrast, forceGLM, verbose )
+  et <- .edgeRtest( df, dfGen, targets, mOffset, contrast, verbose )
   # -------------------------------------------------------------------------- #
   
   # -------------------------------------------------------------------------- #
@@ -735,7 +728,6 @@ return (dfBin)
                               targets, 
                               mOffset = NULL,
                               contrast = NULL,
-                              forceGLM = FALSE,
                               priorCounts = 0 ) {
 
   # -------------------------------------------------------------------------- #
@@ -750,7 +742,7 @@ return (dfBin)
     df <- .normalizeByGenFeature( feature=df, gene=dfGen, targets, priorCounts )
   }
   
-  et <- .edgeRtest( df, dfGen, targets, mOffset, contrast, forceGLM )
+  et <- .edgeRtest( df, dfGen, targets, mOffset, contrast)
   
   fdr <- p.adjust( et$table$PValue, method="BH" )
   logFC <- et$table$logFC
@@ -1009,7 +1001,6 @@ return (dfBin)
     targets,
     mOffset = NULL,
     contrast = NULL,
-    forceGLM = FALSE,
     verbose = FALSE) {
   
   cols <- match( rownames( targets ), colnames( df ) )
@@ -1027,7 +1018,7 @@ return (dfBin)
   justTwoConditions <- sum( contrast != 0 ) == 2
   
   # TODO: Forzar GLM no tiene efecto si se pasa un offset. 
-  if( ( !forceGLM ) & is.null( mOffset ) & justTwoConditions ){
+  if( is.null( mOffset ) & justTwoConditions ){
 
     captured <- capture.output(
       er   <- estimateDisp( er, robust=TRUE )

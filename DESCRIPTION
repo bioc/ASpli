@@ -2,8 +2,13 @@ Package: ASpli
 Type: Package
 Title: Analysis of alternative splicing using RNA-Seq
 Version: 1.5.7
-Date: 2019-11-25
-Author: Estefania Mancini, Andres Rabinovich, Javier Iserte, Marcelo Yanovsky and Ariel Chernomoretz
+Date: 2020-06-10
+Authors@R: c(
+    person("Estefania", "Mancini", email = "emancini@leloir.org.ar", role = c("cre","aut")),
+    person("Andres", "Rabinovich",role = "aut"),
+    person("Javier", "Iserte",role = "aut"),
+    person("Marcelo", "Yanovsky",role = "aut"),
+    person("Ariel", "Chernomoretz",role = "aut"))
 License: GPL
 biocViews: GeneExpression, Transcription, AlternativeSplicing,
            Coverage, DifferentialExpression, DifferentialSplicing,
@@ -11,7 +16,8 @@ biocViews: GeneExpression, Transcription, AlternativeSplicing,
 Depends: methods, grDevices, stats, utils, parallel, edgeR, limma, AnnotationDbi
 Imports: GenomicRanges, GenomicFeatures, BiocGenerics,
          IRanges, GenomicAlignments, Gviz, S4Vectors, Rsamtools,
-         BiocStyle, igraph, htmltools, data.table, UpSetR, tidyr, DT, MASS
-Maintainer: Estefania Mancini <emancini@leloir.org.ar>
+         BiocStyle, igraph, htmltools, data.table, UpSetR, tidyr, DT, MASS, grid, graphics
 Description: Integrative pipeline for the analysis of alternative
              splicing using RNAseq.
+Suggests: BiocStyle 
+VignetteEngine: Sweave

@@ -118,7 +118,9 @@
             \code{\link{localebased}},
             \code{\link{anchorbased}},
   Export:   \code{\link{writeSplicingReport}}
+  \code{\link{gbDUreport}}, \code{\link{jDUreport}}, \code{\link{ASpliSplicingReport}},  \code{\link{splicingReport}}
 }
+
 
 \examples{
 
@@ -159,8 +161,5 @@ anchorbased(sr)
 binbased(sr)
 }
 
-\seealso{
-    \code{\link{gbDUreport}}, \code{\link{jDUreport}}, \code{\link{ASpliSplicingReport}},  \code{\link{splicingReport}}
-}
 
 

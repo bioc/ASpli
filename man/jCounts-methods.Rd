@@ -12,7 +12,7 @@
 }
  
 \usage{ 
- jCounts( counts, features, bam = NULL, minReadLength, threshold = 5, cores = 1, minAnchor = 10 )
+ jCounts( counts, features, minReadLength, threshold = 5, minAnchor = 10 )
 }
 \arguments{
 \item{counts}{
@@ -21,14 +21,12 @@ An object of class ASpliCounts.
 
 \item{features}{ An object of class ASpliFeatures.}
 
-\item{bam}{ A list with BAM files contents or NULL to let the function read bam files. If NULL is passed (default), bam files are read and processed sequentially. This is usually preferred if machine has low resources.}
 
 \item{minReadLength}{ Minimum read length of sequenced library. It is used for computing 
     E1I and IE2 read summarization. Make sure this number is smaller than the maximum read length in every bam file, otherwise no junctions will be found.}
 
 \item{threshold}{ Minimum  number of reads supporting junctions. Default=5 }
 
-\item{cores}{ Number of processing cores to use. If bam is NULL, only 1 core is used independently of this parameter.  }
 
 \item{minAnchor}{ An intronic junction must overlap completely and at least an minAnchor\% into the exon region and the intron region.
                   The regions can be exon1-intron or intron-exon2.}
@@ -122,7 +120,7 @@ The last columns are the PIR metrics calculated for each condition. The PIR metr
   
   # Create an ASpliFeatures object from TxDb
   features <- binGenome( genomeTxDb )
-  
+    
   # Define bam files, sample names and experimental factors for targets.
   bamFileNames <- c( "A_C_0.bam", "A_C_1.bam", "A_C_2.bam", 
                      "A_D_0.bam", "A_D_1.bam", "A_D_2.bam" )

@@ -10,7 +10,7 @@
 \description{ Summarize read overlaps against all feature levels }
 
 \usage{
-  gbCounts( features, bam = NULL, targets, cores = 1, minReadLength,
+  gbCounts( features,  targets, minReadLength,
                  maxISize, minAnchor = 10)
 }
 
@@ -20,8 +20,6 @@
     at gene, bin and junction level
   }
   
-  \item{bam}{ List of GAlignments objects corresponding to bam files of 
-    samples. If NULL is passed (default), bam files are read and processed sequentially. This is usually preferred if machine has low resources. }
   
   \item{targets}{ A dataframe containing sample, bam and experimental factors 
     columns }
@@ -32,7 +30,6 @@
   \item{maxISize}{Maximum intron expected size. Junctions longer than this size
     will be dicarded }
   
-  \item{cores}{ Number of cores to use. Default is 1. If bam is NULL, only 1 core is used independently of this parameter. }
   
   \item{minAnchor}{ Minimum percentage of read that should be aligned to 
     an exon-intron boundary.}

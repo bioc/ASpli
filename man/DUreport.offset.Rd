@@ -20,7 +20,6 @@
             offsetAggregateMode =  c( "geneMode", "binMode" )[1],
             offsetUseFitGeneX = TRUE,
             contrast = NULL, 
-            forceGLM = FALSE, 
             ignoreExternal = TRUE, 
             ignoreIo = TRUE, 
             ignoreI = FALSE,
@@ -83,8 +82,6 @@
     to be a control and the second condition is the treatment, all other 
     conditions are ignored. 
     Default = NULL}
-  \item{forceGLM}{ Force the use of a generalized linear model to estimate 
-    differential expression and usage. Default = FALSE }
   \item{filterWithContrasted}{
     A logical value specifying if bins, genes and junction will be filtered by
     read quantity and read density using data from those conditions that will 
