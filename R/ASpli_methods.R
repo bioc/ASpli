@@ -238,9 +238,15 @@ setMethod(
                          minReadLength, 
                          threshold = 5, 
                          minAnchor = 10) {
-    return(AsDiscover( counts, features, minReadLength, threshold,  minAnchor ))
+  return(
+    AsDiscover( counts, 
+                     features, 
+                     minReadLength, 
+                     threshold,  
+                     minAnchor))
   }
 )
+
 
 # readCounts
 setGeneric (
@@ -410,7 +416,6 @@ setMethod(
     bam = NULL
     cores=1
     targets <- counts@targets
-    
     as  <- new(Class = "ASpliAS")
     as@targets <- targets
     
@@ -432,16 +437,20 @@ setMethod(
     if(is.null(bam)) {
       ntargets <- nrow(targets)
       for(target in 1:ntargets){
-        if(ntargets > 1){
+         
+         if(ntargets > 1){
           #Load bam from current target
           bam <- loadBAM(targets[target, ])
           junctionsPIR <- .junctionsDiscover( df=jcounts, 
                                               minReadLength, 
-                                              targets[target, ], 
-                                              features,
-                                              minAnchor = minAnchor)      
-        }
-  
+                                              targets=targets[target, ], 
+                                              features=features,
+                                              minAnchor = minAnchor,bam)  
+          
+         }
+        
+        
+        
         if(ncol(as@junctionsPIR) == 0){
           as@junctionsPIR <- junctionsPIR
         }else{
@@ -465,9 +474,9 @@ setMethod(
     }else{
       
       junctionsPIR <- .junctionsDiscover( df=jcounts, 
-                                          minReadLength, 
-                                          targets, 
-                                          features,
+                                          minReadLength=minReadLength, 
+                                          targets=targets, 
+                                          features=features,
                                           minAnchor = minAnchor ) 
       as@junctionsPIR <- junctionsPIR
     }
@@ -475,7 +484,7 @@ setMethod(
     
     jranges <- .createGRangesExpJunctions( rownames( jcounts ) )
     
-    # TODO: refactor this code to other functions 
+    # : refactor this code to other functions 
     # ---------------------------------------------------------------------- #
     # Get all bins that are intronic or are associated to a Intron retention 
     # event

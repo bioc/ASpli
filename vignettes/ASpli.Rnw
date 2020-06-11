@@ -54,7 +54,7 @@ AS events.
 %and complex experimental designs involving multiple experimental conditions.
 
 <<loadAspli, echo=FALSE, eval=TRUE>>=
-devtools::load_all("~/Documents/ASpli")
+devtools::load_all("~/ASpli")
 
 @
 

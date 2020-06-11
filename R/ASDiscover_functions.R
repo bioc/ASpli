@@ -121,16 +121,27 @@
   return( jranges )
 }
 
-.junctionsDiscover <- function( df, bam, cores, readLength, targets, features, minAnchor ) {
-
+.junctionsDiscover <- function( df,
+                                readLength, 
+                                targets, 
+                                features, 
+                                minAnchor,     
+                                bam ) {
+  cores=1
+  
   # This function get the counts of the junctions that overlaps the an 
   # intron/exon region of a bin. The junction must overlap completely and at 
   # least an minAnchor% into the exon region and the intron region.
   # The regions can be exon1-intron or intron-exon2. All junctions are assumed 
   # to correspond to a intron.
-  getExonIntronCounts <- function( jranges, targets, bams, readLength, 
-      regionType, cores = 1, minAnchor ) {
+  getExonIntronCounts <- function( jranges, 
+                                   targets, 
+                                   bams, 
+                                   readLength, 
+                                   regionType, 
+                                   minAnchor ) {
     
+    cores = 1
     exonIntron <- jranges
 
     minAnchor <- round( minAnchor * readLength / 100 )
@@ -156,7 +167,7 @@
       #       hitsByBam <- c(hitsByBam, hitsIntermediate)  
       #     }
       # }
-      countOverlaps( exonIntron, x, ignore.strand = TRUE, minoverlap = readLength )      
+    countOverlaps( exonIntron, x, ignore.strand = TRUE, minoverlap = readLength )      
     } )    
     hits <- do.call( cbind.data.frame, hits )
     
@@ -174,10 +185,19 @@
   ungappedBams <- lapply( bam, function( x ) { x[ njunc( x ) == 0 , ] } ) 
   # Get counts for junction overlapping the exon1-intron region and intron-exon2
   # region
-  e1i <- getExonIntronCounts( jranges, targets, ungappedBams, readLength , 
-      'e1i', cores = cores, minAnchor)
-  ie2 <- getExonIntronCounts( jranges, targets, ungappedBams, readLength , 
-      'ie2', cores = cores, minAnchor)  
+  e1i <- getExonIntronCounts( jranges, 
+                              targets, 
+                              ungappedBams, 
+                              readLength, 
+                              'e1i',  
+                              minAnchor)
+  
+  ie2 <- getExonIntronCounts( jranges, 
+                              targets, 
+                              ungappedBams, 
+                              readLength , 
+                              'ie2', 
+                              minAnchor)  
   # Calculates the PIR value 
   j1 <- .sumByCond( e1i,     targets )
   j2 <- .sumByCond( ie2,     targets )
@@ -214,7 +234,7 @@
       sep=".")
   
   # Creates result data.frame
-  # TODO: construir con do.call( cbind )
+  # construir con do.call( cbind )
   result <- do.call( cbind , 
       list( hitIntron = hitIntron, 
             hitIntronEvent = hitIntronEvent,
@@ -321,7 +341,7 @@
 #  pAS[ ( sharedStartData[ , 1 ] != "-" & df$strand == "+" ) | ( sharedEndData[ , 1 ] != "-" & df$strand == "-" ) ] <- "Alt3ss"
 #  pAS[ sharedStartData[ , 1 ] != "-" & sharedEndData[ , 1 ] != "-"] <- "ES" 
   
-  # TODO: construir con do.call( cbind, ... ) para evitar que aparezcan .1 y .2 
+   #: construir con do.call( cbind, ... ) para evitar que aparezcan .1 y .2 
   # en los nombre de las muestras y puedan filtrarse
   result <- do.call( cbind, list (
           df,
