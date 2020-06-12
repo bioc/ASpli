@@ -825,7 +825,7 @@ and \textbf{B.D}. Table \ref{tab:Ex01} summarizes the  experimental design.
     12       & B  & D  & 2         & B.D       \\
     \end{tabular}
   \end{center}
-  \caption{Experimental design of the example data set.}
+  \caption{Experimental design of the example data set}
   \label{tab:Ex01}
 \end{table}
 
@@ -1056,11 +1056,11 @@ Here is a brief explanation of the info  present in \texttt{ASpli} objects. Some
 
 \subsection*{ASpliCounts}
 
-\begin{itemize}
-\item{Gene counts (\texttt{countsg}) and gene read densities (\texttt {rdsg}) (see table  \ref{tab:counts.gene} for an example)}
+\subsubsection*{Gene counts (\texttt{countsg}) and gene read densities (\texttt {rdsg}) }
+(see table  \ref{tab:counts.gene} for an example)
 
   
-\begin{description}
+\begin{itemize}
       \item[row.names]: Gene name as reported in annotation data.
       \item[symbol]: An optional name for the gene, that must be provided at the moment of feature extraction (see section
       \secref{sec:binDefinition}).
@@ -1069,9 +1069,9 @@ Here is a brief explanation of the info  present in \texttt{ASpli} objects. Some
       \item[start, end,length]: 
       \item[effective\_length]: gene length using only annotated exons.
       \item[sample data]: gene read counts/densities  (one column per sample).
-      \end{description} 
+      \end{itemize} 
 
-\item{ Bin counts (\texttt{countsb}) and bin read densities (\texttt{rdsb}) }
+\subsubsection*{ Bin counts (\texttt{countsb}) and bin read densities (\texttt{rdsb}) }
 
 \begin{description}
       \item[row.names]: see \secref{sectionBinG}.
@@ -1082,8 +1082,9 @@ Here is a brief explanation of the info  present in \texttt{ASpli} objects. Some
       \item[sample data]: bin read counts/densities (one column per sample)
           \end{description}
 
-\item{ Junction counts (\texttt{countsj})}
-    \begin{description}
+\subsubsection*{Junction counts (\texttt{countsj})}
+
+\begin{description}
       \item [row.names]: Junction's name in format
       \texttt{chromosome.start.end} (see \secref{sectionBinG}).
       \item [junction]: If junction coincides with a junction inferred from the annotation, the name is shown as is given in section       \ref{sectionBinG}:\nameref{sectionBinG}, otherwise it is \texttt{noHit}.
@@ -1095,20 +1096,20 @@ Here is a brief explanation of the info  present in \texttt{ASpli} objects. Some
       \item [sample data]: Junction counts (one column per sample).
         \end{description}
 
-\item{ E1I (\texttt{e1icounts}) and IE2 (\texttt{ie2counts}) }
+\subsubsection*{E1I (\texttt{e1icounts}) and IE2 (\texttt{ie2counts}) }
 
 \begin{description}
-      \item row.names: Junction name in format \texttt{chromosome.start.end}
+      \item [row.names]: Junction name in format \texttt{chromosome.start.end}
       (see \secref{sectionBinG}).
-      \item junction: If junction coincides with a junction inferred
+      \item [junction]: If junction coincides with a junction inferred
       from the annotation, the name is shown as is given in section
       \ref{sec:binDefinition}:\nameref{sec:binDefinition}, otherwise
       contains \texttt{noHit}.
-      \item gene: Name of the locus that contains the junction.
-      \item strand: Strand sense of the gene.
-      \item multipleHit: \texttt{yes} if junction spans multiple
+      \item [gene]: Name of the locus that contains the junction.
+      \item [strand]: Strand sense of the gene.
+      \item [multipleHit]: \texttt{yes} if junction spans multiple
       genes.
-    \item sample data: Junction counts (one column per sample).
+    \item [sample data]: Junction counts (one column per sample).
 \end{description}
 
 \begin{table}
@@ -1137,14 +1138,17 @@ GENE04 & GENE04 & - & chr1:3001-3800 & 3001 & 3800 & 800 & 650 & 313 & 337 & n\\
 \end{table}
 
 \subsection*{ASpliAS}
-\item{irPIR}
+
+\subsubsection*{irPIR}
+
 \begin{description}
 \item [event]: Type of event asigned by \texttt{ASpli} when bining. 
 \item [J1]: Semicolon separated list of all the junctions with an end matching the start of the intron. J2: Semicolon separated list of all the junctions with an end matching the end of the intron. J3: Semicolon separated list of all the junctions overlaping the intron. All the columns from J1 to J2 represent the J1 counts in the different samples for each bin. The counts are the sum of all the J1 junctions. All the columns from J2 to J3 represent the J2 counts in the different samples for each bin. The counts are the sum of all the J2 junctions. All the columns from J3 to the first condition represent the J3 counts in the different samples for each bin. The counts are the sum of all the J3 junctions. The last columns are the PIR metrics calculated for each condition. The PIR metric is calculated as: PIR = (J1 + J2)/(J1 + J2 + 2*J3)
 Where the junctions are the sum by condition.
 \end{description}
 
-\item{altPSI}
+\subsubsection*{altPSI}
+
 \begin{description}
 \item [event]: Event type according 
 \item [J1(J2)]: Semicolon separated list of all the junctions with an end matching the end of alt5'SS(alt3'SS). 
@@ -1152,7 +1156,8 @@ Where the junctions are the sum by condition.
 \item The last columns are the PSI metrics calculated for each condition. The PSI metric is calculated as: PSI = (J12)/(J12 + J3). Where J12 is J1 if it's an alt 5' event or J2 if it's an alt 3' event and the junctions are the sum by condition.
 \end{description}
 
-\item{esPSI}
+\subsubsection*{esPSI}
+
 \begin{description}
 \item [event]: Type of event asigned by \texttt{ASpli} when bining 
 \item [J1]: Semicolon separated list of all the junctions with an end on the alternative exon. 
@@ -1161,15 +1166,16 @@ Where the junctions are the sum by condition.
 \item The PSI metric is calculated as: PSI = (J1 + J2)/(J1 + J2 + 2*J3) Where the junctions are the sum by condition.
 \end{description}
 
-\item{junctionsPIR}
+\subsubsection*{junctionsPIR}
+
 \begin{description}
-\item PIR metric for each experimental junction using e1i and ie2 counts. Exclusion junction is the junction itself. This output helps to discover new introns as well as new retention events. 
-\item hitIntron: If the junction matches a bin, the bin is shown here. 
-\item hitIntronEvent: If the junction matches a bin, the type of event asigned by \texttt{ASpli} to this bin. All the columns from hitIntronEvent up to the first repetition of the samples names in the columns, represent the J1 counts in the different samples for each region. From there to the next time the names of the columns repeat themselves, the J2 counts and from there to the first condition, the J3 counts. 
-\item The last columns are the PIR metrics calculated for each condition. The PIR metric is calculated as: PIR = (J1 + J2)/(J1 + J2 + 2*J3) Where the junctions are the sum by condition.
+\item [PIR] metric for each experimental junction using e1i and ie2 counts. Exclusion junction is the junction itself. This output helps to discover new introns as well as new retention events. 
+\item [hitIntron]: If the junction matches a bin, the bin is shown here. 
+\item [hitIntronEvent]: If the junction matches a bin, the type of event asigned by \texttt{ASpli} to this bin. All the columns from hitIntronEvent up to the first repetition of the samples names in the columns, represent the J1 counts in the different samples for each region. From there to the next time the names of the columns repeat themselves, the J2 counts and from there to the first condition, the J3 counts. 
+\item The last columns are the PIR metrics calculated for each condition. The PIR metric is calculated as: PIR = (J1 + J2)/(J1 + J2 + 2*J3) (junctions are the sum by condition.)
 \end{description}
 
-\item{junctionsPJU}
+\subsubsection*{junctionsPJU}
 Given a junction, it is possible to analyze if it shares start, end or both with another junction. If so, it is because there is alternative splicing. 
 
 \begin{description}
@@ -1188,7 +1194,8 @@ Given a junction, it is possible to analyze if it shares start, end or both with
 \item StartHit is J1 range and EndHit is J2 range.
 \end{description}
 
-\item{ASpliJDU}
+\subsubsection*{ASpliJDU}
+
 \begin{description}
 \item if it is novel or known
 \item which bins it spans
@@ -1196,7 +1203,8 @@ Given a junction, it is possible to analyze if it shares start, end or both with
 is a possible \emph{exintron} \cite{pmid25934563}.
 \end{description}
 
-\item{localec: information about statistically significant changes in junction usage inside {\em locale}-juntion clusters.}
+\subsubsection*{localec}
+Information about statistically significant changes in junction usage inside {\em locale}-juntion clusters.
   \begin{description}
    \item [size]: number of junctions belonging to the cluster.
    \item [cluster.LR]: likelihood ratio of cluster differential usage.
@@ -1207,7 +1215,7 @@ is a possible \emph{exintron} \cite{pmid25934563}.
    \item [dParticipation]: delta participation of the significant junction (FDR < maxFDRForParticipation) presenting maximal participation value inside the cluster 
   \end{description}
   
-\item{localej}
+\subsubsection*{localej}
   \begin{description} 
    \item [cluster]: name of the cluster the junction belongs to
    \item [log.mean]: log of mean counts accross all conditions for this junction
@@ -1220,7 +1228,7 @@ is a possible \emph{exintron} \cite{pmid25934563}.
    \item From dParticipation to the end, junction counts for all samples
   \end{description}  
   
-\item{anchorc}
+\subsubsection*{anchorc}
 
 \begin{description}
    \item [cluster.LR]: likelihood ratio of cluster differential usage.
@@ -1229,7 +1237,7 @@ is a possible \emph{exintron} \cite{pmid25934563}.
 
 \end{description}   
 
-\item{anchorj}
+\subsubsection*{anchorj}
 
 \begin{description}
    \item [log.mean]: log of mean counts accross all conditions for this junction
@@ -1246,7 +1254,7 @@ is a possible \emph{exintron} \cite{pmid25934563}.
 \end{description}   
 
 
-\item{jir}
+\subsubsection*{jir}
 
 \begin{description}
    \item [J3]: J3 junction/s
@@ -1262,7 +1270,7 @@ is a possible \emph{exintron} \cite{pmid25934563}.
   \end{description}      
  
  
-\item{jes}
+\subsubsection*{jes}
   \begin{description}
    \item [event]: type of event
    \item [J3]: J3 junction/s
@@ -1276,7 +1284,7 @@ is a possible \emph{exintron} \cite{pmid25934563}.
    \item [j Counts]: junction counts for all samples
 \end{description}      
   
-\item{jalt}
+\subsubsection*{jalt}
 
   \begin{description}
    \item [event]: type of event
@@ -1289,9 +1297,9 @@ is a possible \emph{exintron} \cite{pmid25934563}.
    \item [dPSI]: junction delta PSI
    \item [multiplicity]: do multiple junctions cross the region
    \item [j Counts]: junction counts for all samples
-  \end{description}      
+\end{description}      
 
-\end{itemize}
+
 \bibliography{ASpli}
 \end{document}
 
