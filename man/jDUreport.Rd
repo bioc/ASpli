@@ -5,12 +5,8 @@
 \title{ Differential junction usage estimation }
 
 \description{ 
-Estimate differential usage at junction level. 
-  It makes separate estimates for different types of junctions.
-  Estimation is made at junction level using diffSpliceDGE function from edgeR package. 
-  The statistics works as follows. All junctions bellonging to the same event are put togheter and constitute the event "gene". 
-  Then, each junction is tested against this "gene" in a similar fashion that bins are tested against their gene in diffSpliceDGE.
-  Localec are clusters made of junctions that share an end with at least another junction in the cluster.}
+  It makes separate estimation for different types of junctions.
+  }
 
 \usage{
   jDUreport(asd, 
@@ -28,6 +24,11 @@ Estimate differential usage at junction level.
             useSubset                          = FALSE)
 }
 
+\details{
+Estimation is made at junction level using diffSpliceDGE function from edgeR package. 
+Junctions bellonging to the same AS event comprises the event "set". 
+Each junction is tested against this "set" in a similar fashion that bins are tested against their gene in diffSpliceDGE. Localec are clusters made of junctions that share an end with at least another junction in the cluster.
+}
 \arguments{
 \item{asd}{ An object of class \code{ASpliAS} with results of PSI and PIR using experimental junctions}
 \item{minAvgCounts}{ Minimum average counts for filtering}  
@@ -167,7 +168,6 @@ If NULL must provide a formula. }
 }
 
 
-  
 \examples{
 
   # Create a transcript DB from gff/gtf annotation file.
