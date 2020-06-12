@@ -33,7 +33,7 @@
 
 \value{ Tab delimited files are exported in a tidy manner into output folder }
 
-\author{ Estefania Mancini, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz}
+\author{ Estefania Mancini, Andres Rabinovich, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz  }
 
 \seealso{ 
   \code{ \link{jCounts}}, 

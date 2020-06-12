@@ -80,12 +80,9 @@
   \item{threshold}{ Default = 5 }     
 }
 
-\value{ 
-  An ASpliDU object with results at \code{genes}, \code{bins} level.}
+\value{ An ASpliDU object with results at \code{genes}, \code{bins} level.}
 
-\author{
-  Estefania Mancini, Andres Rabinovich, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz
-}
+\author{ Estefania Mancini, Andres Rabinovich, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz }
 
 \examples{
  # Create a transcript DB from gff/gtf annotation file.

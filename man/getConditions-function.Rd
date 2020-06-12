@@ -27,9 +27,8 @@
   A character vector with the names of the conditions derived from experimental
   factors.
 }
-\author{
-  Estefania Mancini, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz 
-}
+
+\author{ Estefania Mancini, Andres Rabinovich, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz  }
 
 \seealso{
   \code{\link{DUreport.norm}},

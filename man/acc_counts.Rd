@@ -41,7 +41,9 @@ targets(x)
 \value{
 Returns dataframes with counts by sample and genomic metadata
 }
-\author{ Estefania Mancini, Marcelo Yanovsky, Ariel Chernomoretz  }
+
+\author{ Estefania Mancini, Andres Rabinovich, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz  }
+
 \examples{
 
 # Get data tables from an ASpliCounts object

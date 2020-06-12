@@ -26,9 +26,7 @@ exportSplicingReports( sr, output.dir="sr" , openInBrowser = F, maxBinFDR = 0.2,
 \value{ 
   Produces html reports
 }
-\author{
-  Andres Rabinovich, Estefania Mancini, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz
-}
+\author{   Andres Rabinovich, Estefania Mancini, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz }
 
 \examples{
 # Create a transcript DB from gff/gtf annotation file.

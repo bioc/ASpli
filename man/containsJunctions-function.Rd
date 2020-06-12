@@ -28,7 +28,7 @@
   A logical value that indicates that results for genes and bins, or results for
   junctions are available in the object. }
 
-\author{ Estefania Mancini, Marcelo Yanovsky, Ariel Chernomoretz  }
+\author{ Estefania Mancini, Andres Rabinovich, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz  }
 
 \examples{
 

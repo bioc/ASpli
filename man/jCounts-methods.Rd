@@ -106,9 +106,7 @@ The last columns are the PIR metrics calculated for each condition. The PIR metr
 }
 
 }
-\author{
-Estefania Mancini, Andres Rabinovich, Javier Iserte, Marcelo Yanovsky and Ariel Chernomoretz 
-}
+\author{ Estefania Mancini, Andres Rabinovich, Javier Iserte, Marcelo Yanovsky and Ariel Chernomoretz }
 
 \examples{
   # Create a transcript DB from gff/gtf annotation file.

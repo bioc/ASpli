@@ -52,9 +52,7 @@ exportIntegratedSignals( is, output.dir="is",
 \value{ 
   Produces html reports
 }
-\author{
-  Andres Rabinovich, Estefania Mancini, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz
-}
+\author{   Andres Rabinovich, Estefania Mancini, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz }
 
 \examples{
   # Create a transcript DB from gff/gtf annotation file.

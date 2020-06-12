@@ -151,9 +151,7 @@ If NULL must provide a formula. }
   \item{contrast}{   Conditions contrasted by ASpli  }
 }
 
-\author{
-  Estefania Mancini, Andres Rabinovich, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz
-}
+\author{   Estefania Mancini, Andres Rabinovich, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz }
 
 \seealso{
   Accesors: \code{\link{localec}}, 

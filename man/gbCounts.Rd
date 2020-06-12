@@ -120,9 +120,8 @@
     The order in which ASpli is reading the conditions. This is useful for contrast tests, in order to make sure which conditions are being contrasted.
   }
 }
-\author{
-  Estefania Mancini, Andres Rabinovich, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz 
-}
+
+\author{   Estefania Mancini, Andres Rabinovich, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz  }
 
 \seealso{
   Accesors: \code{\link{countsg}}, 

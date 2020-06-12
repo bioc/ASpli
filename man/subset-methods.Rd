@@ -46,7 +46,7 @@
 \value{ A data frame similar to x ( or targets for subsetTargets) with only the
  containing only the selected elements. }
 
-\author{ Estefania Mancini, Marcelo Yanovsky, Ariel Chernomoretz  }
+\author{ Estefania Mancini, Andres Rabinovich, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz  }
 
 \examples{
 

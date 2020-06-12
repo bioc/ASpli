@@ -1,30 +1,28 @@
-\name{DUreport.offset}
+\name{gbDUreport}
 
-\alias{DUreport.offset}
+\alias{gbDUreport}
 
 \title{
   Differential gene expression and differential bin usage estimation
 }
 \description{
   Estimate differential expression at gene level and differential usage at bin 
-  level. When targets has only two conditions, and contrast is not set, the 
-  estimation of differential expression and usage is done with an exact test,
-  otherwise is estimated using a generalized linear model.    
+  level using diffSpliceDGE function from edgeR package.  
 }
 
 \usage{
-  DUreport.offset( counts, 
-            minGenReads = 10, 
-            minBinReads = 5,
-            minRds = 0.05, 
-            offsetAggregateMode =  c( "geneMode", "binMode" )[1],
-            offsetUseFitGeneX = TRUE,
-            contrast = NULL, 
-            ignoreExternal = TRUE, 
-            ignoreIo = TRUE, 
-            ignoreI = FALSE,
-            filterWithContrasted = TRUE,
-            verbose = FALSE)
+  gbDUreport( counts, 
+             minGenReads = 10, 
+             minBinReads = 5,
+             minRds = 0.05, 
+             contrast = NULL, 
+             ignoreExternal = TRUE, 
+             ignoreIo = TRUE, 
+             ignoreI = FALSE,
+             filterWithContrasted = TRUE,
+             verbose = TRUE,
+             formula = NULL,
+             coef = NULL)
 }
 
 \arguments{
@@ -58,20 +56,9 @@
   \item{ignoreIo}{ Ignore original introns.  Default TRUE }
   \item{ignoreI}{Ignore intron bins, test is performed only for exons. 
     Default FALSE }
-  \item{offset}{ Corrects bin expression using an offset matrix derived from 
-    gene expression data. Default = FALSE}
-  \item{offsetAggregateMode}{ Choose the method to aggregate gene counts to 
-    create the offset matrix. When \code{offsetAggregateMode} is 'geneMode' and 
-    option \code{offsetUseFitGeneX} is TRUE, a generalized linear model is used 
-    to create the offset matrix. When \code{offsetAggregateMode} is 'geneMode' 
-    and option \code{offsetUseFitGeneX} is FALSE, the offset matrix is generated
-    by adding a prior count to the gene count matrix. When 
-    \code{offsetAggregateMode} is 'binMode' a matrix from obtained from the sum
-    of exonic bin counts, this only takes those bins that passes filters using 
-    minGenReads, minBinReads and minRds.
-    Options:=c( "geneMode", "binMode" )[ 1 ] },
-  \item{offsetUseFitGeneX}{ Default= TRUE } 
-  \item{contrast}{ Define the comparison between conditions to be tested.
+  \item{contrast}{ 
+    Either a formula or a contrast can be tested.
+    If contrast is used, it defines the comparison between conditions to be tested.
     \code{contrast} should be a vector with length equal to the number of 
     experimental conditions defined by \code{targets}. The values of this vector
     are the coefficients that will be used to weight each condition, the order 
@@ -87,21 +74,57 @@
     read quantity and read density using data from those conditions that will 
     be used in the comparison, i.e. those which coefficients in contrast 
     argument are different from zero. The default value is TRUE, it is strongly
-    recommended to do not change this value.}
+    recommended to do not change this value. }
   \item{verbose}{
     A logical value that indicates that detailed information about each step in 
     the analysis will be presented to the user. }
+  \item{formula}{
+    Either a formula or a contrast can be tested.
+    If formula is used, complex tests can be run.
+    \code{formula} should be a formula specifying which experimental conditions defined by \code{targets} to test.
+    If coef is specified, then that coefficient will be tested. If not, it defaults to the last term in the formula.
+    }
+  \item{coef}{
+    For formula only. The coefficient to be tested. If null the test defaults to the last term in the formula}    
 }
 
 \value{ 
-  An ASpliDU object with results at \code{genes}, \code{bins} level.}
+  An ASpliDU object with results at \code{genes}, \code{bins} level.
+  \item{genesDE}{
+  symbol: gene symbol
+  locus_overlap: genes overlaping the same locus
+  gene_coordinates: gene coordinates
+  start: gene start
+  end: gene end
+  length: gene length
+  effective_length: gene effective length
+  logFC: gene log2 fold change between conditions
+  pvalue: p-value 
+  gen.fdr: fdr corrected p-value for multiple testing
+  }
+  \item{binsDU}{
+  feature: bin type
+  event: type of event asigned by ASpli when bining.
+  locus: gene locus
+  locus_overlap: genes overlaping the same locus
+  symbol: gene symbol
+  gene_coordinates: gene coordinates
+  start: bin start
+  end: bin end
+  length: bin length
+  logFC: bin log2 fold change between conditions
+  pvalue: p-value 
+  bin.fdr: fdr corrected p-value for multiple testing
+  }
+  
 
+}
 
-\author{ Estefania Mancini, Andres Rabinovich, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz  }
-
+\author{   Estefania Mancini, Andres Rabinovich, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz }
 
 \examples{
- # Create a transcript DB from gff/gtf annotation file.
+  
+  # Create a transcript DB from gff/gtf annotation file.
   # Warnings in this examples can be ignored. 
   library(GenomicFeatures)
   genomeTxDb <- makeTxDbFromGFF( system.file('extdata','genes.mini.gtf', 
@@ -113,19 +136,35 @@
   # Define bam files, sample names and experimental factors for targets.
   bamFileNames <- c( "A_C_0.bam", "A_C_1.bam", "A_C_2.bam", 
                      "A_D_0.bam", "A_D_1.bam", "A_D_2.bam" )
+
   targets <- data.frame( 
                row.names = paste0('Sample_',c(1:6)),
                bam = system.file( 'extdata', bamFileNames, package="ASpli" ),
-               factor1 = c( 'C','C','C','D','D','D') )
+               factor1 = c( 'C','C','C','D','D','D'),
+               subject = c(0, 1, 2, 0, 1, 2))
   
   # Read counts from bam files
-  counts   <- readCounts( features = features, targets = targets, minReadLength = 100, maxISize = 50000 )
-  
-  # Calculate differential usage of genes and bins
-  du       <- DUreport.offset( counts )
+  gbcounts  <- readCounts( features = features, targets = targets, minReadLength = 100, maxISize = 50000 )
 
+  # Test for factor1 controlling for paired subject
+  gbPaired   <- gbDUreport(gbcounts, formula = formula(~subject+factor1))
+  
+  # Show all genes and bins ordered by FDR
+  genesDE(gbPaired)
+  binsDU(gbPaired)
+  
+  # Test for factor1 without controlling for paired subject. Must change conditions inside gbcounts object to accommodate the contrast.
+  gbcounts@targets$condition <- targets$factor1
+  gbcounts@condition.order   <- c("C", "D") 
+  gbContrast <- gbDUreport(gbcounts, contrast = c(1, -1))
+  
+  # Show all genes and bins ordered by FDR
+  genesDE(gbContrast)
+  binsDU(gbContrast)
+  
   # Export results  
-  writeDU( du = du, output.dir = "only_du" )
+  writeDU( du = gbPaired, output.dir = "gbPaired" )
+  writeDU( du = gbContrast, output.dir = "gbContrast" )
 }
 
 \seealso{

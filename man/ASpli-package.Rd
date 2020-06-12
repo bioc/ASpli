@@ -34,9 +34,8 @@
   }
 }
 
-\author{
-  Estefania Mancini, Javier Iserte, Marcelo Yanovsky and Ariel Chernomoretz
-}
+
+\author{ Estefania Mancini, Andres Rabinovich, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz  }
 
 \references{
 \itemize{

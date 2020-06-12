@@ -109,9 +109,7 @@
   }  
 }
 
-\author{
-  Andres Rabinovich, Estefania Mancini, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz
-}
+\author{   Andres Rabinovich, Estefania Mancini, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz }
 
 \seealso{
   Accesors: \code{\link{binbased}}, 
