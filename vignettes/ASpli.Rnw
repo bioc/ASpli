@@ -1,10 +1,9 @@
 \documentclass{article}
+
 <<style, echo=FALSE, results=tex>>=
 BiocStyle::latex()
 options(continue=" ")
 @
-
-
 
 \usepackage{verbatim} 
 \usepackage{caption} 
@@ -27,46 +26,38 @@ options(continue=" ")
 \begin{document}
 \SweaveOpts{concordance=TRUE}
 
-%\SweaveOpts{concordance=TRUE}
-
 \maketitle
 
 \tableofcontents
 
-
 \section{Introduction}
+Alternative splicing (AS) is a common mechanism of post-transcriptional gene 
+regulation in eukaryotic organisms that expands the functional and regulatory 
+diversity of a single gene by generating multiple mRNA isoforms that encode 
+structurally and functionally distinct proteins. 
 
-Genome-wide analysis of alternative splicing has been a very active field of research since 
-the early days of NGS (Next generation sequencing) technologies.  Since then, evergrowing 
-data availability and the development of increasingly sophisticated analysis methods have uncovered 
+Genome-wide analysis of AS has been a very active field of research since 
+the early days of NGS (Next generation sequencing) technologies.  Since then, evergrowing data availability and the development of increasingly sophisticated analysis methods have uncovered 
 the complexity of the general splicing repertoire.  
 
 In this vignette we describe how to use \texttt{ASpli}, an integrative and user-friendly
 R package that facilitates the analysis of changes in both annotated and novel 
 AS events. 
 
-%This package combines statistical information from exon, intron, and 
-%splice junction differential usage (p-value, FDR), with information from splice 
-%junction reads to calculate differences in the percentage of exon inclusion 
-%($\Delta$PSI) and intron retention ($\Delta$PIR). The proposed methodology 
-%reliably reflect the magnitude of changes in the relative abundance of different 
-%annotated and novel AS events. ASpli can be used to analyze both simple 
-%and complex experimental designs involving multiple experimental conditions.
+This package combines statistical information from exon, intron, and 
+splice junction differential usage (p-value, FDR), with information from splice 
+junction reads to calculate differences in the percentage of exon inclusion 
+($\Delta$PSI) and intron retention ($\Delta$PIR). The proposed methodology reliably reflect the magnitude of changes in the relative abundance of different annotated and novel AS events. \texttt{ASpli} can be used to analyze both simple 
+and complex experimental designs involving multiple experimental conditions.
 
 <<loadAspli, echo=FALSE, eval=TRUE>>=
-devtools::load_all("~/ASpli")
-
+devtools::load_all("~/Documents//ASpli")
 @
 
-
 \section{Quick start}
-
 Here is an example for a pairwise comparison between 2 conditions (Control vs Treatment, 3 replicates each) using default parameters. \\
 
-Extract features from genome, define {\em targets} data.frame with phenotype data, and
-{\em mBAMs} data.frame with phenotype data for merged BAMs:
-
-
+Extract features from genome, define {\em targets} data.frame with phenotype data, and {\em mBAMs} data.frame with phenotype data for merged BAMs:
 
 <<quickStart1, echo=TRUE, eval=FALSE>>=
 genome   <- loadDb("txdb.sqlite")
@@ -79,6 +70,7 @@ mBAMs <- data.frame(bam=c("CT.BAM", "TR.BAM"),condition=c("CT","TR"))
 @
 
 Read counting against annotated features: 
+
 <<quickStart2, echo=TRUE, eval=FALSE>>=
 counts      <-  gbCounts(features = features, 
                          targets  = targets, 
@@ -87,6 +79,7 @@ counts      <-  gbCounts(features = features,
 @
 
 Junction-based {\em de-novo} counting:
+
 <<quickStart2b, echo=TRUE, eval=FALSE>>=
 asd         <-  jCounts(counts = counts, 
                         features = features,
@@ -94,18 +87,21 @@ asd         <-  jCounts(counts = counts,
 @
 
 Differential signal estimation:
+
 <<quickStart3, echo=TRUE, eval=FALSE>>=
 gb        <- gbDUreport(counts, contrast = c(-1, 1))
 jdur      <- jDUreport(    asd, contrast = c(-1, 1))
 @
 
 Report and signal integration:
+
 <<quickStart4, echo=TRUE, eval=FALSE>>=
 sr      <- splicingReport(gb, jdur, counts)
 is      <- integrateSignals(sr,asd)
 @
 
 Export results:
+
 <<quickStart5, echo=TRUE, eval=FALSE>>=
 exportSplicingReports( sr, output.dir="results")
 exportIntegratedSignals(is,sr=sr,
@@ -114,13 +110,12 @@ exportIntegratedSignals(is,sr=sr,
                           mergedBams = mBAMs)
 @ 
 
-
-
 \section{Getting started}
 
 \subsection{Installation}
 \texttt{ASpli} is available at Bioconductor site and can be installed following these steps:
 \texttt{biocLite()}:
+
 <<installation, echo=TRUE, eval=FALSE>>=
 if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
@@ -147,26 +142,27 @@ TxDb <- makeTxDbFromGFF(
 
 
 The building of a \texttt{TxDb} object might be time consuming, depending on the size of your genome. If a \texttt{TxDb} has been already created, we strongly recommend saving it as a \texttt{sqlite} file and reloading it any time the analysis is run. 
+
 <<saveTx, echo=TRUE, eval=FALSE>>=
  saveDb(TxDB,file="gene.sqlite")
 @
 
 Please, \texttt{make sure all files use the same coordinate system}.
 \item IMPORTANT: replicate merged \texttt{BAM} files for each contrasted condition are needed to estimate uniform coverage statistics and to generate graphical reports through the {\texttt exportIntegratedSignals} function. 
+You can check \hyperref[samtools]{http://www.htslib.org/doc/samtools-merge.html}
 
 \end{itemize}
 
-
 \section{Using \texttt{ASpli}}
-The workflow intended to be used with \texttt{ASpli} is divided in four main steps (Figure \ref{fig:ASpliStructure}). \begin{enumerate}
+
+The workflow intended to be used with \texttt{ASpli} is divided in six main steps (Figure \ref{fig:ASpliStructure}). \begin{enumerate}
   \item Extracting features from genome TxDb: \texttt{ binGenome() }
   \item Counting reads:  \texttt{ gbCounts()},  \texttt{ jCounts()}
   \item Estimating differential signals:\texttt{ gbDUreport()}, 
   \texttt{jDUreport()}
   \item Generering reports: \texttt{ splicingReport() }, \texttt{ integrateSignals() }
-  \item Exporting html reports: \texttt{ exportSplicingReport() }, \texttt{ exportIntegrateSignals() }
+  \item Exporting HTML reports: \texttt{ exportSplicingReport() }, \texttt{ exportIntegrateSignals() }
 \end{enumerate}
-
 
 The main objects classes used to store data and perform operations are:
 \begin{itemize}
@@ -179,16 +175,15 @@ The main objects classes used to store data and perform operations are:
   \item \texttt{ASpliIntegratedSignals}: Contains signals present in the region
   \end{itemize}
   
-At each step it is possible to export intermediate results. 
+At each step it is possible to access intermediate results. 
 See Section \ref{sec:outputs}:\nameref{sec:outputs} for more details.
 
 \begin{figure}[ht!]
 \centering
-%\includegraphics[width=0.85\textwidth]{images/ASpliCoreFunctionality.png}
-\caption{ ASpli core Funcionalities }
+\includegraphics[width=0.85\textwidth]{images/fig1A.png}
+\caption{ \texttt{ASpli} core Funcionalities }
 \label{fig:ASpliStructure}
 \end{figure}
-
 
 \subsection{\texttt{binGenome}: Binning the genome }
 \label{sectionBinG}
@@ -199,7 +194,6 @@ The \texttt{binGenome} method is a one-stop function to:
  \item extract junction, gene and bin coordinates
  \item infer bin splicing events from annotation 
 \end{itemize}
-
 
 \texttt{binGenome}'s output is an object of class \texttt{ASpliFeatures}. 
 Methods \texttt{featuresg}, \texttt{featuresb}, \texttt{featuresj} can be used to access genes, bins and junctions coordinates as \texttt{GRanges} (\texttt{GRanges} objects defined in the \texttt{GenomicRanges} package.) 
@@ -212,7 +206,9 @@ geneCoord     <- featuresg( features )
 binCoord      <- featuresb( features )
 junctionCoord <- featuresj( features )
 @
+
 In the case gene symbols were available, they could be appended as follow:
+
 <<binGenome2, echo=TRUE, eval=FALSE>>=
 symbols       <- data.frame( row.names = genes( aTxDb ), 
                              symbol = paste( 'This is symbol of gene:',
@@ -250,7 +246,6 @@ Exonic and intronic bins are further classified into {\em exclusively exonic bin
 
 Bins that overlap with the beginning or end of any transcript are labelled as \textbf{external}. Please note that an external bin of a transcript may overlap to a non external bin of another transcript, in these cases the bin is still labelled as \textbf{external}. In addition to these non overlapping bins, full introns are extracted from annotation and labelled as \textbf{Io} )
 
-
 \subsubsection{Splicing event assignment} \label{sec:eventAssign}
 
 Each AS bin is further classified considering a three-bin {\em local splicing model}. Splicing-event categories are assigned to a given bin based on the intronic/exonic character of the analyzed bin and its first neighbors (Figure \ref{fig:binAssignment}). 
@@ -266,7 +261,7 @@ models shown are plus sense strand. }
 \label{fig:binAssignment}
 \end{figure}
 
-When more than two isoforms are present, we still found it useful to use the three-bin local model to segment follow up analysis. For these cases (see rows 2-4 of Figure~\ref{fig:binAssignment}) ASpli identify splicing events that involve: intronic subgenic regions surrounded by exons in at least one isoform (bin labelled as IR*), exonic subgenic regions surrounded by two introns in at least one isoform (bin labelled as ES*), exonic regions surrounded by intronic and exonic neighbor bins (bin labelled as Alt5'SS* or Alt3'SS*). 
+When more than two isoforms are present, we still found it useful to use the three-bin local model to segment follow up analysis. For these cases (see rows 2-4 of Figure~\ref{fig:binAssignment}) \texttt{ASpli} identify splicing events that involve: intronic subgenic regions surrounded by exons in at least one isoform (bin labelled as IR*), exonic subgenic regions surrounded by two introns in at least one isoform (bin labelled as ES*), exonic regions surrounded by intronic and exonic neighbor bins (bin labelled as Alt5'SS* or Alt3'SS*). 
 
 When it is not possible to get a clear splicing-type assignation (last row of Figure~\ref{fig:binAssignment}), bins are labeled as {\em undefined AS} (UAS).  \\
 
@@ -274,22 +269,10 @@ When it is not possible to get a clear splicing-type assignation (last row of Fi
 
 \subsection{Read counting}\label{sec:rcounts}
 
-
 \subsubsection{Targets data.frame definition}\label{sec:targetsDef}
 
 BAM file names and experimental factors should be provided as a dataframe 
-that has as many rows as samples. The first column  should be named \textit{bam} and should contain the path to a BAM file. Next columns should be used to specify the different experimental factors for each sample. %For a single factor experiment with 2 conditions (Control and Treatment) and 2 replicates for each condition, \textbf{targets} dataframe could be defined as follow:
-
-%<<targetsDF, echo=TRUE, eval=FALSE>>=
-%targets <- data.frame(
-%  bam = c("path_to_bams/CT_1.BAM", "path_to_bams/CT_2.BAM","path_to_bams/CT_3.BAM",
-%          "path_to_bams/TR_1.BAM", "path_to_bams/TR_2.BAM","path_to_bams/TR_3.BAM"),
-%  genotype = c( "CT", "CT", "CT",  "TR", "TR", "TR" ),
-%  stringsAsFactors = FALSE )
-%@ 
-%Complex designs, for example a 2 factor experiment (e.g. genotype and time), 2 values for each %factor and 2 replicates for each condition, the \textbf{targets} can be defined like this:
-
-%Complex designs, for example a 2 factor experiment (e.g. genotype and time), 2 values for each %factor and 2 replicates for each condition, the \textbf{targets} can be defined like this:
+that has as many rows as samples. The first column  should be named \textit{bam} and should contain the path to a BAM file. Next columns should be used to specify the different experimental factors for each sample.
 
 For instance, for a two-factor design (e.g. {\em genotype} and {\em time}) the {\em targets} 
 data.frame could have been defined like this:
@@ -308,7 +291,7 @@ BAMFiles <- c("path_to_bams/CT_time1_rep1.BAM", "path_to_bams/CT_time1_rep2.BAM"
 @
 
 
-The {\em targets} data frame contains experimental factor values for each sample. \texttt{ASpli} generates simple code-name for each experimental condition concatenating the corresponding factor levels. They can be check using the \texttt{getConditions()} function. 
+The {\em targets} dataframe contains experimental factor values for each sample. \texttt{ASpli} generates simple code-name for each experimental condition concatenating the corresponding factor levels. We recommend to check using the \texttt{getConditions()} function. 
 
 <<targetsDF2b, echo=TRUE, eval=TRUE>>=
 getConditions( targets )
@@ -321,7 +304,8 @@ getConditions( targets )
 
 \subsubsection{\texttt{gbCounts}: Summarize read overlaps against all feature levels}
 
-The method  \texttt{gbCounts()} allows to count the number of reads that overlaps each defined feature (i.e. genes, bins, junctions and intron/exon flanking regions). For genes and bins, read density values are also computed as the ratio between the number of reads and the length of a given feature. 
+The method  \texttt{gbCounts()} counts the number of reads that overlaps each defined feature (i.e. genes, bins, junctions and intron/exon flanking regions). For genes and bins, read density values are also computed as the ratio between the number of reads and the length of a given feature. 
+
 <<gbCounts, echo=TRUE, eval=FALSE>>=
 counts      <-  gbCounts(features,
                          targets, 
@@ -342,6 +326,7 @@ The result of \texttt{gbCounts()} method is an object of class
 \texttt{ASpliCounts}\label{sec:countsContents}. Count and read density dataframes can be extracted using accesors methods. An extensive summary of the information stored in these tables is included in \secref{sec:outputs}.
 
 Access data:
+
 <<gbCountAccessors, echo=TRUE, eval=FALSE>>=
 GeneCounts <- countsg(counts)
 GeneRd <- rdsg(counts)
@@ -349,7 +334,9 @@ BinCounts <- countsb(counts)
 BinRd <- rdsb(counts)
 JunctionCounts <- countsj(counts)
 @
+
 Export tables to text files:
+
 <<gbCountsWrite, echo=TRUE, eval=FALSE>>=
 writeCounts(counts=counts, output.dir = "example")
 writeRds(counts=counts, output.dir = "example")
@@ -366,8 +353,6 @@ overlap two different genes, in this case it is counted for both of them}.
 (connecting exon E1 and intron I) and IE2 (connecting intron I and exon E2) are defined:
 
 \begin{itemize}
-%  \item E1I: intron start - (readLength - minAnchor) --- intron start + (  readLength - minAnchor )
-%  \item IE2: intron end - (readLength - minAnchor) --- intron end + ( readLength - minAnchor )
   \item E1I: [I$_{s}$- readLength (1 - minAnchor/100), I$_{s}$+ readLength (1 - minAnchor/100)]
   \item IE2: [I$_{e}$- readLength (1 - minAnchor/100), I$_{e}$+ readLength (1 - minAnchor/100)]
 \end{itemize}
@@ -378,12 +363,12 @@ where I$_{s}$ and I$_{e}$ are the intron start and end coordinates respectively.
 \textbf{Please check before start the read length of your sequenced library} Only those reads whith minimum overlap \textit{minReadLength} with either $E1I$ or $IE2$ will be considered and counted. 
 
 To access this data:
+
 <<gbCountAccessors2, echo=TRUE, eval=FALSE>>=
 e1iCounts <- countse1i(counts)
 ie2Counts <- countsie2(counts)
 @
 
- 
 \item Effective length: is the sum of the length of exonic bins and alternative bins (i.e. all bins except intronic bins).
 
 \item Junctions are extracted from BAM files. They are defined as those reads
@@ -392,7 +377,7 @@ for aligned reads \cite{pmid19505943} ), and are essential for alternative splic
 \end{itemize}
 
 \subsubsection{\texttt{jCounts}: Summarize junctions inclussion indices PSI, PIR and PJU}
-PSI (percent of inclusion) and PIR (percent of intron retention) metrics (see bellow) are calculated for each bin and experimental condition. The selection of which metric is used is based on the type of splicing event associated with each bin (see \secref{sec:eventAssign}). In addition, annotation-free inclussion indices (PIR$_J$ and PJU, see bellow) are estimated using  experimentally detected junctions.
+PSI (percent of inclusion) and PIR (percent of intron retention) metrics (see bellow) are computed for each bin and experimental condition. The selection of which metric is used is based on the type of splicing event associated with each bin (see \secref{sec:eventAssign}). In addition, annotation-free inclussion indices (PIR$_J$ and PJU, see bellow) are estimated using  experimentally detected junctions.
 
 <<asd, echo=TRUE, eval=FALSE>>=
 asd         <-  jCounts(counts, 
@@ -401,6 +386,7 @@ asd         <-  jCounts(counts,
                         threshold,
                         minAnchor)
 @
+
 Novel arguments for this function call are:
 \begin{itemize}
 \item counts: An object of class \texttt{ASpliCounts}
@@ -411,6 +397,7 @@ Results: An object of class \texttt{ASpliAS}.\label{sec:countsAS}. An extensive 
 
 
 Accesors:
+
 <<asdAccesor, echo=TRUE, eval=FALSE>>=
 irPIR  <- irPIR( asd )
 altPSI <- altPSI( asd )
@@ -422,6 +409,7 @@ junctionsPIR <- junctionsPIR( asd )
 @
 
 Export tables to text files:
+
 <<asdAccesor2, echo=TRUE, eval=FALSE>>=
 writeAS(as=asd, output.dir="example")
 @
@@ -429,7 +417,7 @@ writeAS(as=asd, output.dir="example")
 \paragraph{Junction supporting evidence of alternative bin usage}
 \label{sec:psir}
 
-ASpli makes use of junction data  as supporting evidence of alternative usage of bins. For a general differential splicing event affecting a given bin, it is always possible to define {\em exclusion} and {\em inclusion} junctions. The first class of junctions (noted as $J_3$) pass over the bin of interest, whereas the second ones (note as $J_1$ and/or $J_2$) quantify and support the inclusion of start and/or end bin boundaries in the mature transcript. Figure \ref{fig:pirEq} illustrates this point for the different types of splicing events that could affect a given bin. ASpli considers for this analysis junctions that are completely included within a unique gene and have more than a minimum number of reads supporting them (by default this number is five).\\
+\texttt{ASpli} makes use of junction data  as supporting evidence of alternative usage of bins. For a general differential splicing event affecting a given bin, it is always possible to define {\em exclusion} and {\em inclusion} junctions. The first class of junctions (noted as $J_3$) pass over the bin of interest, whereas the second ones (note as $J_1$ and/or $J_2$) quantify and support the inclusion of start and/or end bin boundaries in the mature transcript. Figure \ref{fig:pirEq} illustrates this point for the different types of splicing events that could affect a given bin. \texttt{ASpli} considers for this analysis junctions that are completely included within a unique gene and have more than a minimum number of reads supporting them (by default this number is five).\\
 
 \begin{figure}[ht!]
     \centering
@@ -439,16 +427,16 @@ ASpli makes use of junction data  as supporting evidence of alternative usage of
 \end{figure}
 
 
-PSI (percent spliced in) \cite{Schafer2015} and PIR (percent of intron retention) metrics are two well known statistics that can be used to quantify the relative weight of inclusion evidence for different kind of splicing events. For each bin, ASpli quantifies the inclusion strength in every experimental condition using the appropriate inclusion index (see Fig \ref{fig:pirEq}).
+PSI (percent spliced in) \cite{Schafer2015} and PIR (percent of intron retention) metrics are two well known statistics that can be used to quantify the relative weight of inclusion evidence for different kind of splicing events. For each bin, \texttt{ASpli} quantifies the inclusion strength in every experimental condition using the appropriate inclusion index (see Fig \ref{fig:pirEq}).
 
 
 \paragraph{Annotation-free inclussion indices }
 
-ASpli relies on the direct analysis of experimentally observed splicing junctions in order to study novel (i.e. non-annotated) splicing patterns. 
+\texttt{ASpli} relies on the direct analysis of experimentally observed splicing junctions in order to study novel (i.e. non-annotated) splicing patterns. 
 
-For every experimental junction, ASpli characterizes local splicing patterns  considering two hypothetical scenarios. For one hand, assuming that every detected junction might be associated to a possible intron that could be potentially retained, a $PIR_{junc}$ value is computed (upper panel of Figure \ref{fig:psir_junc}).\\
+For every experimental junction, \texttt{ASpli} characterizes local splicing patterns  considering two hypothetical scenarios. For one hand, assuming that every detected junction might be associated to a possible intron that could be potentially retained, a $PIR_{junc}$ value is computed (upper panel of Figure \ref{fig:psir_junc}).\\
 
-On the other hand, every junction also defines potential 5' and 3' splicing sites. It can be the case that one (in an alternative 5' or 3' scenario), or both ends (in case of exon skipping) were shared by other junctions. In this context, it is informative to characterize the relative abundance of the analyzed junction (dubbed $J_3$) with respect to the locally {\em competing} ones. ASpli estimates {\em percentage junction-usage} indices, $PJU_{J_1}$ and $PJU_{J_2}$, in order to evaluate and quantify this quantities (see bottom panel of figure \ref{fig:psir_junc}). In order to illustrate this point, we show in figure \ref{fig:jcluster} an hypothetical splicing scenario for a given junction of interest, $J_3$. It can be appreciated that $PJU_{J_1}$ quantifies the participation of this junction in the context of a splicing pattern involving the two orange competing junctions, whereas $PJU_{J_2}$ reports on the usage of $J_3$ in connection with the green competing junction.  
+On the other hand, every junction also defines potential 5' and 3' splicing sites. It can be the case that one (in an alternative 5' or 3' scenario), or both ends (in case of exon skipping) were shared by other junctions. In this context, it is informative to characterize the relative abundance of the analyzed junction (dubbed $J_3$) with respect to the locally {\em competing} ones. \texttt{ASpli} estimates {\em percentage junction-usage} indices, $PJU_{J_1}$ and $PJU_{J_2}$, in order to evaluate and quantify this quantities (see bottom panel of figure \ref{fig:psir_junc}). In order to illustrate this point, we show in figure \ref{fig:jcluster} an hypothetical splicing scenario for a given junction of interest, $J_3$. It can be appreciated that $PJU_{J_1}$ quantifies the participation of this junction in the context of a splicing pattern involving the two orange competing junctions, whereas $PJU_{J_2}$ reports on the usage of $J_3$ in connection with the green competing junction.  
 
 \begin{figure}[ht!]
   \centering
@@ -480,21 +468,18 @@ an intron will be considered to be involved in a putative intron retention splic
 
 \subsection{Differential signals}\label{sec:difsignals}
 
-ASpli leverages on the statistical framework developed by Smyth and collaborators, implemented in the edgeR R-package \cite{Robinson2010, McCarthy2012}, to assess for statistically significant changes in gene-expression, bin coverage and junction splicing signals. Under this approach, count data is modeled using a negative binomial model, and  an empirical Bayes procedure is considered to moderate the degree of overdispersion across units.
+\texttt{ASpli} leverages on the statistical framework developed by Smyth and collaborators, implemented in the edgeR R-package \cite{Robinson2010, McCarthy2012}, to assess for statistically significant changes in gene-expression, bin coverage and junction splicing signals. Under this approach, count data is modelled using a negative binomial model, and  an empirical Bayes procedure is considered to moderate the degree of overdispersion across units.
 
-In order to study splicing patterns, gene expression changes should be deconvolved from overall count data. On a very general setting, what we are looking for is to test whether a given unit of a certain group of elements displays differential changes respect to the collective or average behavior. ASpli uses this general idea to assess for statistically significant changes in splicing patterns probed with different genomic features:
+In order to study splicing patterns, gene expression changes should be deconvolved from overall count data. On a very general setting, what we are looking for is to test whether a given unit of a certain group of elements displays differential changes respect to the collective or average behavior. \texttt{ASpli} uses this general idea to assess for statistically significant changes in splicing patterns probed with different genomic features:
 \begin{itemize}
-%\item differential usage of bins: ASpli compares log-fold-changes of bins respect to the log-fold-change of the corresponding gene.
-%\item differential intron retention (junction-based): ASpli analyzes changes in junction {\em anchorage} by considering  log-fold-changes of a given experimental junction relative to changes in left and right flanking regions. 
-%\item differential junction strength signal: ASpli defines junction-clusters as  sets of junctions that share at least one end with another junction of the same cluster (see Panel E of Figure \ref{fig:binsNjunctions}). In order to weigh changes for a given junction along experimental conditions, ASpli considers the log-fold-change of the analyzed junction relative to the mean log-fold-change of junctions of the same cluster. 
-\item bin-coverage signal:  ASpli assesses for differential usage of bins comparing bin's log-fold-changes  with the overall log-fold-change of the corresponding gene.
-\item junction anchorage signal: For every experimentally detected junction, ASpli analyzes differential intron retention changes by considering  log-fold-changes of a given experimental junction relative to changes in coverage of left and right junction flanking regions. 
-\item junction locale signal: In the same spirit than MAJIQ and LeafCutter, ASpli defines junction-clusters as  sets of junctions that share at least one end with another junction of the same cluster (see Figure \ref{fig:jcluster}). In order to characterize changes for a given junction along experimental conditions, ASpli weighs log-fold-change of the junction of interest relative to the mean log-fold-change of junctions belonging to the same cluster. 
+
+\item bin-coverage signal:  \texttt{ASpli} assesses for differential usage of bins comparing bin's log-fold-changes  with the overall log-fold-change of the corresponding gene.
+\item junction anchorage signal: For every experimentally detected junction, \texttt{ASpli} analyzes differential intron retention changes by considering  log-fold-changes of a given experimental junction relative to changes in coverage of left and right junction flanking regions. 
+\item junction locale signal: In the same spirit than MAJIQ and LeafCutter, \texttt{ASpli} defines junction-clusters as  sets of junctions that share at least one end with another junction of the same cluster (see Figure \ref{fig:jcluster}). In order to characterize changes for a given junction along experimental conditions, \texttt{ASpli} weighs log-fold-change of the junction of interest relative to the mean log-fold-change of junctions belonging to the same cluster. 
 
 \end{itemize}
 
-ASpli makes use of the functionality implemented in the diffSpliceDGE function of the edgeR package to perform all of this comparisons within a unified statistical framework. Given a set of elements (i.e. bins or junctions) of a certain group (i.e. genes, anchorage group or junction-cluster), a negative binomial generalized log-linear model is fit at the element level, considering an offset term that accounts for library normalization and collective changes. Differential usage is assessed testing coefficients of the GLM. 
-At the single element-level, the relative log-fold-change is reported along with the associated p-value and FDR adjusted q-values. In addition a group-level test is considered to check for differences in the usage of any element of the group between experimental conditions (see {\em diffSpliceDGE} documentation included in edgeR package for details \cite{Robinson2010}).
+\texttt{ASpli} makes use of the functionality implemented in the diffSpliceDGE function of the edgeR package to perform all of this comparisons within a unified statistical framework. Given a set of elements (i.e. bins or junctions) of a certain group (i.e. genes, anchorage group or junction-cluster), a negative binomial generalized log-linear model is fit at the element level, considering an offset term that accounts for library normalization and collective changes. Differential usage is assessed testing coefficients of the GLM. At the single element-level, the relative log-fold-change is reported along with the associated p-value and FDR adjusted q-values. In addition a group-level test is considered to check for differences in the usage of any element of the group between experimental conditions (see {\em diffSpliceDGE} documentation included in edgeR package for details \cite{Robinson2010}).
 
 
 \subsubsection{\texttt{gbDUreport}: Bin-based coverage differential signals of AS}  \label{sec:du}
@@ -535,12 +520,14 @@ The result of \texttt{gbDUreport()} method is an object of class
 \texttt{ASpliDU}. Gene expression and bin differential usage information can be extracted using accesors methods. An extensive summary of the information stored in this object is included in \secref{sec:outputs}.
 
 Accesors:
+
 <<asdAccesor, echo=TRUE, eval=FALSE>>=
 geneX  <- genesDE( gb )
 binDU  <- binsDU( gb )
 @
 
 Export tab delimited tables:
+
 <<gbCountsWrite, echo=TRUE, eval=FALSE>>=
 writeDU(gb, output.dir = "example")
 @
@@ -558,13 +545,12 @@ Note that the inclusion of those bins affects the estimation of corrected p-valu
 \end{itemize}
 
 
-
-
 \subsubsection{\texttt{jDUreport}: Junction-centered analysis of AS}\label{sec:jdureport}
 
 Based on abundance information of experimentally detected junctions, \texttt{jDUreport} considers J$_1$, J$_2$ and J$_3$ junction sets, as defined in \secref{fig:psir_junc}, to analyze annotation-free {\em junction-anchorage} and {\em junction-locale} alternative splicing signals (see \secref{sec:difsignals}). In addition, for every annotated bin, this functions tests junction supporting evidence of bin usage (see \secref{fig:pirEq}).
 
 To run this analysis:
+
 <<jDUreport, echo=TRUE, eval=FALSE>>=
 jdu <- jDUreport(asd, 
             minAvgCounts                       = 5, 
@@ -580,6 +566,7 @@ jdu <- jDUreport(asd,
             maxFDRForParticipation             = 0.05,
             useSubset                          = FALSE)
 @
+
 Summary of arguments:
 \begin{itemize}
 \item asd: An object of class \texttt{ASpliAS} with results of PSI and PIR using experimental junction
@@ -596,6 +583,7 @@ Summary of arguments:
 Results are stored in an \texttt{ASpliJDU} object. Note that this analysis considers junctions that are completely included within a unique gene and have enough supporting reads (MinAvgCounts, Default = 5)
 
 Accesors:
+
 <<jDUreportAccesors, echo=TRUE, eval=FALSE>>=
  localej( jdu )
  localec( jdu )
@@ -611,7 +599,8 @@ Accesors:
 \texttt{localc} and \texttt{localj} together with \texttt{anchorc} and \texttt{anchorj} data.frames provide information regarding statistically significant changes observed in connection with junction usage inside {\em locale} and {\em anchorage}-junction clusters respectively. \texttt{jir}, \texttt{jes} and \texttt{jalt} accessors provide information regarding junction support of bin usage.
 
 Export tab delimited table:
-<<jDUreportAccesorsX, echo=TRUE, eval=FALSE>>=
+
+ <<jDUreportAccesorsX, echo=TRUE, eval=FALSE>>=
 writeJDU(jdu,output.dir = "test")
 @
 
@@ -623,7 +612,8 @@ writeJDU(jdu,output.dir = "test")
 This function combines differential splicing information from different sources. Bin and junction usage information is integrated in three steps. First, {\em bin} and annotated junction information (\texttt{jir}, \texttt{jes}, \texttt{jalt}) are consolidated. Then, bins that overlap with {\em locale}-J3 junctions (junctions that cover the entire locale region) are identified and the corresponding signals are combined. Finally, the same procedure is performed for bins and {\em anchorage}-J3 junctions.
 
 To run this analysis
-<<splicingReport, echo=TRUE, eval=FALSE>>=
+
+ <<splicingReport, echo=TRUE, eval=FALSE>>=
 sr      <- splicingReport(gb, 
                           jdur, 
                           counts)
@@ -632,6 +622,7 @@ sr      <- splicingReport(gb,
 Results are stored in an \texttt{ASpliSplicingReport} object.
 
 Accesors:
+
 <<splicingReportA, echo=TRUE, eval=FALSE>>=
  binbased( sr )
  localebased( sr )
@@ -640,7 +631,7 @@ Accesors:
 
 \texttt{binbased(sr)} data.frame combines information from bins and annotated junctions. For each case, either $\Delta PSI$ or $\Delta PIR$ statistics is reported based on the {\em bin} splicing type. \texttt{localebased(sr)}  is a data.frame with information from bins and {\em locale} junctions. Statistics for each junction are located in columns prefixed with "junction" and statistics for the corresponding cluster are prefixed with the "cluster" keyword. Changes in {\em participation} coefficients are also reported. If {\em locale} clusters matched a {\em bin}, the coresponding bin statistics are also included. The data structure of \texttt{anchorbased(sr)} data.frame is similar to the {\em localebased(sd)} one. All data.frames also include junction count records for debugging purposes.
 
-Export tab delimited table (see \ref{sec:reports} for interactive html reports):
+Export tab delimited table (see \ref{sec:reports} for interactive HTML reports):
 
 <<splicingReportA, echo=TRUE, eval=FALSE>>=
 writeSplicingReport( sr, output.dir = "test")
@@ -649,15 +640,13 @@ writeSplicingReport( sr, output.dir = "test")
 \subsubsection{\texttt{integrateSignals()}: Region specific summarization of differential usage signals.}
 This function integrates different usage signals reported in overlaping genomic regions:
 \begin{itemize}
-\item bin signal:  a bin is called differentially-used by ASpli if it displays statistically significant coverage changes (fdr $< 0.05$, by default) and, additionally, one of the two supplementary conditions hold: either the bin fold-change level is greater than a given threshold (3 fold changes, by default) or changes in inclusion levels of bin-supporting junctions ($\Delta PIR$ or $\Delta PSI$ according to the bin class) surpass a predefined threshold ($0.2$ by default).
+\item bin signal:  a bin is called differentially-used by \texttt{ASpli} if it displays statistically significant coverage changes (fdr $< 0.05$, by default) and, additionally, one of the two supplementary conditions hold: either the bin fold-change level is greater than a given threshold (3 fold changes, by default) or changes in inclusion levels of bin-supporting junctions ($\Delta PIR$ or $\Delta PSI$ according to the bin class) surpass a predefined threshold ($0.2$ by default).
 
 \item {\em anchorage} signal: statistically significant changes are found at the cluster level (cluster.fdr $<0.05$ by default) for the considered $\{J_1,J_2,J_3\}$ junction set (see upper panel of Fig \ref{fig:psir_junc}) and, at the same time, $|\Delta PIR_{J_3}|$ is larger than a given threshold (0.3 by default).  
 
 \item {\em locale} signal: statistically significant changes are found at the cluster level  (cluster.fdr $<0.01$ by default) for the analysed junction cluster $\{J_1,...,J_S,...,J_n\}$ (see \ref{fig:jcluster}) and, at the same time, there is at least one junction $J_S$ within the cluster presenting statistically significant changes at the single unit level (junction.fdr $<0.05$, by default) with $|\Delta Participation_{J_S}|$ larger than a given threshold (0.3 by default). In the case that statistically significative changes were detected at the unit-level for more than one junction of a given cluster, the one displaying the largest participation change was considered and reported as the cluster's representative junction. 
 
 \end{itemize}
-
-
 
 <<integrateSignals, echo=TRUE, eval=FALSE>>=
 is    <- integrateSignals(sr, asd,
@@ -684,13 +673,14 @@ Arguments:
 \item a.fdr: Maximum FDR for {\em anchorage} junctions.
 \item l.inclussion: Minimum level of {\em participation} change for {\em locale} junctions..
 \item l.fdr: Maximum FDR for {\em locale} junctions.
-\item otherSources: If user wants to compare ASpli results with results from other methods, {\em otherSources} must be a GenomicRange object with all the regions found with the other methods. It will be integrated with a new column next to signals information.
+\item otherSources: If user wants to compare \texttt{ASpli} results with results from other methods, {\em otherSources} must be a GenomicRange object with all the regions found with the other methods. It will be integrated with a new column next to signals information.
 \item overlapType: Matching criterium for region overlaps. Defaults to "any" and can be any of the following: "any", "start", "end", "within", "equal".
 \end{itemize}
 
 Results are stored in an \texttt{ASpliIntegratedSignals} object.
 
 Accesors:
+
 <<integrateSignalsA, echo=TRUE, eval=FALSE>>=
  signals( is )
  filters( is )
@@ -733,12 +723,12 @@ In this example a bin-signal ({\em b}) was found in region {\em Chr1:406793-4069
 
 \subsubsection{\texttt{exportSplicingReport}: Export splicing reports in HTML pages.} \label{sec:reports}
 
-This function makes use of the \texttt{DT} R-package \cite{DTpackage}, a wrapper of the JavaScript library 'DataTables' to export {\em splicing report} results into interactive html pages.
+This function makes use of the \texttt{DT} R-package \cite{DTpackage}, a wrapper of the JavaScript library 'DataTables' to export {\em splicing report} results into interactive HTML pages.
 
 <<exportSplicingReports, echo=TRUE, eval=FALSE>>=
 exportSplicingReports( sr, 
                        output.dir="sr",
-                       openInBrowser = F, 
+                       openInBrowser = FALSE, 
                        maxBinFDR = 0.2, 
                        maxJunctionFDR = 0.2 )
 @
@@ -747,9 +737,9 @@ Arguments:
 \begin{itemize}
 \item sr:	An object of class ASpliSplicingReport
 \item output.dir: HTML reports output directory 
-\item openInBrowser: logical. Whether results are automatically displayed just after exporting.	
-\item maxBinFDR (Default = 0.2) Only export info for bins with FDR < maxBinFDR
-\item maxJunctionFDR (Default = 0.2): Only export info for junctions with FDR < maxJunctionFDR
+\item openInBrowser: (Default = FALSE) If TRUE, results are automatically displayed just after exporting.	
+\item maxBinFDR (Default = 0.2) Export info for bins with FDR < maxBinFDR
+\item maxJunctionFDR (Default = 0.2): Export info for junctions with FDR < maxJunctionFDR
 \end{itemize}
 
 The result is an HTML page, where you can easily browse the tables stored in an \em{ASpliSplicingReport}
@@ -758,7 +748,7 @@ object.
 
 \subsubsection{\texttt{exportIntegratedSignals()}: Export integrated signals into HTML pages.} \label{sec:reports2}
 
-This function makes use of the \texttt{DT} R-package \cite{DTpackage}, a wrapper of the JavaScript library 'DataTables', to export region-based integrated signal results into interactive html pages.
+This function makes use of the \texttt{DT} R-package \cite{DTpackage}, a wrapper of the JavaScript library 'DataTables', to export region-based integrated signal results into interactive HTML pages.
 
 <<exportIntegratedSignals, echo=TRUE, eval=FALSE>>=
 exportIntegratedSignals( is, output.dir="is", 
@@ -807,11 +797,10 @@ object.
 
 \texttt{ASpli} provides a small synthetic data set to test the whole pipeline. It consists of
 \begin{itemize}
- \item a genome with ten genes with multiple isoforms
+ \item a \textbf{GTF} file for a a genome with ten genes with multiple isoforms with the corresponding annotation. 
  \item a set of twelve \textbf{BAM} files from an experiment with a two$\times$two factorial design
  \item four merged \textbf{BAM} files (merged replicates, one per condition)
- \item a \textbf{GTF} file with the corresponding annotation. 
- \end{itemize}
+  \end{itemize}
  
 \subsection{2x2 experimental design} 
 The two factors in this example are called \textbf{f1} and \textbf{f2}.\textbf{f1} can have value \textbf{A} or \textbf{B} and \textbf{f2} can have value \textbf{C} or
@@ -840,55 +829,22 @@ and \textbf{B.D}. Table \ref{tab:Ex01} summarizes the  experimental design.
   \label{tab:Ex01}
 \end{table}
 
-The firts step of the workflow is to build the TxDb object and extract their features.
+The firts step of the workflow is to load the small {\em gtf}, build the TxDb object and extract their features. In this case \texttt{gtfFileName} contains the full path to the example gtf file in your system.
 
 <<Ex02.a, echo=TRUE, eval=TRUE>>=
-library( ASpli )
+#library( ASpli )
 library( GenomicFeatures )
-@
-Load a small {\em gtf}. In this case \texttt{gtfFileName} contains the full path to the example gtf file in your system.
-
-
-<<Ex02.b, echo=TRUE, eval=TRUE>>=
 gtfFileName <- aspliExampleGTF()
-@
-
-Then, create a TxDb object using \texttt{makeTxDbFromGFF}   
-<<Ex02.c, echo=TRUE, eval=TRUE>>=
 genomeTxDb <- makeTxDbFromGFF( gtfFileName )
-@
-
-Extract the genomic features (\texttt{binGenome} should produce a brief summary of the parsed genome).
-<<Ex02.d, echo=TRUE, eval=TRUE>>=
 features <- binGenome( genomeTxDb )
-# * Number of extracted Genes = 10
-# * Number of extracted Exon Bins = 38
-# * Number of extracted intron bins = 34
-# * Number of extracted trascripts = 25
-# * Number of extracted junctions = 23
-# * Number of AS bins (not include external) = 17
-# * Number of AS bins (include external) = 17
-# * Classified as: 
-# 	ES bins = 1	(6%)
-# 	IR bins = 3	(18%)
-# 	Alt5'ss bins = 2	(12%)
-# 	Alt3'ss bins = 2	(12%)
-# 	Multiple AS bins = 9	(53%)
-# 	classified as:
-# 			ES bins = 1	(11%)
-# 			IR bins = 4	(44%)
-# 			Alt5'ss bins = 2	(22%)
-# 			Alt3'ss bins = 1	(11%)
-
 @
 
 Then you should define your {\em targets} table.
 \texttt{aspliExampleBAMList()} provides the full path to the BAMs files.
+
 <<Ex02.e, echo=TRUE, eval=TRUE>>=
 BAMFiles <- aspliExampleBamList()
-@
-Define the {\em targets} data.frame:
-<<Ex02.f, echo=TRUE, eval=TRUE>>=
+
 targets <- data.frame( 
   row.names = paste0('Sample',c(1:12)),
   bam = BAMFiles,
@@ -899,21 +855,21 @@ targets <- data.frame(
   stringsAsFactors = FALSE)
 @
 
-Experimental conditions are inferred from the experimental factors appearing in the {\em target} data.frame:
+Experimental conditions are inferred from the experimental factors in the {\em target} dataframe:
+
 <<Ex02.g, echo=TRUE, eval=TRUE>>=
 getConditions(targets)
-#[1] "A_C" "A_D" "B_C" "B_D"
 @
 
-We define a data.frame with path information for merged bams \footnote{BAM files obtained combining replicates of the same experimental conditions (estimated using 'samtools merge ...'). These files are needed to estimate non-uniformity coverage and to produce graphical output reports}.
+We define a dataframe with path information for merged bams:
 
 <<Ex02.f, echo=TRUE, eval=TRUE>>=
 mBAMs <- data.frame(bam      = sub("_[02]","",targets$bam[c(1,4,7,10)]),
                     condition= c("A_C","A_D","B_C","B_D"))
 @
 
-
 Next step is to overlap reads and features:
+
 <<Ex02.i, echo=TRUE, eval=TRUE>>=
 counts<- gbCounts(features       = features, 
                    targets       = targets, 
@@ -921,6 +877,7 @@ counts<- gbCounts(features       = features,
                    maxISize      = 5000, 
                    minAnchor     = 10)
 @
+
 And also quantify junctions:
 
 <<Ex02.j, echo=TRUE, eval=TRUE>>=
@@ -961,18 +918,22 @@ represented as the {\em contrast} vector $[ 1,-1,-1, 1]$.
 
 
 We estimate gene differential expression and annotation-based differential splicing patterns for the contrast of interest as follow:  
+
 <<Ex02.k, echo=TRUE, eval=TRUE>>=
 gb      <- gbDUreport(counts,contrast = c( 1, -1, -1, 1 ) )
 @
 
-\texttt{genesDE()} and \texttt{binsDU()} accesors report the statistical significance results. We can see that in this example no evidence of a statistically significant interaction term was found at gene expression level. However, 9 out of 14 bins displayed statistically significant interaction effect (fdr < 0.01) 
+\texttt{genesDE()} and \texttt{binsDU()} accesors report the statistical significance results. We can see that in this example no evidence of a statistically significant interaction term was found at gene expression level. However, 9 out of 14 bins displayed statistically significant interaction 
+effect (fdr < 0.01) 
+
 <<Ex02.k2, echo=TRUE, eval=TRUE>>=
-genesDE(gb)
-binsDU(gb)
+genesDE(gb)[1:5,]
+binsDU(gb)[1:5,]
 @
 
 
 The analysis of annotation-free junction-based AS events can be done with \footnote{Note that as we required to compute non-uniform intron coverage, we should specify merged-BAMs information}:
+
 <<Ex02.l, echo=TRUE, eval=TRUE>>=
 jdur    <- jDUreport(asd, contrast =  c( 1, -1, -1, 1 ))
 @
@@ -981,25 +942,29 @@ Results for junction-based events matching bin ranges can be accessed through \t
 
 Here we show the output corresponding to results of the {\em locale}-junction cluster analysis.
 Information regarding {\em locale} cluster-level tests can be retrieved using:
+
 <<Ex02.kk, echo=TRUE, eval=TRUE>>=
-localec(jdur)
+localec(jdur)[1:5,]
 @
-Row-names correspond to cluster-ids. Rows are ordered by FDR values. The {\em participation} and {\em dParticipation} values reported for each cluster correspond to the values obtained for the cluster's junction presenting the largest and most significant participation change. Note that NA's are reported for cluster-7 as no statistically significant changes were found for any junction of that cluster. 
+
+Rownames correspond to cluster-ids. Rows are ordered by FDR values. The {\em participation} and {\em dParticipation} values reported for each cluster correspond to the values obtained for the cluster's junction presenting the largest and most significant participation change. Note that NA's are reported for cluster-7 as no statistically significant changes were found for any junction of that cluster. 
 
 
 {\em localej(jdur)} shows locale-information for each analyzed junction, reporting results of statistical tests at junction level in the first 8 columns:
+
 <<Ex02.kkk, echo=TRUE, eval=TRUE>>=
-localej(jdur)[,1:8]
+localej(jdur)[1:5,1:8]
 @
 
-
 We integrate all our data:
+
 <<Ex02.m, echo=TRUE, eval=TRUE>>=
 sr      <- splicingReport(gb, jdur, counts = counts)
 is      <- integrateSignals(sr,asd)
 @
 
-And finally we export integrate signals into an interactive html page
+And finally we export integrate signals into an interactive HTML page
+
 <<Ex03, echo=TRUE, eval=FALSE>>=
 exportIntegratedSignals( is, output.dir="aspliExample", 
                          sr, counts, features, asd, mBAMs)
@@ -1009,11 +974,13 @@ exportIntegratedSignals( is, output.dir="aspliExample",
 \subsubsection{The formula approach}\label{sec:formula}
 In \texttt{ASpli} it is also possible to use {\em formulas} to test different hypothesis.
 In our example we will consider the following formula to model our data:
+
 <<Ex04, echo=TRUE, eval=TRUE>>=
  form <- formula(~f1+f2+f1:f2)
 @
 
-This formula correspond to the following model matrix:
+This formula corresponds to the following model matrix:
+
 <<Ex05, echo=TRUE, eval=TRUE>>=
  model.matrix(form,targets)
 @
@@ -1031,22 +998,9 @@ Table \ref{tab:Formulas01} summarizes three statistical comparisons that could b
   \caption{Experimental design of the example data set.}
   \label{tab:Formulas01}
 \end{table}
-% 
-% \begin{table}[H]
-%   \begin{center}
-%     \begin{tabular}{lllll}
-%     sample   & f1 & f2 & replicate & condition \\ \hline
-%     1        & A  & C  & 0         & A.C       \\
-%     4        & A  & D  & 0         & A.D       \\
-%     7        & B  & C  & 0         & B.C       \\
-%     10       & B  & D  & 0         & B.D       \\
-%     \end{tabular}
-%   \end{center}
-%   \caption{Experimental design for a minimalistic paired design}
-%   \label{tab:ExPaired}
-% \end{table}
 
 In this way, to test for an interaction effect with the {\em formula} framework, we should run:
+
 <<Ex02.k, echo=TRUE, eval=FALSE>>=
 gb      <- gbDUreport(counts, formula = form , coef = 4)
 jdur    <- jDUreport(asd, formula = form, coef = 4 ,
@@ -1093,54 +1047,57 @@ exportSplicingReports(sr,output.dir="paired")
 exportIntegratedSignals(is,output.dir="paired",sr,counts,features,asd,mBAMs,tcex=2)
 @
 
-Note: for a large number of experimental units you might disable the generation of graphs setting the option \texttt{makeGraphs=FALSE} in \texttt{exportIntegratedSignals} function call.
+Note: for a large number of experimental units you might disable the graph generation option \texttt{makeGraphs=FALSE} in \texttt{exportIntegratedSignals} function call.
 
 
-\section{Appendix: Detailed Ouputs}
-Here is the content of all the info present in \texttt{ASpli} objects. Some of them are common in several tables.
+\section{Appendix: Ouputs Details}
+Here is a brief explanation of the info  present in \texttt{ASpli} objects. Some columns are common in several tables.
 \label{sec:outputs}
-ASpliCounts:
+
+\subsection*{ASpliCounts}
+
 \begin{itemize}
-  \item Gene counts (\texttt{countsg}) and gene read densities (\texttt{rdsg})
-  dataframes contain the following information (see table 
-  \ref{tab:counts.gene} for an example):
-    \begin{description}
-      \item[row.names] Gene name as reported in annotation data.
-      \item[symbol] An optional name for the gene, that must be provided at the moment of feature extraction (see section
+\item{Gene counts (\texttt{countsg}) and gene read densities (\texttt {rdsg}) (see table  \ref{tab:counts.gene} for an example)}
+
+  
+\begin{description}
+      \item[row.names]: Gene name as reported in annotation data.
+      \item[symbol]: An optional name for the gene, that must be provided at the moment of feature extraction (see section
       \secref{sec:binDefinition}).
-      \item[locus\_overlap] overlapping \textit{loci}.
-      \item[gene\_coordinates] format \texttt{chromosome:start-end}.
-      \item[start, end,length] 
-      \item[effective\_length] gene length using only annotated exons.
-      \item[sample data] gene read counts/densities  (one column per sample).
+      \item[locus\_overlap]: overlapping \textit{loci}.
+      \item[gene\_coordinates]: format \texttt{chromosome:start-end}.
+      \item[start, end,length]: 
+      \item[effective\_length]: gene length using only annotated exons.
+      \item[sample data]: gene read counts/densities  (one column per sample).
       \end{description} 
 
-  \item Bin counts (\texttt{countsb}) and bin read densities (\texttt{rdsb}) dataframes contain the following information:
-    \begin{description}
+\item{ Bin counts (\texttt{countsb}) and bin read densities (\texttt{rdsb}) }
+
+\begin{description}
       \item[row.names]: see \secref{sectionBinG}.
-      \item[feature] Options are:  \textbf{E} for exonic bins, \textbf{I}
+      \item[feature]: \textbf{E} for exonic bins, \textbf{I}
       for intronic bins and \textbf{Io} for introns before splitting.  See \secref{sectionBinG}
-      \item[event] Splicing event asigned to the bin (see section
+      \item[event]: Alternative splicing event asigned  (see section
       \ref{sec:binDefinition}:\nameref{sec:eventAssign})
-      \item[sample data] bin read counts/densities (one column per sample)
+      \item[sample data]: bin read counts/densities (one column per sample)
           \end{description}
 
-  \item Junction counts (\texttt{countsj}) dataframe contains the following information:
+\item{ Junction counts (\texttt{countsj})}
     \begin{description}
-      \item row.names: Junction name in format
+      \item [row.names]: Junction's name in format
       \texttt{chromosome.start.end} (see \secref{sectionBinG}).
-      \item junction: If junction coincides with a junction inferred from the annotation, the name is shown as is given in section       \ref{sectionBinG}:\nameref{sectionBinG}, otherwise it is \texttt{noHit}.
-      \item gene: Locus that contains the junction.
-      \item strand: gene's strand
-      \item multipleHit: \texttt{yes} if junction spans multiple genes.
-      \item bin\_spanned: Bin's names spanned by the junction.
-      \item j\_within\_bin: If junction falls within a single bin, the name of   that bin is shown.
-      \item sample data: Junction counts (one column per sample).
+      \item [junction]: If junction coincides with a junction inferred from the annotation, the name is shown as is given in section       \ref{sectionBinG}:\nameref{sectionBinG}, otherwise it is \texttt{noHit}.
+      \item [gene]: Locus that contains the junction.
+      \item [strand]: gene's strand
+      \item [multipleHit]: \texttt{yes} if junction spans multiple genes.
+      \item [bin\_spanned]: Bin's names spanned by the junction.
+      \item [j\_within\_bin]: If junction falls within a single bin, the name of   that bin is shown.
+      \item [sample data]: Junction counts (one column per sample).
         \end{description}
 
-  \item E1I (\texttt{e1icounts}) and IE2 (\texttt{ie2counts}) flanking region count dataframes contain the
-  following information:
-    \begin{description}
+\item{ E1I (\texttt{e1icounts}) and IE2 (\texttt{ie2counts}) }
+
+\begin{description}
       \item row.names: Junction name in format \texttt{chromosome.start.end}
       (see \secref{sectionBinG}).
       \item junction: If junction coincides with a junction inferred
@@ -1153,7 +1110,6 @@ ASpliCounts:
       genes.
     \item sample data: Junction counts (one column per sample).
 \end{description}
-\end{itemize}
 
 \begin{table}
 \centering
@@ -1176,165 +1132,166 @@ GENE04 & GENE04 & - & chr1:3001-3800 & 3001 & 3800 & 800 & 650 & 313 & 337 & n\\
 ...    & ...    &...& ...            & ...  & ...  & ... & ... & ... & ... &
 ...
 \end{tabular}
-\caption{Gene counts table example.}
+\caption{Gene counts table example}
 \label{tab:counts.gene}
 \end{table}
 
-ASpliAS:
-\begin{itemize}
-\item irPIR
-\begin{itemize}
-\item event: Type of event asigned by ASpli when bining. 
-\item J1: Semicolon separated list of all the junctions with an end matching the start of the intron. J2: Semicolon separated list of all the junctions with an end matching the end of the intron. J3: Semicolon separated list of all the junctions overlaping the intron. All the columns from J1 to J2 represent the J1 counts in the different samples for each bin. The counts are the sum of all the J1 junctions. All the columns from J2 to J3 represent the J2 counts in the different samples for each bin. The counts are the sum of all the J2 junctions. All the columns from J3 to the first condition represent the J3 counts in the different samples for each bin. The counts are the sum of all the J3 junctions. The last columns are the PIR metrics calculated for each condition. The PIR metric is calculated as: PIR = (J1 + J2)/(J1 + J2 + 2*J3)
+\subsection*{ASpliAS}
+\item{irPIR}
+\begin{description}
+\item [event]: Type of event asigned by \texttt{ASpli} when bining. 
+\item [J1]: Semicolon separated list of all the junctions with an end matching the start of the intron. J2: Semicolon separated list of all the junctions with an end matching the end of the intron. J3: Semicolon separated list of all the junctions overlaping the intron. All the columns from J1 to J2 represent the J1 counts in the different samples for each bin. The counts are the sum of all the J1 junctions. All the columns from J2 to J3 represent the J2 counts in the different samples for each bin. The counts are the sum of all the J2 junctions. All the columns from J3 to the first condition represent the J3 counts in the different samples for each bin. The counts are the sum of all the J3 junctions. The last columns are the PIR metrics calculated for each condition. The PIR metric is calculated as: PIR = (J1 + J2)/(J1 + J2 + 2*J3)
 Where the junctions are the sum by condition.
-\end{itemize}
+\end{description}
 
-\item altPSI
-\begin{itemize}
-\item event: Type of event asigned by ASpli when bining. 
-\item J1(J2): Semicolon separated list of all the junctions with an end matching the end of alt5'SS(alt3'SS). 
-\item J3: Semicolon separated list of all the junctions with an end matching the start of alt5'SS or the start of alt3'SS. All the columns from J1 to J2 represent the J1 counts in the different samples for each bin. The counts are the sum of all the J1 junctions. All the columns from J2 to J3 represent the J2 counts in the different samples for each bin. The counts are the sum of all the J2 junctions. All the columns from J3 to the first condition represent the J3 counts in the different samples for each bin. The counts are the sum of all the J3 junctions. 
+\item{altPSI}
+\begin{description}
+\item [event]: Event type according 
+\item [J1(J2)]: Semicolon separated list of all the junctions with an end matching the end of alt5'SS(alt3'SS). 
+\item [J3]: Semicolon separated list of all the junctions with an end matching the start of alt5'SS or the start of alt3'SS. All the columns from J1 to J2 represent the J1 counts in the different samples for each bin. The counts are the sum of all the J1 junctions. All the columns from J2 to J3 represent the J2 counts in the different samples for each bin. The counts are the sum of all the J2 junctions. All the columns from J3 to the first condition represent the J3 counts in the different samples for each bin. The counts are the sum of all the J3 junctions. 
 \item The last columns are the PSI metrics calculated for each condition. The PSI metric is calculated as: PSI = (J12)/(J12 + J3). Where J12 is J1 if it's an alt 5' event or J2 if it's an alt 3' event and the junctions are the sum by condition.
-\end{itemize}
+\end{description}
 
-\item esPSI	
-\begin{itemize}
-\item event: Type of event asigned by ASpli when bining 
-\item J1: Semicolon separated list of all the junctions with an end on the alternative exon. 
-\item J2: Semicolon separated list of all the junctions with an end on the alternative exon. 
-\item J3: Semicolon separated list of all the junctions overlaping the alternative exon. All the columns from J1 to J2 represent the J1 counts in the different samples for each bin. The counts are the sum of all the J1 junctions. All the columns from J2 to J3 represent the J2 counts in the different samples for each bin. The counts are the sum of all the J2 junctions. All the columns from J3 to the first condition represent the J3 counts in the different samples for each bin. The counts are the sum of all the J3 junctions. 
+\item{esPSI}
+\begin{description}
+\item [event]: Type of event asigned by \texttt{ASpli} when bining 
+\item [J1]: Semicolon separated list of all the junctions with an end on the alternative exon. 
+\item [J2]: Semicolon separated list of all the junctions with an end on the alternative exon. 
+\item [J3]: Semicolon separated list of all the junctions overlaping the alternative exon. All the columns from J1 to J2 represent the J1 counts in the different samples for each bin. The counts are the sum of all the J1 junctions. All the columns from J2 to J3 represent the J2 counts in the different samples for each bin. The counts are the sum of all the J2 junctions. All the columns from J3 to the first condition represent the J3 counts in the different samples for each bin. The counts are the sum of all the J3 junctions. 
 \item The PSI metric is calculated as: PSI = (J1 + J2)/(J1 + J2 + 2*J3) Where the junctions are the sum by condition.
-\end{itemize}
+\end{description}
 
-\item junctionsPIR
-\begin{itemize}
+\item{junctionsPIR}
+\begin{description}
 \item PIR metric for each experimental junction using e1i and ie2 counts. Exclusion junction is the junction itself. This output helps to discover new introns as well as new retention events. 
 \item hitIntron: If the junction matches a bin, the bin is shown here. 
-\item hitIntronEvent: If the junction matches a bin, the type of event asigned by ASpli to this bin. All the columns from hitIntronEvent up to the first repetition of the samples names in the columns, represent the J1 counts in the different samples for each region. From there to the next time the names of the columns repeat themselves, the J2 counts and from there to the first condition, the J3 counts. 
+\item hitIntronEvent: If the junction matches a bin, the type of event asigned by \texttt{ASpli} to this bin. All the columns from hitIntronEvent up to the first repetition of the samples names in the columns, represent the J1 counts in the different samples for each region. From there to the next time the names of the columns repeat themselves, the J2 counts and from there to the first condition, the J3 counts. 
 \item The last columns are the PIR metrics calculated for each condition. The PIR metric is calculated as: PIR = (J1 + J2)/(J1 + J2 + 2*J3) Where the junctions are the sum by condition.
-\end{itemize}
+\end{description}
 
-\item junctionsPJU
-\begin{itemize}
+\item{junctionsPJU}
+Given a junction, it is possible to analyze if it shares start, end or both with another junction. If so, it is because there is alternative splicing. 
 
-\item Given a junction, it is possible to analyze if it shares start, end or both with another junction. If so, it is because there is alternative splicing. 
-\item Junction: name of the junction. 
-\item Gene: gene it belongs to. 
-\item Strand: gene strand. 
-\item multipleHit: if other gene overlaps the gene the junction belongs to. 
-\item symbol: gene symbol. 
-\item gene\_coordinates: gene coordinates. 
-\item bin\_spanned: semicolon separated list of all the bins spaned by this junction. 
-\item j\_within\_bin: other junctions in the bins. 
-
-\item StartHit: all the junctions sharing the start with this junction and $PJU_J1=J3/(J1+J3)$ for each condition. 
-
-\item EndHit: all the junctions sharing the end with this junction and $PJU_J2=J3/(J2+J3)$ for each condition. 
-
+\begin{description}
+\item [Junction]: name of the junction. 
+\item [Gene]: gene it belongs to. 
+\item [Strand]: gene's strand. 
+\item [multipleHit]: if junction overlaps several genes
+\item [symbol]: gene symbol
+\item [gene\_coordinates]: gene coordinates. 
+\item [bin\_spanned]: semicolon separated list of all the bins spaned by this junction. 
+\item [j\_within\_bin]: other junctions in the bins. 
+\item [StartHit]: all junctions sharing the start with this junction and $PJU_J1=J3/(J1+J3)$ for each condition. 
+\item [EndHit]: all the junctions sharing the end with this junction and $PJU_J2=J3/(J2+J3)$ for each condition. 
 \item All the columns between j\_within\_bin and StartHit are the counts for J3 in the different samples for each region. From there to EndHit, the J1 counts and $PJU_J1=J3/(J1+J3)$ for each condition. Then after EndHit, the J2 counts and $PJU_J2=J3/(J2+J3)$. 
 \item Rownames are J3 range. 
 \item StartHit is J1 range and EndHit is J2 range.
-\end{itemize}
+\end{description}
 
-\item ASpliJDU
-\begin{itemize}
-\item if it is novel ({\textit known CHEQUEAR}) 
+\item{ASpliJDU}
+\begin{description}
+\item if it is novel or known
 \item which bins it spans
 \item if the junction is completely included in an annotated bin, which would indicate that the AS event
 is a possible \emph{exintron} \cite{pmid25934563}.
-\end{itemize}
+\end{description}
 
-
-
-\begin{itemize}
- \item{localec}: data.frame with information about statistically significant changes in junction usage inside {\em locale}-juntion clusters.
-  \begin{itemize}
-   \item size: number of junctions belonging to the cluster.
-   \item cluster.LR: likelihood ratio of cluster differential usage.
-   \item pvalue: pvalue of cluster differential usage.
-   \item FDR: fdr of cluster differential usage.
-   \item range: cluster location.
-   \item participation: participation of the significant junction (FDR < maxFDRForParticipation) presenting maximal participation value inside the cluster
-   \item dParticipation: delta participation of the significant junction (FDR < maxFDRForParticipation) presenting maximal participation value inside the cluster 
-  \end{itemize}
- \item{localej}
-  \begin{itemize} 
-   \item cluster: name of the cluster the junction belongs to
-   \item log.mean: log of mean counts accross all conditions for this junction
-   \item logFC: log fold change of junction accross conditions
-   \item pvalue: pvalue of junction
-   \item FDR: FDR of junction
-   \item annotated: is junction annotated or new
-   \item participation: the maximal participation value observed across contrasted condictions
-   \item dParticipation: delta participation of the maximal participation value observed across contrasted condictions
+\item{localec: information about statistically significant changes in junction usage inside {\em locale}-juntion clusters.}
+  \begin{description}
+   \item [size]: number of junctions belonging to the cluster.
+   \item [cluster.LR]: likelihood ratio of cluster differential usage.
+   \item [pvalue]: pvalue of cluster differential usage.
+   \item [FDR]: fdr of cluster differential usage.
+   \item [range]: cluster location.
+   \item [participation]: participation of the significant junction (FDR < maxFDRForParticipation) presenting maximal participation value inside the cluster
+   \item [dParticipation]: delta participation of the significant junction (FDR < maxFDRForParticipation) presenting maximal participation value inside the cluster 
+  \end{description}
+  
+\item{localej}
+  \begin{description} 
+   \item [cluster]: name of the cluster the junction belongs to
+   \item [log.mean]: log of mean counts accross all conditions for this junction
+   \item [logFC]: log fold change of junction accross conditions
+   \item [pvalue]: pvalue of junction
+   \item [FDR]: FDR of junction
+   \item [annotated]: is junction annotated or new
+   \item [participation]: the maximal participation value observed across contrasted condictions
+   \item [dParticipation]: delta participation of the maximal participation value observed across contrasted condictions
    \item From dParticipation to the end, junction counts for all samples
-  \end{itemize}  
- \item{anchorc}
-  \begin{itemize}
-   \item cluster.LR: likelihood ratio of cluster differential usage.
-   \item pvalue: pvalue of cluster differential usage.
-   \item FDR: fdr of cluster differential usage.
-  \end{itemize}   
- \item{anchorj}
-  \begin{itemize}
-   \item log.mean: log of mean counts accross all conditions for this junction
-   \item logFC: log fold change of junction accross conditions
-   \item LR: likelihood ratio of junction differential usage.
-   \item pvalue: pvalue of junction
-   \item FDR: FDR of junction
-   \item J1.pvalue: pvalue of J1 junction
-   \item J2.pvalue: pvalue of J2 junction
-   \item NonUniformity: if non uniformity test was performed, numbers closer to zero mean uniformity and closer to one mean non uniformity
-   \item dPIR: junction delta PIR
-   \item annotated: is junction annotated or new
-   \item From annotated to the end, junction counts for all samples
-  \end{itemize}   
- \item{jir}
-  \begin{itemize}
-   \item J3: J3 junction/s
-   \item logFC: log fold change of junction accross conditions
-   \item log.mean: log of mean counts accross all conditions for this junction
-   \item pvalue: pvalue of junction
-   \item FDR: FDR of junction
-   \item LR: likelihood ratio of junction differential usage.  
-   \item NonUniformity: if non uniformity test was performed, numbers closer to zero mean uniformity and closer to one mean non uniformity
-   \item dPIR: junction delta PIR
-   \item multiplicity: do multiple junctions cross the region
-   \item From multiplicity to the end, junction counts for all samples
-  \end{itemize}      
- \item{jes}
-  \begin{itemize}
-   \item event: type of event
-   \item J3: J3 junction/s
-   \item logFC: log fold change of junction accross conditions
-   \item log.mean: log of mean counts accross all conditions for this junction
-   \item pvalue: pvalue of junction
-   \item FDR: FDR of junction
-   \item LR: likelihood ratio of junction differential usage.  
-   \item dPSI: junction delta PSI
-   \item multiplicity: do multiple junctions cross the region
-   \item From multiplicity to the end, junction counts for all samples
-  \end{itemize}      
- \item{jalt}
-  \begin{itemize}
-   \item event: type of event
-   \item J3: J3 junction/s
-   \item logFC: log fold change of junction accross conditions
-   \item log.mean: log of mean counts accross all conditions for this junction
-   \item pvalue: pvalue of junction
-   \item FDR: FDR of junction
-   \item LR: likelihood ratio of junction differential usage.  
-   \item dPSI: junction delta PSI
-   \item multiplicity: do multiple junctions cross the region
-   \item From multiplicity to the end, junction counts for all samples
-  \end{itemize}      
+  \end{description}  
+  
+\item{anchorc}
+
+\begin{description}
+   \item [cluster.LR]: likelihood ratio of cluster differential usage.
+   \item [pvalue]: pvalue of cluster differential usage.
+   \item [FDR]: fdr of cluster differential usage.
+
+\end{description}   
+
+\item{anchorj}
+
+\begin{description}
+   \item [log.mean]: log of mean counts accross all conditions for this junction
+   \item [logFC]: log fold change of junction accross conditions
+   \item [LR]: likelihood ratio of junction differential usage.
+   \item [pvalue]: pvalue of junction
+   \item [FDR]: FDR of junction
+   \item [J1.pvalue]: pvalue of J1 junction
+   \item [J2.pvalue]: pvalue of J2 junction
+   \item [NonUniformity]: if non uniformity test was performed, numbers closer to zero mean uniformity and closer to one mean non uniformity
+   \item [dPIR]: junction delta PIR
+   \item [annotated]: if this junction is known or novel
+   \item [J counts]: counts junctions for all samples
+\end{description}   
+
+
+\item{jir}
+
+\begin{description}
+   \item [J3]: J3 junction/s
+   \item [logFC]: log fold change of junction accross conditions
+   \item [log.mean]: log of mean counts accross all conditions for this junction
+   \item [pvalue]: pvalue of junction
+   \item [FDR]: FDR of junction
+   \item [LR]: likelihood ratio of junction differential usage.  
+   \item [NonUniformity]: if non uniformity test was performed, numbers closer to zero mean uniformity and closer to one mean non uniformity
+   \item [dPIR]: junction delta PIR
+   \item [multiplicity]: do multiple junctions cross the region
+   \item [J counts]: counts junctions for all samples
+  \end{description}      
+ 
+ 
+\item{jes}
+  \begin{description}
+   \item [event]: type of event
+   \item [J3]: J3 junction/s
+   \item [logFC]: log fold change of junction accross conditions
+   \item [log.mean]: log of mean counts accross all conditions for this junction
+   \item [pvalue]: pvalue of junction
+   \item [FDR]: FDR of junction
+   \item [LR]: likelihood ratio of junction differential usage.  
+   \item [dPSI]: junction delta PSI
+   \item [multiplicity]: do multiple junctions cross the region
+   \item [j Counts]: junction counts for all samples
+\end{description}      
+  
+\item{jalt}
+
+  \begin{description}
+   \item [event]: type of event
+   \item [J3]: J3 junction/s
+   \item [logFC]: log fold change of junction accross conditions
+   \item [log.mean]: log of mean counts accross all conditions for this junction
+   \item [pvalue]: pvalue of junction
+   \item [FDR]: FDR of junction
+   \item [LR]: likelihood ratio of junction differential usage.  
+   \item [dPSI]: junction delta PSI
+   \item [multiplicity]: do multiple junctions cross the region
+   \item [j Counts]: junction counts for all samples
+  \end{description}      
+
 \end{itemize}
-
-
-
-\end{itemize}
-
-
 \bibliography{ASpli}
 \end{document}
 

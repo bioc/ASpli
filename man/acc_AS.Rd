@@ -33,7 +33,7 @@ junctionsPJU( x )
 }
 \value{ Returns dataframes with genomic metadata and  PSI and PIR metrics }
 
-\author{ Estefania Mancini, Marcelo Yanovsky, Ariel Chernomoretz  }
+\author{ Estefania Mancini, Andres Rabinovich, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz  }
 
 \examples{
 
