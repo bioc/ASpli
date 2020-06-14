@@ -177,7 +177,7 @@ See Section \ref{sec:outputs}:\nameref{sec:outputs} for more details.
 
 \begin{figure}[ht!]
 \centering
-\includegraphics[width=0.85\textwidth]{images/fig1A.png}
+\includegraphics[width=0.85\textwidth]{images/workflow_ok.pdf}
 \caption{ \texttt{ASpli} core Funcionalities }
 \label{fig:ASpliStructure}
 \end{figure}
