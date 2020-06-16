@@ -44,14 +44,12 @@ In this vignette we describe how to use \texttt{ASpli}, an integrative and user-
 R package that facilitates the analysis of changes in both annotated and novel 
 AS events. 
 
-This package combines statistical information from exon, intron, and 
-splice junction differential usage (p-value, FDR), with information from splice 
-junction reads to calculate differences in the percentage of exon inclusion 
-($\Delta$PSI) and intron retention ($\Delta$PIR). The proposed methodology reliably reflect the magnitude of changes in the relative abundance of different annotated and novel AS events. \texttt{ASpli} can be used to analyze both simple 
-and complex experimental designs involving multiple experimental conditions.
+Differently form other approaches, ASpli was specifically designed to integrate several independent signals in order to deal with the complexity that might arise in splicing patterns. Taking into account genome annotation information, ASpli considers bin-based signals along  with junction inclusion indexes in order to assess for statistically significant changes in read coverage. In addition, annotation-independent signals are estimated based on the complete set of experimentally detected splice junctions.  ASpli makes use of a generalized linear model framework (as implemented in edgeR R-package \cite{Robinson2010}) to assess for the statistical  analysis of specific contrasts of interest. In this way, ASpli can provide a comprehensive description of genome-wide splicing alterations even for complex experimental designs. 
+
+A typical ASpli workflow  involves: parsing the genome annotation into subgenic features called bins, overlapping read alignments against them, perform junction counting, fulfill inference tasks of differential bin and junction usage and, finally, report integrated splicing signals. At every step ASpli generates self-contained outcomes that, if required, can be easily exported and integrated into other processing pipelines. 
 
 <<loadAspli, echo=FALSE, eval=TRUE>>=
-devtools::load_all("~/Documents//ASpli")
+devtools::load_all("~/Projects/RNAseq/ASpli/gitlab/ASpli")
 @
 
 \section{Quick start}
@@ -148,8 +146,7 @@ The building of a \texttt{TxDb} object might be time consuming, depending on the
 @
 
 Please, \texttt{make sure all files use the same coordinate system}.
-\item IMPORTANT: replicate merged \texttt{BAM} files for each contrasted condition are needed to estimate uniform coverage statistics and to generate graphical reports through the {\texttt exportIntegratedSignals} function. 
-You can check \hyperref[samtools]{http://www.htslib.org/doc/samtools-merge.html}
+\item IMPORTANT: In order to estimate uniform coverage statistics and to generate graphical reports through the {\texttt exportIntegratedSignals} function, replicate merged \texttt{BAM} files for each contrasted condition are needed. These merged BAMs can easily be computed from individual replicate BAM files using {\bf samtools merge} utility (you can check \hyperref[samtools]{http://www.htslib.org/doc/samtools-merge.html}). Index for these merged BAM files should also be provided. They can be easily generated with {\be samtools index} utility (https://www.htslib.org/doc/samtools-index.html).
 
 \end{itemize}
 
@@ -180,7 +177,7 @@ See Section \ref{sec:outputs}:\nameref{sec:outputs} for more details.
 
 \begin{figure}[ht!]
 \centering
-\includegraphics[width=0.85\textwidth]{images/fig1A.png}
+\includegraphics[width=0.85\textwidth]{images/workflow_ok.pdf}
 \caption{ \texttt{ASpli} core Funcionalities }
 \label{fig:ASpliStructure}
 \end{figure}
@@ -720,6 +717,15 @@ In this example a bin-signal ({\em b}) was found in region {\em Chr1:406793-4069
 \item For each of the other unclassified events, we check whether they involve {\em exonic} features. If this were the case, we mark them as {\em alternative splicing affecting a consensus exon} \textbf{ASCE} events. On the other hand, for {\em intronic} features, if some signals were marked as \textbf{*} we clasify the event as \textbf{CSP}. Othewise, the event is marked as an \textbf{IR}.
 \end{enumerate}
 \end{enumerate}
+
+
+\begin{figure}[ht!]
+\centering
+\includegraphics[width=1.3\textwidth]{images/integrateSignals.png}
+\caption{ Heuristics used to categorized splicing events }
+\label{fig:integrateSignals}
+\end{figure}
+
 
 \subsubsection{\texttt{exportSplicingReport}: Export splicing reports in HTML pages.} \label{sec:reports}
 
