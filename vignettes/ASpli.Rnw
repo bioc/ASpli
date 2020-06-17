@@ -49,11 +49,10 @@ Differently form other approaches, ASpli was specifically designed to integrate 
 A typical ASpli workflow  involves: parsing the genome annotation into subgenic features called bins, overlapping read alignments against them, perform junction counting, fulfill inference tasks of differential bin and junction usage and, finally, report integrated splicing signals. At every step ASpli generates self-contained outcomes that, if required, can be easily exported and integrated into other processing pipelines. 
 
 <<loadAspli, echo=FALSE, eval=TRUE>>=
-devtools::load_all("~/Documents/ASpli/")
-
+devtools::load_all("~/Projects/RNAseq/ASpli/gitlab/ASpli")
 @
 
-\section{Quick start}
+\section{Quick start}\label{qstart}
 Here is an example for a pairwise comparison between 2 conditions (Control vs Treatment, 3 replicates each) using default parameters. \\
 
 Extract features from genome, define {\em targets} data.frame with phenotype data, and {\em mBAMs} data.frame with phenotype data for merged BAMs:
@@ -147,8 +146,7 @@ The building of a \texttt{TxDb} object might be time consuming, depending on the
 @
 
 Please, \texttt{make sure all files use the same coordinate system}.
-\item IMPORTANT: In order to estimate uniform coverage statistics and to generate graphical reports through the {\texttt exportIntegratedSignals} function, replicate merged /indexed \texttt{BAM} files for each contrasted condition are required.
-Check  \href{http://www.htslib.org/doc/samtools-merge.html} {samtools} for details
+\item IMPORTANT: In order to estimate uniform coverage statistics and to generate graphical reports through the {\texttt exportIntegratedSignals} function, replicate merged \texttt{BAM} files for each contrasted condition are needed. These merged BAMs can easily be computed from individual replicate BAM files using {\bf samtools merge} utility (you can check \hyperref[samtools]{http://www.htslib.org/doc/samtools-merge.html}). Index for these merged BAM files should also be provided. They can be easily generated with {\be samtools index} utility (https://www.htslib.org/doc/samtools-index.html).
 
 \end{itemize}
 
@@ -162,7 +160,6 @@ The workflow intended to be used with \texttt{ASpli} is divided in six main step
   \texttt{jDUreport()}
   \item Generering reports: \texttt{ splicingReport() }, \texttt{ integrateSignals() }
   \item Exporting HTML reports: \texttt{ exportSplicingReport() }, \texttt{ exportIntegrateSignals() }
-  
 \end{enumerate}
 
 The main objects classes used to store data and perform operations are:
@@ -181,7 +178,7 @@ See Section \ref{sec:outputs}:\nameref{sec:outputs} for more details.
 
 \begin{figure}[ht!]
 \centering
-\includegraphics[width=0.85\textwidth]{images/fig1.pdf}
+\includegraphics[width=0.85\textwidth]{images/workflow_ok.pdf}
 \caption{ \texttt{ASpli} core Funcionalities }
 \label{fig:ASpliStructure}
 \end{figure}
@@ -573,7 +570,7 @@ Summary of arguments:
 \item asd: An object of class \texttt{ASpliAS} with results of PSI and PIR using experimental junction
 \item minAvgCounts (Default=5): Minimum average counts for filtering. 
 \item runUniformityTest  (Defaults =   FALSE): Run uniformity test on \textbf{Intron Retention} in order to detect non-uniform read coverage along the intron. This test compares the standard deviation of the inner intron region (11 bases from both ends) to the mean of both intron ends. Numbers closer to 0 mean more uniform coverage. This is an experimental feature, requires the existence of one merged BAM per experimental condition and takes some time to run. 
-\item mergedBAMs: Should be specified if {\em runUniformityTest}=TRUE. Path to merged BAMs for each testing condition. \textit{ If no merged BAMs exist (for example, paired samples without replicates), use the same BAMs as targets.}
+\item mergedBAMs: Should be specified if {\em runUniformityTest}=TRUE. It is a two column data.frame specifying the path to replicate-merged BAMs for each tested condition.  Columns should be named: {\em bam} and {\em condition} respectively.\textit{ If no merged BAMs exist (for example, paired samples without replicates), use the same BAMs as targets.}
 \item maxPValForUniformityCheck: To speed up uniformity test only check junctions with pval < maxPValForUniformityCheck (Default=0.2)
 \item strongFilter: If strongFilter is TRUE, then we discard junction clusters with at least one junction that doesn't pass the filter.
 \item  maxConditionsForDispersionEstimate: In order to reduce resource usage, estimate dispersion for statistics tests with a reduced number of conditions.
@@ -604,6 +601,12 @@ Export tab delimited table:
  <<jDUreportAccesorsX, echo=TRUE, eval=FALSE>>=
 writeJDU(jdu,output.dir = "test")
 @
+
+\paragraph{Additional considerations}
+
+As an option, \texttt{jDUreport} checks the non-uniformity level of the read coverage observed in intronic bins. We report the ratio between the standard deviation of the inner intronic bin region (11 bases from both ends) coverage to the mean of both bin's external ends. Values closer to 0 mean that the coverage can be considered uniform and the event is probably an Intron Retention. In order to perform this calculation  replicate merged BAMs for each condition are needed. The path to the bam files should be specify through the {\em mergeBams} argument (e.g. the {\em mBAMs} data.frame in the example of Section \ref{qstart}). 
+The calculation takes some time to run so it defaults to FALSE.
+
 
 
 \subsection{Integrative reports} \label{sec:integration}
@@ -1150,7 +1153,7 @@ GENE04 & GENE04 & - & chr1:3001-3800 & 3001 & 3800 & 800 & 650 & 313 & 337 & n\\
 \subsubsection*{irPIR}
 
 \begin{description}
-\item [event:] Type of event asigned by \texttt{ASpli} when bining. 
+\item [event:] Type of event asigned by \texttt{ASpli} when binning. 
 \item [J1:] Semicolon separated list of junctions with their \textbf{end} matching the \textbf{start} of the intron. 
 \item [J2:] Semicolon separated list of junctions with an end matching the end of the intron. 
 \item [J3:] Semicolon separated list of all the junctions overlaping the intron.
@@ -1160,7 +1163,7 @@ GENE04 & GENE04 & - & chr1:3001-3800 & 3001 & 3800 & 800 & 650 & 313 & 337 & n\\
 
 \subsubsection*{altPSI}
 \begin{description}
-\item [event:] Type of event asigned by \texttt{ASpli} when bining. 
+\item [event:] Type of event asigned by \texttt{ASpli} when binning. 
 \item [J1(J2):] Semicolon separated list of junctions with an \textbf{end} matching the \textbf{end} of alt5'SS or alt3'SS. 
 \item [J3:] Semicolon separated list of junctions with an \textbf{end} matching the \textbf{start} of an alt5'SS or alt3'SS. 
 
@@ -1173,7 +1176,7 @@ GENE04 & GENE04 & - & chr1:3001-3800 & 3001 & 3800 & 800 & 650 & 313 & 337 & n\\
 \subsubsection*{esPSI}
 
 \begin{description}
-\item [event:] Type of event asigned by \texttt{ASpli} when bining. 
+\item [event:] Type of event asigned by \texttt{ASpli} when binning. 
 \item [J1:] Semicolon separated list of junctions with an \textbf{end} on the alternative exon. 
 \item [J2:] Semicolon separated list of junctions with an \textbf{end} on the alternative exon. 
 \item [J3:] Semicolon separated list of \textbf{exclusion} junctions of alternative exon. 
@@ -1282,7 +1285,7 @@ Information about statistically significant changes in junction's usage within {
  
 \subsubsection*{jes}
   \begin{description}
-  \item [event:] Type of event asigned by \texttt{ASpli} when bining. 
+  \item [event:] Type of event asigned by \texttt{ASpli} when binning. 
    \item [J3:] junctions
    \item [logFC:] log fold change of junction accross conditions
    \item [LR:] likelihood ratio of junction differential usage.
@@ -1295,7 +1298,7 @@ Information about statistically significant changes in junction's usage within {
 \subsubsection*{jalt}
 
   \begin{description}
-   \item [event:] Type of event asigned by \texttt{ASpli} when bining. 
+   \item [event:] Type of event asigned by \texttt{ASpli} when binning. 
    \item [J3:] junctions
    \item [logFC]: log fold change of junction accross conditions
    \item [log.mean]: log of mean counts accross all conditions for this junction
