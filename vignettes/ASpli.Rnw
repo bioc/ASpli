@@ -49,7 +49,8 @@ Differently form other approaches, ASpli was specifically designed to integrate 
 A typical ASpli workflow  involves: parsing the genome annotation into subgenic features called bins, overlapping read alignments against them, perform junction counting, fulfill inference tasks of differential bin and junction usage and, finally, report integrated splicing signals. At every step ASpli generates self-contained outcomes that, if required, can be easily exported and integrated into other processing pipelines. 
 
 <<loadAspli, echo=FALSE, eval=TRUE>>=
-devtools::load_all("~/Projects/RNAseq/ASpli/gitlab/ASpli")
+devtools::load_all("~/Documents/ASpli/")
+
 @
 
 \section{Quick start}
@@ -146,19 +147,22 @@ The building of a \texttt{TxDb} object might be time consuming, depending on the
 @
 
 Please, \texttt{make sure all files use the same coordinate system}.
-\item IMPORTANT: In order to estimate uniform coverage statistics and to generate graphical reports through the {\texttt exportIntegratedSignals} function, replicate merged \texttt{BAM} files for each contrasted condition are needed. These merged BAMs can easily be computed from individual replicate BAM files using {\bf samtools merge} utility (you can check \hyperref[samtools]{http://www.htslib.org/doc/samtools-merge.html}). Index for these merged BAM files should also be provided. They can be easily generated with {\be samtools index} utility (https://www.htslib.org/doc/samtools-index.html).
+\item IMPORTANT: In order to estimate uniform coverage statistics and to generate graphical reports through the {\texttt exportIntegratedSignals} function, replicate merged /indexed \texttt{BAM} files for each contrasted condition are required.
+Check  \href{http://www.htslib.org/doc/samtools-merge.html} {samtools} for details
 
 \end{itemize}
 
 \section{Using \texttt{ASpli}}
 
-The workflow intended to be used with \texttt{ASpli} is divided in six main steps (Figure \ref{fig:ASpliStructure}). \begin{enumerate}
+The workflow intended to be used with \texttt{ASpli} is divided in six main steps (Figure \ref{fig:ASpliStructure}). 
+\begin{enumerate}
   \item Extracting features from genome TxDb: \texttt{ binGenome() }
   \item Counting reads:  \texttt{ gbCounts()},  \texttt{ jCounts()}
   \item Estimating differential signals:\texttt{ gbDUreport()}, 
   \texttt{jDUreport()}
   \item Generering reports: \texttt{ splicingReport() }, \texttt{ integrateSignals() }
   \item Exporting HTML reports: \texttt{ exportSplicingReport() }, \texttt{ exportIntegrateSignals() }
+  
 \end{enumerate}
 
 The main objects classes used to store data and perform operations are:
@@ -177,7 +181,7 @@ See Section \ref{sec:outputs}:\nameref{sec:outputs} for more details.
 
 \begin{figure}[ht!]
 \centering
-\includegraphics[width=0.85\textwidth]{images/workflow_ok.pdf}
+\includegraphics[width=0.85\textwidth]{images/fig1.pdf}
 \caption{ \texttt{ASpli} core Funcionalities }
 \label{fig:ASpliStructure}
 \end{figure}
@@ -1065,8 +1069,7 @@ Here is a brief explanation of the info  present in \texttt{ASpli} objects. Some
 \subsubsection*{Gene counts (\texttt{countsg}) and gene read densities (\texttt {rdsg}) }
 (see table  \ref{tab:counts.gene} for an example)
 
-  
-\begin{itemize}
+\begin{description}
       \item[row.names]: Gene name as reported in annotation data.
       \item[symbol]: An optional name for the gene, that must be provided at the moment of feature extraction (see section
       \secref{sec:binDefinition}).
@@ -1075,8 +1078,7 @@ Here is a brief explanation of the info  present in \texttt{ASpli} objects. Some
       \item[start, end,length]: 
       \item[effective\_length]: gene length using only annotated exons.
       \item[sample data]: gene read counts/densities  (one column per sample).
-      \end{itemize} 
-
+      \end{description} 
 \subsubsection*{ Bin counts (\texttt{countsb}) and bin read densities (\texttt{rdsb}) }
 
 \begin{description}
@@ -1102,7 +1104,7 @@ Here is a brief explanation of the info  present in \texttt{ASpli} objects. Some
       \item [sample data]: Junction counts (one column per sample).
         \end{description}
 
-\subsubsection*{E1I (\texttt{e1icounts}) and IE2 (\texttt{ie2counts}) }
+\subsubsection*{E1I (\texttt{countse1i}) and IE2 (\texttt{countsie2}) }
 
 \begin{description}
       \item [row.names]: Junction name in format \texttt{chromosome.start.end}
@@ -1148,161 +1150,161 @@ GENE04 & GENE04 & - & chr1:3001-3800 & 3001 & 3800 & 800 & 650 & 313 & 337 & n\\
 \subsubsection*{irPIR}
 
 \begin{description}
-\item [event]: Type of event asigned by \texttt{ASpli} when bining. 
-\item [J1]: Semicolon separated list of all the junctions with an end matching the start of the intron. J2: Semicolon separated list of all the junctions with an end matching the end of the intron. J3: Semicolon separated list of all the junctions overlaping the intron. All the columns from J1 to J2 represent the J1 counts in the different samples for each bin. The counts are the sum of all the J1 junctions. All the columns from J2 to J3 represent the J2 counts in the different samples for each bin. The counts are the sum of all the J2 junctions. All the columns from J3 to the first condition represent the J3 counts in the different samples for each bin. The counts are the sum of all the J3 junctions. The last columns are the PIR metrics calculated for each condition. The PIR metric is calculated as: PIR = (J1 + J2)/(J1 + J2 + 2*J3)
-Where the junctions are the sum by condition.
+\item [event:] Type of event asigned by \texttt{ASpli} when bining. 
+\item [J1:] Semicolon separated list of junctions with their \textbf{end} matching the \textbf{start} of the intron. 
+\item [J2:] Semicolon separated list of junctions with an end matching the end of the intron. 
+\item [J3:] Semicolon separated list of all the junctions overlaping the intron.
+\item [*] Columns in between J1-J2 and J2-J3 represent junction counts in the samples for each bin. \textit{(junctions are the sum by condition).}
+\item [PIR]   for each condition, calculated as: $ PIR = (J1 + J2)/(J1 + J2 + 2*J3) $
 \end{description}
 
 \subsubsection*{altPSI}
-
 \begin{description}
-\item [event]: Event type according 
-\item [J1(J2)]: Semicolon separated list of all the junctions with an end matching the end of alt5'SS(alt3'SS). 
-\item [J3]: Semicolon separated list of all the junctions with an end matching the start of alt5'SS or the start of alt3'SS. All the columns from J1 to J2 represent the J1 counts in the different samples for each bin. The counts are the sum of all the J1 junctions. All the columns from J2 to J3 represent the J2 counts in the different samples for each bin. The counts are the sum of all the J2 junctions. All the columns from J3 to the first condition represent the J3 counts in the different samples for each bin. The counts are the sum of all the J3 junctions. 
-\item The last columns are the PSI metrics calculated for each condition. The PSI metric is calculated as: PSI = (J12)/(J12 + J3). Where J12 is J1 if it's an alt 5' event or J2 if it's an alt 3' event and the junctions are the sum by condition.
+\item [event:] Type of event asigned by \texttt{ASpli} when bining. 
+\item [J1(J2):] Semicolon separated list of junctions with an \textbf{end} matching the \textbf{end} of alt5'SS or alt3'SS. 
+\item [J3:] Semicolon separated list of junctions with an \textbf{end} matching the \textbf{start} of an alt5'SS or alt3'SS. 
+
+\item [*] Columns in between J1-J2 and J2-J3 represent junction counts in the samples for each bin. \textit{(junctions are the sum by condition).}
+\item [PIR] for each condition, calculated as: $$ PIR = (J1 + J2)/(J1 + J2 + 2*J3) $$
+\item [PSI] for each condition, calculated as: $ PSI = (J12)/(J12 + J3)$
+\textit{Where J12 is J1 if it's an alt 5' event or J2 if it's an alt 3' event}
 \end{description}
 
 \subsubsection*{esPSI}
 
 \begin{description}
-\item [event]: Type of event asigned by \texttt{ASpli} when bining 
-\item [J1]: Semicolon separated list of all the junctions with an end on the alternative exon. 
-\item [J2]: Semicolon separated list of all the junctions with an end on the alternative exon. 
-\item [J3]: Semicolon separated list of all the junctions overlaping the alternative exon. All the columns from J1 to J2 represent the J1 counts in the different samples for each bin. The counts are the sum of all the J1 junctions. All the columns from J2 to J3 represent the J2 counts in the different samples for each bin. The counts are the sum of all the J2 junctions. All the columns from J3 to the first condition represent the J3 counts in the different samples for each bin. The counts are the sum of all the J3 junctions. 
-\item The PSI metric is calculated as: PSI = (J1 + J2)/(J1 + J2 + 2*J3) Where the junctions are the sum by condition.
+\item [event:] Type of event asigned by \texttt{ASpli} when bining. 
+\item [J1:] Semicolon separated list of junctions with an \textbf{end} on the alternative exon. 
+\item [J2:] Semicolon separated list of junctions with an \textbf{end} on the alternative exon. 
+\item [J3:] Semicolon separated list of \textbf{exclusion} junctions of alternative exon. 
+
+\item [*] Columns in between J1-J2 and J2-J3 represent junction counts in the samples for each bin. \textit{(junctions are the sum by condition).}
+
+\item [PSI:] for each condition, calculated as: $$ PSI = (J1 + J2)/(J1 + J2 + 2*J3) $$ 
 \end{description}
 
 \subsubsection*{junctionsPIR}
-
 \begin{description}
-\item [PIR] metric for each experimental junction using e1i and ie2 counts. Exclusion junction is the junction itself. This output helps to discover new introns as well as new retention events. 
-\item [hitIntron]: If the junction matches a bin, the bin is shown here. 
-\item [hitIntronEvent]: If the junction matches a bin, the type of event asigned by \texttt{ASpli} to this bin. All the columns from hitIntronEvent up to the first repetition of the samples names in the columns, represent the J1 counts in the different samples for each region. From there to the next time the names of the columns repeat themselves, the J2 counts and from there to the first condition, the J3 counts. 
-\item The last columns are the PIR metrics calculated for each condition. The PIR metric is calculated as: PIR = (J1 + J2)/(J1 + J2 + 2*J3) (junctions are the sum by condition.)
+\item [PIR:] for each experimental junction, using \textbf{e1i} and \textbf{ie2} counts. \textit{Exclusion junction} is the junction \textit{itself}. This information is crutial to discover new introns as well as retention events. 
+\item [hitIntron, hitIntronEvent:] If the junction matches a bin, name and type of event asigned by \texttt{ASpli} to this bin. 
+\item [Columns] in between represent J1, J2 and J3 counts in the different samples 
+\item [PIR:] calculated for each condition, as $ PIR = (J1 + J2)/(J1 + J2 + 2*J3) $ \textit{(junctions are the sum by condition.)}
 \end{description}
 
 \subsubsection*{junctionsPJU}
-Given a junction, it is possible to analyze if it shares start, end or both with another junction. If so, it is because there is alternative splicing. 
+Given a junction, it is possible to analyze if it shares \textbf{start}, \textbf{end} or \textbf{both} with other junction. If so, it is possible due to there is alternative splicing in this region. 
 
 \begin{description}
-\item [Junction]: name of the junction. 
-\item [Gene]: gene it belongs to. 
-\item [Strand]: gene's strand. 
-\item [multipleHit]: if junction overlaps several genes
-\item [symbol]: gene symbol
-\item [gene\_coordinates]: gene coordinates. 
-\item [bin\_spanned]: semicolon separated list of all the bins spaned by this junction. 
-\item [j\_within\_bin]: other junctions in the bins. 
-\item [StartHit]: all junctions sharing the start with this junction and $PJU_J1=J3/(J1+J3)$ for each condition. 
-\item [EndHit]: all the junctions sharing the end with this junction and $PJU_J2=J3/(J2+J3)$ for each condition. 
-\item All the columns between j\_within\_bin and StartHit are the counts for J3 in the different samples for each region. From there to EndHit, the J1 counts and $PJU_J1=J3/(J1+J3)$ for each condition. Then after EndHit, the J2 counts and $PJU_J2=J3/(J2+J3)$. 
-\item Rownames are J3 range. 
+\item [Rownames:] J3 range. 
+\item [Junction:] name of the junction. 
+\item [Gene:] gene it belongs to. 
+\item [Strand:] gene's strand. 
+\item [multipleHit:] if junction overlaps several genes
+\item [symbol:] gene symbol
+\item [gene\_coordinates:] gene coordinates. 
+\item [bin\_spanned:] semicolon separated list of bins spaned by this junction. \item [j\_within\_bin:] other junctions in this region 
+\item [StartHit:] junctions sharing \textbf{start} with this junction and $PJU_J1=J3/(J1+J3)$ for each condition. 
+\item [EndHit:] junctions sharing \textbf{end} with this junction and $PJU_J2=J3/(J2+J3)$ for each condition. 
+\item [Columns] in between are:
+\begin{itemize}
+\item J3 counts in the different samples for each region.
+\item J1 counts and $PJU_J1=J3/(J1+J3)$ for each condition.
+\item J2 counts and $PJU_J2=J3/(J2+J3)$ for each condition. 
+\end{itemize}
+
 \item StartHit is J1 range and EndHit is J2 range.
 \end{description}
 
 \subsubsection*{ASpliJDU}
 
 \begin{description}
-\item if it is novel or known
-\item which bins it spans
-\item if the junction is completely included in an annotated bin, which would indicate that the AS event
-is a possible \emph{exintron} \cite{pmid25934563}.
+\item [known or novel]
+\item [spanned bins]
+\item [exintron:] if the junction is completely included in a bin, it would indicate this AS event is a possible \emph{exintron} \cite{pmid25934563}.
 \end{description}
 
 \subsubsection*{localec}
-Information about statistically significant changes in junction usage inside {\em locale}-juntion clusters.
+Information about statistically significant changes in junction's usage within {\em locale}-juntion clusters.
   \begin{description}
-   \item [size]: number of junctions belonging to the cluster.
-   \item [cluster.LR]: likelihood ratio of cluster differential usage.
-   \item [pvalue]: pvalue of cluster differential usage.
-   \item [FDR]: fdr of cluster differential usage.
-   \item [range]: cluster location.
-   \item [participation]: participation of the significant junction (FDR < maxFDRForParticipation) presenting maximal participation value inside the cluster
-   \item [dParticipation]: delta participation of the significant junction (FDR < maxFDRForParticipation) presenting maximal participation value inside the cluster 
+   \item [size:] number of junctions belonging to the cluster.
+   \item [cluster.LR:] cluster differential usage likelihood ratio 
+   \item [pvalue, FDR] cluster differential usage pvalue and corresponding FDR 
+   \item [range:] cluster genomic coordinates
+   \item [participation:] junction maximal participation value inside the cluster  (FDR < maxFDRForParticipation)
+   \item [dParticipation:] delta participation of the significant junction (FDR < maxFDRForParticipation) presenting maximal participation value inside the cluster 
   \end{description}
   
 \subsubsection*{localej}
   \begin{description} 
-   \item [cluster]: name of the cluster the junction belongs to
-   \item [log.mean]: log of mean counts accross all conditions for this junction
-   \item [logFC]: log fold change of junction accross conditions
-   \item [pvalue]: pvalue of junction
-   \item [FDR]: FDR of junction
-   \item [annotated]: is junction annotated or new
-   \item [participation]: the maximal participation value observed across contrasted condictions
-   \item [dParticipation]: delta participation of the maximal participation value observed across contrasted condictions
-   \item From dParticipation to the end, junction counts for all samples
+   \item [cluster:] cluster's name to which junction belongs to
+   \item [log.mean:] log of mean counts accross all conditions for this junction
+   \item [logFC:] log fold change of junction accross conditions
+   \item [pvalue and FDR] junction's pvalue and corresponding FDR
+   \item [annotated:] if junction is annotated or new
+   \item [participation:] maximal participation value observed across contrasted condictions 
+   \item [dParticipation:] delta participation of the maximal participation value observed across contrasted condictions
+   \item [Columns in between:] junction counts for all samples
   \end{description}  
   
 \subsubsection*{anchorc}
-
 \begin{description}
-   \item [cluster.LR]: likelihood ratio of cluster differential usage.
-   \item [pvalue]: pvalue of cluster differential usage.
-   \item [FDR]: fdr of cluster differential usage.
-
-\end{description}   
+   \item [cluster.LR:] likelihood ratio of cluster differential usage.
+   \item [pvalue and FDR:] cluster differential usage pvalue and corresponding FDR.
+   \end{description}   
 
 \subsubsection*{anchorj}
-
 \begin{description}
-   \item [log.mean]: log of mean counts accross all conditions for this junction
-   \item [logFC]: log fold change of junction accross conditions
-   \item [LR]: likelihood ratio of junction differential usage.
-   \item [pvalue]: pvalue of junction
-   \item [FDR]: FDR of junction
-   \item [J1.pvalue]: pvalue of J1 junction
-   \item [J2.pvalue]: pvalue of J2 junction
-   \item [NonUniformity]: if non uniformity test was performed, numbers closer to zero mean uniformity and closer to one mean non uniformity
-   \item [dPIR]: junction delta PIR
-   \item [annotated]: if this junction is known or novel
-   \item [J counts]: counts junctions for all samples
+   \item [log.mean:] log of mean counts accross all conditions for this junction
+   \item [logFC:] log fold change of junction accross conditions
+   \item [LR:] likelihood ratio of junction differential usage.
+   \item [pvalue, FDR] junction's pvalue and corresponding FDR 
+   \item [J1.pvalue]: J1 junction's pvalue
+   \item [J2.pvalue]: J2 junction's pvalue 
+   \item [NonUniformity:] if non uniformity test was performed, numbers closer to zero mean uniformity and closer to one mean non uniformity
+   \item [dPIR:] junction's delta PIR
+   \item [annotated:] if junction is annotated or new
+   \item [J counts:] junctions' counts for all samples
 \end{description}   
 
 
 \subsubsection*{jir}
-
 \begin{description}
-   \item [J3]: J3 junction/s
-   \item [logFC]: log fold change of junction accross conditions
-   \item [log.mean]: log of mean counts accross all conditions for this junction
-   \item [pvalue]: pvalue of junction
-   \item [FDR]: FDR of junction
-   \item [LR]: likelihood ratio of junction differential usage.  
-   \item [NonUniformity]: if non uniformity test was performed, numbers closer to zero mean uniformity and closer to one mean non uniformity
-   \item [dPIR]: junction delta PIR
-   \item [multiplicity]: do multiple junctions cross the region
-   \item [J counts]: counts junctions for all samples
+   \item [J3:] J3 junctions
+   \item [logFC:] log fold change of junction accross conditions
+   \item [LR:] likelihood ratio of junction differential usage.
+   \item [pvalue, FDR] junction's pvalue and corresponding FDR 
+   \item [NonUniformity:] if non uniformity test was performed, numbers closer to zero mean uniformity and closer to one mean non uniformity
+   \item [dPIR:] junction delta PIR
+   \item [multiplicity:] do multiple junctions cross the region
+   \item [J counts:] junctions' counts for all samples
   \end{description}      
  
  
 \subsubsection*{jes}
   \begin{description}
-   \item [event]: type of event
-   \item [J3]: J3 junction/s
-   \item [logFC]: log fold change of junction accross conditions
-   \item [log.mean]: log of mean counts accross all conditions for this junction
-   \item [pvalue]: pvalue of junction
-   \item [FDR]: FDR of junction
-   \item [LR]: likelihood ratio of junction differential usage.  
-   \item [dPSI]: junction delta PSI
-   \item [multiplicity]: do multiple junctions cross the region
-   \item [j Counts]: junction counts for all samples
+  \item [event:] Type of event asigned by \texttt{ASpli} when bining. 
+   \item [J3:] junctions
+   \item [logFC:] log fold change of junction accross conditions
+   \item [LR:] likelihood ratio of junction differential usage.
+   \item [pvalue, FDR] junction's pvalue and corresponding FDR 
+    \item [dPSI:] junction delta PSI
+   \item [multiplicity:] do multiple junctions cross the region
+   \item [J counts:] junctions' counts for all samples
 \end{description}      
   
 \subsubsection*{jalt}
 
   \begin{description}
-   \item [event]: type of event
-   \item [J3]: J3 junction/s
+   \item [event:] Type of event asigned by \texttt{ASpli} when bining. 
+   \item [J3:] junctions
    \item [logFC]: log fold change of junction accross conditions
    \item [log.mean]: log of mean counts accross all conditions for this junction
-   \item [pvalue]: pvalue of junction
-   \item [FDR]: FDR of junction
-   \item [LR]: likelihood ratio of junction differential usage.  
-   \item [dPSI]: junction delta PSI
+   \item [logFC:] log fold change of junction accross conditions
+   \item [LR:] likelihood ratio of junction differential usage.
+   \item [pvalue, FDR] junction's pvalue and corresponding FDR 
+   \item [dPSI:] junction delta PSI
    \item [multiplicity]: do multiple junctions cross the region
-   \item [j Counts]: junction counts for all samples
+   \item [J counts:] junctions' counts for all samples
 \end{description}      
 
 
