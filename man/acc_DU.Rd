@@ -28,17 +28,17 @@
   
   # Get data tables from an ASpliDU object
   
-  du <- aspliDUexample1()
+  #du <- aspliDUexample1()
   
-  gde <- genesDE( du )
-  bdu <- binsDU( du )
-  jdu <- junctionsDU( du )
+  #gde <- genesDE( du )
+  #bdu <- binsDU( du )
+  #jdu <- junctionsDU( du )
   
   # Set data tables to an ASpliDU object 
   
-  genesDE( du )     <- gde
-  binsDU( du )      <- bdu
-  junctionsDU( du ) <- jdu
+  #genesDE( du )     <- gde
+  #binsDU( du )      <- bdu
+  #junctionsDU( du ) <- jdu
 
 }
 

@@ -107,6 +107,9 @@
     
 }
 
+\value{
+Returns a png for each selected bin }
+
 \author{ Estefania Mancini, Andres Rabinovich, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz  }
 
 \seealso{

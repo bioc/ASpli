@@ -798,7 +798,7 @@
   pb <- txtProgressBar(min=1,max=length(ii),style=3)
   Uniformity[ii] <- sapply(ii, function(p){
     #if(i %% 100 == 0) print(paste(i/length(elementos), "%"))
-    i <<- i + 1
+    i <- i + 1
     setTxtProgressBar(pb,i)
     # if(i %% 10 == 0){
     #   message(paste0("Uniformity test: ", round(i/length(ii)*100), "% completed"))

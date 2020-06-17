@@ -14,8 +14,9 @@ exportIntegratedSignals( is, output.dir="is",
                          sr, counts, features, asd,
                          mergedBams, 
                          jCompletelyIncluded = FALSE, zoomRegion = 1.5, 
-                         useLog = FALSE, tcex = 1, ntop = NULL, openInBrowser = F, 
-                         makeGraphs = T, bforce=FALSE
+                         useLog = FALSE, tcex = 1, ntop = NULL, 
+                         openInBrowser = FALSE, 
+                         makeGraphs = TRUE, bforce=FALSE
                         )
 }
 
@@ -88,10 +89,12 @@ exportIntegratedSignals( is, output.dir="is",
   #Make merged bams dataframe
   mergedBamsFileNames <- c( "A_C.bam", "A_D.bam" )
   mergedBams <- data.frame(bams = system.file( 'extdata', mergedBamsFileNames, package="ASpli" ), 
-                           condition = c("C", "D"), stringsAsFactors = F)
+  condition = c("C", "D"), stringsAsFactors = FALSE)
   
   # Export integrated signals
-  exportIntegratedSignals(is, output.dir = "is", sr, gbcounts, features, jcounts, mergedBams, openInBrowser = T, makeGraphs = T, bforce = T )
+  exportIntegratedSignals(is, output.dir = "is", sr, gbcounts, features, jcounts, mergedBams, openInBrowser = TRUE, 
+  makeGraphs = TRUE,
+  bforce = TRUE )
   
 }
 

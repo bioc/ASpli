@@ -53,7 +53,7 @@
     tab <- setNames(rep(1, length(tab)), tab)
     sapply(s, function(ss){
       sss <- paste(ss, tab[ss], sep = sep)
-      tab[ss] <<- tab[ss] + 1
+      tab[ss] <- tab[ss] + 1
       return(sss)
     })
   }

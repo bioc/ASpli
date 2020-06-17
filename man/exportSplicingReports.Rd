@@ -10,7 +10,8 @@
 }
 
 \usage{
-exportSplicingReports( sr, output.dir="sr" , openInBrowser = F, maxBinFDR = 0.2, maxJunctionFDR = 0.2 )
+exportSplicingReports( sr, output.dir="sr" ,
+openInBrowser = FALSE, maxBinFDR = 0.2, maxJunctionFDR = 0.2 )
 }
 
 \arguments{

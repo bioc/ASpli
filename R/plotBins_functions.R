@@ -833,7 +833,7 @@
     #              mergedBAMs[icond, 1]))
     ad <- system(paste0("samtools depth -r ",
                         paste0(aspli.chr,":",zroi[1],"-",zroi[2]," "),
-                        mergedBAMs[icond, 1]), intern = T)
+                        mergedBAMs[icond, 1]), intern = TRUE)
     #ad <- matrix(as.numeric(strsplit2(ad,"\t")),ncol=3)
     ad <- strsplit2(ad,"\t")
     ad <- data.frame(ad,stringsAsFactors = FALSE)
@@ -1357,7 +1357,7 @@
     #              mergedBAMs[icond, 1]))
     ad <- system(paste0("samtools depth -r ",
                         paste0(aspli.chr,":",zroi[1],"-",zroi[2]," "),
-                        mergedBAMs[icond, 1]), intern = T)
+                        mergedBAMs[icond, 1]), intern = TRUE)
     ad <- matrix(as.numeric(strsplit2(ad,"\t")),ncol=3)
     yylim <- range(ad[,3])
     

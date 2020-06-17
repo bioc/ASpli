@@ -251,7 +251,10 @@ setMethod(
 # readCounts
 setGeneric (
   name = "readCounts",
-  def = function( features, targets, minReadLength, maxISize, 
+  def = function( features, 
+                  targets, 
+                  minReadLength, 
+                  maxISize, 
                   minAnchor = 10)
     standardGeneric("readCounts") )
 
@@ -349,9 +352,9 @@ setMethod(
       if(ncol(counts@junction.counts) == 0){
         counts@junction.counts <- junction.hits
       }else{
-        dt1                    <- data.table(counts@junction.counts, keep.rownames = T)
+        dt1                    <- data.table(counts@junction.counts, keep.rownames = TRUE)
         dt2                    <- data.table(.extractCountColumns(junction.hits, targets[target, ]), keep.rownames = T)
-        dt3                    <- data.frame(merge(dt1, dt2, by="rn", all.x=T, all.y=T))
+        dt3                    <- data.frame(merge(dt1, dt2, by="rn", all.x=T, all.y=TRUE))
         for(s in c("junction", "gene", "strand", "multipleHit", "symbol", "gene_coordinates", "bin_spanned", "j_within_bin")){
           dt3[, s]           <- as.character(dt3[, s])
           junction.hits[, s] <- as.character(junction.hits[, s])
@@ -442,10 +445,11 @@ setMethod(
           #Load bam from current target
           bam <- loadBAM(targets[target, ])
           junctionsPIR <- .junctionsDiscover( df=jcounts, 
-                                              minReadLength, 
+                                              minReadLength=minReadLength, 
                                               targets=targets[target, ], 
                                               features=features,
-                                              minAnchor = minAnchor,bam)  
+                                              minAnchor = minAnchor,
+                                              bam=bam)  
           
          }
         
@@ -477,7 +481,8 @@ setMethod(
                                           minReadLength=minReadLength, 
                                           targets=targets, 
                                           features=features,
-                                          minAnchor = minAnchor ) 
+                                          minAnchor = minAnchor,
+                                          bam=bam) 
       as@junctionsPIR <- junctionsPIR
     }
     message("Junctions PIR completed")
@@ -986,9 +991,9 @@ setMethod(
   signature = "ASpliDU",
   definition = function( du, output.dir="du" ) {
 
-    file.exists( output.dir ) || dir.create( output.dir , recursive = T)
+    file.exists( output.dir ) || dir.create( output.dir , recursive = TRUE)
     output.dir <- paste(output.dir, paste(names(du@contrast)[du@contrast != 0], collapse="-"), sep="/")
-    file.exists( output.dir ) || dir.create( output.dir , recursive = T )
+    file.exists( output.dir ) || dir.create( output.dir , recursive = TRUE )
 
     if ( containsGenesAndBins( du ) ) {
       # Export Genes  
@@ -1024,9 +1029,9 @@ setMethod(
   signature = "ASpliJDU",
   definition = function( jdu, output.dir="jdu" ) {
     
-    file.exists( output.dir ) || dir.create( output.dir , recursive = T )
+    file.exists( output.dir ) || dir.create( output.dir , recursive = TRUE )
     output.dir <- paste(output.dir, paste(names(jdu@contrast)[jdu@contrast != 0], collapse="-"), sep="/")
-    file.exists( output.dir ) || dir.create( output.dir , recursive = T )
+    file.exists( output.dir ) || dir.create( output.dir , recursive = TRUE )
     
     for(slotName in slotNames(jdu)){
       # Export Genes  
@@ -1044,14 +1049,13 @@ setMethod(
   signature = "ASpliSplicingReport",
   definition = function( sr, output.dir="sr" ) {
     
-    file.exists( output.dir ) || dir.create( output.dir , recursive = T )
-    #output.dir <- paste(output.dir, paste(names(jdu@contrast)[jdu@contrast != 0], collapse="-"), sep="/")
-    #file.exists( output.dir ) || dir.create( output.dir )
+    file.exists( output.dir ) || dir.create( output.dir , recursive = TRUE)
     
     for(slotName in slotNames(sr)){
       # Export Genes  
       if(class(slot(sr, slotName)) == "data.frame"){
-        write.table( slot(sr, slotName), paste(output.dir, paste0(slotName, ".txt"), sep="/"), sep = "\t", quote = FALSE, col.names = T, row.names = F )
+        write.table( slot(sr, slotName), paste(output.dir, paste0(slotName, ".txt"), sep="/"), sep = "\t", 
+                     quote = FALSE, col.names = TRUE, row.names = FALSE )
       }
     }
     
@@ -1070,14 +1074,14 @@ setMethod( f = 'mergeBinDUAS',
 
 
 setGeneric( name = "exportSplicingReports", 
-            def = function ( sr, output.dir="sr" , openInBrowser = F, maxBinFDR = 0.2, maxJunctionFDR = 0.2 ) standardGeneric( "exportSplicingReports" ) )
+            def = function ( sr, output.dir="sr" , openInBrowser = FALSE, maxBinFDR = 0.2, maxJunctionFDR = 0.2 ) standardGeneric( "exportSplicingReports" ) )
 
 setMethod(
   f = "exportSplicingReports",
   signature = "ASpliSplicingReport",
-  definition = function( sr, output.dir="sr" , openInBrowser = F, maxBinFDR = 0.2, maxJunctionFDR = 0.2 ) {
+  definition = function( sr, output.dir="sr" , openInBrowser = FALSE, maxBinFDR = 0.2, maxJunctionFDR = 0.2 ) {
     output.dir <- paste0(output.dir, "/", paste0(names(sr@contrast)[sr@contrast != 0], collapse="-"))
-    file.exists( output.dir ) || dir.create( output.dir , recursive = T)
+    file.exists( output.dir ) || dir.create( output.dir , recursive = TRUE)
     
     
     for(s in slotNames(sr)){
@@ -1130,7 +1134,8 @@ setMethod(
             cluster_junctions <- junctions[junctions$junction.cluster == i, ]
             datos_bin         <- data.frame(bin = as.character(aggregate(bin ~ junction, cluster_junctions, FUN=function(s){paste(s, collapse=";")}, na.action=na.pass)[, 2]),
                                             bin.pvalue = as.character(aggregate(bin.pvalue ~ junction, cluster_junctions, FUN=function(s){paste(s, collapse=";")}, na.action=na.pass)[, 2]),
-                                            bin.fdr = as.character(aggregate(bin.fdr ~ junction, cluster_junctions, FUN=function(s){paste(s, collapse=";")}, na.action=na.pass)[, 2]), stringsAsFactors = F)
+                                            bin.fdr = as.character(aggregate(bin.fdr ~ junction, cluster_junctions, FUN=function(s){paste(s, collapse=";")}, na.action=na.pass)[, 2]),
+                                            stringsAsFactors = FALSE)
             cluster_junctions <- unique(cluster_junctions[, !colnames(cluster_junctions) %in% c("bin", "bin.pvalue", "bin.fdr")])
             cluster_junctions <- data.frame(cluster_junctions, datos_bin)
             subtables <- paste0(subtables, "subtables[", i, "] = '<table><tr>")
@@ -1152,7 +1157,7 @@ setMethod(
                          rownames = FALSE,
                          escape = -1,
                          filter ="top",
-                         fillContainer = F,
+                         fillContainer = FALSE,
                          extensions = c('Buttons', 'KeyTable'), 
                          options = list(dom = 'lfrtBip',
                                         buttons = c('copy', 'csv', 'excel', 'pdf', 'print', I('colvis')),
@@ -1186,7 +1191,7 @@ setMethod(
         }
         ffile <- paste0(normalizePath(output.dir), "/", s, "Report.html")
         suppressWarnings(saveWidget(y, file = ffile, title = paste0(names(sr@contrast)[sr@contrast != 0], collapse="-")))
-        if(openInBrowser == T) browseURL(ffile)
+        if(openInBrowser == TRUE) browseURL(ffile)
       }
     }    
   }
@@ -1196,20 +1201,21 @@ setGeneric( name = "exportIntegratedSignals",
             def = function ( is, output.dir="is", 
                              sr, counts, features, asd,
                              mergedBams, 
-                             jCompletelyIncluded = FALSE, zoomRegion = 1.5, 
-                             useLog = FALSE, tcex = 1, ntop = NULL, openInBrowser = F, 
-                             makeGraphs = T,bforce=FALSE
+                             jCompletelyIncluded = FALSE, 
+                             zoomRegion = 1.5, 
+                             useLog = FALSE, 
+                             tcex = 1, 
+                             ntop = NULL, 
+                             openInBrowser = FALSE, 
+                             makeGraphs = TRUE,
+                             bforce=FALSE
                              ) standardGeneric( "exportIntegratedSignals" ) )
 
 setMethod(
   f = "exportIntegratedSignals",
   signature = "ASpliIntegratedSignals",
-  definition = function( is, output.dir="is", sr, counts, features, asd, mergedBams, jCompletelyIncluded = FALSE, zoomRegion = 1.5, useLog = FALSE, tcex = 1, ntop = NULL, openInBrowser = F, makeGraphs = T,bforce=FALSE) {
-    
-    #if(!all(colnames(is) %in% c('region','locus','b','bjs','ja','jl','bin','feature','bin.event','J3','binreg','locus_overlap','b.fdr','b.logfc','bjs.fdr','bjs.logfc','bjs.nonuniformity','bjs.inclussion','a.fdr','a.logfc','a.nonuniformity','a.participation','a.dparticipation','l.fdr','l.logfc','l.participation','l.dparticipation'))){
-    #  stop("is must be a data.table generated by integrateSignals method. Not all integratedSignal columns are present")
-
-    #}
+  definition = function( is, output.dir="is", sr, counts, features, asd, mergedBams, jCompletelyIncluded = FALSE, zoomRegion = 1.5, useLog = FALSE, tcex = 1, ntop = NULL, 
+                         openInBrowser = FALSE, makeGraphs = TRUE,bforce=FALSE) {
 
     if(class(is) != "ASpliIntegratedSignals"){
       stop("is must be an ASpliIntegratedSignals object")
@@ -1256,7 +1262,7 @@ setMethod(
     
     output.dir <- paste0(output.dir, "/", paste0(names(sr@contrast)[sr@contrast != 0], collapse="-"))
     output.dir <- substr(output.dir, 1, 255) #maximum dir length is 255
-    file.exists( output.dir ) || dir.create( output.dir, recursive = T )
+    file.exists( output.dir ) || dir.create( output.dir, recursive = TRUE)
     file.exists( paste0(output.dir, "/img") ) || dir.create( paste0(output.dir, "/img") )
     
     is$feature[is.na(is$feature)] <- "-"
@@ -1355,7 +1361,7 @@ setMethod(
               rownames = FALSE,
               escape = -1,
               filter ="top",
-              fillContainer = F,
+              fillContainer = FALSE,
               extensions = c('Buttons', 'KeyTable'), 
               options = list(dom = 'lfrtBip',
                              buttons = c('copy', 'csv', 'excel', 'pdf', 'print', I('colvis')),

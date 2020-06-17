@@ -39,7 +39,7 @@
   fg <- featuresg( features )
   fb <- featuresb( features )
   fj <- featuresj( features )
-  te <- transcriptExons( features )
+ #te <- transcriptExons( features )
   
   
   # Set data to an ASpliFeatures object
@@ -47,7 +47,7 @@
   featuresg( features ) <- fg 
   featuresb( features ) <- fb 
   featuresj( features ) <- fj 
-  transcriptExons( features )  <- te
+ # transcriptExons( features )  <- te
 }
 
 

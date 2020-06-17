@@ -122,11 +122,13 @@
 }
 
 .junctionsDiscover <- function( df,
-                                readLength, 
+                                minReadLength, 
                                 targets, 
                                 features, 
-                                minAnchor,     
-                                bam ) {
+                                minAnchor,
+                                bam) 
+  
+  {
   cores=1
   
   # This function get the counts of the junctions that overlaps the an 
@@ -137,37 +139,25 @@
   getExonIntronCounts <- function( jranges, 
                                    targets, 
                                    bams, 
-                                   readLength, 
+                                   minReadLength, 
                                    regionType, 
                                    minAnchor ) {
     
     cores = 1
     exonIntron <- jranges
 
-    minAnchor <- round( minAnchor * readLength / 100 )
+    minAnchor <- round( minAnchor * minReadLength / 100 )
     
     start( exonIntron ) <- if ( regionType == 'e1i' ) start( jranges ) else end( jranges )
-    start( exonIntron ) <- start( exonIntron ) - ( readLength - minAnchor ) - 1
+    start( exonIntron ) <- start( exonIntron ) - ( minReadLength - minAnchor ) - 1
     end( exonIntron )   <- if ( regionType == 'e1i' ) start( jranges ) else end( jranges )
-    end( exonIntron )   <- end( exonIntron ) + ( readLength - minAnchor ) - 1
+    end( exonIntron )   <- end( exonIntron ) + ( minReadLength - minAnchor ) - 1
     
     
     hits <- lapply( bams, function( x ) { 
       x <- GRanges(x)    
-      # seqnames   <- as.character(unique(data.frame(exonIntron)$seqnames))
-      # seqnames_x <- as.character(data.frame(x)$seqnames)
-      # hitsByBam  <- NULL
-      # for(i in seqnames){
-      #     print(i)
-      #     hitsIntermediate <- countOverlaps( exonIntron[data.frame(exonIntron)$seqnames == i, ], x[seqnames_x == i, ], ignore.strand = TRUE, minoverlap = readLength )
-      #     gc(reset = T)
-      #     if(is.null(hitsByBam)){
-      #       hitsByBam <- hitsIntermediate
-      #     }else{
-      #       hitsByBam <- c(hitsByBam, hitsIntermediate)  
-      #     }
-      # }
-    countOverlaps( exonIntron, x, ignore.strand = TRUE, minoverlap = readLength )      
+    
+countOverlaps( exonIntron, x, ignore.strand = TRUE, minoverlap = minReadLength )      
     } )    
     hits <- do.call( cbind.data.frame, hits )
     
@@ -188,14 +178,14 @@
   e1i <- getExonIntronCounts( jranges, 
                               targets, 
                               ungappedBams, 
-                              readLength, 
+                              minReadLength, 
                               'e1i',  
                               minAnchor)
   
   ie2 <- getExonIntronCounts( jranges, 
                               targets, 
                               ungappedBams, 
-                              readLength , 
+                              minReadLength , 
                               'ie2', 
                               minAnchor)  
   # Calculates the PIR value 
