@@ -49,7 +49,7 @@ Differently form other approaches, ASpli was specifically designed to integrate 
 A typical ASpli workflow  involves: parsing the genome annotation into subgenic features called bins, overlapping read alignments against them, perform junction counting, fulfill inference tasks of differential bin and junction usage and, finally, report integrated splicing signals. At every step ASpli generates self-contained outcomes that, if required, can be easily exported and integrated into other processing pipelines. 
 
 <<loadAspli, echo=FALSE, eval=TRUE>>=
-devtools::load_all("~/Projects/RNAseq/ASpli/gitlab/ASpli")
+library(ASpli)
 @
 
 \section{Quick start}\label{qstart}
