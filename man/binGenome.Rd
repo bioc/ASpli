@@ -69,18 +69,17 @@
 
 \examples{
   # Create a transcript DB from gff/gtf annotation file.
-  # Warnings in this examples can be ignored. 
-  #library(GenomicFeatures)
-  #genomeTxDb <- makeTxDbFromGFF( system.file('extdata','genes.mini.gtf', 
-  #                               package="ASpli") )
-
-  # Create an ASpliFeatures object from TxDb
-  #features <- binGenome( genomeTxDb )
+  library(GenomicFeatures)
+  gtfFileName <- aspliExampleGTF()
+  genomeTxDb <- makeTxDbFromGFF( gtfFileName )
   
+  # Create an ASpliFeatures object from TxDb
+  features <- binGenome( genomeTxDb )
+
   # Extract gene, bin and junctions features
-  #GeneCoord <- featuresg(features)
-  #BinCoord <- featuresb(features)
-  #JunctionCoord <- featuresj(features)
+  GeneCoord <- featuresg(features)
+  BinCoord <- featuresb(features)
+  JunctionCoord <- featuresj(features)
   
 } 
 

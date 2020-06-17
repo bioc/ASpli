@@ -68,36 +68,39 @@
 }
 
 \examples{ 
-  # Create a transcript DB from gff/gtf annotation file.
-  # Warnings in this examples can be ignored.
-  #library(GenomicFeatures)
-  #genomeTxDb <- makeTxDbFromGFF( system.file('extdata','genes.mini.gtf', 
-  #                               package="ASpli") )
-  
-  # Create an ASpliFeatures object from TxDb
-  #features <- binGenome( genomeTxDb )
-  
-  # Define bam files, sample names and experimental factors for targets.
-  #bamFileNames <- c( "A_C_0.bam", "A_C_1.bam", "A_C_2.bam", 
-  #                   "A_D_0.bam", "A_D_1.bam", "A_D_2.bam" )
-  #targets <- data.frame( 
-  #             row.names = paste0('Sample_',c(1:6)),
-  #             bam = system.file( 'extdata', bamFileNames, package="ASpli" ),
-  #             factor1 = c( 'C','C','C','D','D','D') )
-  
-  # Load reads from bam files
-  #bams <- loadBAM( targets )
-  
-  # Read counts from bam files
-  #counts   <- readCounts( features, bams, targets, cores = 1, readLength = 100, 
-  #                        maxISize = 50000 )
-  
-  # Calculate differential usage of genes, bins and junctions 
-  #du       <- DUreport.norm( counts, targets )
-
-  # Calculate PSI / PIR for bins and junction.
-  #as       <- AsDiscover( counts, targets, features, bams, readLength = 100, 
-  #                        threshold = 5, cores = 1 )
+library(GenomicFeatures)
+gtfFileName <- aspliExampleGTF()
+genomeTxDb <- makeTxDbFromGFF( gtfFileName )
+features <- binGenome( genomeTxDb )
+BAMFiles <- aspliExampleBamList()
+targets <- data.frame( 
+  row.names = paste0('Sample',c(1:12)),
+  bam = BAMFiles,
+  f1 = c( 'A','A','A','A','A','A',
+          'B','B','B','B','B','B'),
+  f2 = c( 'C','C','C','D','D','D',
+          'C','C','C','D','D','D'),
+  stringsAsFactors = FALSE)
+  getConditions(targets)
+  mBAMs <- data.frame(bam      = sub("_[02]","",targets$bam[c(1,4,7,10)]),
+                      condition= c("A_C","A_D","B_C","B_D"))
+  counts<- gbCounts(features       = features, 
+                    targets       = targets, 
+                    minReadLength = 100,
+                    maxISize      = 5000, 
+                    minAnchor     = 10)
+                    asd         <-  jCounts(counts          = counts, 
+                          features      = features,
+                          minReadLength = 100,
+                          threshold     = 5,
+                          minAnchor     = 10)
+gb      <- gbDUreport(counts,contrast = c( 1, -1, -1, 1 ) )
+jdur    <- jDUreport(asd, 
+                     contrast =  c( 1, -1, -1, 1 ) ,
+                     runUniformityTest = TRUE,
+                     mergedBams = mBAMs)
+sr      <- splicingReport(gb, jdur, counts = counts)
+is      <- integrateSignals(sr,asd)
 }
 
 \keyword{ alternative splicing, RNA-seq, junctions }
