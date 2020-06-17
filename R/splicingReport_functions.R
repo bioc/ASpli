@@ -46,8 +46,8 @@
   colnames(jalt)[colnames(jalt) %in% c("FDR")] <- c("junction.fdr")
   #jalt$bin               <- rownames(jalt)
   
-  j                      <- data.table(rbind(jir, jes, jalt), keep.rownames = T)
-  bins                   <- data.table(binsDU(bdu), keep.rownames = T)
+  j                      <- data.table(rbind(jir, jes, jalt), keep.rownames = TRUE)
+  bins                   <- data.table(binsDU(bdu), keep.rownames = TRUE)
   aux                    <- data.frame(merge(bins, j, by="rn", all=T))
   colnames(aux)          <- c("bin", "feature", "bin.event", "locus", "locus_overlap", "symbol", "gene_coordinates", "start",
                               "end", "length", "bin.logFC", "bin.pvalue", "bin.fdr", "junction.event", "J3", "J3.multiplicity", "J3.logFC",
@@ -105,30 +105,26 @@
                                         J3 = rownames(localej)[overlap$subjectHits], localej[overlap$subjectHits, ])
   
   
-  #bins                   <- data.table(bins[!rownames(bins) %in% junctionbased_junctions$bin, ], keep.rownames = T)
-  #colnames(bins)[1]      <- "bin"
   
-  #junctionbased_junctions <- rbindlist(list(junctionbased_junctions, bins), use.names = T, fill = T)
-  
-  junctions               <- data.table(localej[!rownames(localej) %in% junctionbased_junctions$J3, ], keep.rownames = T)
+  junctions               <- data.table(localej[!rownames(localej) %in% junctionbased_junctions$J3, ], 
+                                        keep.rownames = TRUE)
   colnames(junctions)[colnames(junctions) %in% c("rn")]  <- c("J3")
   
   #Adds non overlaping locales
-  junctionbased_junctions <- rbindlist(list(junctionbased_junctions, junctions), use.names = T, fill = T)
+  junctionbased_junctions <- rbindlist(list(junctionbased_junctions, junctions), 
+                                       use.names = TRUE,
+                                       fill = TRUE)
   
   
   colnames(junctionbased_junctions) <- c("bin", "feature", "event", "locus", "locus_overlap", "symbol", "gene_coordinates", "bin.start", "bin.end",
                                          "bin.length", "bin.logFC", "bin.pvalue", "bin.fdr","junction", "junction.cluster", "junction.log.mean",
                                          "junction.logFC", "junction.pvalue", "junction.fdr", "junction.annotated", "junction.participation", "junction.dparticipation", colnames(junctionbased_junctions)[grep("counts", colnames(junctionbased_junctions))])
   
-  #bins <- data.table(bdu@bins[rownames(bdu@bins) %in% junctionbased_junctions$bin, ], keep.rownames = T)
-  #completo <- rbindlist(junctionbased_junctions, bins, use.names = T, fill = T)
-  
   #Change type of junction.cluster so we can merge with cluster information
   junctionbased_junctions$junction.cluster <- as.character(junctionbased_junctions$junction.cluster)
   
 
-  localec <- data.table(localec(jdu), keep.rownames = T)
+  localec <- data.table(localec(jdu), keep.rownames = TRUE)
 
   #Tries to find cluster locus
   junctions  <- strsplit2(localec$range, "[.]")
@@ -149,7 +145,8 @@
   localec$locus[overlap$queryHits] <- as.character(genesDE(bdu)$symbol[overlap$subjectHits])
   colnames(localec) <- c("rn", "cluster.size", "cluster.LR", "cluster.pvalue", "cluster.fdr", "cluster.range", "cluster.participation", "cluster.dparticipation", "cluster.locus")
   
-  fulldt <- data.frame(merge(junctionbased_junctions, localec, by.x = "junction.cluster", by.y = "rn", all = T))
+  fulldt <- data.frame(merge(junctionbased_junctions, localec, by.x = "junction.cluster", by.y = "rn",
+                             all = TRUE))
   
   fulldt <- fulldt[, 
                    c("junction", "junction.annotated",
@@ -192,15 +189,14 @@
   junctionbased_junctions <- data.table(bin=rownames(bins)[overlap$queryHits], bins[overlap$queryHits, ], 
                                         J3 = rownames(anchorj)[overlap$subjectHits], anchorj[overlap$subjectHits, ])
   
-  #bins                   <- data.table(bins[!rownames(bins) %in% junctionbased_junctions$bin, ], keep.rownames = T)
-  #colnames(bins)[1]      <- "bin"
   
-  #junctionbased_junctions <- rbindlist(list(junctionbased_junctions, bins), use.names = T, fill = T)
-  
-  junctions               <- data.table(anchorj[!rownames(anchorj) %in% junctionbased_junctions$J3, ], keep.rownames = T)
+  junctions               <- data.table(anchorj[!rownames(anchorj) %in% junctionbased_junctions$J3, ], 
+                                        keep.rownames = TRUE)
   colnames(junctions)[colnames(junctions) %in% c("rn")]  <- c("J3")
   
-  junctionbased_junctions <- rbindlist(list(junctionbased_junctions, junctions), use.names = T, fill = T)
+  junctionbased_junctions <- rbindlist(list(junctionbased_junctions, junctions), 
+                                       use.names = TRUE,
+                                       fill = TRUE)
   
   colnames(junctionbased_junctions) <- c("bin", "feature", "event", "locus", "locus_overlap", "symbol", "gene_coordinates", "bin.start", "bin.end",
                                          "bin.length", "bin.logFC", "bin.pvalue", "bin.fdr", "junction", "junction.log.mean",
@@ -208,10 +204,7 @@
                                          "junction.nonuniformity", "junction.dPIR", "junction.annotated",
                                          colnames(junctionbased_junctions)[grep("counts", colnames(junctionbased_junctions))])
   
-  #bins <- data.table(bdu@bins[rownames(bdu@bins) %in% junctionbased_junctions$bin, ], keep.rownames = T)
-  #completo <- rbindlist(junctionbased_junctions, bins, use.names = T, fill = T)
-  
-  anchorc <- data.table(anchorc(jdu), keep.rownames = T)  #Tries to find cluster locus
+  anchorc <- data.table(anchorc(jdu), keep.rownames = TRUE)  #Tries to find cluster locus
   junctions  <- strsplit2(anchorc$rn, "[.]")
   seqnames   <- junctions[, 1]
   start      <- as.numeric(junctions[, 2]) + 1
@@ -230,7 +223,8 @@
   anchorc$locus[overlap$queryHits] <- as.character(genesDE(bdu)$symbol[overlap$subjectHits])
   
   colnames(anchorc) <- c("rn", "cluster.LR", "cluster.pvalue", "cluster.fdr", "cluster.locus")
-  fulldt <- data.frame(merge(junctionbased_junctions, anchorc, by.x = "junction", by.y = "rn", all = T))
+  fulldt <- data.frame(merge(junctionbased_junctions, anchorc, by.x = "junction", by.y = "rn", 
+                             all = TRUE))
   
   fulldt <- fulldt[, 
                    c("junction", "junction.annotated",
@@ -601,7 +595,7 @@
   }  
   
   #Genero overlaps_aux: con region y 0/1 si hay evidencia
-  overlaps     <- rbindlist(lover, use.names = F)
+  overlaps     <- rbindlist(lover, use.names = FALSE)
   overlaps_aux <- data.table(region=character(), b=numeric(), bjs=numeric(), ja=numeric(), jl=numeric())
   if(class(otherSources) == "GRanges") overlaps_aux$otherSources = numeric()
   for(i in unique(c(overlaps$b, overlaps$bjs))){
@@ -750,7 +744,6 @@
     aa <- cbind(aa[,-c(4,5)],binreg=paste(aa$start,aa$end,sep="-"))
     
     aa  <-cbind(overlaps_aux,aa)
-    #roi <- gsub("Chr", "", roi, fixed = T)
     roi <- gsub("[:]", ".", roi)
     roi <- gsub("[-]", ".", roi)
     aa$J3 <- as.character(aa$J3)
@@ -760,8 +753,6 @@
     
     #Se hizo esto para recalcular el locus de los locales que ahora vienen por cluster
     if(nrow(asd@junctionsPJU) > 0){
-      #regiones <- gsub("Chr", "", aa$region, fixed = T)
-      
       regiones <- aa$region
       regiones <- gsub("[:]", ".", regiones)
       regiones <- gsub("[-]", ".", regiones)
@@ -819,7 +810,8 @@
     aa$l.dparticipation <- NA
 
     #Generamos el rango para los bines para clasificar los locales
-    bines       <- data.frame(bin = sr@binbased$bin, feature = sr@binbased$feature, gene_coordinates = sr@binbased$gene_coordinates, start = sr@binbased$start, end = sr@binbased$end, stringsAsFactors = F)
+    bines       <- data.frame(bin = sr@binbased$bin, feature = sr@binbased$feature, gene_coordinates = sr@binbased$gene_coordinates, start = sr@binbased$start, end = sr@binbased$end, 
+                              stringsAsFactors = FALSE)
     bines       <- bines[complete.cases(bines), ]
     chromosomes <- strsplit2(bines$gene_coordinates, "[:]")[, 1]
     rango_bines <- GRanges(seqnames = chromosomes, ranges = IRanges(start = bines$start, end = bines$end))
@@ -879,8 +871,6 @@
         }
       }
       if(aa$jl[b] != 0){
-        #Aca busco el cluster por region en lugar de buscar por juntura especifica
-        #roi <- gsub("Chr", "", aa$region[b], fixed = T)
         roi <- aa$region[b]
         roi <- gsub("[:]", ".", roi)
         roi <- gsub("[-]", ".", roi)
