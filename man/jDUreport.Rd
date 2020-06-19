@@ -5,7 +5,11 @@
 \title{ Differential junction usage estimation }
 
 \description{ 
-  It makes separate estimation for different types of junctions.
+This function estimates the differential usage of junctions combining different types of evidence
+
+Differential junction usage is estimated using a combination of evidences
+
+
   }
 
 \usage{
@@ -26,7 +30,7 @@
 
 \details{
 Estimation is made at junction level using diffSpliceDGE function from edgeR package. 
-Junctions bellonging to the same AS event comprises the event "set". 
+Junctions belonging to the same AS event comprises the event "set". 
 Each junction is tested against this "set" in a similar fashion that bins are tested against their gene in diffSpliceDGE. Localec are clusters made of junctions that share an end with at least another junction in the cluster.
 }
 \arguments{
