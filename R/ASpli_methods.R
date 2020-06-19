@@ -157,9 +157,13 @@ setMethod(
     transcriptExons <- exonsBy(genome, use.names=TRUE)
 
     tByGene    <- transcriptsBy(genome, by = "gene")
-    geneNames  <-DataFrame(gene=rep(names(tByGene),elementNROWS(tByGene)))
-    mcols( transcriptExons ) <- append ( mcols( transcriptExons ), geneNames )
     
+    a         <- unlist(tByGene)
+    #geneNames <- DataFrame(gene=names(a),tx=mcols(a)$tx_name)
+    geneNames <- DataFrame(gene=names(a))
+    rownames(geneNames)<-mcols(a)$tx_name
+    mcols( transcriptExons ) <- append ( mcols( transcriptExons ), geneNames[names(transcriptExons),,drop=FALSE] )
+
     features@genes <- genes.by.exons
     features@bins <- fullT
     features@junctions <- junctions
