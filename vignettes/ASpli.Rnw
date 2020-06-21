@@ -1,5 +1,7 @@
 \documentclass{article}
 
+% \VignetteIndexEntry{ASpli}
+
 <<style, echo=FALSE, results=tex>>=
 BiocStyle::latex()
 options(continue=" ")
@@ -146,7 +148,7 @@ The building of a \texttt{TxDb} object might be time consuming, depending on the
 @
 
 Please, \texttt{make sure all files use the same coordinate system}.
-\item IMPORTANT: In order to estimate uniform coverage statistics and to generate graphical reports through the {\texttt exportIntegratedSignals} function, replicate merged \texttt{BAM} files for each contrasted condition are needed. These merged BAMs can easily be computed from individual replicate BAM files using {\bf samtools merge} utility (you can check \hyperref[samtools]{http://www.htslib.org/doc/samtools-merge.html}). Index for these merged BAM files should also be provided. They can be easily generated with {\be samtools index} utility (https://www.htslib.org/doc/samtools-index.html).
+\item IMPORTANT: In order to estimate uniform coverage statistics and to generate graphical reports through the {\texttt exportIntegratedSignals} function, replicate merged \texttt{BAM} files for each contrasted condition are needed. These merged BAMs can easily be computed from individual replicate BAM files using {\bf samtools merge} utility (you can check \hyperref[samtools]{http://www.htslib.org/doc/samtools-merge.html}). Index for these merged BAM files should also be provided. They can be easily generated with {\bf samtools index} utility (https://www.htslib.org/doc/samtools-index.html).
 
 \end{itemize}
 

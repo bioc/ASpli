@@ -75,7 +75,8 @@ exportIntegratedSignals( is, output.dir="is",
                factor1 = c( 'C','C','C','D','D','D'))
   
   # Read counts from bam files
-  gbcounts  <- readCounts( features = features, targets = targets, minReadLength = 100, maxISize = 50000 )
+  gbcounts  <- readCounts( features = features, targets = targets, 
+                            minReadLength = 100, maxISize = 50000 )
   jcounts   <- jCounts(counts = gbcounts, features = features, minReadLength = 100)
   
   # Test for factor1
@@ -92,9 +93,8 @@ exportIntegratedSignals( is, output.dir="is",
   condition = c("C", "D"), stringsAsFactors = FALSE)
   
   # Export integrated signals
-  exportIntegratedSignals(is, output.dir = "is", sr, gbcounts, features, jcounts, mergedBams, openInBrowser = TRUE, 
-  makeGraphs = TRUE,
-  bforce = TRUE )
+  exportIntegratedSignals(is, output.dir = paste0(tempdir(), "/is"), sr, gbcounts,
+                        features, jcounts, mergedBams, makeGraphs = TRUE, bforce = TRUE )
   
 }
 

@@ -95,7 +95,8 @@ Integrates differential usage signals from different sources using overlaping re
                subject = c(0, 1, 2, 0, 1, 2))
   
   # Read counts from bam files
-  gbcounts  <- readCounts( features = features, targets = targets, minReadLength = 100, maxISize = 50000 )
+  gbcounts  <- readCounts( features = features, targets = targets, 
+                            minReadLength = 100, maxISize = 50000 )
   jcounts   <- jCounts(counts = gbcounts, features = features, minReadLength = 100)
   
   # Test for factor1 controlling for paired subject

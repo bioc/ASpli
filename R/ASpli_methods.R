@@ -1194,7 +1194,7 @@ setMethod(
                   )       
         }
         ffile <- paste0(normalizePath(output.dir), "/", s, "Report.html")
-        suppressWarnings(saveWidget(y, file = ffile, title = paste0(names(sr@contrast)[sr@contrast != 0], collapse="-")))
+        suppressWarnings(saveWidget(y, file = ffile, selfcontained = FALSE, title = paste0(names(sr@contrast)[sr@contrast != 0], collapse="-")))
         if(openInBrowser == TRUE) browseURL(ffile)
       }
     }    

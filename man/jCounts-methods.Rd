@@ -129,7 +129,8 @@ The last columns are the PIR metrics calculated for each condition. The PIR metr
                subject = c(0, 1, 2, 0, 1, 2))
   
   # Read counts from bam files
-  gbcounts  <- readCounts( features = features, targets = targets, minReadLength = 100, maxISize = 50000 )
+  gbcounts  <- readCounts( features = features, targets = targets, 
+                            minReadLength = 100, maxISize = 50000 )
   jcounts   <- jCounts(counts = gbcounts, features = features, minReadLength = 100)
   
   # Access summary and gene and bin counts and display them
@@ -147,7 +148,7 @@ The last columns are the PIR metrics calculated for each condition. The PIR metr
   
   
   # Export data
-  writeAS( as = junctionCounts, output.dir = "only_as" )
+  writeAS( as = jcounts, output.dir = paste0(tempdir(), "/only_as") )
 
 }
 

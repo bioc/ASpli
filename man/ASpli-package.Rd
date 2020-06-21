@@ -3,7 +3,7 @@
 \alias{ASpli}
 \docType{package}
 
-\title{ Analysis of alternative splicing using RNAseq }
+\title{ Analysis of Alternative Splicing Using RNAseq }
 
 \description{
   ASpli is an integrative and flexible package that facilitates the 
@@ -103,4 +103,4 @@ sr      <- splicingReport(gb, jdur, counts = counts)
 is      <- integrateSignals(sr,asd)
 }
 
-\keyword{ alternative splicing, RNA-seq, junctions }
+\keyword{ RNA-seq alternative splicing analysis using bin coverage and junctions }

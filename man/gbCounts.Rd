@@ -156,7 +156,8 @@
                subject = c(0, 1, 2, 0, 1, 2))
   
   # Read counts from bam files
-  gbcounts   <- readCounts( features = features, targets = targets, minReadLength = 100, maxISize = 50000 )
+  gbcounts  <- readCounts( features = features, targets = targets, 
+                            minReadLength = 100, maxISize = 50000 )
   
   # Access summary and gene and bin counts and display them
   gbcounts
@@ -164,7 +165,7 @@
   countsb(gbcounts)
 
   # Export data
-  writeCounts( gbcounts, output.dir = "only_counts" )
+  writeCounts( gbcounts, output.dir = paste0(tempdir(), "/only_counts") )
   
 }
 

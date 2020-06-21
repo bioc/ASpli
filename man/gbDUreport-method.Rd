@@ -144,7 +144,8 @@
                subject = c(0, 1, 2, 0, 1, 2))
   
   # Read counts from bam files
-  gbcounts  <- readCounts( features = features, targets = targets, minReadLength = 100, maxISize = 50000 )
+  gbcounts  <- readCounts( features = features, targets = targets, 
+                            minReadLength = 100, maxISize = 50000 )
 
   # Test for factor1 controlling for paired subject
   gbPaired   <- gbDUreport(gbcounts, formula = formula(~subject+factor1))
@@ -153,7 +154,8 @@
   genesDE(gbPaired)
   binsDU(gbPaired)
   
-  # Test for factor1 without controlling for paired subject. Must change conditions inside gbcounts object to accommodate the contrast.
+  # Test for factor1 without controlling for paired subject. 
+  # Must change conditions inside gbcounts object to accommodate the contrast.
   gbcounts@targets$condition <- targets$factor1
   gbcounts@condition.order   <- c("C", "D") 
   gbContrast <- gbDUreport(gbcounts, contrast = c(1, -1))
@@ -163,8 +165,8 @@
   binsDU(gbContrast)
   
   # Export results  
-  writeDU( du = gbPaired, output.dir = "gbPaired" )
-  writeDU( du = gbContrast, output.dir = "gbContrast" )
+  writeDU( du = gbPaired, output.dir = paste0(tempdir(), "/gbPaired") )
+  writeDU( du = gbContrast, output.dir = paste0(tempdir(), "/gbContrast") )
 }
 
 \seealso{
