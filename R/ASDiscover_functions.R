@@ -121,31 +121,44 @@
   return( jranges )
 }
 
-.junctionsDiscover <- function( df, bam, cores, readLength, targets, features ) {
-
+.junctionsDiscover <- function( df,
+                                minReadLength, 
+                                targets, 
+                                features, 
+                                minAnchor,
+                                bam) 
+  
+  {
+  cores=1
+  
   # This function get the counts of the junctions that overlaps the an 
   # intron/exon region of a bin. The junction must overlap completely and at 
-  # least an 8% into the exon region and the intron region.
+  # least an minAnchor% into the exon region and the intron region.
   # The regions can be exon1-intron or intron-exon2. All junctions are assumed 
   # to correspond to a intron.
-  getExonIntronCounts <- function( jranges, targets, bams, readLength, 
-      regionType, cores = 1 ) {
+  getExonIntronCounts <- function( jranges, 
+                                   targets, 
+                                   bams, 
+                                   minReadLength, 
+                                   regionType, 
+                                   minAnchor ) {
     
+    cores = 1
     exonIntron <- jranges
 
-    minAnchor <- round( 8 * readLength / 100 )
+    minAnchor <- round( minAnchor * minReadLength / 100 )
     
     start( exonIntron ) <- if ( regionType == 'e1i' ) start( jranges ) else end( jranges )
-    start( exonIntron ) <- start( exonIntron ) - ( readLength - minAnchor ) - 1
+    start( exonIntron ) <- start( exonIntron ) - ( minReadLength - minAnchor ) - 1
     end( exonIntron )   <- if ( regionType == 'e1i' ) start( jranges ) else end( jranges )
-    end( exonIntron )   <- end( exonIntron ) + ( readLength - minAnchor ) - 1
+    end( exonIntron )   <- end( exonIntron ) + ( minReadLength - minAnchor ) - 1
     
     
     hits <- lapply( bams, function( x ) { 
-          countOverlaps( exonIntron, x, ignore.strand = TRUE, 
-              minoverlap = readLength ) 
-        } )
+      x <- GRanges(x)    
     
+countOverlaps( exonIntron, x, ignore.strand = TRUE, minoverlap = minReadLength )      
+    } )    
     hits <- do.call( cbind.data.frame, hits )
     
     return( hits )
@@ -160,14 +173,21 @@
 
   # Extract the junction that has no gaps
   ungappedBams <- lapply( bam, function( x ) { x[ njunc( x ) == 0 , ] } ) 
-  
   # Get counts for junction overlapping the exon1-intron region and intron-exon2
   # region
-  e1i <- getExonIntronCounts( jranges, targets, ungappedBams, readLength , 
-      'e1i', cores = cores)
-  ie2 <- getExonIntronCounts( jranges, targets, ungappedBams, readLength , 
-      'ie2', cores = cores)  
+  e1i <- getExonIntronCounts( jranges, 
+                              targets, 
+                              ungappedBams, 
+                              minReadLength, 
+                              'e1i',  
+                              minAnchor)
   
+  ie2 <- getExonIntronCounts( jranges, 
+                              targets, 
+                              ungappedBams, 
+                              minReadLength , 
+                              'ie2', 
+                              minAnchor)  
   # Calculates the PIR value 
   j1 <- .sumByCond( e1i,     targets )
   j2 <- .sumByCond( ie2,     targets )
@@ -204,7 +224,7 @@
       sep=".")
   
   # Creates result data.frame
-  # TODO: construir con do.call( cbind )
+  # construir con do.call( cbind )
   result <- do.call( cbind , 
       list( hitIntron = hitIntron, 
             hitIntronEvent = hitIntronEvent,
@@ -248,9 +268,12 @@
         .extractCountColumns( allJunctionCounts[ subjectNames, ], targets ),
         row.names = NULL ) 
     
+
+    
     # Sum the rows of the junctions that share the boundary
     sharedRowSum <- data.frame( aggregate( . ~ names, data = junctionCounts, sum ) )
     
+    colnames( sharedRowSum )[-1] <- rownames(targets)
     rownames( sharedRowSum ) <- sharedRowSum$names
     sharedRowSum <- .extractCountColumns( sharedRowSum, targets  )
     
@@ -278,8 +301,9 @@
     j2 <- .sumByCond( sharedRowSumOrdered , targets  )
     jratioResult <- j1 / ( j1 + j2 )
     colnames( jratioResult ) <- paste( colnames( jratioResult ), boundaryType, sep="." )
-
-    result <- data.frame( sharedNamesOrdered, sharedRowSumOrdered, jratioResult  )
+    
+    #Fix for the columns starting with X (targets starting with a number)
+    result <- data.frame( sharedNamesOrdered, sharedRowSumOrdered, jratioResult, check.names=FALSE  )
  
     # Sets the name of the 'Hit' column in the result dataframe 
     colnames( result ) [1] <- if ( boundaryType == 'start' ) 'StartHit' else 'EndHit'
@@ -307,7 +331,7 @@
 #  pAS[ ( sharedStartData[ , 1 ] != "-" & df$strand == "+" ) | ( sharedEndData[ , 1 ] != "-" & df$strand == "-" ) ] <- "Alt3ss"
 #  pAS[ sharedStartData[ , 1 ] != "-" & sharedEndData[ , 1 ] != "-"] <- "ES" 
   
-  # TODO: construir con do.call( cbind, ... ) para evitar que aparezcan .1 y .2 
+   #: construir con do.call( cbind, ... ) para evitar que aparezcan .1 y .2 
   # en los nombre de las muestras y puedan filtrarse
   result <- do.call( cbind, list (
           df,
@@ -315,6 +339,5 @@
           sharedEndData
       #  , pAS )
           ) )
-  
   return( result )
 }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     

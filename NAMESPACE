@@ -9,25 +9,35 @@ import(edgeR)
 import(Rsamtools)
 import(BiocStyle)
 import(GenomicAlignments)
-importFrom( "grDevices", "dev.off", "png", "rgb", "bmp", "col2rgb", "dev.new", 
-            "jpeg", "pdf", "tiff")
-importFrom("stats", "aggregate", "formula", "p.adjust", "model.matrix")
-importFrom("graphics", "axis", "barplot", "legend", "lines", "par","plot", "title")
-importFrom(parallel, mclapply)
-import(S4Vectors)
+import(UpSetR)
 import(AnnotationDbi)
-import(Gviz)
+importFrom("grDevices", "dev.off", "png", "rgb", "bmp", "col2rgb", "dev.new", "jpeg", "pdf", "tiff", "topo.colors")
+importFrom("stats", "aggregate", "formula", "p.adjust", "model.matrix", "setNames", "na.pass", "ecdf")
+importFrom("graphics", "axis", "barplot", "legend", "lines", "par","plot", "title", "abline", "layout", "mtext", "points", "polygon", "rect", "text")
+importFrom("igraph", "graph_from_edgelist", "clusters")
+importFrom("limma", "strsplit2")
+importFrom("data.table", "data.table", "as.data.table", "rbindlist")
+importFrom(parallel, mclapply)
+importFrom("tidyr", "replace_na")
+importFrom("MASS", "ginv")
+import(S4Vectors)
+import(Gviz, except=c(tags))
+import(DT)
 import(grid)
+import(htmltools)
 exportMethods(
-    "AsDiscover",
+    "jCounts",
     "binGenome",
-    "DUreport",
+    "DUreport.norm",
+    "DUreport.offset",
     "writeAS",
     "writeCounts",
     "writeDU",
+    "writeJDU",
+    "writeSplicingReport",
     "writeRds",
     "rds",
-    "readCounts",
+    "gbCounts",
     "featuresg",
     "featuresb",
     "featuresj",
@@ -43,25 +53,31 @@ exportMethods(
     "esPSI",
     "joint",
     "junctionsPIR",
-    "junctionsPSI",
+    "junctionsPJU",
     "genesDE",
     "binsDU",
     "junctionsDU",
-    "DUreportBinSplice",
+    "gbDUreport",
     "show",
-    "junctionDUreport",
+    "jDUreport",
     "containsGenesAndBins",
     "containsJunctions",
     "plotBins",
     "plotGenomicRegions",
     "subset",
     "mergeBinDUAS",
-    "filterDU"
-    
+    "filterDU",
+    "splicingReport",
+    "integrateSignals",
+    "exportIntegratedSignals",
+    "filterSignals"
 )
 exportClasses(
     "ASpliAS",
     "ASpliCounts",
     "ASpliDU",
-    "ASpliFeatures" 
+    "ASpliFeatures",
+    "ASpliJDU",
+    "ASpliSplicingReport",
+    "ASpliIntegratedSignals"
 )

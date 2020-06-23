@@ -23,6 +23,14 @@ setMethod( f = "featuresb",signature = "ASpliFeatures",
 setGeneric( name = "featuresb<-", def = function( x, value ) standardGeneric("featuresb<-"))
 setReplaceMethod( f = "featuresb",signature = c( "ASpliFeatures","GRanges" ),
    definition = function( x, value ){ x@bins <- value; return( x ) } )
+
+setGeneric( name = "transcriptExons", def = function( x ) standardGeneric("transcriptExons"))
+setMethod( f = "transcriptExons",signature = "ASpliFeatures",
+           definition = function( x ){ x@transcriptExons })
+
+setGeneric( name = "transcriptExons<-", def = function( x, value ) standardGeneric("transcriptExons<-"))
+setReplaceMethod( f = "transcriptExons",signature = c( "ASpliFeatures","GRangesList" ),
+                  definition = function( x, value ){ x@transcriptExons <- value; return( x ) } )
 # ---------------------------------------------------------------------------- #
 
 # ---------------------------------------------------------------------------- #
@@ -82,6 +90,14 @@ setMethod( f = "rdsb", signature = "ASpliCounts",
 setGeneric( name = "rdsb<-", def = function( x, value ) standardGeneric("rdsb<-") )
 setReplaceMethod( f = "rdsb", signature = c("ASpliCounts","data.frame"), 
     definition = function( x, value ){ x@bin.rd <- value; return ( x )})
+
+setGeneric( name = "condition.order", def = function( x ) standardGeneric("condition.order") )
+setMethod( f = "condition.order", signature = "ASpliCounts", 
+           definition = function( x ){ x@condition.order })
+
+setGeneric( name = "targets", def = function( x ) standardGeneric("targets") )
+setMethod( f = "targets", signature = "ASpliCounts", 
+           definition = function( x ){ x@targets })
 # ---------------------------------------------------------------------------- #
 
 # ---------------------------------------------------------------------------- #
@@ -118,13 +134,13 @@ setGeneric( name = "junctionsPIR<-", def = function( x, value ) standardGeneric(
 setReplaceMethod( f ="junctionsPIR", signature = c("ASpliAS","data.frame"), 
     definition = function( x, value){ x@junctionsPIR <- value; return( x ) })
 
-setGeneric( name = "junctionsPSI", def = function( x ) standardGeneric("junctionsPSI"))
-setMethod( f = "junctionsPSI", signature = "ASpliAS",
-    definition = function( x ){ x@junctionsPSI } )
+setGeneric( name = "junctionsPJU", def = function( x ) standardGeneric("junctionsPJU"))
+setMethod( f = "junctionsPJU", signature = "ASpliAS",
+    definition = function( x ){ x@junctionsPJU } )
 
-setGeneric( name = "junctionsPSI<-", def = function( x, value ) standardGeneric("junctionsPSI<-"))
-setReplaceMethod( f = "junctionsPSI", signature = c("ASpliAS","data.frame"),
-    definition = function( x, value ){ x@junctionsPSI <- value; return( x )} )
+setGeneric( name = "junctionsPJU<-", def = function( x, value ) standardGeneric("junctionsPJU<-"))
+setReplaceMethod( f = "junctionsPJU", signature = c("ASpliAS","data.frame"),
+    definition = function( x, value ){ x@junctionsPJU <- value; return( x )} )
 
 setGeneric( name = "joint", def = function( x ) standardGeneric("joint") )
 setMethod( f = "joint", signature = "ASpliAS", 
@@ -160,6 +176,23 @@ setMethod( f = "junctionsDU", signature = "ASpliDU",
 setGeneric(  name = "junctionsDU<-", def = function( x, value ) standardGeneric("junctionsDU<-") )
 setReplaceMethod( f = "junctionsDU", signature = c( "ASpliDU", 'data.frame'), 
     definition = function( x, value ){ x@junctions <- value; return( x ) } )
+#-----------------------------------------------------------------------
+
+setGeneric( name = "filters", def = function( x ) standardGeneric("filters"))
+setMethod( f = "filters", signature = "ASpliIntegratedSignals",
+           definition = function( x ){ x@filters } )
+
+setGeneric( name = "filters<-", def = function( x, value ) standardGeneric("filters<-"))
+setReplaceMethod( f = "filters", signature = c("ASpliIntegratedSignals","data.frame"),
+                  definition = function( x, value ){ x@filters <- value; return( x )} )
+
+setGeneric( name = "signals", def = function( x ) standardGeneric("signals") )
+setMethod( f = "signals", signature = "ASpliIntegratedSignals", 
+           definition = function( x ){ x@signals })
+
+setGeneric( name = "signals<-", def = function( x, value ) standardGeneric("signals<-") )
+setReplaceMethod( f = "signals", signature = c("ASpliIntegratedSignals","data.frame"), 
+                  definition = function( x, value ){ x@signals <- value; return( x ) })
 # ---------------------------------------------------------------------------- #
 
 # ---------------------------------------------------------------------------- #
@@ -175,6 +208,9 @@ setMethod( 'show', 'ASpliFeatures', function( object ) {
       cat("Junctions: GRanges of length", 
           length(object@junctions),
           "Access using featuresj(object)","\n")
+      cat("Transcript Exons: GRanges of length", 
+          length(object@transcriptExons),
+          "Access using transcriptExons(object)","\n")
     })
 
 setMethod( 'show', 'ASpliCounts', function( object ) {
@@ -200,19 +236,22 @@ setMethod( 'show', 'ASpliAS', function( object )  {
       cat("Object of class", class(object),"\n")
       cat("IR PIR: ", 
           dim(object@irPIR)[1], "intron bins analysed.",
+          sum(!is.na(object@irPIR$J3)), "intron bins passed the filters.",
           "Access using irPIR(object)", "\n")
       cat("ES PSI:", 
           dim(object@esPSI)[1], "exon bins analysed.",
+          sum(!is.na(object@esPSI$J3)), "exon bins passed the filters.",
           " Access using esPSI(object)", "\n")
       cat("AltSS PSI:", 
           dim(object@altPSI)[1], "exon bins analysed.",
+          sum(!is.na(object@altPSI$J3)), "exon bins passed the filters.",
           " Access using altPSI(object)", "\n")
       cat("Junctions PIR:", 
           dim(object@junctionsPIR)[1], "junctions analysed.",
           "Access using junctionsPIR(object)", "\n")
-      cat("Junctions PSI:", 
-          dim(object@junctionsPSI)[1], "junctions analysed.",
-          "Access using junctionsPSI(object)")
+      cat("Junctions PJU:", 
+          dim(object@junctionsPJU)[1], "junctions analysed.",
+          "Access using junctionsPJU(object)", "\n")
     })
 
 setMethod('show', 'ASpliDU', function( object ) {
@@ -229,9 +268,121 @@ setMethod('show', 'ASpliDU', function( object ) {
       if ( containsJunctions( object ) ) {
         cat("Junctions DU:", 
             dim(object@junctions)[1],"junctions analysed.",
-            "Access using junctionsDU(object)")
+            "Access using junctionsDU(object)", "\n")
       }
     })
+
+setMethod('show', 'ASpliJDU', function( object ) {
+  cat("Object of class", class(object),"\n")
+  
+  cat("Locale Junctions:", 
+      nrow(localej(object)), "junctions.",
+      "Access using localej(object)", "\n")
+
+  cat("Locale Clusters:", 
+      nrow(localec(object)), "clusters",
+      "Access using localec(object)", "\n")
+  
+  cat("Anchor Junctions:", 
+      nrow(anchorj(object)), "junctions.",
+      "Access using anchorj(object)", "\n")
+  
+  cat("Anchor Clusters:", 
+      nrow(anchorc(object)), "clusters",
+      "Access using anchorc(object)", "\n")
+  
+  cat("Intron Retention Junctions:",
+      nrow(jir(object)), "junctions.",
+      "Access using jir(object)", "\n")
+  
+  cat("Exon Skipping Junctions:", 
+      nrow(jes(object)), "junctions.",
+      "Access using jes(object)", "\n")
+  
+  cat("Alternative Splicing Junctions:", 
+      nrow(jalt(object)), "junctions.",
+      "Access using jalt(object)", "\n")
+})
+
+setMethod( 'show', 'ASpliSplicingReport', function( object ) {
+  
+  # my_table    <- function(data, jcol="junction"){
+  #   binNA       <- is.na(data$bin.fdr)
+  #   junctionNA  <- is.na(data$junction.fdr)
+  #   
+  #   binNNA      <- data[!binNA, ]
+  #   binNA       <- data[binNA, ]
+  #   junctionNNA <- data[!junctionNA, ]
+  #   junctionNA  <- data[junctionNA, ]
+  #   
+  #   binT      <- binNNA$bin.fdr < 0.05
+  #   binF      <- unique(binNNA[!binT, colnames(data) == jcol])
+  #   binT      <- unique(binNNA[binT, colnames(data) == jcol])
+  #   
+  #   if("cluster.fdr" %in% colnames(data)){
+  #     junctionT <- junctionNNA$junction.fdr < 0.05 | junctionNNA$cluster.fdr < 0.05
+  #   }else{
+  #     junctionT <- junctionNNA$junction.fdr < 0.05
+  #   }
+  #   junctionF <- unique(junctionNNA[!junctionT, colnames(data) == jcol])
+  #   junctionT <- unique(junctionNNA[junctionT, colnames(data) == jcol])
+  #   
+  #   binNA     <- unique(binNA[, colnames(data) == jcol])
+  #   binNNA    <- unique(binNNA[, colnames(data) == jcol])
+  #   
+  #   junctionNA  <- unique(junctionNA[, colnames(data) == jcol])
+  #   junctionNNA <- unique(junctionNNA[, colnames(data) == jcol])
+  #   
+  #   m         <- matrix(c(length(intersect(binF, junctionF)), 
+  #                         length(intersect(binF, junctionT)), 
+  #                         length(intersect(binF, junctionNA)), 
+  #                         length(intersect(binT, junctionF)), 
+  #                         length(intersect(binT, junctionT)),
+  #                         length(intersect(binT, junctionNA)),
+  #                         length(intersect(binNA, junctionF)),
+  #                         length(intersect(binNA, junctionT)),
+  #                         length(intersect(binNA, junctionNA))),
+  #                       nrow=3, ncol=3, byrow=T)
+  #   rownames(m) <- c("Bin F", "Bin T", "Bin <NA>")                           
+  #   colnames(m) <- c("Junction F", "Junction T", "Junction <NA>")
+  #   return(m)
+  # }
+  
+  if(FALSE){
+    integratedSignals <- integrateSignals(object, asd = new(Class = "ASpliAS"))
+    cat("Object of class", class(object),"\n")
+    
+    cat("Locale based: \n") 
+    cat("De novo junctions: ", sum(is.na(integratedSignals$feature[integratedSignals$jl == 1])), "\n")
+    cat("Annotated features:\n")
+    print(table(integratedSignals[integratedSignals$jl == 1,c("feature","bin.event")]))
+    cat("Access using localebased(object)\n\n")
+    #print(table(bin=localebased(object)$bin.fdr < 0.05, junction=(localebased(object)$junction.fdr < 0.05 | localebased(object)$cluster.fdr < 0.05), useNA = "always"))
+      
+    cat("Anchor based: \n")
+    cat("De novo junctions: ", sum(is.na(integratedSignals$feature[integratedSignals$ja == 1])), "\n")
+    cat("Annotated features:\n")
+    print(table(integratedSignals[integratedSignals$ja == 1,c("feature","bin.event")]))
+    cat("Access using anchorbased(object)\n\n")
+    #print(table(bin=anchorbased(object)$bin.fdr < 0.05, junction=(anchorbased(object)$junction.fdr < 0.05 | anchorbased(object)$cluster.fdr < 0.05), useNA = "always"))  
+  
+    cat("Bin based: \n") 
+    cat("Annotated features:\n")  
+    print(table(integratedSignals[integratedSignals$b == 1,c("feature","bin.event")]))
+    #print(table(bin=binbased(object)$bin.fdr < 0.05, junction=binbased(object)$junction.fdr < 0.05, useNA = "always"))
+    cat("Access using binbased(object)\n\n")  
+  }else{
+    cat("Object of class", class(object),"\n")
+    cat("Locale based: \n") 
+    cat("Access using localebased(object)\n\n")
+
+    cat("Anchor based: \n")
+    cat("Access using anchorbased(object)\n\n")
+
+    cat("Bin based: \n") 
+    cat("Access using binbased(object)\n\n")  
+  }
+})
 # ---------------------------------------------------------------------------- #
 
 
@@ -352,5 +503,92 @@ setMethod(
   })
 # End of write methods
 # ---------------------------------------------------------------------------- # 
+#
+# ---------------------------------------------------------------------------- #
+# Getters and Setters for ASpliJDU
+setGeneric( name = "localej", def = function( x ) standardGeneric("localej"))
+setMethod( f = "localej", signature = "ASpliJDU", 
+           definition = function( x ){ x@localej })
 
+setGeneric( name = "localej<-", def = function( x, value ) standardGeneric("localej<-"))
+setReplaceMethod( f = "localej", signature = c("ASpliJDU","data.frame"), 
+                  definition = function( x,value ){ x@localej <- value; return( x )})
 
+setGeneric( name = "localec", def = function( x ) standardGeneric("localec"))
+setMethod( f = "localec", signature = "ASpliJDU", 
+           definition = function( x ){ x@localec })
+
+setGeneric( name = "localec<-", def = function( x, value ) standardGeneric("localec<-"))
+setReplaceMethod( f = "localec", signature = c("ASpliJDU","data.frame"), 
+                  definition = function( x,value ){ x@localec <- value; return( x )})
+
+setGeneric( name = "anchorj", def = function( x ) standardGeneric("anchorj"))
+setMethod( f = "anchorj", signature = "ASpliJDU", 
+           definition = function( x ){ x@anchorj })
+
+setGeneric( name = "anchorj<-", def = function( x, value ) standardGeneric("anchorj<-"))
+setReplaceMethod( f = "anchorj", signature = c("ASpliJDU","data.frame"), 
+                  definition = function( x,value ){ x@anchorj <- value; return( x )})
+
+setGeneric( name = "anchorc", def = function( x ) standardGeneric("anchorc"))
+setMethod( f = "anchorc", signature = "ASpliJDU", 
+           definition = function( x ){ x@anchorc })
+
+setGeneric( name = "anchorc<-", def = function( x, value ) standardGeneric("anchorc<-"))
+setReplaceMethod( f = "anchorc", signature = c("ASpliJDU","data.frame"), 
+                  definition = function( x,value ){ x@anchorc <- value; return( x )})
+
+setGeneric( name = "jir", def = function( x ) standardGeneric("jir"))
+setMethod( f = "jir", signature = "ASpliJDU", 
+           definition = function( x ){ x@jir })
+
+setGeneric( name = "jir<-", def = function( x, value ) standardGeneric("jir<-"))
+setReplaceMethod( f = "jir", signature = c("ASpliJDU","data.frame"), 
+                  definition = function( x,value ){ x@jir <- value; return( x )})
+
+setGeneric( name = "jes", def = function( x ) standardGeneric("jes"))
+setMethod( f = "jes", signature = "ASpliJDU", 
+           definition = function( x ){ x@jes })
+
+setGeneric( name = "jes<-", def = function( x, value ) standardGeneric("jes<-"))
+setReplaceMethod( f = "jes", signature = c("ASpliJDU","data.frame"), 
+                  definition = function( x,value ){ x@jes <- value; return( x )})
+
+setGeneric( name = "jalt", def = function( x ) standardGeneric("jalt"))
+setMethod( f = "jalt", signature = "ASpliJDU", 
+           definition = function( x ){ x@jalt })
+
+setGeneric( name = "jalt<-", def = function( x, value ) standardGeneric("jalt<-"))
+setReplaceMethod( f = "jalt", signature = c("ASpliJDU","data.frame"), 
+                  definition = function( x,value ){ x@jalt <- value; return( x )})
+
+# ---------------------------------------------------------------------------- #
+
+#
+# ---------------------------------------------------------------------------- #
+# Getters and Setters for ASpliSplicingReport
+setGeneric( name = "binbased", def = function( x ) standardGeneric("binbased"))
+setMethod( f = "binbased", signature = "ASpliSplicingReport", 
+           definition = function( x ){ x@binbased })
+
+setGeneric( name = "binbased<-", def = function( x, value ) standardGeneric("binbased<-"))
+setReplaceMethod( f = "binbased", signature = c("ASpliSplicingReport","data.frame"), 
+                  definition = function( x,value ){ x@binbased <- value; return( x )})
+
+setGeneric( name = "localebased", def = function( x ) standardGeneric("localebased"))
+setMethod( f = "localebased", signature = "ASpliSplicingReport", 
+           definition = function( x ){ x@localebased })
+
+setGeneric( name = "localebased<-", def = function( x, value ) standardGeneric("localebased<-"))
+setReplaceMethod( f = "localebased", signature = c("ASpliSplicingReport","data.frame"), 
+                  definition = function( x,value ){ x@localebased <- value; return( x )})
+
+setGeneric( name = "anchorbased", def = function( x ) standardGeneric("anchorbased"))
+setMethod( f = "anchorbased", signature = "ASpliSplicingReport", 
+           definition = function( x ){ x@anchorbased })
+
+setGeneric( name = "anchorbased<-", def = function( x, value ) standardGeneric("anchorbased<-"))
+setReplaceMethod( f = "anchorbased", signature = c("ASpliSplicingReport","data.frame"), 
+                  definition = function( x,value ){ x@anchorbased <- value; return( x )})
+
+# ---------------------------------------------------------------------------- #
