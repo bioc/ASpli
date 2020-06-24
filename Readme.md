@@ -26,19 +26,10 @@ and complex experimental designs involving multiple experimental conditions.
 ## Getting started
 
 ### Installation
-ASpli is available at Bioconductor site and can be downloaded using
-**biocLite()**:
+library(devtools)
+install_git("https://gitlab.com/chernolab/aspli2.git")
+library(ASpli2)
 
-    source("https://www.bioconductor.org/biocLite.R")
-    biocLite("ASpli")
-    library(ASpli)
-
- 
-**biocLite()** will take care of installing all the packages that ASpli 
-depends on e.g. edgeR, GenomicFeatures, GenomicRanges, GenomicAlignments, Gviz, 
-and other R package required. Some packages depend on operating system
-packages, like **curl**, that are not installed automatically, and should
-be installed by the user.
 
 Changes
 
