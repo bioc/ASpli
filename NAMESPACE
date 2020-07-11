@@ -28,6 +28,7 @@ import(htmltools)
 exportMethods(
     "jCounts",
     "binGenome",
+    "DUreport",
     "DUreport.norm",
     "DUreport.offset",
     "writeAS",
