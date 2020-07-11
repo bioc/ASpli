@@ -1595,4 +1595,53 @@ setMethod(
   }
 )
 # ---------------------------------------------------------------------------- #
+#agrego para no romper el old pipeline
+# TODO:  Es necesario agregar todos los parametros con valores por default en
+# la firma del metodo ? 
+setGeneric (
+  name = "DUreport",
+  def = function( counts, 
+                  targets, 
+                  minGenReads  = 10,
+                  minBinReads  = 5,
+                  minRds = 0.05,
+                  offset = FALSE,
+                  offsetAggregateMode = c( "geneMode", "binMode" )[1],
+                  offsetUseFitGeneX = TRUE,
+                  contrast = NULL,
+                  forceGLM = FALSE,
+                  ignoreExternal = TRUE,
+                  ignoreIo = TRUE, 
+                  ignoreI = FALSE,
+                  filterWithContrasted = FALSE,
+                  verbose = FALSE
+  ) standardGeneric("DUreport") )
 
+#setGeneric (
+#  name = "DUreport_DEXSeq",
+#  def = function ( counts, ... ) standardGeneric("DUreport_DEXSeq") )
+
+setMethod(
+  f = "DUreport",
+  signature = "ASpliCounts",
+  definition = function( counts, 
+                         targets, 
+                         minGenReads  = 10,
+                         minBinReads  = 5,
+                         minRds = 0.05,
+                         offset = FALSE,
+                         offsetAggregateMode = c( "geneMode", "binMode" )[1],
+                         offsetUseFitGeneX = TRUE,
+                         contrast = NULL,
+                         forceGLM = FALSE,
+                         ignoreExternal = TRUE,
+                         ignoreIo = TRUE, 
+                         ignoreI = FALSE,
+                         filterWithContrasted = FALSE,
+                         verbose = FALSE
+  ) { 
+    .DUreport( counts, targets, minGenReads, minBinReads, minRds, offset, 
+               offsetAggregateMode, offsetUseFitGeneX, contrast, forceGLM,
+               ignoreExternal, ignoreIo, ignoreI, filterWithContrasted, verbose  )
+  }
+)
