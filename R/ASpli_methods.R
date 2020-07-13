@@ -17,7 +17,8 @@ setClass( Class = "ASpliCounts",
             gene.rd = "data.frame",
             bin.rd = "data.frame", 
             targets = "data.frame",
-            condition.order = "character"))
+            condition.order = "character",
+            ASpliVersion = "character"))
 
 setClass( Class="ASpliAS",
           representation = representation(
@@ -259,16 +260,17 @@ setGeneric (
                   targets, 
                   minReadLength, 
                   maxISize, 
-                  minAnchor = 10)
+                  minAnchor = 10,
+                  bams = NULL)
     standardGeneric("readCounts") )
 
 setMethod(
   f = "readCounts",
   signature = "ASpliFeatures",
   definition = function( features, targets, minReadLength,  
-                         maxISize, minAnchor = 10) {
+                         maxISize, minAnchor = 10, bams = NULL) {
     
-    bam=NULL
+    bam = NULL
     cores=1
     #Create result object
     counts <- new(Class="ASpliCounts")
@@ -283,7 +285,7 @@ setMethod(
     minAnchor <- if ( ! is.null(minAnchor) ) minAnchor else 10
     minA <- round( minAnchor * minReadLength / 100 )
     ptm <- proc.time()
-    if(is.null(bam)) {
+    if(is.null(bams)) {
       ntargets <- nrow(targets)
     }else{
       ntargets <- 1
