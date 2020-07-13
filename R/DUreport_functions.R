@@ -65,7 +65,8 @@
     threshold = 5,
     offset   = FALSE,
     offsetUseFitGeneX = TRUE,
-    contrast = NULL
+    contrast = NULL,
+    forceGLM = FALSE 
     # ------------------------------------------------------------------------ #
     # Comment to disable priorcounts usage in bin normalization 
     # , priorCounts = 0 
@@ -135,10 +136,12 @@
 
 .DUreportBinSplice <- function (  
     counts, 
+    targets,
     minGenReads  = 10,
     minBinReads  = 5,
     minRds = 0.05,
     contrast = NULL,
+    forceGLM = FALSE,
     ignoreExternal = TRUE, 
     ignoreIo = TRUE, 
     ignoreI = FALSE,
@@ -146,12 +149,13 @@
 	  verbose = TRUE,
     formula = NULL,
     coef = NULL) {
- 
+
   if(is.null(contrast) & is.null(formula)){
     stop("Must provide either contrast or formula.")
   }
-  
-  targets <- counts@targets
+  if(is.null(targets)){
+    targets <- counts@targets
+  }
   
   # Create result object                   
   du <- new( Class="ASpliDU" )
@@ -172,9 +176,15 @@
     contrast <- setNames(contrastAggregated[,2],contrastAggregated[,1])[counts@condition.order]
     du@contrast        <- contrast    
   }
-  names(du@contrast) <- counts@condition.order
-  
-      
+  if(!.hasSlot(counts, ".ASpliVersion")){
+    counts@.ASpliVersion = "1" #Last version before 2.0.0 was 1.14.0. 
+  }
+  if(counts@.ASpliVersion == "1"){
+    targets <- .condenseTargetsConditions( targets ) 
+  }else{
+    names(du@contrast) <- counts@condition.order
+  }
+
   # Generate conditions combining experimental factors
   #targets <- .condenseTargetsConditions( targets ) 
   

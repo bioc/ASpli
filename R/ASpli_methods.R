@@ -36,7 +36,8 @@ setClass( Class = "ASpliDU",
             genes = "data.frame",
             bins = "data.frame",
             junctions = "data.frame",
-            contrast = "numeric" ))
+            contrast = "numeric",
+            .ASpliVersion = "character" ))
 
 setClass( Class = "ASpliJDU",
           representation = representation(
@@ -47,19 +48,22 @@ setClass( Class = "ASpliJDU",
             jir     = "data.frame",
             jes     = "data.frame",
             jalt    = "data.frame",
-            contrast= "numeric"))
+            contrast= "numeric",
+            .ASpliVersion = "character"))
 
 setClass( Class = "ASpliSplicingReport",
           representation = representation(
             binbased    = "data.frame",
             localebased = "data.frame",
             anchorbased = "data.frame",
-            contrast    = "numeric"))
+            contrast    = "numeric",
+            .ASpliVersion = "character"))
 
 setClass( Class = "ASpliIntegratedSignals",
           representation = representation(
             signals      = "data.frame",
-            filters      = "data.frame"))
+            filters      = "data.frame",
+            .ASpliVersion = "character"))
 # ---------------------------------------------------------------------------- #
 
 # ---------------------------------------------------------------------------- #
@@ -402,7 +406,12 @@ setMethod(
                          minReadLength, 
                          threshold = 5, 
                          minAnchor = 10) {
-    
+    if(!.hasSlot(counts, ".ASpliVersion")){
+      counts@.ASpliVersion = "1" #Last version before 2.0.0 was 1.14.0. 
+    }
+    if(counts@.ASpliVersion == "1"){
+      stop("Your version of ASpliCounts can not be used with this version of ASpli, please run gbCounts first. See vignette for details on the new pipeline.")
+    }
     as <- AsDiscover( counts = counts, targets = NULL, features = features, bam = NULL, readLength = minReadLength, threshold = threshold, cores = 1, minAnchor = 10)
     as@.ASpliVersion = "2" #Marks ASpliCounts object with the ASpli update 2.0.0    
     return(as)
@@ -824,6 +833,7 @@ setMethod(
   }
 )
 
+
 setGeneric( name = 'gbDUreport',
             def = function( counts, 
                             minGenReads  = 10, minBinReads = 5, 
@@ -850,11 +860,90 @@ setMethod(
                          verbose = TRUE, 
                          formula = NULL,
                          coef = NULL) {
-    .DUreportBinSplice( counts, minGenReads, minBinReads, minRds, 
-                        contrast, ignoreExternal, ignoreIo, ignoreI, 
-                        filterWithContrasted, verbose, formula, coef ) 
+  if(!.hasSlot(counts, ".ASpliVersion")){
+    counts@.ASpliVersion = "1" #Last version before 2.0.0 was 1.14.0. 
+  }
+  if(counts@.ASpliVersion == "1"){
+    stop("Your version of ASpliCounts can not be used with this version of ASpli, please run gbCounts first. See vignette for details on the new pipeline.")
+  }
+  
+  du <- .DUreportBinSplice( counts, targets = NULL, minGenReads, minBinReads, minRds, 
+                            contrast, forceGLM = NULL, ignoreExternal, ignoreIo, ignoreI, 
+                            filterWithContrasted, verbose, formula, coef ) #forceGLM was deprecated
+  du@.ASpliVersion <- "2"
+  return(du)  
+})
+
+setGeneric( name = 'DUreportBinSplice',
+            def = function( counts, targets, minGenReads  = 10, minBinReads = 5, 
+                            minRds = 0.05, contrast = NULL, forceGLM = FALSE,  
+                            ignoreExternal = TRUE, ignoreIo = TRUE, ignoreI = FALSE, 
+                            filterWithContrasted = FALSE, verbose = TRUE ) 
+              standardGeneric( 'DUreportBinSplice'))
+
+setMethod( 
+  f = 'DUreportBinSplice',
+  signature = 'ASpliCounts',
+  definition = function( counts, 
+                         targets, 
+                         minGenReads  = 10, 
+                         minBinReads = 5,
+                         minRds = 0.05, 
+                         contrast = NULL, 
+                         forceGLM = FALSE, 
+                         ignoreExternal = TRUE,
+                         ignoreIo = TRUE, 
+                         ignoreI = FALSE, 
+                         filterWithContrasted = TRUE,
+                         verbose = TRUE ) {
+    .Deprecated("gbDUreport")
+    du <- .DUreportBinSplice( counts, targets, minGenReads, minBinReads, minRds, 
+                              contrast, forceGLM, ignoreExternal, ignoreIo, ignoreI, 
+                              filterWithContrasted, verbose = TRUE ) 
+    du@.ASpliVersion <- "1"
+    return(du)
   })
 
+
+setGeneric( name = "junctionDUreport",
+            def = function (  counts, 
+                              targets, 
+                              appendTo = NULL, 
+                              minGenReads = 10,
+                              minRds = 0.05,
+                              threshold = 5,
+                              offset   = FALSE,
+                              offsetUseFitGeneX = TRUE,
+                              contrast = NULL,
+                              forceGLM = FALSE 
+            ) standardGeneric("junctionDUreport") )
+
+
+setMethod(
+  f = "junctionDUreport",
+  signature = "ASpliCounts",
+  definition = function ( 
+    counts, 
+    targets, 
+    appendTo = NULL,
+    minGenReads = 10,
+    minRds = 0.05,
+    threshold = 5,
+    offset = FALSE,
+    offsetUseFitGeneX = TRUE,
+    contrast = NULL,
+    forceGLM = FALSE 
+    # -------------------------------------------------------------------- #
+    # Comment to disable priorcounts usage in bin normalization 
+    # , priorCounts = 0 
+    # -------------------------------------------------------------------- #
+  ) {
+    .Deprecated("jDUreport")
+    .junctionDUreport( counts, targets, appendTo,  minGenReads,  minRds, 
+                       threshold, offset, offsetUseFitGeneX, contrast, 
+                       forceGLM ) 
+  }
+)
 
 setGeneric( name = "jDUreport",
             def = function (asd, 
@@ -891,20 +980,28 @@ setMethod(
     maxFDRForParticipation             = 0.2,
     useSubset                          = FALSE
   ) {
-    
-    .junctionDUreportExt( asd, 
-                          minAvgCounts, 
-                          contrast, 
-                          filterWithContrasted, 
-                          runUniformityTest, 
-                          mergedBams, 
-                          maxPValForUniformityCheck, 
-                          strongFilter,
-                          maxConditionsForDispersionEstimate, 
-                          formula, 
-                          coef, 
-                          maxFDRForParticipation, 
-                          useSubset) 
+
+    if(!.hasSlot(asd, ".ASpliVersion")){
+      asd@.ASpliVersion = "1" #Last version before 2.0.0 was 1.14.0. 
+    }
+    if(asd@.ASpliVersion == "1"){
+      stop("Your version of ASpliAS can not be used with this version of ASpli, please run jCounts first. See vignette for details on the new pipeline.")
+    }
+    jdu <- .junctionDUreportExt( asd, 
+                                 minAvgCounts, 
+                                 contrast, 
+                                 filterWithContrasted, 
+                                 runUniformityTest, 
+                                 mergedBams, 
+                                 maxPValForUniformityCheck, 
+                                 strongFilter,
+                                 maxConditionsForDispersionEstimate, 
+                                 formula, 
+                                 coef, 
+                                 maxFDRForParticipation, 
+                                 useSubset) 
+    jdu@.ASpliVersion <- "2"
+    return(jdu)
   }
 )
 
@@ -924,8 +1021,27 @@ setMethod(
     jdu,
     counts
   ) {
-    
-    .splicingReport( bdu, jdu, counts ) 
+    if(!.hasSlot(bdu, ".ASpliVersion")){
+      bdu@.ASpliVersion = "1" #Last version before 2.0.0 was 1.14.0. 
+    }
+    if(bdu@.ASpliVersion == "1"){
+      stop("Your version of ASpliDU can not be used with this version of ASpli, please run gbDUreport first. See vignette for details on the new pipeline.")
+    }
+    if(!.hasSlot(jdu, ".ASpliVersion")){
+      jdu@.ASpliVersion = "1" #Last version before 2.0.0 was 1.14.0. 
+    }
+    if(jdu@.ASpliVersion == "1"){
+      stop("Your version of ASpliJDU can not be used with this version of ASpli, please run jDUreport first. See vignette for details on the new pipeline.")
+    }
+    if(!.hasSlot(counts, ".ASpliVersion")){
+      counts@.ASpliVersion = "1" #Last version before 2.0.0 was 1.14.0. 
+    }
+    if(counts@.ASpliVersion == "1"){
+      stop("Your version of ASpliCounts can not be used with this version of ASpli, please run gbCounts first. See vignette for details on the new pipeline.")
+    }    
+    sr <- .splicingReport( bdu, jdu, counts ) 
+    sr@.ASpliVersion = "2"
+    return(sr)
   }
 )
 
@@ -968,8 +1084,22 @@ setMethod(
     otherSources = NULL,
     overlapType = "any"
   ) {
-    .integrateSignals(sr, asd, bin.FC, bin.fdr, nonunif, usenonunif, bin.inclussion, bjs.inclussion, bjs.fdr, a.inclussion, a.fdr,
+    if(!.hasSlot(sr, ".ASpliVersion")){
+      sr@.ASpliVersion = "1" #Last version before 2.0.0 was 1.14.0. 
+    }
+    if(sr@.ASpliVersion == "1"){
+      stop("Your version of ASpliSplicingReport can not be used with this version of ASpli, please run splicingReport first. See vignette for details on the new pipeline.")
+    }
+    if(!.hasSlot(asd, ".ASpliVersion")){
+      asd@.ASpliVersion = "1" #Last version before 2.0.0 was 1.14.0. 
+    }
+    if(asd@.ASpliVersion == "1"){
+      stop("Your version of ASpliAS can not be used with this version of ASpli, please run jCounts first. See vignette for details on the new pipeline.")
+    }    
+    is <- .integrateSignals(sr, asd, bin.FC, bin.fdr, nonunif, usenonunif, bin.inclussion, bjs.inclussion, bjs.fdr, a.inclussion, a.fdr,
                       l.inclussion, l.fdr, otherSources, overlapType) 
+    is@.ASpliVersion = "2"
+    return(is)
   }
 )
 
@@ -987,6 +1117,7 @@ setMethod(
   signature = "ASpliDU",
   definition = function( du, what = c( 'genes','bins','junctions'), fdr = 1, 
                          logFC = 0, absLogFC = TRUE, logFCgreater = TRUE ) {
+    .Deprecated("", msg = "filterDU is deprecated and is no longer needed. See ASpli vignette for new pipeline.")
     .filter.ASpliDU( du, what, fdr, logFC, absLogFC, logFCgreater ) } )
 
 
@@ -1098,6 +1229,7 @@ setGeneric( name = 'mergeBinDUAS',
 setMethod( f = 'mergeBinDUAS',
            signature = c( 'ASpliDU', 'ASpliAS' ),
            definition = function( du, as, targets, contrast = NULL  ) {
+             .Deprecated("", msg = "mergeBinDUAS is deprecated and is no longer needed. See ASpli vignette for new pipeline.")
              .mergeBinDUAS( du, as, targets, contrast ) } )
 
 
@@ -1589,6 +1721,8 @@ setMethod(
     tempFolder = 'tmp',
     avoidReMergeBams = FALSE,
     verbose = TRUE ) {
+    
+    .Deprecated("", msg = "plotGenomicRegions is deprecated and is no longer needed. See ASpli vignette for new pipeline.")
     
     .plotGenomicRegions(
       x, 

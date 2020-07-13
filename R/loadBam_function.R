@@ -1,5 +1,5 @@
 loadBAM <- function( targets, cores = 1 ) {
-  if(!is.null(cores)){
+  if(!is.null(cores)){ #Uses cores as flag for ASpli version. NULL means v2
     .Deprecated("", msg = "loadBAM is deprecated and is no longer needed. See ?gbCounts.")
   }
   #datac <- mclapply( as.character(targets$bam) , mc.cores = cores, readGAlignments )
