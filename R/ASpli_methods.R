@@ -227,33 +227,6 @@ setMethod(
   }
 )
 
-# jCounts is a wrapper around AsDiscover for improved legibility
-setGeneric (
-  name= "jCounts",
-  def = function( counts, 
-                  features, 
-                  minReadLength, 
-                  threshold = 5, 
-                  minAnchor = 10) standardGeneric("jCounts") )
-
-setMethod(
-  f = "jCounts",
-  signature = "ASpliCounts",
-  definition = function( counts, 
-                         features, 
-                         minReadLength, 
-                         threshold = 5, 
-                         minAnchor = 10) {
-  return(
-    AsDiscover( counts, 
-                     features, 
-                     minReadLength, 
-                     threshold,  
-                     minAnchor))
-  }
-)
-
-
 # readCounts
 setGeneric (
   name = "readCounts",
@@ -276,8 +249,8 @@ setMethod(
     if(!is.null(bam)){
       .Deprecated("gbCounts")
     }
-    minReadLength = readLength
-    cores=1 #Allways use 1 core.
+    minReadLength <- readLength
+    cores <- 1 #Allways use 1 core.
     #Create result object
     counts <- new(Class="ASpliCounts")
     counts@.ASpliVersion = "1" #Last version before 2.0.0 was 1.14.0.
@@ -412,16 +385,17 @@ setMethod(
   }
 )
 
+# jCounts is a wrapper around AsDiscover for improved legibility
 setGeneric (
-  name= "AsDiscover",
+  name= "jCounts",
   def = function( counts, 
                   features, 
                   minReadLength, 
                   threshold = 5, 
-                  minAnchor = 10) standardGeneric("AsDiscover") )
+                  minAnchor = 10) standardGeneric("jCounts") )
 
 setMethod(
-  f = "AsDiscover",
+  f = "jCounts",
   signature = "ASpliCounts",
   definition = function( counts, 
                          features, 
@@ -429,10 +403,51 @@ setMethod(
                          threshold = 5, 
                          minAnchor = 10) {
     
-    bam = NULL
-    cores=1
-    targets <- counts@targets
+    as <- AsDiscover( counts = counts, targets = NULL, features = features, bam = NULL, readLength = minReadLength, threshold = threshold, cores = 1, minAnchor = 10)
+    as@.ASpliVersion = "2" #Marks ASpliCounts object with the ASpli update 2.0.0    
+    return(as)
+  }
+)
+
+setGeneric (
+  name= "AsDiscover",
+  def = function( counts, 
+                  targets,
+                  features, 
+                  bam, 
+                  readLength, 
+                  threshold = 5,
+                  cores = 1, 
+                  minAnchor = 10) standardGeneric("AsDiscover") )
+
+setMethod(
+  f = "AsDiscover",
+  signature = "ASpliCounts",
+  definition = function( counts, 
+                         targets,
+                         features, 
+                         bam, 
+                         readLength, 
+                         threshold = 5,
+                         cores = 1, 
+                         minAnchor = 10) {
+    
+    if(!.hasSlot(counts, ".ASpliVersion")){
+      counts@.ASpliVersion = "1" #Last version before 2.0.0 was 1.14.0. 
+    }
+    if(counts@.ASpliVersion == "1"){
+      #Version conflict
+      if(is.null(bam)){
+        stop("Counts object is ASpli v1 but no bam was loaded. Please see vignette for new pipeline.")
+      }
+      .Deprecated("jCounts")
+    }else{
+      targets <- counts@targets
+    }
+    minReadLength <- readLength
+    cores <- 1
     as  <- new(Class = "ASpliAS")
+    as@.ASpliVersion = "1" #Last version before 2.0.0 was 1.14.0.    
     as@targets <- targets
     
     df0 <- countsj(counts)[ countsj(counts)$multipleHit == "-", ]
@@ -456,7 +471,7 @@ setMethod(
          
          if(ntargets > 1){
           #Load bam from current target
-          bam <- loadBAM(targets[target, ])
+          bam <- loadBAM(targets[target, ], cores = NULL)
           junctionsPIR <- .junctionsDiscover( df=jcounts, 
                                               minReadLength=minReadLength, 
                                               targets=targets[target, ], 
