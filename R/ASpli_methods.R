@@ -18,7 +18,7 @@ setClass( Class = "ASpliCounts",
             bin.rd = "data.frame", 
             targets = "data.frame",
             condition.order = "character",
-            ASpliVersion = "character"))
+            .ASpliVersion = "character"))
 
 setClass( Class="ASpliAS",
           representation = representation(
@@ -28,7 +28,8 @@ setClass( Class="ASpliAS",
             junctionsPIR = "data.frame",
             junctionsPJU = "data.frame",
             join = "data.frame", 
-            targets = "data.frame") )
+            targets = "data.frame",
+            .ASpliVersion = "character") )
 
 setClass( Class = "ASpliDU",
           representation = representation(
@@ -221,8 +222,9 @@ setMethod(
   definition = function( features, targets,  minReadLength,  
                          maxISize, minAnchor = 10) {
     
-    
-    return(readCounts( features, targets, minReadLength, maxISize, minAnchor = minAnchor))
+    counts <- readCounts( features, bam = NULL, targets, minReadLength, maxISize, minAnchor = minAnchor)
+    counts@.ASpliVersion = "2" #Marks ASpliCounts object with the ASpli update 2.0.0
+    return(counts)
   }
 )
 
@@ -257,27 +259,27 @@ setMethod(
 setGeneric (
   name = "readCounts",
   def = function( features, 
+                  bam,
                   targets, 
                   minReadLength, 
                   maxISize, 
-                  minAnchor = 10,
-                  bam = NULL)
+                  minAnchor = 10
+                  )
     standardGeneric("readCounts") )
 
 setMethod(
   f = "readCounts",
   signature = "ASpliFeatures",
-  definition = function( features, targets, minReadLength,  
-                         maxISize, minAnchor = 10, bam = NULL) {
+  definition = function( features, bam, targets, minReadLength,  
+                         maxISize, minAnchor = 10) {
 
+    if(!is.null(bam)){
+      .Deprecated("gbCounts")
+    }
     cores=1
     #Create result object
     counts <- new(Class="ASpliCounts")
-    print(deparse(sys.calls()))
-    caller <- deparse(sys.calls()[[sys.nframe()-1]])
-    caller <- strsplit(caller, "(", fixed = T)[[1]]
-    print(caller)
-    stop()
+    counts@.ASpliVersion = "1" #Last version before 2.0.0 was 1.14.0.
     
     #Generates sample names in case there arent any
     targets <- .generateSamplesNames(targets)
@@ -289,7 +291,7 @@ setMethod(
     minAnchor <- if ( ! is.null(minAnchor) ) minAnchor else 10
     minA <- round( minAnchor * minReadLength / 100 )
     ptm <- proc.time()
-    if(is.null(bams)) {
+    if(is.null(bam)) {
       ntargets <- nrow(targets)
     }else{
       ntargets <- 1

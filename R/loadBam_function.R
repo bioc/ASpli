@@ -1,5 +1,5 @@
 loadBAM <- function( targets, cores = 1 ) {
-  
+  .Deprecated("", msg = "loadBAM is deprecated and is no longer needed. See ?gbCounts.")
   #datac <- mclapply( as.character(targets$bam) , mc.cores = cores, readGAlignments )
   datac <- lapply( as.character(targets$bam), function(x){
       r <- readGAlignments(x)
