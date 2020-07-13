@@ -221,8 +221,7 @@ setMethod(
   signature = "ASpliFeatures",
   definition = function( features, targets,  minReadLength,  
                          maxISize, minAnchor = 10) {
-    
-    counts <- readCounts( features, bam = NULL, targets, minReadLength, maxISize, minAnchor = minAnchor)
+    counts <- readCounts( features = features, bam = NULL, targets = targets, readLength = minReadLength, maxISize = maxISize, minAnchor = minAnchor)
     counts@.ASpliVersion = "2" #Marks ASpliCounts object with the ASpli update 2.0.0
     return(counts)
   }
@@ -261,7 +260,8 @@ setGeneric (
   def = function( features, 
                   bam,
                   targets, 
-                  minReadLength, 
+                  cores = 1, 
+                  readLength, 
                   maxISize, 
                   minAnchor = 10
                   )
@@ -270,13 +270,14 @@ setGeneric (
 setMethod(
   f = "readCounts",
   signature = "ASpliFeatures",
-  definition = function( features, bam, targets, minReadLength,  
+  definition = function( features, bam, targets, cores = 1, readLength,  
                          maxISize, minAnchor = 10) {
 
     if(!is.null(bam)){
       .Deprecated("gbCounts")
     }
-    cores=1
+    minReadLength = readLength
+    cores=1 #Allways use 1 core.
     #Create result object
     counts <- new(Class="ASpliCounts")
     counts@.ASpliVersion = "1" #Last version before 2.0.0 was 1.14.0.
@@ -304,7 +305,7 @@ setMethod(
         message(paste("Summarizing", rownames(targets)[target]))
         
         #Load bam from current target
-        bam <- loadBAM(targets[target, ])
+        bam <- loadBAM(targets[target, ], cores = NULL) #With cores = NULL wont print deprecated message
       }      
       
       # Count Genes
@@ -1648,6 +1649,7 @@ setMethod(
                          filterWithContrasted = FALSE,
                          verbose = FALSE
   ) { 
+    .Deprecated(c("DUreport.offset", "DUreport.norm"))
     .DUreport( counts, targets, minGenReads, minBinReads, minRds, offset, 
                offsetAggregateMode, offsetUseFitGeneX, contrast, forceGLM,
                ignoreExternal, ignoreIo, ignoreI, filterWithContrasted, verbose  )
