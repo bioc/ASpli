@@ -261,19 +261,23 @@ setGeneric (
                   minReadLength, 
                   maxISize, 
                   minAnchor = 10,
-                  bams = NULL)
+                  bam = NULL)
     standardGeneric("readCounts") )
 
 setMethod(
   f = "readCounts",
   signature = "ASpliFeatures",
   definition = function( features, targets, minReadLength,  
-                         maxISize, minAnchor = 10, bams = NULL) {
-    
-    bam = NULL
+                         maxISize, minAnchor = 10, bam = NULL) {
+
     cores=1
     #Create result object
     counts <- new(Class="ASpliCounts")
+    print(deparse(sys.calls()))
+    caller <- deparse(sys.calls()[[sys.nframe()-1]])
+    caller <- strsplit(caller, "(", fixed = T)[[1]]
+    print(caller)
+    stop()
     
     #Generates sample names in case there arent any
     targets <- .generateSamplesNames(targets)
