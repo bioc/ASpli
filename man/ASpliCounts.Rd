@@ -1,4 +1,4 @@
-\name{ASpliCounts}
+  \name{ASpliCounts}
 
 \docType{class}
 

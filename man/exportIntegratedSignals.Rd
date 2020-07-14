@@ -75,7 +75,8 @@ exportIntegratedSignals( is, output.dir="is",
                factor1 = c( 'C','C','C','D','D','D'))
   
   # Read counts from bam files
-  gbcounts  <- readCounts( features = features, targets = targets, 
+  
+  gbcounts  <- gbCounts( features = features, targets = targets, 
                             minReadLength = 100, maxISize = 50000 )
   jcounts   <- jCounts(counts = gbcounts, features = features, minReadLength = 100)
   
