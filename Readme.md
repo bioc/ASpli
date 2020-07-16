@@ -28,7 +28,7 @@ and complex experimental designs involving multiple experimental conditions.
 ### Installation
 library(devtools)
 install_git("https://gitlab.com/chernolab/aspli2.git")
-library(ASpli2)
+library(ASpli)
 
 
 Changes
