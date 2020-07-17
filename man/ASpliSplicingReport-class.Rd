@@ -31,6 +31,9 @@
     \item{\code{localebased}}{}
     \item{\code{anchorbased}}{}
     \item{\code{contrast}}{}
+    \item{\code{.ASpliVersion}:}{
+      ASpli version when this object was created. It should not be modified by the user.
+    }     
   }
 }
 

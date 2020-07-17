@@ -20,15 +20,20 @@
                             \link{splicingReport},    
                             \link{integrateSignals}}}
                             
-      \item{DUreport: \code{\link{gbDUreport},
-                            \link{jDUreport}}}
-                            
-        \item{mergeBinDUAS: \code{\link{splicingReport},
-                                  \link{integrateSignals}}}
-                                  
-        \item{junctionsPSI: \code{\link{junctionsPJU}}}
+    \item{DUreport: \code{\link{gbDUreport},
+                          \link{jDUreport}}}
+
+    \item{DUreportBinSplice: \code{\link{gbDUreport}}}
+    \item{junctionDUreport: \code{\link{jDUreport}}}        
+                        
+    \item{mergeBinDUAS: \code{\link{splicingReport},
+                              \link{integrateSignals}}}
+                              
+    \item{junctionsPSI: \code{\link{junctionsPJU}}}
+    
+    \item{plotGenomicRegions: \code{\link{exportSplicingReports}, \link{exportIntegratedSignals}}}   
         
-        \item{plotGenomicRegions: \code{\link{exportSplicingReports}, \link{exportIntegratedSignals}}}      
+
 }
     
 }

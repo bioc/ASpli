@@ -4,6 +4,9 @@
 
 \alias{ASpliCounts-class}
 \alias{jCounts,ASpliCounts-method}
+\alias{DUreport,ASpliCounts-method}
+\alias{DUreportBinSplice,ASpliCounts-method}
+\alias{junctionDUreport,ASpliCounts-method}
 \alias{AsDiscover,ASpliCounts-method}
 \alias{countsb,ASpliCounts-method}
 \alias{countse1i,ASpliCounts-method}
@@ -49,7 +52,9 @@
     \item{\code{bin.rd}:}{Object of class \code{"data.frame"} }
     \item{\code{condition.order}:}{Object of class \code{"character"} }
     \item{\code{targets}:}{Object of class \code{"data.frame"} }
-    
+    \item{\code{.ASpliVersion}:}{
+      ASpli version when this object was created. It should not be modified by the user.
+    }     
   }
 }
 

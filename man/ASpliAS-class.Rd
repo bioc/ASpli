@@ -48,7 +48,9 @@
       both with another junction. If so, is because there is more than one way 
       for/of splicing. Ratio between them along samples is reported.}
     \item{\code{targets}:}{
-      TODO}      
+      DataFrame with targets.}
+    \item{\code{.ASpliVersion}:}{
+      ASpli version when this object was created. It should not be modified by the user.}      
   }
 }
 

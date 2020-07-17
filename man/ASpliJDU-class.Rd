@@ -38,7 +38,10 @@
     \item{\code{jir}}{}
     \item{\code{jes}}{}
     \item{\code{jalt}}{}
-    \item{\code{contrast}}{}    
+    \item{\code{contrast}}{}   
+    \item{\code{.ASpliVersion}:}{
+      ASpli version when this object was created. It should not be modified by the user.
+    }     
   }
 }
 
