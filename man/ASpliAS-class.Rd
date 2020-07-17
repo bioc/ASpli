@@ -11,15 +11,16 @@
 \alias{irPIR,ASpliAS-method}
 \alias{joint,ASpliAS-method}
 \alias{junctionsPIR,ASpliAS-method}
-\alias{junctionsPSI,ASpliAS-method}
+\alias{junctionsPJU,ASpliAS-method}
 \alias{altPSI<-,ASpliAS,data.frame-method}
 \alias{esPSI<-,ASpliAS,data.frame-method}
 \alias{irPIR<-,ASpliAS,data.frame-method}
 \alias{joint<-,ASpliAS,data.frame-method}
 \alias{junctionsPIR<-,ASpliAS,data.frame-method}
-\alias{junctionsPSI<-,ASpliAS,data.frame-method}
+\alias{junctionsPJU<-,ASpliAS,data.frame-method}
 \alias{subset,ASpliAS-method}
 \alias{writeAS,ASpliAS-method}
+\alias{jDUreport,ASpliAS-method}
 
 \title{Class \code{"ASpliAS"}}
 
@@ -42,14 +43,16 @@
       PIR metric for each experimental junction using e1i and ie2 counts. 
       Exclusion junction is the junction itself. This output helps to discover 
       new introns as well as new retention events}
-    \item{\code{junctionsPSI}:}{
+    \item{\code{junctionsPJU}:}{
       Given a junction, it is possible to analyze if it shares start, end or 
       both with another junction. If so, is because there is more than one way 
       for/of splicing. Ratio between them along samples is reported.}
+    \item{\code{targets}:}{
+      TODO}      
   }
 }
 
-\author{ Estefania Mancini, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz}
+\author{ Estefania Mancini, Andres Rabinovich, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz}
 
 \seealso{ 
   Methods: \code{\link{AsDiscover}}
@@ -59,5 +62,5 @@
             \code{\link{esPSI}},
             \code{\link{joint}},
             \code{\link{junctionsPIR}},
-            \code{\link{junctionsPSI}}
+            \code{\link{junctionsPJU}}
 }

@@ -17,6 +17,7 @@
 \alias{mergeBinDUAS,ASpliDU,ASpliAS-method}
 \alias{containsGenesAndBins,ASpliDU-method}
 \alias{containsJunctions,ASpliDU-method}
+\alias{splicingReport,ASpliDU-method}
 
 \title{Class \code{"ASpliDU"}}
 
@@ -29,7 +30,9 @@
     \item{\code{genes}}{}
     \item{\code{bins}}{}
     \item{\code{junctions}}{}
+    \item{\code{contrast}}{}
   }
 }
 
-\author{ Estefania Mancini, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz  }
+
+\author{ Estefania Mancini, Andres Rabinovich, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz  }

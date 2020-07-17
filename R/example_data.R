@@ -130,6 +130,7 @@ aspliFeaturesExample <- function( ) {
     for ( i in 1:length( slotNames ) ) {
       fn <- paste0( prefix, '.',slotNames[i] )
       fn <- system.file("extdata", fn,  package="ASpli")
+      
       slot.table <- read.table( fn, sep = "\t", stringsAsFactors = FALSE, check.names = FALSE )
       obj <- do.call( paste0(setters[i],'<-'), list( obj , slot.table ) )
     }

@@ -1,8 +1,9 @@
-
-.counterGenes <- function( reads, feature, cores = 1 ) {
-  
+.counterGenes <- function( reads, feature ) {
+  cores = 1
   hits <- mclapply( reads, mc.cores = cores, function( x ) { 
-        countOverlaps( feature, x, ignore.strand = TRUE ) 
+        co <- countOverlaps( feature, x, ignore.strand = TRUE ) 
+        gc()
+        return(co)
       } )  
   
   # Create result dataframe
@@ -19,16 +20,24 @@
       start = geneStarts ,
       end = geneEnds , 
       length = geneWidths , 
-      effective_length = effectiveGeneLength , 
-      hits )
+      effective_length = effectiveGeneLength)
+  #Le ponemos los hits despues porque si los nombres empiezan con un numero se rompen los nombres de las columnas
+  for(i in 1:length(hits)){
+    result[, names(hits)[i]] <- hits[[i]]
+  }
+  
+  #ACH 20190520: reassure rownames are not lost
+  rownames(result) <- names(hits[[1]])
   
   return(result)
 }
 
-.counterBin <- function( reads, feature, genes, cores = 1  ) { 
-  
-  hits <- mclapply( reads, mc.cores=cores, function(x) {
-        countOverlaps( feature, x, ignore.strand = TRUE)
+.counterBin <- function( reads, feature, genes  ) { 
+  cores = 1
+  hits <- mclapply( reads, mc.cores = cores, function(x) {
+        co <- countOverlaps( feature, x, ignore.strand = TRUE)
+        gc()
+        return(co)
       } )
   
   # Create result dataframe
@@ -38,11 +47,19 @@
   result <- data.frame( feature@elementMetadata[c ('feature', 'event', 'locus',
               'locus_overlap', 'symbol')], 
       geneCoordinates, 
-      as.data.frame( feature@ranges )[ ,c("start", "end", "width")],
-      hits)
+      as.data.frame( feature@ranges )[ ,c("start", "end", "width")])
+  
+  #Le ponemos los hits despues porque si los nombres empiezan con un numero se rompen los nombres de las columnas
+  for(i in 1:length(hits)){
+    result[, names(hits)[i]] <- hits[[i]]
+  }
   
   colnames(result)[1:9] <- c( "feature","event","locus","locus_overlap","symbol",
       "gene_coordinates","start","end","length" )
+  
+  #ACH 20190520: reassure rownames are not lost
+  rownames(result) <- names(hits[[1]])
+  
   return(result)
 }
 
@@ -50,12 +67,14 @@
 # .counterJbin Cuenta reads que atraviesan dos bins. 
 # TODO: el argumento l es la longitud de una read.  Que pasa con datos que 
 #       tienen un tamano de read variable ?
-.counterJbin <- function(reads, feature, genes, cores=NULL, l) {
+.counterJbin <- function(reads, feature, genes, l) {
+  cores=1
+  ungapped <- mclapply( reads, mc.cores = cores, function(x) { x[ njunc( x ) == 0 , ] } )
   
-  ungapped <- lapply( reads, function(x) { x[ njunc( x ) == 0 , ] } )
-  
-  hits <- mclapply( ungapped, mc.cores=cores, function(x) { 
-        countOverlaps( feature, x, ignore.strand = TRUE,  minoverlap = l) 
+  hits <- mclapply( ungapped, mc.cores = cores, function(x) { 
+        co <- countOverlaps( feature, x, ignore.strand = TRUE,  minoverlap = l) 
+        gc()
+        return(co)
       })  
   
   jbinToGeneIndex <- match( feature@elementMetadata$locus, rownames(genes) )
@@ -65,12 +84,20 @@
   result <- data.frame(
       feature@elementMetadata[ c( 'event', 'locus', 'locus_overlap', 'symbol') ], 
       gene_coordinates, 
-      as.data.frame(feature@ranges),  
-      hits)
+      as.data.frame(feature@ranges))
+  
+  #Le ponemos los hits despues porque si los nombres empiezan con un numero se rompen los nombres de las columnas
+  for(i in 1:length(hits)){
+    result[, names(hits)[i]] <- hits[[i]]
+  }
+  
   result$names <- NULL
   
   colnames(result)[1:8] <- c( "event", "locus", "locus_overlap", "symbol",
       "gene_coordinates", "start", "end", "length" )
+  
+  #ACH 20190520: reassure rownames are not lost
+  rownames(result) <- names(hits[[1]])
   
   return(result)
   
@@ -80,23 +107,31 @@
   
   feature <- featuresg( aspliFeatures )
   
-  # When a gene is two or more chromosomes, geneChr contains a list with
-  # all the chromosomes and and breaks when tries to create the GRanges
-  first <- function( x ) {x[1]} 
+  aggregate_first <- function (data, by){
+    d = b = NULL # due to NSE notes in R CMD check
+    data <- data.table(d=data, b=by) 
+    ans  <- data[,list(A = first(d)), by = b]
+    return(ans$A)
+  }
   
   # Search junctions within genes
   unlistedFeatures <- unlist(feature)
   
   geneAndChr <- paste( names(unlistedFeatures) , as.character( seqnames(unlistedFeatures)), sep="_" )
-  geneChr <- aggregate( as.data.frame(seqnames(unlistedFeatures)), by = list(geneAndChr), FUN = first )[,2]
+  geneChr <- aggregate_first( as.data.frame(seqnames(unlistedFeatures))[, 1], by = geneAndChr)
+  
   geneStarts <- aggregate( as.data.frame(start(unlistedFeatures)), by = list(geneAndChr), FUN = min)[,2]
   geneEnds <- aggregate( as.data.frame(end(unlistedFeatures)), by = list(geneAndChr), FUN = max)[,2]
-  strand <- aggregate( as.data.frame(strand(unlistedFeatures)), by = list(geneAndChr), FUN = first)[,2]
+  strand <- aggregate_first( as.data.frame(strand(unlistedFeatures))[, 1], by = geneAndChr)
+  
   geneCoordinates <- rep( feature@elementMetadata$gene_coordinates ,table(names(unlistedFeatures)))
-  geneCoordinates <- aggregate( geneCoordinates, by = list(geneAndChr), FUN = first)[,2]
+
+  geneCoordinates <- aggregate_first( geneCoordinates, by = geneAndChr)
+  
   symbols <- rep( feature@elementMetadata$symbol ,table(names(unlistedFeatures)))
-  symbols <- aggregate( symbols, by = list(geneAndChr), FUN = first)[,2]
-  geneNames <- aggregate( as.data.frame(names(unlistedFeatures),stringsAsFactors=FALSE) , by = list(geneAndChr), FUN = first )[,2]
+  symbols <- aggregate_first( symbols, by = geneAndChr)
+  
+  geneNames <- aggregate_first( as.data.frame(names(unlistedFeatures),stringsAsFactors=FALSE)[, 1] , by = geneAndChr)
   
   genes <- GRanges(
       seqnames = geneChr ,
@@ -126,8 +161,7 @@
   overGeneDF$subjectHits <- mcols(genes)$names[as.numeric(overGeneDF$subjectHits)]
   table <- table(overGeneDF$queryHits)
 
-  
-  # BUG FIX: aggregate fails with 0-rows dfCountsStart. 
+# BUG FIX: aggregate fails with 0-rows dfCountsStart. 
   if ( nrow( overGeneDF  ) > 0 ) {
     ttG <- data.frame(aggregate(subjectHits ~ queryHits, data = overGeneDF, paste, collapse=";"))
   } else {
@@ -177,8 +211,7 @@
   namesBins <- as.numeric(overDF[,2])
   overDF[,2] <- names(exonsBins[namesBins])
   
-  
-  # BUG FIX: aggregate fails with 0-rows dfCountsStart. 
+# BUG FIX: aggregate fails with 0-rows dfCountsStart. 
   if ( nrow( overDF  ) > 0 ) {
     tt <- data.frame(aggregate(subjectHits ~ queryHits, data = overDF, paste, collapse=";")) 
   } else {
@@ -214,10 +247,8 @@
 
 .ovBinJunction <- function( features, jranges ) {
   
-  #jname <- rep("-", length(jranges))
-
-  # Creates GRanges for genes, including repeating genes in different
-  # chromosomes
+# Creates GRanges for genes, including repeating genes in different
+# chromosomes
   genes <- .getGeneGRanges( features )
   
   # Looks for data of junction overlapping genes
@@ -250,28 +281,17 @@
   return(jranges)
 }  
 
-.counterJunctions <- function(features, bam, cores, maxISize) {
-  if (is.null(cores) ) {
-    ujunctions <- lapply (bam, function(x)    {  
+.counterJunctions <- function(features, bam, maxISize) {
+  cores=1
+    ujunctions <- mclapply (bam, mc.cores = cores, function(x)    {  
           junctions <- unlist(junctions(x) )
           strand(junctions) <- "*"
           start(junctions) <- start(junctions)-1
           end(junctions) <- end(junctions)+1
           ujunctions <- unique(junctions)
+          gc()
           return(ujunctions)   
         } )
-  } else {
-    ujunctions <- mclapply(bam, mc.cores=cores, function(x) {
-          junctions <- unlist(junctions(x) )
-          strand(junctions) <- "*"
-          start(junctions) <- start(junctions)-1
-          end(junctions) <- end(junctions)+1
-          ujunctions <- unique(junctions)
-          return(ujunctions)
-          
-        })
-  }  
-  #here I have unique elements of all the junctiosn
   jranges <- unique( unlist( GRangesList( unlist( ujunctions ) ) ) )
   
   # Filter junctions by Intron size
@@ -284,13 +304,14 @@
       end(jranges) , sep="." )
   jranges@ranges@NAMES <- fcoord
 
-  jcounts <- lapply(bam, function(x) {
+  jcounts <- mclapply(bam, mc.cores = cores, function(x) {
         junctions <- unlist(junctions(x) )
         strand(junctions)<- "*"
         start(junctions) <- start(junctions)-1
         end(junctions) <- end(junctions)+1
         count <- countMatches(jranges, junctions)    
         jc <- data.frame(row.names=names(jranges), count)
+        gc()
         return(jc)
       })
   

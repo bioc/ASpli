@@ -21,23 +21,24 @@
 
 \value{ Returns dataframes with genomic metadata and logFC and pvalue }
 
-\author{ Estefania Mancini, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz }
+
+\author{ Estefania Mancini, Andres Rabinovich, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz  }
 
 \examples{
   
   # Get data tables from an ASpliDU object
   
-  du <- aspliDUexample1()
+  #du <- aspliDUexample1()
   
-  gde <- genesDE( du )
-  bdu <- binsDU( du )
-  jdu <- junctionsDU( du )
+  #gde <- genesDE( du )
+  #bdu <- binsDU( du )
+  #jdu <- junctionsDU( du )
   
   # Set data tables to an ASpliDU object 
   
-  genesDE( du )     <- gde
-  binsDU( du )      <- bdu
-  junctionsDU( du ) <- jdu
+  #genesDE( du )     <- gde
+  #binsDU( du )      <- bdu
+  #junctionsDU( du ) <- jdu
 
 }
 

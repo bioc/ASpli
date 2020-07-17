@@ -165,14 +165,14 @@ subsetTargets <- function( targets, select, removeRedundantExpFactors = FALSE ) 
   
   # Junction PIR filter
 
-  jpsiNames <- colnames( junctionsPSI( x ) )
+  jpsiNames <- colnames( junctionsPJU( x ) )
   jpsiNames <- sub( "(.start$)|(.end$)", "", jpsiNames )
   
   jpsiFilter <- createMask( jpsiNames, sampleNames, getConditions( targets ),
       acceptedSamples, acceptedConditions )
 
-  junctionsPSI( nas ) <- junctionsPSI( x )[ , jpsiFilter ] 
-  colnames( junctionsPSI( nas ) ) <- jpsiNames[ jpsiFilter ]
+  junctionsPJU( nas ) <- junctionsPJU( x )[ , jpsiFilter ] 
+  colnames( junctionsPJU( nas ) ) <- jpsiNames[ jpsiFilter ]
   
   return( nas )
   

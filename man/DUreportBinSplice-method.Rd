@@ -119,7 +119,7 @@
                           maxISize = 50000 )
   
   # Calculate differential usage of genes and bins
-  du       <- DUreportBinSplice( counts, targets )
+  du       <- DUreportBinSplice( counts, targets,  contrast = c( 1, -1) )
 
   # Export results  
   writeDU( du = du, output.dir = "only_du" )

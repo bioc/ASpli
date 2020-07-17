@@ -1,43 +1,79 @@
+# ASpli
+
 # An integrative R package for analysing alternative splicing using RNAseq
 
 ## Authors
-Estefania Mancini, Andres Rabinovich, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz
+Estefania Mancini, Andrés Rabinovich, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz
 
 ## Introduction
-
 Alternative splicing (AS) is a common mechanism of post-transcriptional gene 
 regulation in eukaryotic organisms that expands the functional and regulatory 
 diversity of a single gene by generating multiple mRNA isoforms that encode 
-structurally and functionally distinct proteins. The development of novel 
-high-throughput sequencing methods for RNA (RNAseq) has provided a powerful 
-means of studying AS under multiple conditions and in a genome-wide manner.
-However, using RNAseq to study changes in AS under different experimental 
-conditions is not trivial. 
-In this vignette, we describe how to use ASpli, an integrative and user-friendly
-R package that facilitates the analysis of changes in both annotated and novel 
-AS events. This package combines statistical information from exon, intron, and 
-splice junction differential usage (p-value, FDR), with information from splice 
-junction reads to calculate differences in the percentage of exon inclusion 
-Delta-PSI and intron retention Delta-PIR). The proposed methodology 
-reliably reflect the magnitude of changes in the relative abundance of different 
-annotated and novel AS events. This method can be used to analyze both simple 
-and complex experimental designs involving multiple experimental conditions.
+structurally and functionally distinct proteins. 
 
-## Getting started
+Genome-wide analysis of AS has been a very active field of research since 
+the early days of NGS (Next generation sequencing) technologies.  Since then, evergrowing data availability and the development of increasingly sophisticated analysis methods have uncovered the complexity of the general splicing repertoire.  
 
-### Installation
-ASpli is available at Bioconductor site and can be downloaded using
-**BiocManager::install()**:
+`ASpli` was specifically designed to integrate several independent signals in order to deal with the complexity that might arise in splicing patterns. Taking into account genome annotation information, `ASpli` considers bin-based signals along  with junction inclusion indexes in order to assess for statistically significant changes in read coverage. In addition, annotation-independent signals are estimated based on the complete set of experimentally detected splice junctions.  `ASpli` makes use of a generalized linear model framework (as implemented in `edgeR` R-package) to assess for the statistical  analysis of specific contrasts of interest. In this way, `ASpli` can provide a comprehensive description of genome-wide splicing alterations even for complex experimental designs. 
 
-    if (!requireNamespace("BiocManager", quietly=TRUE))
-        install.packages("BiocManager")
-    BiocManager::install("ASpli")
+A typical `ASpli` workflow  involves: parsing the genome annotation into subgenic features called bins, overlapping read alignments against them, perform junction counting, fulfill inference tasks of differential bin and junction usage and, finally, report integrated splicing signals. At every step `ASpli` generates self-contained outcomes that, if required, can be easily exported and integrated into other processing pipelines. 
+
+
+
+## Installation
+ASpli is available at gitlab site and can be installed from R using devtools
+**install_git()**:
+    
+    library(devtools)
+    install_git("https://gitlab.com/chernolab/ASpli.git", build_vignettes = TRUE)
     library(ASpli)
 
- 
-**BiocManager::install()** will take care of installing all the packages that ASpli 
+**install_git()** will take care of installing all the packages that ASpli 
 depends on e.g. edgeR, GenomicFeatures, GenomicRanges, GenomicAlignments, Gviz, 
 and other R package required. Some packages depend on operating system
 packages, like **curl**, that are not installed automatically, and should
 be installed by the user.
 
+**samtools** is also required for image creation when exporting integrated signals (reports can be generated without **samtools** if images are not required).
+
+## Quick start
+Here is an example for a pairwise comparison between 2 conditions (Control vs Treatment, 3 replicates each) using default parameters.
+Extract features from genome, define targets data.frame with phenotype data, and mBAMs data.frame with phenotype data for merged BAMs:
+
+    genome   <- loadDb("txdb.sqlite")
+    features <- binGenome(genome)
+    targets  <- data.frame(bam = c("CT_1.BAM", "CT_2.BAM","CT_3.BAM", "TR_1.BAM", "TR_2.BAM", "TR_3.BAM"), 
+                           genotype = c( "CT", "CT", "CT", "TR", "TR", "TR" ), stringsAsFactors = FALSE )
+    mBAMs <- data.frame(bam=c("CT.BAM", "TR.BAM"),condition=c("CT","TR"))
+    
+Read counting against annotated features:
+
+    counts <- gbCounts(features = features, targets = targets, minReadLength = 125L, maxISize = 50000)
+    
+Junction-based de-novo counting:
+
+    asd <- jCounts(counts = counts, features = features, minReadLength =125L)
+    
+Differential signal estimation:
+
+    gb   <- gbDUreport(counts, contrast = c(-1, 1))
+    jdur <- jDUreport(asd, contrast = c(-1, 1))
+    
+Report and signal integration:
+
+    sr <- splicingReport(gb, jdur, counts)
+    is <- integrateSignals(sr,asd)
+    
+Export results:
+
+    exportSplicingReports( sr, output.dir="results")
+    exportIntegratedSignals(is,sr=sr, output.dir = "results", counts=counts,
+                              features=features,asd=asd, mergedBams = mBAMs)
+
+## Documentation and help
+Entry point for ASpli documentation is ASpli vignette, available after installing ASpli from R:
+
+    browseVignettes("ASpli")
+    
+If user has a question not answered in ASpli vignette, ASpli has an issue board with previous issues available in gitlab.
+If no previous issue answers the question, user can upload a new issue requesting help.

@@ -6,6 +6,8 @@
 \alias{show,ASpliCounts-method}
 \alias{show,ASpliDU-method}
 \alias{show,ASpliFeatures-method}
+\alias{show,ASpliMergedReports-method}
+
 
 \title{ Display a summary of data contained in ASpliObjects }
 
@@ -13,6 +15,6 @@
 
 \details{ Display a summary of data contained in ASpliObjects }
 
-\author{ Estefania Mancini, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz }
 
+\author{ Estefania Mancini, Andres Rabinovich, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz  }
 

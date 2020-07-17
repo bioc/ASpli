@@ -5,13 +5,13 @@
 \alias{irPIR}
 \alias{joint}
 \alias{junctionsPIR}
-\alias{junctionsPSI}
+\alias{junctionsPJU}
 \alias{altPSI<-}
 \alias{esPSI<-}
 \alias{irPIR<-}
 \alias{joint<-}
 \alias{junctionsPIR<-}
-\alias{junctionsPSI<-}
+\alias{junctionsPJU<-}
 
 \title{ Accessors for ASpliAS object }
 
@@ -25,7 +25,7 @@ esPSI( x )
 irPIR( x )
 joint( x )
 junctionsPIR( x )
-junctionsPSI( x )
+junctionsPJU( x )
 }
 
 \arguments{
@@ -33,31 +33,31 @@ junctionsPSI( x )
 }
 \value{ Returns dataframes with genomic metadata and  PSI and PIR metrics }
 
-\author{ Estefania Mancini, Marcelo Yanovsky, Ariel Chernomoretz  }
+\author{ Estefania Mancini, Andres Rabinovich, Javier Iserte, Marcelo Yanovsky, Ariel Chernomoretz  }
 
 \examples{
 
 # Accessing data tables from an ASpliAS object
 
-as <- aspliASexample()
+#as <- aspliASexample()
 
-ap <- altPSI(as)
-ep <- esPSI(as)
-ip <- irPIR(as)
-j  <- joint(as)
-jpi <- junctionsPIR(as)
-jps <- junctionsPSI(as)
+#ap <- altPSI(as)
+#ep <- esPSI(as)
+#ip <- irPIR(as)
+#j  <- joint(as)
+#jpi <- junctionsPIR(as)
+#jps <- junctionsPJU(as)
 
 # Setting data tables to an ASpliAS object
 
-as2 <- new( 'ASpliAS' )
+#as2 <- new( 'ASpliAS' )
 
-altPSI( as2 )  <- ap
-esPSI( as2 )  <- ep
-irPIR( as2 )  <- ip
-joint( as2 )  <- j
-junctionsPIR( as2 )  <- jpi
-junctionsPSI( as2 )  <- jps
+#altPSI( as2 )  <- ap
+#esPSI( as2 )  <- ep
+#irPIR( as2 )  <- ip
+#joint( as2 )  <- j
+#junctionsPIR( as2 )  <- jpi
+#junctionsPJU( as2 )  <- jps
 
 }
 

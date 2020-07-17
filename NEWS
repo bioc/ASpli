@@ -1,3 +1,24 @@
+CHANGES IN VERSION 1.99.1
+-------------------------
+
+NEW FUNCTIONS AND FUNCTIONALITIES
+    * added a new field to database
+
+FUNCTIONS DEPRECATED
+    
+    * loadBAM: will be replaced by gbCounts. Bams files are proccesed one by one, according target object. It improves running time and memory usage
+  
+    * readCounts: it is replaced by  gbCounts
+  
+    * AsDiscover: it is replaced by jCounts
+  
+    * DUreport: it is replaced by
+  
+    * mergeBinDUAS: has no direct replacement. 
+  
+    * plotGenomicRegions: has not direct replacement. There are new functions for exportiing results into HTML pages.
+
+
 CHANGES IN VERSION 1.5.1
 -------------------------
 
