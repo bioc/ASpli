@@ -123,7 +123,6 @@ if (!requireNamespace("BiocManager", quietly = TRUE))
 # The following line initializes usage of Bioc devel branch and should not be necessary after
 # the next official release scheduled for October 2020
 if(Sys.Date()<"2020-11-01") BiocManager::install(version='devel')
-  
 BiocManager::install("ASpli")
 library(ASpli)
 @
