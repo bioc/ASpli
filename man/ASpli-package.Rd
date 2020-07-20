@@ -97,7 +97,6 @@ targets <- data.frame(
 gb      <- gbDUreport(counts,contrast = c( 1, -1, -1, 1 ) )
 jdur    <- jDUreport(asd, 
                      contrast =  c( 1, -1, -1, 1 ) ,
-                     runUniformityTest = TRUE,
                      mergedBams = mBAMs)
 sr      <- splicingReport(gb, jdur, counts = counts)
 is      <- integrateSignals(sr,asd)
