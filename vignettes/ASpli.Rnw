@@ -113,14 +113,14 @@ exportIntegratedSignals(is,sr=sr,
 \section{Getting started}
 
 \subsection{Installation}
-\texttt{ASpli} is available at Bioconductor site and can be installed following these steps:
+\texttt{ASpli} is available at the Bioconductor site and can be installed following these steps:
 \texttt{biocLite()}:
 
 <<installation, echo=TRUE, eval=FALSE>>=
 if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
 
-# The following line initializes usage of Bioc devel and should not be necessary after
+# The following line initializes usage of Bioc devel branch and should not be necessary after
 # the next official release scheduled for October 2020
 if(Sys.Date()>"2020-11-01") BiocManager::install(version='devel')
 BiocManager::install("ASpli")
