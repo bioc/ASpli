@@ -18,21 +18,8 @@ the early days of NGS (Next generation sequencing) technologies.  Since then, ev
 
 A typical `ASpli` workflow  involves: parsing the genome annotation into subgenic features called bins, overlapping read alignments against them, perform junction counting, fulfill inference tasks of differential bin and junction usage and, finally, report integrated splicing signals. At every step `ASpli` generates self-contained outcomes that, if required, can be easily exported and integrated into other processing pipelines. 
 
-
-
 ## Installation
-ASpli is available at gitlab site and can be installed from R using devtools
-**install_git()**:
-    
-    library(devtools)
-    install_git("https://gitlab.com/chernolab/ASpli.git", build_vignettes = TRUE)
-    library(ASpli)
-
-**install_git()** will take care of installing all the packages that ASpli 
-depends on e.g. edgeR, GenomicFeatures, GenomicRanges, GenomicAlignments, Gviz, 
-and other R package required. Some packages depend on operating system
-packages, like **curl**, that are not installed automatically, and should
-be installed by the user.
+ASpli is freely available at Bioconductor devel branch http://bioconductor.org/packages/devel/bioc/html/ASpli.html. It will be part of the next Bioconductor official release scheduled for October 2020
 
 **samtools** is also required for image creation when exporting integrated signals (reports can be generated without **samtools** if images are not required).
 
