@@ -217,15 +217,19 @@ setGeneric (
   name = "gbCounts",
   def = function( features, 
                   targets, minReadLength, maxISize, 
-                  minAnchor = 10)
+                  minAnchor = 10,
+                  alignFastq = FALSE,
+                  dropBAM = FALSE)
     standardGeneric("gbCounts") )
 
 setMethod(
   f = "gbCounts",
   signature = "ASpliFeatures",
   definition = function( features, targets,  minReadLength,  
-                         maxISize, minAnchor = 10) {
-    counts <- readCounts( features = features, bam = NULL, targets = targets, readLength = minReadLength, maxISize = maxISize, minAnchor = minAnchor)
+                         maxISize, minAnchor = 10,
+                         alignFastq = FALSE,
+                         dropBAM = FALSE) {
+    counts <- readCounts( features = features, bam = NULL, targets = targets, readLength = minReadLength, maxISize = maxISize, minAnchor = minAnchor, alignFastq = alignFastq, dropBAM = dropBAM)
     counts@.ASpliVersion = "2" #Marks ASpliCounts object with the ASpli update 2.0.0
     return(counts)
   }
@@ -240,7 +244,9 @@ setGeneric (
                   cores = 1, 
                   readLength, 
                   maxISize, 
-                  minAnchor = 10
+                  minAnchor = 10,
+                  alignFastq = FALSE,
+                  dropBAM = FALSE
                   )
     standardGeneric("readCounts") )
 
@@ -248,11 +254,26 @@ setMethod(
   f = "readCounts",
   signature = "ASpliFeatures",
   definition = function( features, bam, targets, cores = 1, readLength,  
-                         maxISize, minAnchor = 10) {
+                         maxISize, minAnchor = 10, alignFastq = FALSE, dropBAM = FALSE) {
 
     if(!is.null(bam)){
       .Deprecated("gbCounts")
     }
+    
+    #Check if alignFastq then targets must have one extra column with fastqs.
+    #Also, check if all files exist before running
+    if(alignFastq){
+      if(!("fastq" %in% colnames(targets))){
+        stop("Targets data frame must have a column named fastq. For paired-end use ; (ie: fastq1.R1.tar.gz;fastq1.R2.tar.gz)")
+      }
+      #All files exist?
+      fastqs <- unlist(strsplit(targets[, "fastq"], ";", fixed = T))
+      fastqFilesExist <- file.exists(fastqs)
+      if(!all(fastqFilesExist)){
+        stop(paste0("Some fastq files don't exist: ", paste0(fastqs[!fastqFilesExist], collapse=", ")))
+      }
+    }
+
     minReadLength <- readLength
     cores <- 1 #Allways use 1 core.
     #Create result object
