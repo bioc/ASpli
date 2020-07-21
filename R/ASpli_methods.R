@@ -272,8 +272,15 @@ setMethod(
       if(!all(fastqFilesExist)){
         stop(paste0("Some fastq files don't exist: ", paste0(fastqs[!fastqFilesExist], collapse=", ")))
       }
+    }else{
+      #All files exist?
+      bams <- targets[, "bam"]
+      bamFilesExist <- file.exists(bams)
+      if(!all(bamFilesExist)){
+        stop(paste0("Some bam files don't exist: ", paste0(bams[!bamFilesExist], collapse=", ")))
+      }
     }
-
+    
     minReadLength <- readLength
     cores <- 1 #Allways use 1 core.
     #Create result object
