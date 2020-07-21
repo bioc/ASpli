@@ -2,8 +2,15 @@ CHANGES IN VERSION 1.99.1
 -------------------------
 
 NEW FUNCTIONS AND FUNCTIONALITIES
-    * added a new field to database
-
+    
+    * For counting: gbCounts  and jCounts 
+    
+    * For DU estimation: DUreport.norm and DUreport.offset
+    
+    * For prepare DU reports: filterSignals, gbDUreport, integrateSignals, jDUreport, splicingReport and junctionsPJU
+    
+    * For printing reports: exportIntegratedSignals, writeJDU and writeSplicingReport
+    
 FUNCTIONS DEPRECATED
     
     * loadBAM: will be replaced by gbCounts. Bams files are proccesed one by one, according target object. It improves running time and memory usage
@@ -12,7 +19,7 @@ FUNCTIONS DEPRECATED
   
     * AsDiscover: it is replaced by jCounts
   
-    * DUreport: it is replaced by
+    * DUreport: it is replaced by gbDUreport and jDUreport
   
     * mergeBinDUAS: has no direct replacement. 
   
