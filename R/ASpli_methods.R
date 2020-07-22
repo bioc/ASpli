@@ -261,16 +261,10 @@ setMethod(
     }
     
     #Check if alignFastq then targets must have one extra column with fastqs.
-    #Also, check if all files exist before running
+    #Also, if not, check if all bams exist before running
     if(alignFastq){
-      if(!("fastq" %in% colnames(targets))){
-        stop("Targets data frame must have a column named fastq. For paired-end use ; (ie: fastq1.R1.tar.gz;fastq1.R2.tar.gz)")
-      }
-      #All files exist?
-      fastqs <- unlist(strsplit(targets[, "fastq"], ";", fixed = T))
-      fastqFilesExist <- file.exists(fastqs)
-      if(!all(fastqFilesExist)){
-        stop(paste0("Some fastq files don't exist: ", paste0(fastqs[!fastqFilesExist], collapse=", ")))
+      if(!("alignerCall" %in% colnames(targets))){
+        stop("Targets data frame must have a column named alignerCall with complete call to aligner for each sample.\n ie: STAR --runMode alignReads --outSAMtype BAM SortedByCoordinate --readFilesCommand zcat --genomeDir /path/to/STAR/genome/folder -runThreadN 4 --outFileNamePrefix {sample name} --readFilesIn  /path/to/R1 /path/to/R2. Output must match bam files provided in targets.")
       }
     }else{
       #All files exist?
@@ -309,8 +303,58 @@ setMethod(
         #Verbose
         message(paste("Summarizing", rownames(targets)[target]))
         
+        #Checks if must align first
+        if(alignFastq){
+            #Run alignment
+            tryCatch(
+              {
+                message(paste0("Aligning using: ", targets[target, "alignerCall"]))
+                system2(command = targets[target, "alignerCall"], stderr = TRUE, stdout = TRUE)
+              },
+              error=function(cond) {
+                stop(cond)
+              },
+              warning=function(cond) {
+                stop(cond)
+              },
+              finally={
+              }
+            )
+          #Check if bam exists or die
+          if(!file.exists(targets[target, "bam"])){
+            stop(paste0("Could not align or bam was not correctly created. Was expecting: ", targets[target, "bam"]))
+          }
+          
+          #Make bai
+          #Run alignment
+          tryCatch(
+            {
+              message(paste0("Building bam index"))
+              system2(command = paste0("samtools index", targets[target, "bam"]), stderr = TRUE, stdout = TRUE)
+            },
+            error=function(cond) {
+              stop(cond)
+            },
+            warning=function(cond) {
+              stop(cond)
+            },
+            finally={
+            }
+          )
+          #Check if bai exists or die
+          if(!file.exists(paste0(targets[target, "bam"], ".bai"))){
+            stop(paste0("Could not create bai file. Make sure samtools is installed and accesible in PATH"))
+          }
+        }
+              
         #Load bam from current target
         bam <- loadBAM(targets[target, ], cores = NULL) #With cores = NULL wont print deprecated message
+        
+        #If dropBAM drops bam and bai but only if alignFastq = TRUE
+        if(alignFastq & dropBAM){
+          file.remove(paste0(targets[target, "bam"], ".bai"))
+          file.remove(targets[target, "bam"])
+        }
       }      
       
       # Count Genes
