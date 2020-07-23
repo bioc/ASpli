@@ -309,7 +309,7 @@ setMethod(
             tryCatch(
               {
                 message(paste0("Aligning using: ", targets[target, "alignerCall"]))
-                system2(command = targets[target, "alignerCall"], stderr = TRUE, stdout = TRUE)
+                system(targets[target, "alignerCall"])
               },
               error=function(cond) {
                 stop(cond)
