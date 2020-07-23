@@ -330,7 +330,7 @@ setMethod(
           tryCatch(
             {
               message(paste0("Building bam index"))
-              system2(command = paste0("samtools index", targets[target, "bam"]), stderr = TRUE, stdout = TRUE)
+              system(paste0("samtools index", targets[target, "bam"]))
             },
             error=function(cond) {
               stop(cond)
