@@ -468,7 +468,9 @@ setGeneric (
                   features, 
                   minReadLength, 
                   threshold = 5, 
-                  minAnchor = 10) standardGeneric("jCounts") )
+                  minAnchor = 10,
+                  alignFastq = FALSE, 
+                  dropBAM = FALSE) standardGeneric("jCounts") )
 
 setMethod(
   f = "jCounts",
@@ -477,14 +479,16 @@ setMethod(
                          features, 
                          minReadLength, 
                          threshold = 5, 
-                         minAnchor = 10) {
+                         minAnchor = 10,
+                         alignFastq = FALSE, 
+                         dropBAM = FALSE) {
     if(!.hasSlot(counts, ".ASpliVersion")){
       counts@.ASpliVersion = "1" #Last version before 2.0.0 was 1.14.0. 
     }
     if(counts@.ASpliVersion == "1"){
       stop("Your version of ASpliCounts can not be used with this version of ASpli, please run gbCounts first. See vignette for details on the new pipeline.")
     }
-    as <- AsDiscover( counts = counts, targets = NULL, features = features, bam = NULL, readLength = minReadLength, threshold = threshold, cores = 1, minAnchor = 10)
+    as <- AsDiscover( counts = counts, targets = NULL, features = features, bam = NULL, readLength = minReadLength, threshold = threshold, cores = 1, minAnchor = 10, alignFastq = alignFastq, dropBAM = dropBAM)
     as@.ASpliVersion = "2" #Marks ASpliCounts object with the ASpli update 2.0.0    
     return(as)
   }
@@ -499,7 +503,9 @@ setGeneric (
                   readLength, 
                   threshold = 5,
                   cores = 1, 
-                  minAnchor = 10) standardGeneric("AsDiscover") )
+                  minAnchor = 10,
+                  alignFastq = FALSE,
+                  dropBAM = FALSE) standardGeneric("AsDiscover") )
 
 setMethod(
   f = "AsDiscover",
@@ -511,7 +517,9 @@ setMethod(
                          readLength, 
                          threshold = 5,
                          cores = 1, 
-                         minAnchor = 10) {
+                         minAnchor = 10,
+                         alignFastq = FALSE,
+                         dropBAM = FALSE) {
     
     if(!.hasSlot(counts, ".ASpliVersion")){
       counts@.ASpliVersion = "1" #Last version before 2.0.0 was 1.14.0. 
@@ -524,6 +532,21 @@ setMethod(
       .Deprecated("jCounts")
     }else{
       targets <- counts@targets
+    }
+
+    #Check if alignFastq then targets must have one extra column with fastqs.
+    #Also, if not, check if all bams exist before running
+    if(alignFastq){
+      if(!("alignerCall" %in% colnames(targets))){
+        stop("Targets data frame must have a column named alignerCall with complete call to aligner for each sample.\n ie: STAR --runMode alignReads --outSAMtype BAM SortedByCoordinate --readFilesCommand zcat --genomeDir /path/to/STAR/genome/folder -runThreadN 4 --outFileNamePrefix {sample name} --readFilesIn  /path/to/R1 /path/to/R2. Output must match bam files provided in targets.")
+      }
+    }else{
+      #All files exist?
+      bams <- targets[, "bam"]
+      bamFilesExist <- file.exists(bams)
+      if(!all(bamFilesExist)){
+        stop(paste0("Some bam files don't exist: ", paste0(bams[!bamFilesExist], collapse=", ")))
+      }
     }
     minReadLength <- readLength
     cores <- 1
@@ -550,20 +573,70 @@ setMethod(
       ntargets <- nrow(targets)
       for(target in 1:ntargets){
          
-         if(ntargets > 1){
-          #Load bam from current target
-          bam <- loadBAM(targets[target, ], cores = NULL)
-          junctionsPIR <- .junctionsDiscover( df=jcounts, 
-                                              minReadLength=minReadLength, 
-                                              targets=targets[target, ], 
-                                              features=features,
-                                              minAnchor = minAnchor,
-                                              bam=bam)  
-          
+        if(ntargets > 1){
+        
+         #Checks if must align first
+         if(alignFastq){
+           #Run alignment
+           tryCatch(
+             {
+               message(paste0("Aligning using: ", targets[target, "alignerCall"]))
+               system(targets[target, "alignerCall"])
+             },
+             error=function(cond) {
+               stop(cond)
+             },
+             warning=function(cond) {
+               stop(cond)
+             },
+             finally={
+             }
+           )
+           #Check if bam exists or die
+           if(!file.exists(targets[target, "bam"])){
+             stop(paste0("Could not align or bam was not correctly created. Was expecting: ", targets[target, "bam"]))
+           }
+           
+           #Make bai
+           #Run alignment
+           tryCatch(
+             {
+               message(paste0("Building bam index"))
+               system(paste0("samtools index ", targets[target, "bam"]))
+             },
+             error=function(cond) {
+               stop(cond)
+             },
+             warning=function(cond) {
+               stop(cond)
+             },
+             finally={
+             }
+           )
+           #Check if bai exists or die
+           if(!file.exists(paste0(targets[target, "bam"], ".bai"))){
+             stop(paste0("Could not create bai file. Make sure samtools is installed and accesible in PATH"))
+           }
          }
         
+         #Load bam from current target
+         bam <- loadBAM(targets[target, ], cores = NULL) #With cores = NULL wont print deprecated message
+         
+         #If dropBAM drops bam and bai but only if alignFastq = TRUE
+         if(alignFastq & dropBAM){
+           file.remove(paste0(targets[target, "bam"], ".bai"))
+           file.remove(targets[target, "bam"])
+         }
+         
+         junctionsPIR <- .junctionsDiscover( df=jcounts, 
+                                            minReadLength=minReadLength, 
+                                            targets=targets[target, ], 
+                                            features=features,
+                                            minAnchor = minAnchor,
+                                            bam=bam)  
         
-        
+        }
+
         if(ncol(as@junctionsPIR) == 0){
           as@junctionsPIR <- junctionsPIR
         }else{
