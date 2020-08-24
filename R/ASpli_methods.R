@@ -271,8 +271,7 @@ setMethod(
     }
     minReadLength <- readLength
     cores <- 1 #Allways use 1 core.
-    libType=libType
-    strandMode=strandMode
+ 
     
     #Create result object
     
