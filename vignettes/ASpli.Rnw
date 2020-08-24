@@ -962,7 +962,7 @@ binsDU(gb)[1:5,]
 
 The analysis of annotation-free junction-based AS events can be done with \footnote{Note that as we required to compute non-uniform intron coverage, we should specify merged-BAMs information}:
 
-<<Ex02.l, echo=TRUE, eval=FALSE>>=
+<<Ex02.l, echo=TRUE, eval=TRUE>>=
 jdur    <- jDUreport(asd, contrast =  c( 1, -1, -1, 1 ))
 @
 
@@ -980,22 +980,22 @@ Rownames correspond to cluster-ids. Rows are ordered by FDR values. The {\em par
 
 {\em localej(jdur)} shows locale-information for each analyzed junction, reporting results of statistical tests at junction level in the first 8 columns:
 
-<<Ex02.kkk, echo=TRUE, eval=FALSE>>=
+<<Ex02.kkk, echo=TRUE, eval=TRUE>>=
 localej(jdur)[1:5,1:8]
 @
 
 We integrate all our data:
 
-<<Ex02.m, echo=TRUE, eval=FALSE>>=
-sr      <- splicingReport(gb, jdur, counts = counts)
+<<Ex02.m, echo=TRUE, eval=TRUE>>=
+sr      <- splicingReport(gb, jdur, counts = gbcounts)
 is      <- integrateSignals(sr,asd)
 @
 
 And finally we export integrate signals into an interactive HTML page
 
-<<Ex03, echo=TRUE, eval=FALSE>>=
+<<Ex03, echo=TRUE, eval=TRUE>>=
 exportIntegratedSignals( is, output.dir="aspliExample", 
-                         sr, counts, features, asd, mBAMs)
+                         sr, gbcounts, features, asd, mBAMs)
 
 @
 
