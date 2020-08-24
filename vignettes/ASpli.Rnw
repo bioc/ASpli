@@ -310,6 +310,8 @@ getConditions( targets )
 
 The method  \texttt{gbCounts()} counts the number of reads that overlaps each defined feature (i.e. genes, bins, junctions and intron/exon flanking regions). For genes and bins, read density values are also computed as the ratio between the number of reads and the length of a given feature. 
 
+By default (PE=TRUE) library is considered as paired-end and unstranded (strandMode=1).
+
 <<gbCounts, echo=TRUE, eval=FALSE>>=
 counts      <-  gbCounts(features,
                          targets, 
