@@ -51,9 +51,16 @@ openInBrowser = FALSE, maxBinFDR = 0.2, maxJunctionFDR = 0.2 )
   
   # Read counts from bam files
 
- gbcounts  <- gbCounts( features = features, targets = targets, 
-                            minReadLength = 100, maxISize = 50000 )
-  jcounts   <- jCounts(counts = gbcounts, features = features, minReadLength = 100)
+gbcounts  <- gbCounts( features = features, 
+                           targets = targets, 
+                           minReadLength = 100, maxISize = 50000,
+                           libType="SE", 
+                           strandMode=0)
+jcounts   <- jCounts(counts = gbcounts, 
+                     features = features, 
+                     minReadLength = 100,
+                     libType="SE", 
+                     strandMode=0)
   
   # Test for factor1 controlling for paired subject
   gbPaired <- gbDUreport(gbcounts, formula = formula(~subject+factor1))

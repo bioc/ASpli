@@ -217,15 +217,26 @@ setGeneric (
   name = "gbCounts",
   def = function( features, 
                   targets, minReadLength, maxISize, 
-                  minAnchor = 10)
+                  minAnchor = 10,
+                  libType="PE",
+                  strandMode=1)
     standardGeneric("gbCounts") )
 
 setMethod(
   f = "gbCounts",
   signature = "ASpliFeatures",
   definition = function( features, targets,  minReadLength,  
-                         maxISize, minAnchor = 10) {
-    counts <- readCounts( features = features, bam = NULL, targets = targets, readLength = minReadLength, maxISize = maxISize, minAnchor = minAnchor)
+                         maxISize, minAnchor = 10,
+                         libType="PE",
+                         strandMode=1) {
+    counts <- readCounts( features = features,
+                          bam = NULL, 
+                          targets = targets, 
+                          readLength = minReadLength, 
+                          maxISize = maxISize, 
+                          minAnchor = minAnchor,
+                          libType=libType,
+                          strandMode=strandMode)
     counts@.ASpliVersion = "2" #Marks ASpliCounts object with the ASpli update 2.0.0
     return(counts)
   }
@@ -240,7 +251,9 @@ setGeneric (
                   cores = 1, 
                   readLength, 
                   maxISize, 
-                  minAnchor = 10
+                  minAnchor = 10,
+                  libType=libType,
+                  strandMode=strandMode
                   )
     standardGeneric("readCounts") )
 
@@ -248,14 +261,21 @@ setMethod(
   f = "readCounts",
   signature = "ASpliFeatures",
   definition = function( features, bam, targets, cores = 1, readLength,  
-                         maxISize, minAnchor = 10) {
+                         maxISize, 
+                         minAnchor = 10,
+                         libType=libType,
+                         strandMode=strandMode) {
 
     if(!is.null(bam)){
       .Deprecated("gbCounts")
     }
     minReadLength <- readLength
     cores <- 1 #Allways use 1 core.
+    libType=libType
+    strandMode=strandMode
+    
     #Create result object
+    
     counts <- new(Class="ASpliCounts")
     counts@.ASpliVersion = "1" #Last version before 2.0.0 was 1.14.0.
     
@@ -281,8 +301,11 @@ setMethod(
         #Verbose
         message(paste("Summarizing", rownames(targets)[target]))
         
-        #Load bam from current target
-        bam <- loadBAM(targets[target, ], cores = NULL) #With cores = NULL wont print deprecated message
+        #Load bam from current target#
+        #aca hay que pasarle el parametro de SE o PE, y strandMode
+        bam <- loadBAM(targets[target, ], cores = NULL,
+                       libType=libType, 
+                       strandMode=strandMode) #With cores = NULL wont print deprecated message
       }      
       
       # Count Genes
@@ -396,7 +419,9 @@ setGeneric (
                   features, 
                   minReadLength, 
                   threshold = 5, 
-                  minAnchor = 10) standardGeneric("jCounts") )
+                  minAnchor = 10,
+                  libType="PE",
+                  strandMode=1) standardGeneric("jCounts") )
 
 setMethod(
   f = "jCounts",
@@ -405,14 +430,23 @@ setMethod(
                          features, 
                          minReadLength, 
                          threshold = 5, 
-                         minAnchor = 10) {
+                         minAnchor = 10,
+                         libType="PE",
+                         strandMode=1) {
     if(!.hasSlot(counts, ".ASpliVersion")){
       counts@.ASpliVersion = "1" #Last version before 2.0.0 was 1.14.0. 
     }
     if(counts@.ASpliVersion == "1"){
       stop("Your version of ASpliCounts can not be used with this version of ASpli, please run gbCounts first. See vignette for details on the new pipeline.")
     }
-    as <- AsDiscover( counts = counts, targets = NULL, features = features, bam = NULL, readLength = minReadLength, threshold = threshold, cores = 1, minAnchor = 10)
+    as <- AsDiscover( counts = counts, 
+                      targets = NULL, 
+                      features = features, 
+                      bam = NULL, readLength = minReadLength, 
+                      threshold = threshold,
+                      cores = 1, minAnchor = 10,
+                      libType = libType,
+                      strandMode = strandMode )
     as@.ASpliVersion = "2" #Marks ASpliCounts object with the ASpli update 2.0.0    
     return(as)
   }
@@ -427,7 +461,10 @@ setGeneric (
                   readLength, 
                   threshold = 5,
                   cores = 1, 
-                  minAnchor = 10) standardGeneric("AsDiscover") )
+                  minAnchor = 10,
+                  libType=libType,
+                  strandMode=strandMode
+                  ) standardGeneric("AsDiscover") )
 
 setMethod(
   f = "AsDiscover",
@@ -439,7 +476,9 @@ setMethod(
                          readLength, 
                          threshold = 5,
                          cores = 1, 
-                         minAnchor = 10) {
+                         minAnchor = 10,
+                         libType=libType,
+                         strandMode=strandMode) {
     
     if(!.hasSlot(counts, ".ASpliVersion")){
       counts@.ASpliVersion = "1" #Last version before 2.0.0 was 1.14.0. 
@@ -455,6 +494,9 @@ setMethod(
     }
     minReadLength <- readLength
     cores <- 1
+    libType=libType
+    strandMode=strandMode
+    
     as  <- new(Class = "ASpliAS")
     as@.ASpliVersion = "1" #Last version before 2.0.0 was 1.14.0.    
     as@targets <- targets
@@ -480,7 +522,9 @@ setMethod(
          
          if(ntargets > 1){
           #Load bam from current target
-          bam <- loadBAM(targets[target, ], cores = NULL)
+          #agrego el libType y StrandMode
+          bam <- loadBAM(targets[target, ], cores = NULL, 
+                         libType=libType, strandMode=strandMode)
           junctionsPIR <- .junctionsDiscover( df=jcounts, 
                                               minReadLength=minReadLength, 
                                               targets=targets[target, ], 

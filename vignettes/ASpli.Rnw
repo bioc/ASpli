@@ -52,6 +52,7 @@ A typical ASpli workflow  involves: parsing the genome annotation into subgenic 
 
 <<loadAspli, echo=FALSE, eval=TRUE>>=
 library(ASpli)
+#devtools::load_all("~/Documents/ASpli-labo/")
 @
 
 \section{Quick start}\label{qstart}
@@ -72,18 +73,21 @@ mBAMs <- data.frame(bam=c("CT.BAM", "TR.BAM"),condition=c("CT","TR"))
 Read counting against annotated features: 
 
 <<quickStart2, echo=TRUE, eval=FALSE>>=
-counts      <-  gbCounts(features = features, 
-                         targets  = targets, 
-                         minReadLength = 125L, 
-                         maxISize = 50000)
+gbcounts  <- gbCounts( features = features, 
+                           targets = targets, 
+                           minReadLength = 100, maxISize = 50000,
+                           libType="SE", 
+                           strandMode=0)
 @
 
 Junction-based {\em de-novo} counting:
 
 <<quickStart2b, echo=TRUE, eval=FALSE>>=
-asd         <-  jCounts(counts = counts, 
-                        features = features,
-                        minReadLength =125L)
+asd         <-  jCounts(counts = gbcounts, 
+                     features = features, 
+                     minReadLength = 125L,
+                     libType="SE", 
+                     strandMode=0)
 @
 
 Differential signal estimation:
@@ -313,11 +317,11 @@ The method  \texttt{gbCounts()} counts the number of reads that overlaps each de
 By default (PE=TRUE) library is considered as paired-end and unstranded (strandMode=1).
 
 <<gbCounts, echo=TRUE, eval=FALSE>>=
-counts      <-  gbCounts(features,
-                         targets, 
-                         minReadLength,
-                         maxISize,
-                         minAnchor=10)
+gbcounts  <- gbCounts( features = features, 
+                           targets = targets, 
+                           minReadLength = 100, maxISize = 50000,
+                           libType="SE", 
+                           strandMode=0)
 @
 
 \begin{itemize}
@@ -386,11 +390,11 @@ for aligned reads \cite{pmid19505943} ), and are essential for alternative splic
 PSI (percent of inclusion) and PIR (percent of intron retention) metrics (see bellow) are computed for each bin and experimental condition. The selection of which metric is used is based on the type of splicing event associated with each bin (see \secref{sec:eventAssign}). In addition, annotation-free inclussion indices (PIR$_J$ and PJU, see bellow) are estimated using  experimentally detected junctions.
 
 <<asd, echo=TRUE, eval=FALSE>>=
-asd         <-  jCounts(counts, 
-                        features,
-                        minReadLength,
-                        threshold,
-                        minAnchor)
+asd         <-  jCounts(counts = gbcounts, 
+                     features = features, 
+                     minReadLength = 100,
+                     libType="SE", 
+                     strandMode=0)
 @
 
 Novel arguments for this function call are:
@@ -892,21 +896,23 @@ mBAMs <- data.frame(bam      = sub("_[02]","",targets$bam[c(1,4,7,10)]),
 Next step is to overlap reads and features:
 
 <<Ex02.i, echo=TRUE, eval=TRUE>>=
-counts<- gbCounts(features       = features, 
-                   targets       = targets, 
-                   minReadLength = 100,
-                   maxISize      = 5000, 
-                   minAnchor     = 10)
+gbcounts  <- gbCounts( features = features, 
+                           targets = targets, 
+                           minReadLength = 100, maxISize = 50000,
+                           libType="SE", 
+                           strandMode=0)
 @
 
 And also quantify junctions:
 
 <<Ex02.j, echo=TRUE, eval=TRUE>>=
-asd         <-  jCounts(counts          = counts, 
-                          features      = features,
-                          minReadLength = 100,
-                          threshold     = 5,
-                          minAnchor     = 10)
+asd<- jCounts(counts = gbcounts, 
+                     features = features, 
+                     minReadLength = 100,
+                     libType="SE", 
+                     strandMode=0,
+                      threshold     = 5,
+                      minAnchor     = 10)
 @
 
 At this point we can start asking different questions regarding differential gene expression and splicing patterns. \texttt{ASpli} allows to do this by defining {\em contrasts} or by using the {\em formula} approach. This feature allows the user to choose the framework that better (i.e. more easily) serve to test the sought effect.
@@ -941,7 +947,8 @@ represented as the {\em contrast} vector $[ 1,-1,-1, 1]$.
 We estimate gene differential expression and annotation-based differential splicing patterns for the contrast of interest as follow:  
 
 <<Ex02.k, echo=TRUE, eval=TRUE>>=
-gb      <- gbDUreport(counts,contrast = c( 1, -1, -1, 1 ) )
+gb      <- gbDUreport(gbcounts,contrast = c( 1, -1, -1, 1 ) )
+
 @
 
 \texttt{genesDE()} and \texttt{binsDU()} accesors report the statistical significance results. We can see that in this example no evidence of a statistically significant interaction term was found at gene expression level. However, 9 out of 14 bins displayed statistically significant interaction 
@@ -955,7 +962,7 @@ binsDU(gb)[1:5,]
 
 The analysis of annotation-free junction-based AS events can be done with \footnote{Note that as we required to compute non-uniform intron coverage, we should specify merged-BAMs information}:
 
-<<Ex02.l, echo=TRUE, eval=TRUE>>=
+<<Ex02.l, echo=TRUE, eval=FALSE>>=
 jdur    <- jDUreport(asd, contrast =  c( 1, -1, -1, 1 ))
 @
 
@@ -964,7 +971,7 @@ Results for junction-based events matching bin ranges can be accessed through \t
 Here we show the output corresponding to results of the {\em locale}-junction cluster analysis.
 Information regarding {\em locale} cluster-level tests can be retrieved using:
 
-<<Ex02.kk, echo=TRUE, eval=TRUE>>=
+<<Ex02.kk, echo=TRUE, eval=FALSE>>=
 localec(jdur)[1:5,]
 @
 
@@ -973,13 +980,13 @@ Rownames correspond to cluster-ids. Rows are ordered by FDR values. The {\em par
 
 {\em localej(jdur)} shows locale-information for each analyzed junction, reporting results of statistical tests at junction level in the first 8 columns:
 
-<<Ex02.kkk, echo=TRUE, eval=TRUE>>=
+<<Ex02.kkk, echo=TRUE, eval=FALSE>>=
 localej(jdur)[1:5,1:8]
 @
 
 We integrate all our data:
 
-<<Ex02.m, echo=TRUE, eval=TRUE>>=
+<<Ex02.m, echo=TRUE, eval=FALSE>>=
 sr      <- splicingReport(gb, jdur, counts = counts)
 is      <- integrateSignals(sr,asd)
 @
@@ -1052,20 +1059,23 @@ We will consider a subset of the originally included samples to simulate a paire
 <<Ex02.kp, echo=TRUE, eval=FALSE>>=
 targetPaired <- targets[c(1,4,7,10),]
 
-counts <- gbCounts(features = features,targets = targetPaired,
-                   minReadLength=100,maxISize=5000,minAnchor = 10)
-asd    <- jCounts(counts=counts,features=features,
-                   minReadLength=100,threshold=5, minAnchor=10)
-
+gbcounts  <- gbCounts( features = features, 
+                           targets = targets, 
+                           minReadLength = 100, maxISize = 50000,
+                           libType="SE", 
+                           strandMode=0)
+asd    <- jCounts(counts = gbcounts, 
+                     features = features, 
+                     minReadLength = 100,
+                     libType="SE", 
+                     strandMode=0)
 form   <- formula(~f1+f2)
-gb     <- gbDUreport(counts, formula = form)
-jdur   <- jDUreport(asd    , formula = form)
-
-sr <- splicingReport(gb, jdur, counts = counts)
-is <- integrateSignals(sr,asd,bjs.fdr = 0.1, bjs.inclussion = 0.1, l.inclussion=0.001,l.fdr = 1)
-
-exportSplicingReports(sr,output.dir="paired")
-exportIntegratedSignals(is,output.dir="paired",sr,counts,features,asd,mBAMs,tcex=2)
+gb     <- gbDUreport(gbcounts, formula = form)
+#jdur   <- jDUreport(asd    , formula = form)
+#sr <- splicingReport(gb, jdur, counts = counts)
+#is <- integrateSignals(sr,asd,bjs.fdr = 0.1, bjs.inclussion = 0.1, l.inclussion=0.001,l.fdr = 1)
+# exportSplicingReports(sr,output.dir="paired")
+#exportIntegratedSignals(is,output.dir="paired",sr,counts,features,asd,mBAMs,tcex=2)
 @
 
 Note: for a large number of experimental units you might disable the graph generation option \texttt{makeGraphs=FALSE} in \texttt{exportIntegratedSignals} function call.

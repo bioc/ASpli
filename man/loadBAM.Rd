@@ -8,16 +8,18 @@
   Load BAM files into R session using a targets specification.
 }
 
-\usage{ loadBAM(targets, cores) }
+\usage{ loadBAM(targets, cores,  libType, strandMode) }
 
 \arguments{
   \item{targets}{A data frame containing sample, bam and experimental factors 
     columns }
   \item{cores}{Number of processors to use}
+  \item{libType}{Options are: "SE" or "PE"}
+  \item{strandMode}{Options are: 0,1,2. See ?strandMode for more information}
 }
 
 \value{
-  A list of GAlignments. Each element of the list correspond to a samples BAM 
+  A list of GAlignments or GAlignmentPairs  . Each element of the list correspond to a samples BAM 
   file.
 }
 

@@ -12,7 +12,7 @@
 }
  
 \usage{ 
- jCounts( counts, features, minReadLength, threshold = 5, minAnchor = 10 )
+ jCounts( counts, features, minReadLength, threshold = 5, minAnchor = 10,libType="PE", strandMode=1 )
 }
 \arguments{
 \item{counts}{
@@ -26,12 +26,13 @@ An object of class ASpliCounts.
     E1I and IE2 read summarization. Make sure this number is smaller than the maximum read length in every bam file, otherwise no junctions will be found.}
 
 \item{threshold}{ Minimum  number of reads supporting junctions. Default=5 }
-
-
-\item{minAnchor}{ An intronic junction must overlap completely and at least an minAnchor\% into the exon region and the intron region.
-                  The regions can be exon1-intron or intron-exon2.}
+\item{minAnchor}{ An intronic junction must overlap completely and at least an minAnchor\% into the exon region and the intron region. The regions can be exon1-intron or intron-exon2.}
+ \item{libType}{Defines how reads will be treated according their sequencing lybrary type (paired (PE, default) or single end (SE))}
+ \item{strandMode}{controls the behavior of the strand getter. It indicates how the strand of a pair should be inferred from the strand of the first and last alignments in the pair. 
+  0: strand of the pair is always *.
+  1: strand of the pair is strand of its first alignment. This mode should be used when the paired-end data was generated using one of the following stranded protocols: Directional Illumina (Ligation), Standard SOLiD.
+ 2: strand of the pair is strand of its last alignment. This mode should be used when the paired-end data was generated using one of the following stranded protocols: dUTP, NSR, NNSR, Illumina stranded TruSeq PE protocol. For more information see ?strandMode}
 }
-
 \value{ 
 An object of class ASpliAS.
 Accesors: irPIR, esPSI, altPSI, junctionsPIR, junctionsPJU
@@ -129,9 +130,17 @@ The last columns are the PIR metrics calculated for each condition. The PIR metr
                subject = c(0, 1, 2, 0, 1, 2))
   
   # Read counts from bam files
-  gbcounts  <- gbCounts( features = features, targets = targets, 
-                          minReadLength = 100, maxISize = 50000 )
-  jcounts   <- jCounts(counts = gbcounts, features = features, minReadLength = 100)
+gbcounts  <- gbCounts( features = features, 
+                           targets = targets, 
+                           minReadLength = 100, maxISize = 50000,
+                           libType="SE", 
+                           strandMode=0)
+
+jcounts   <- jCounts(counts = gbcounts, 
+                     features = features, 
+                     minReadLength = 100,
+                     libType="SE", 
+                     strandMode=0)
   
   # Access summary and gene and bin counts and display them
   gbcounts

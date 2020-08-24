@@ -11,7 +11,7 @@
 
 \usage{
   gbCounts( features,  targets, minReadLength,
-                 maxISize, minAnchor = 10)
+                 maxISize, minAnchor = 10, libType="PE", strandMode=1)
 }
 
 \arguments{
@@ -33,6 +33,12 @@
   
   \item{minAnchor}{ Minimum percentage of read that should be aligned to 
     an exon-intron boundary.}
+    
+  \item{libType}{Defines how reads will be treated according their sequencing lybrary type (paired (PE, default) or single end (SE))}
+  \item{strandMode}{controls the behavior of the strand getter. It indicates how the strand of a pair should be inferred from the strand of the first and last alignments in the pair. 
+  0: strand of the pair is always *.
+  1: strand of the pair is strand of its first alignment. This mode should be used when the paired-end data was generated using one of the following stranded protocols: Directional Illumina (Ligation), Standard SOLiD.
+ 2: strand of the pair is strand of its last alignment. This mode should be used when the paired-end data was generated using one of the following stranded protocols: dUTP, NSR, NNSR, Illumina stranded TruSeq PE protocol. For more information see ?strandMode}
 }
 
 \value{
@@ -156,8 +162,11 @@
                subject = c(0, 1, 2, 0, 1, 2))
   
   # Read counts from bam files
-  gbcounts  <- gbCounts( features = features, targets = targets, 
-                            minReadLength = 100, maxISize = 50000 )
+  gbcounts  <- gbCounts( features = features, 
+                           targets = targets, 
+                           minReadLength = 100, maxISize = 50000,
+                           libType="SE", 
+                           strandMode=0)
   # Access summary and gene and bin counts and display them
   gbcounts
   countsg(gbcounts)

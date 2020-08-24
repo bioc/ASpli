@@ -75,11 +75,18 @@ exportIntegratedSignals( is, output.dir="is",
                factor1 = c( 'C','C','C','D','D','D'))
   
   # Read counts from bam files
-  
-  gbcounts  <- gbCounts( features = features, targets = targets, 
-                            minReadLength = 100, maxISize = 50000 )
-  jcounts   <- jCounts(counts = gbcounts, features = features, minReadLength = 100)
-  
+  gbcounts  <- gbCounts( features = features, 
+                           targets = targets, 
+                           minReadLength = 100, maxISize = 50000,
+                           libType="SE", 
+                           strandMode=0)
+jcounts   <- jCounts(counts = gbcounts, 
+                     features = features, 
+                     minReadLength = 100,
+                     libType="SE", 
+                     strandMode=0)
+                     
+
   # Test for factor1
   gbPaired <- gbDUreport(gbcounts, contrast = c(1, -1))
   jPaired  <- jDUreport(jcounts, , contrast = c(1, -1))

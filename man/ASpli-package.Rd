@@ -84,21 +84,25 @@ targets <- data.frame(
   getConditions(targets)
   mBAMs <- data.frame(bam      = sub("_[02]","",targets$bam[c(1,4,7,10)]),
                       condition= c("A_C","A_D","B_C","B_D"))
-  counts<- gbCounts(features       = features, 
-                    targets       = targets, 
-                    minReadLength = 100,
-                    maxISize      = 5000, 
-                    minAnchor     = 10)
-                    asd         <-  jCounts(counts          = counts, 
-                          features      = features,
-                          minReadLength = 100,
-                          threshold     = 5,
-                          minAnchor     = 10)
-gb      <- gbDUreport(counts,contrast = c( 1, -1, -1, 1 ) )
+
+gbcounts  <- gbCounts( features = features, 
+                           targets = targets, 
+                           minReadLength = 100, maxISize = 50000,
+                           libType="SE", 
+                           strandMode=0)
+asd   <- jCounts(counts = gbcounts, 
+                     features = features, 
+                     minReadLength = 100,
+                     libType="SE", 
+                     strandMode=0)
+                     
+   
+gb      <- gbDUreport(counts=gbcounts,
+contrast = c( 1, -1, -1, 1 ) )
 jdur    <- jDUreport(asd, 
                      contrast =  c( 1, -1, -1, 1 ) ,
                      mergedBams = mBAMs)
-sr      <- splicingReport(gb, jdur, counts = counts)
+sr      <- splicingReport(gb, jdur, counts =gbcounts    )
 is      <- integrateSignals(sr,asd)
 }
 

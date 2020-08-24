@@ -144,9 +144,12 @@
                subject = c(0, 1, 2, 0, 1, 2))
   
   # Read counts from bam files
-gbcounts  <- gbCounts( features = features, targets = targets, 
-                         minReadLength = 100, maxISize = 50000 )
-jcounts   <- jCounts(counts = gbcounts, features = features, minReadLength = 100)
+   gbcounts  <- gbCounts( features = features, 
+                        targets = targets, 
+                        minReadLength = 100, 
+                        maxISize = 50000,
+                        libType="SE", 
+                        strandMode=0)
 
 # Test for factor1
   # Test for factor1 controlling for paired subject

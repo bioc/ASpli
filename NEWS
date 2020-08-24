@@ -3,7 +3,7 @@ CHANGES IN VERSION 1.99.1
 
 NEW FUNCTIONS AND FUNCTIONALITIES
     
-    * For counting: gbCounts  and jCounts 
+    * For counting: gbCounts  and jCounts. We add library type and strand-specificity parameters.
     
     * For DU estimation: DUreport.norm and DUreport.offset
     
