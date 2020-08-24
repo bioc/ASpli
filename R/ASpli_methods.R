@@ -218,7 +218,7 @@ setGeneric (
   def = function( features, 
                   targets, minReadLength, maxISize, 
                   minAnchor = 10,
-                  libType="PE",
+                  libType="SE",
                   strandMode=1)
     standardGeneric("gbCounts") )
 
@@ -227,7 +227,7 @@ setMethod(
   signature = "ASpliFeatures",
   definition = function( features, targets,  minReadLength,  
                          maxISize, minAnchor = 10,
-                         libType="PE",
+                         libType="SE",
                          strandMode=1) {
     counts <- readCounts( features = features,
                           bam = NULL, 
@@ -272,9 +272,7 @@ setMethod(
     minReadLength <- readLength
     cores <- 1 #Allways use 1 core.
  
-    
     #Create result object
-    
     counts <- new(Class="ASpliCounts")
     counts@.ASpliVersion = "1" #Last version before 2.0.0 was 1.14.0.
     
@@ -419,7 +417,7 @@ setGeneric (
                   minReadLength, 
                   threshold = 5, 
                   minAnchor = 10,
-                  libType="PE",
+                  libType="SE",
                   strandMode=1) standardGeneric("jCounts") )
 
 setMethod(
@@ -430,7 +428,7 @@ setMethod(
                          minReadLength, 
                          threshold = 5, 
                          minAnchor = 10,
-                         libType="PE",
+                         libType="SE",
                          strandMode=1) {
     if(!.hasSlot(counts, ".ASpliVersion")){
       counts@.ASpliVersion = "1" #Last version before 2.0.0 was 1.14.0. 
