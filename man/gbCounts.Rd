@@ -11,7 +11,7 @@
 
 \usage{
   gbCounts( features,  targets, minReadLength,
-                 maxISize, minAnchor = 10, libType="PE", strandMode=1)
+                 maxISize, minAnchor = 10, libType="SE", strandMode=0)
 }
 
 \arguments{

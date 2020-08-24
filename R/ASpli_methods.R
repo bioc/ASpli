@@ -219,7 +219,7 @@ setGeneric (
                   targets, minReadLength, maxISize, 
                   minAnchor = 10,
                   libType="SE",
-                  strandMode=1)
+                  strandMode=0)
     standardGeneric("gbCounts") )
 
 setMethod(
@@ -228,7 +228,7 @@ setMethod(
   definition = function( features, targets,  minReadLength,  
                          maxISize, minAnchor = 10,
                          libType="SE",
-                         strandMode=1) {
+                         strandMode=0) {
     counts <- readCounts( features = features,
                           bam = NULL, 
                           targets = targets, 
@@ -418,7 +418,7 @@ setGeneric (
                   threshold = 5, 
                   minAnchor = 10,
                   libType="SE",
-                  strandMode=1) standardGeneric("jCounts") )
+                  strandMode=0) standardGeneric("jCounts") )
 
 setMethod(
   f = "jCounts",
@@ -429,7 +429,7 @@ setMethod(
                          threshold = 5, 
                          minAnchor = 10,
                          libType="SE",
-                         strandMode=1) {
+                         strandMode=0) {
     if(!.hasSlot(counts, ".ASpliVersion")){
       counts@.ASpliVersion = "1" #Last version before 2.0.0 was 1.14.0. 
     }

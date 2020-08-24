@@ -12,7 +12,7 @@
 }
  
 \usage{ 
- jCounts( counts, features, minReadLength, threshold = 5, minAnchor = 10,libType="PE", strandMode=1 )
+ jCounts( counts, features, minReadLength, threshold = 5, minAnchor = 10,libType="SE", strandMode=0 )
 }
 \arguments{
 \item{counts}{
