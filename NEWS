@@ -1,3 +1,15 @@
+CHANGES IN VERSION 1.99.3
+-------------------------
+
+NEW FUNCTIONS AND FUNCTIONALITIES
+
+    * New parameters for gbCounts and jCounts functions: 
+       * libType: to specify single end  ("SE") or paired end ("PE") library
+       * strandMode: 
+       - 0: strand of the pair is always *.
+       - 1: strand of the pair is strand of its first alignment
+       - 2: strand of the pair is strand of its last alignment.
+    
 CHANGES IN VERSION 1.99.1
 -------------------------
 
