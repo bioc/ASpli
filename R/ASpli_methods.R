@@ -218,6 +218,8 @@ setGeneric (
   def = function( features, 
                   targets, minReadLength, maxISize, 
                   minAnchor = 10,
+                  libType="SE",
+                  strandMode=0,
                   alignFastq = FALSE,
                   dropBAM = FALSE)
     standardGeneric("gbCounts") )
@@ -227,9 +229,13 @@ setMethod(
   signature = "ASpliFeatures",
   definition = function( features, targets,  minReadLength,  
                          maxISize, minAnchor = 10,
+                         libType="SE",
+                         strandMode=0,
                          alignFastq = FALSE,
                          dropBAM = FALSE) {
-    counts <- readCounts( features = features, bam = NULL, targets = targets, readLength = minReadLength, maxISize = maxISize, minAnchor = minAnchor, alignFastq = alignFastq, dropBAM = dropBAM)
+    counts <- readCounts( features = features, bam = NULL, targets = targets, readLength = minReadLength, maxISize = maxISize, minAnchor = minAnchor,
+                          libType=libType,
+                          strandMode=strandMode, alignFastq = alignFastq, dropBAM = dropBAM)
     counts@.ASpliVersion = "2" #Marks ASpliCounts object with the ASpli update 2.0.0
     return(counts)
   }
@@ -245,6 +251,8 @@ setGeneric (
                   readLength, 
                   maxISize, 
                   minAnchor = 10,
+                  libType=libType,
+                  strandMode=strandMode,
                   alignFastq = FALSE,
                   dropBAM = FALSE
                   )
@@ -254,7 +262,9 @@ setMethod(
   f = "readCounts",
   signature = "ASpliFeatures",
   definition = function( features, bam, targets, cores = 1, readLength,  
-                         maxISize, minAnchor = 10, alignFastq = FALSE, dropBAM = FALSE) {
+                         maxISize, minAnchor = 10,
+                         libType=libType,
+                         strandMode=strandMode, alignFastq = FALSE, dropBAM = FALSE) {
 
     if(!is.null(bam)){
       .Deprecated("gbCounts")
@@ -348,7 +358,9 @@ setMethod(
         }
               
         #Load bam from current target
-        bam <- loadBAM(targets[target, ], cores = NULL) #With cores = NULL wont print deprecated message
+        bam <- loadBAM(targets[target, ], cores = NULL,
+                       libType=libType, 
+                       strandMode=strandMode) #With cores = NULL wont print deprecated message
         
         #If dropBAM drops bam and bai but only if alignFastq = TRUE
         if(alignFastq & dropBAM){
@@ -469,6 +481,8 @@ setGeneric (
                   minReadLength, 
                   threshold = 5, 
                   minAnchor = 10,
+                  libType="SE",
+                  strandMode=0,
                   alignFastq = FALSE, 
                   dropBAM = FALSE) standardGeneric("jCounts") )
 
@@ -480,6 +494,8 @@ setMethod(
                          minReadLength, 
                          threshold = 5, 
                          minAnchor = 10,
+                         libType="SE",
+                         strandMode=0,
                          alignFastq = FALSE, 
                          dropBAM = FALSE) {
     if(!.hasSlot(counts, ".ASpliVersion")){
@@ -488,7 +504,9 @@ setMethod(
     if(counts@.ASpliVersion == "1"){
       stop("Your version of ASpliCounts can not be used with this version of ASpli, please run gbCounts first. See vignette for details on the new pipeline.")
     }
-    as <- AsDiscover( counts = counts, targets = NULL, features = features, bam = NULL, readLength = minReadLength, threshold = threshold, cores = 1, minAnchor = 10, alignFastq = alignFastq, dropBAM = dropBAM)
+    as <- AsDiscover( counts = counts, targets = NULL, features = features, bam = NULL, readLength = minReadLength, threshold = threshold, cores = 1, minAnchor = 10,
+                      libType = libType,
+                      strandMode = strandMode, alignFastq = alignFastq, dropBAM = dropBAM)
     as@.ASpliVersion = "2" #Marks ASpliCounts object with the ASpli update 2.0.0    
     return(as)
   }
@@ -504,6 +522,8 @@ setGeneric (
                   threshold = 5,
                   cores = 1, 
                   minAnchor = 10,
+                  libType=libType,
+                  strandMode=strandMode,
                   alignFastq = FALSE,
                   dropBAM = FALSE) standardGeneric("AsDiscover") )
 
@@ -518,6 +538,8 @@ setMethod(
                          threshold = 5,
                          cores = 1, 
                          minAnchor = 10,
+                         libType=libType,
+                         strandMode=strandMode,
                          alignFastq = FALSE,
                          dropBAM = FALSE) {
     
@@ -620,7 +642,8 @@ setMethod(
          }
         
          #Load bam from current target
-         bam <- loadBAM(targets[target, ], cores = NULL) #With cores = NULL wont print deprecated message
+         bam <- loadBAM(targets[target, ], cores = NULL, 
+                        libType=libType, strandMode=strandMode) #With cores = NULL wont print deprecated message
          
          #If dropBAM drops bam and bai but only if alignFastq = TRUE
          if(alignFastq & dropBAM){

@@ -1,10 +1,16 @@
-loadBAM <- function( targets, cores = 1 ) {
+loadBAM <- function( targets, cores = 1, libType, strandMode ) {
   if(!is.null(cores)){ #Uses cores as flag for ASpli version. NULL means v2
     .Deprecated("", msg = "loadBAM is deprecated and is no longer needed. See ?gbCounts.")
   }
   #datac <- mclapply( as.character(targets$bam) , mc.cores = cores, readGAlignments )
   datac <- lapply( as.character(targets$bam), function(x){
-      r <- readGAlignments(x)
+    #option to load as SE o PE, default PE:
+    if(libType=="SE"){ 
+      r <- readGAlignments(x) 
+    }
+    else {
+      r <- readGAlignmentPairs(x, strandMode=strandMode) 
+    }
       #Normalize seqnames. If . present in name, changes it to _ and warns the user
       if(length(grep("[.]", seqlevels(r)) > 0)){
         seqlevels(r) <- gsub("[.]", "_", seqlevels(r))
