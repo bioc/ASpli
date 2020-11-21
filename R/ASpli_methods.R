@@ -70,12 +70,12 @@ setClass( Class = "ASpliIntegratedSignals",
 # Set methods
 setGeneric ( name = "binGenome", 
              def = function( genome, geneSymbols = NULL, 
-                             logTo = "ASpli_binFeatures.log" ) standardGeneric( "binGenome" ) )
+                             logTo = "ASpli_binFeatures.log", cores = 1 ) standardGeneric( "binGenome" ) )
 
 setMethod(
   f = "binGenome",
   signature = "TxDb",
-  definition = function ( genome, geneSymbols = NULL, logTo = "ASpli_binFeatures.log") {
+  definition = function ( genome, geneSymbols = NULL, logTo = "ASpli_binFeatures.log", cores = 1) {
     
     #Normalize seqnames. If . present in name, changes it to _ and warns the user
     if(length(grep("[.]", seqlevels(genome)) > 0)){
@@ -175,6 +175,61 @@ setMethod(
     features@junctions <- junctions
     features@transcriptExons <- transcriptExons
     
+    #TODO hacer el disjoin directo con fullT y tratar de machear los rangos que no coinciden en el disjoin con 
+    #los originales de fullT. Esto tiene el problema del overlap de locus y de perder la referencia de los bines
+    #de donde salio el disjoin.
+    
+    # Start the clock!
+    ptm <- proc.time()
+    
+    locus <- unique(fullT$locus)
+    fullTcorregido <- fullT[fullT$locus %in% locus]
+    dtFullTcorregido <- as.data.table(fullTcorregido)
+    lFullTcorregidos <- split(dtFullTcorregido, dtFullTcorregido$locus)
+    
+    fullTcorregido <- mclapply(lFullTcorregidos, mc.cores = cores, function(l){
+      #print(l$locus[1])
+      lIo    <- l[l$feature == "Io", ]
+      lSinIo <- l[l$feature != "Io", ]
+      rangos <- GRanges(seqnames = lSinIo$seqnames, ranges = IRanges(lSinIo$start, lSinIo$end, lSinIo$width), strand = lSinIo$strand)
+      dis    <- disjoin(rangos)
+      #Si los elementos disjuntos son menos que los rangos, es porque hay elementos que no deberian estar (ej AT1G02010). Los remuevo
+      #Si no, simplemente ajusto los rangos
+      if(length(dis) != length(rangos)){
+        #Si los elementos disjuntos son mayores que los rangos, es porque no sabemos que pasa (ej AT2G31902).
+        if(length(dis) > length(rangos)){
+          print(l$locus[1])
+        }else{
+          ol <- data.frame(findOverlaps(rangos, dis, type = "equal"))
+          lSinIo <- lSinIo[ol$queryHits]
+        }
+      }else{
+        #Si es la misma cantidad simplemente alcanza con reemplazar los rangos anteriores (ej AT1G05860).
+        dis <- data.frame(ranges(dis))        
+        lSinIo$start <- dis$start
+        lSinIo$end   <- dis$end
+        lSinIo$width <- dis$width
+      }
+      return(rbind(lSinIo, lIo))
+    })
+    
+    
+    fullTcorregido <- rbindlist(fullTcorregido)
+    fullTcorregido <- GRanges(seqnames      = fullTcorregido$seqnames, 
+                              ranges        = IRanges(start = fullTcorregido$start, end = fullTcorregido$end, width = fullTcorregido$width),
+                              strand        = fullTcorregido$strand, 
+                              locus         = fullTcorregido$locus, 
+                              bin           = fullTcorregido$bin, 
+                              feature       = fullTcorregido$feature, 
+                              symbol        = fullTcorregido$symbol, 
+                              locus_overlap = fullTcorregido$locus_overlap,
+                              class         = fullTcorregido$class, 
+                              event         = fullTcorregido$event, 
+                              eventJ        = fullTcorregido$eventJ)
+    # Stop the clock
+    proc.time() - ptm
+    names(fullTcorregido) <- paste0(fullTcorregido$locus, ":", fullTcorregido$bin)
+    features@bins <- fullTcorregido
     
     return( features ) 
   })
