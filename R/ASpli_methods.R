@@ -70,15 +70,15 @@ setClass( Class = "ASpliIntegratedSignals",
 # Set methods
 setGeneric ( name = "binGenome", 
              def = function( genome, geneSymbols = NULL, 
-                             logTo = "ASpli_binFeatures.log" ) standardGeneric( "binGenome" ) )
+                             logTo = "ASpli_binFeatures.log", cores = 1 ) standardGeneric( "binGenome" ) )
 
 setMethod(
   f = "binGenome",
   signature = "TxDb",
-  definition = function ( genome, geneSymbols = NULL, logTo = "ASpli_binFeatures.log") {
+  definition = function ( genome, geneSymbols = NULL, logTo = "ASpli_binFeatures.log", cores = 1) {
     
     #Normalize seqnames. If . present in name, changes it to _ and warns the user
-    if(length(grep("[.]", seqlevels(genome)) > 0)){
+    if(length(grep("[.]", seqlevels(genome))) > 0){
       seqlevels(genome) <- gsub("[.]", "_", seqlevels(genome))
       warning("Some seqnames had a '.' present in their names. ASpli had to normalize them using '_'.")
     }
@@ -175,6 +175,61 @@ setMethod(
     features@junctions <- junctions
     features@transcriptExons <- transcriptExons
     
+    #TODO hacer el disjoin directo con fullT y tratar de machear los rangos que no coinciden en el disjoin con 
+    #los originales de fullT. Esto tiene el problema del overlap de locus y de perder la referencia de los bines
+    #de donde salio el disjoin.
+    
+    # Start the clock!
+    ptm <- proc.time()
+    
+    locus <- unique(fullT$locus)
+    fullTcorregido <- fullT[fullT$locus %in% locus]
+    dtFullTcorregido <- as.data.table(fullTcorregido)
+    lFullTcorregidos <- split(dtFullTcorregido, dtFullTcorregido$locus)
+    
+    fullTcorregido <- mclapply(lFullTcorregidos, mc.cores = cores, function(l){
+      #print(l$locus[1])
+      lIo    <- l[l$feature == "Io", ]
+      lSinIo <- l[l$feature != "Io", ]
+      rangos <- GRanges(seqnames = lSinIo$seqnames, ranges = IRanges(lSinIo$start, lSinIo$end, lSinIo$width), strand = lSinIo$strand)
+      dis    <- disjoin(rangos)
+      #Si los elementos disjuntos son menos que los rangos, es porque hay elementos que no deberian estar (ej AT1G02010). Los remuevo
+      #Si no, simplemente ajusto los rangos
+      if(length(dis) != length(rangos)){
+        #Si los elementos disjuntos son mayores que los rangos, es porque no sabemos que pasa (ej AT2G31902).
+        if(length(dis) > length(rangos)){
+          #print(l$locus[1])
+        }else{
+          ol <- data.frame(findOverlaps(rangos, dis, type = "equal"))
+          lSinIo <- lSinIo[ol$queryHits]
+        }
+      }else{
+        #Si es la misma cantidad simplemente alcanza con reemplazar los rangos anteriores (ej AT1G05860).
+        dis <- data.frame(ranges(dis))        
+        lSinIo$start <- dis$start
+        lSinIo$end   <- dis$end
+        lSinIo$width <- dis$width
+      }
+      return(rbind(lSinIo, lIo))
+    })
+    
+    
+    fullTcorregido <- rbindlist(fullTcorregido)
+    fullTcorregido <- GRanges(seqnames      = fullTcorregido$seqnames, 
+                              ranges        = IRanges(start = fullTcorregido$start, end = fullTcorregido$end, width = fullTcorregido$width),
+                              strand        = fullTcorregido$strand, 
+                              locus         = fullTcorregido$locus, 
+                              bin           = fullTcorregido$bin, 
+                              feature       = fullTcorregido$feature, 
+                              symbol        = fullTcorregido$symbol, 
+                              locus_overlap = fullTcorregido$locus_overlap,
+                              class         = fullTcorregido$class, 
+                              event         = fullTcorregido$event, 
+                              eventJ        = fullTcorregido$eventJ)
+    # Stop the clock
+    proc.time() - ptm
+    names(fullTcorregido) <- paste0(fullTcorregido$locus, ":", fullTcorregido$bin)
+    features@bins <- fullTcorregido
     
     return( features ) 
   })
@@ -219,7 +274,9 @@ setGeneric (
                   targets, minReadLength, maxISize, 
                   minAnchor = 10,
                   libType="SE",
-                  strandMode=0)
+                  strandMode=0,
+                  alignFastq = FALSE,
+                  dropBAM = FALSE)
     standardGeneric("gbCounts") )
 
 setMethod(
@@ -228,15 +285,12 @@ setMethod(
   definition = function( features, targets,  minReadLength,  
                          maxISize, minAnchor = 10,
                          libType="SE",
-                         strandMode=0) {
-    counts <- readCounts( features = features,
-                          bam = NULL, 
-                          targets = targets, 
-                          readLength = minReadLength, 
-                          maxISize = maxISize, 
-                          minAnchor = minAnchor,
+                         strandMode=0,
+                         alignFastq = FALSE,
+                         dropBAM = FALSE) {
+    counts <- readCounts( features = features, bam = NULL, targets = targets, readLength = minReadLength, maxISize = maxISize, minAnchor = minAnchor,
                           libType=libType,
-                          strandMode=strandMode)
+                          strandMode=strandMode, alignFastq = alignFastq, dropBAM = dropBAM)
     counts@.ASpliVersion = "2" #Marks ASpliCounts object with the ASpli update 2.0.0
     return(counts)
   }
@@ -253,7 +307,9 @@ setGeneric (
                   maxISize, 
                   minAnchor = 10,
                   libType=libType,
-                  strandMode=strandMode
+                  strandMode=strandMode,
+                  alignFastq = FALSE,
+                  dropBAM = FALSE
                   )
     standardGeneric("readCounts") )
 
@@ -261,14 +317,29 @@ setMethod(
   f = "readCounts",
   signature = "ASpliFeatures",
   definition = function( features, bam, targets, cores = 1, readLength,  
-                         maxISize, 
-                         minAnchor = 10,
+                         maxISize, minAnchor = 10,
                          libType=libType,
-                         strandMode=strandMode) {
+                         strandMode=strandMode, alignFastq = FALSE, dropBAM = FALSE) {
 
     if(!is.null(bam)){
       .Deprecated("gbCounts")
     }
+    
+    #Check if alignFastq then targets must have one extra column with fastqs.
+    #Also, if not, check if all bams exist before running
+    if(alignFastq){
+      if(!("alignerCall" %in% colnames(targets))){
+        stop("Targets data frame must have a column named alignerCall with complete call to aligner for each sample.\n ie: STAR --runMode alignReads --outSAMtype BAM SortedByCoordinate --readFilesCommand zcat --genomeDir /path/to/STAR/genome/folder -runThreadN 4 --outFileNamePrefix {sample name} --readFilesIn  /path/to/R1 /path/to/R2. Output must match bam files provided in targets.")
+      }
+    }else{
+      #All files exist?
+      bams <- targets[, "bam"]
+      bamFilesExist <- file.exists(bams)
+      if(!all(bamFilesExist)){
+        stop(paste0("Some bam files don't exist: ", paste0(bams[!bamFilesExist], collapse=", ")))
+      }
+    }
+    
     minReadLength <- readLength
     cores <- 1 #Allways use 1 core.
  
@@ -298,11 +369,60 @@ setMethod(
         #Verbose
         message(paste("Summarizing", rownames(targets)[target]))
         
-        #Load bam from current target#
-        #aca hay que pasarle el parametro de SE o PE, y strandMode
+        #Checks if must align first
+        if(alignFastq){
+            #Run alignment
+            tryCatch(
+              {
+                message(paste0("Aligning using: ", targets[target, "alignerCall"]))
+                system(targets[target, "alignerCall"])
+              },
+              error=function(cond) {
+                stop(cond)
+              },
+              warning=function(cond) {
+                stop(cond)
+              },
+              finally={
+              }
+            )
+          #Check if bam exists or die
+          if(!file.exists(targets[target, "bam"])){
+            stop(paste0("Could not align or bam was not correctly created. Was expecting: ", targets[target, "bam"]))
+          }
+          
+          #Make bai
+          #Run alignment
+          tryCatch(
+            {
+              message(paste0("Building bam index"))
+              system(paste0("samtools index ", targets[target, "bam"]))
+            },
+            error=function(cond) {
+              stop(cond)
+            },
+            warning=function(cond) {
+              stop(cond)
+            },
+            finally={
+            }
+          )
+          #Check if bai exists or die
+          if(!file.exists(paste0(targets[target, "bam"], ".bai"))){
+            stop(paste0("Could not create bai file. Make sure samtools is installed and accesible in PATH"))
+          }
+        }
+              
+        #Load bam from current target
         bam <- loadBAM(targets[target, ], cores = NULL,
                        libType=libType, 
                        strandMode=strandMode) #With cores = NULL wont print deprecated message
+        
+        #If dropBAM drops bam and bai but only if alignFastq = TRUE
+        if(alignFastq & dropBAM){
+          file.remove(paste0(targets[target, "bam"], ".bai"))
+          file.remove(targets[target, "bam"])
+        }
       }      
       
       # Count Genes
@@ -418,7 +538,9 @@ setGeneric (
                   threshold = 5, 
                   minAnchor = 10,
                   libType="SE",
-                  strandMode=0) standardGeneric("jCounts") )
+                  strandMode=0,
+                  alignFastq = FALSE, 
+                  dropBAM = FALSE) standardGeneric("jCounts") )
 
 setMethod(
   f = "jCounts",
@@ -429,21 +551,18 @@ setMethod(
                          threshold = 5, 
                          minAnchor = 10,
                          libType="SE",
-                         strandMode=0) {
+                         strandMode=0,
+                         alignFastq = FALSE, 
+                         dropBAM = FALSE) {
     if(!.hasSlot(counts, ".ASpliVersion")){
       counts@.ASpliVersion = "1" #Last version before 2.0.0 was 1.14.0. 
     }
     if(counts@.ASpliVersion == "1"){
       stop("Your version of ASpliCounts can not be used with this version of ASpli, please run gbCounts first. See vignette for details on the new pipeline.")
     }
-    as <- AsDiscover( counts = counts, 
-                      targets = NULL, 
-                      features = features, 
-                      bam = NULL, readLength = minReadLength, 
-                      threshold = threshold,
-                      cores = 1, minAnchor = 10,
+    as <- AsDiscover( counts = counts, targets = NULL, features = features, bam = NULL, readLength = minReadLength, threshold = threshold, cores = 1, minAnchor = 10,
                       libType = libType,
-                      strandMode = strandMode )
+                      strandMode = strandMode, alignFastq = alignFastq, dropBAM = dropBAM)
     as@.ASpliVersion = "2" #Marks ASpliCounts object with the ASpli update 2.0.0    
     return(as)
   }
@@ -460,8 +579,9 @@ setGeneric (
                   cores = 1, 
                   minAnchor = 10,
                   libType=libType,
-                  strandMode=strandMode
-                  ) standardGeneric("AsDiscover") )
+                  strandMode=strandMode,
+                  alignFastq = FALSE,
+                  dropBAM = FALSE) standardGeneric("AsDiscover") )
 
 setMethod(
   f = "AsDiscover",
@@ -475,7 +595,9 @@ setMethod(
                          cores = 1, 
                          minAnchor = 10,
                          libType=libType,
-                         strandMode=strandMode) {
+                         strandMode=strandMode,
+                         alignFastq = FALSE,
+                         dropBAM = FALSE) {
     
     if(!.hasSlot(counts, ".ASpliVersion")){
       counts@.ASpliVersion = "1" #Last version before 2.0.0 was 1.14.0. 
@@ -488,6 +610,21 @@ setMethod(
       .Deprecated("jCounts")
     }else{
       targets <- counts@targets
+    }
+
+    #Check if alignFastq then targets must have one extra column with fastqs.
+    #Also, if not, check if all bams exist before running
+    if(alignFastq){
+      if(!("alignerCall" %in% colnames(targets))){
+        stop("Targets data frame must have a column named alignerCall with complete call to aligner for each sample.\n ie: STAR --runMode alignReads --outSAMtype BAM SortedByCoordinate --readFilesCommand zcat --genomeDir /path/to/STAR/genome/folder -runThreadN 4 --outFileNamePrefix {sample name} --readFilesIn  /path/to/R1 /path/to/R2. Output must match bam files provided in targets.")
+      }
+    }else{
+      #All files exist?
+      bams <- targets[, "bam"]
+      bamFilesExist <- file.exists(bams)
+      if(!all(bamFilesExist)){
+        stop(paste0("Some bam files don't exist: ", paste0(bams[!bamFilesExist], collapse=", ")))
+      }
     }
     minReadLength <- readLength
     cores <- 1
@@ -517,22 +654,71 @@ setMethod(
       ntargets <- nrow(targets)
       for(target in 1:ntargets){
          
-         if(ntargets > 1){
-          #Load bam from current target
-          #agrego el libType y StrandMode
-          bam <- loadBAM(targets[target, ], cores = NULL, 
-                         libType=libType, strandMode=strandMode)
-          junctionsPIR <- .junctionsDiscover( df=jcounts, 
-                                              minReadLength=minReadLength, 
-                                              targets=targets[target, ], 
-                                              features=features,
-                                              minAnchor = minAnchor,
-                                              bam=bam)  
-          
+        if(ntargets > 1){
+        
+         #Checks if must align first
+         if(alignFastq){
+           #Run alignment
+           tryCatch(
+             {
+               message(paste0("Aligning using: ", targets[target, "alignerCall"]))
+               system(targets[target, "alignerCall"])
+             },
+             error=function(cond) {
+               stop(cond)
+             },
+             warning=function(cond) {
+               stop(cond)
+             },
+             finally={
+             }
+           )
+           #Check if bam exists or die
+           if(!file.exists(targets[target, "bam"])){
+             stop(paste0("Could not align or bam was not correctly created. Was expecting: ", targets[target, "bam"]))
+           }
+           
+           #Make bai
+           #Run alignment
+           tryCatch(
+             {
+               message(paste0("Building bam index"))
+               system(paste0("samtools index ", targets[target, "bam"]))
+             },
+             error=function(cond) {
+               stop(cond)
+             },
+             warning=function(cond) {
+               stop(cond)
+             },
+             finally={
+             }
+           )
+           #Check if bai exists or die
+           if(!file.exists(paste0(targets[target, "bam"], ".bai"))){
+             stop(paste0("Could not create bai file. Make sure samtools is installed and accesible in PATH"))
+           }
          }
         
+         #Load bam from current target
+         bam <- loadBAM(targets[target, ], cores = NULL, 
+                        libType=libType, strandMode=strandMode) #With cores = NULL wont print deprecated message
+         
+         #If dropBAM drops bam and bai but only if alignFastq = TRUE
+         if(alignFastq & dropBAM){
+           file.remove(paste0(targets[target, "bam"], ".bai"))
+           file.remove(targets[target, "bam"])
+         }
+         
+         junctionsPIR <- .junctionsDiscover( df=jcounts, 
+                                            minReadLength=minReadLength, 
+                                            targets=targets[target, ], 
+                                            features=features,
+                                            minAnchor = minAnchor,
+                                            bam=bam)  
         
-        
+        }
+
         if(ncol(as@junctionsPIR) == 0){
           as@junctionsPIR <- junctionsPIR
         }else{
