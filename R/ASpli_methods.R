@@ -78,7 +78,7 @@ setMethod(
   definition = function ( genome, geneSymbols = NULL, logTo = "ASpli_binFeatures.log", cores = 1) {
     
     #Normalize seqnames. If . present in name, changes it to _ and warns the user
-    if(length(grep("[.]", seqlevels(genome)) > 0)){
+    if(length(grep("[.]", seqlevels(genome))) > 0){
       seqlevels(genome) <- gsub("[.]", "_", seqlevels(genome))
       warning("Some seqnames had a '.' present in their names. ASpli had to normalize them using '_'.")
     }
@@ -198,7 +198,7 @@ setMethod(
       if(length(dis) != length(rangos)){
         #Si los elementos disjuntos son mayores que los rangos, es porque no sabemos que pasa (ej AT2G31902).
         if(length(dis) > length(rangos)){
-          print(l$locus[1])
+          #print(l$locus[1])
         }else{
           ol <- data.frame(findOverlaps(rangos, dis, type = "equal"))
           lSinIo <- lSinIo[ol$queryHits]

@@ -64,30 +64,65 @@
   # binsGRangesList sean disjuntos ( es decir, no se solapan para un mismo gen),
   # los solapamientos que se encuentran deben ser entre rangos de genes 
   # diferentes.
-  if ( packageVersion("IRanges") < 2.6 ) {
-    locus <- findOverlaps( binsGRangesList, ignoreSelf=TRUE, ignore.strand = TRUE ) 
-  } else {
-    locus <- findOverlaps( binsGRangesList, drop.self=TRUE, ignore.strand = TRUE ) 
-  }  
-  # -------------------------------------------------------------------------- #
-  
-  locusOverlap <- rep("-", length( binsGRangesList ) )  
-  
-  # -------------------------------------------------------------------------- #
-  # Si hay genes que se solapan, se recuperan todos los nombres de los genes
-  if ( length( locus ) > 0 ) {
-    names      <- names( binsGRangesList[ to( locus ) ] )
-    geneIndex  <- from ( locus ) 
-    aggregated <- data.frame( aggregate( names ~ geneIndex, 
-            FUN = paste, collapse = ';' ) )
-    locusOverlap[ aggregated$geneIndex ] <- aggregated$names
+  #Modificaciones hechas por AR 20201128
+  if(F){
+    if ( packageVersion("IRanges") < 2.6 ) {
+      locus <- findOverlaps( binsGRangesList, ignoreSelf=TRUE, ignore.strand = T ) 
+    } else {
+      locus <- findOverlaps( binsGRangesList[c(i, j)], drop.self=TRUE, ignore.strand = T ) 
+    }
+    
+    
+    # -------------------------------------------------------------------------- #
+    
+    locusOverlap <- rep("-", length( binsGRangesList ) )  
+    
+    # -------------------------------------------------------------------------- #
+    # Si hay genes que se solapan, se recuperan todos los nombres de los genes
+    if ( length( locus ) > 0 ) {
+      names      <- names( binsGRangesList[ to( locus ) ] )
+      geneIndex  <- from ( locus ) 
+      aggregated <- data.frame( aggregate( names ~ geneIndex, 
+                                           FUN = paste, collapse = ';' ) )
+      locusOverlap[ aggregated$geneIndex ] <- aggregated$names
+    }
+    # -------------------------------------------------------------------------- #
+  }else{
+    starts   <- aggregate(start ~ group_name, data.frame(binsGRangesList), min)
+    ends     <- aggregate(end ~ group_name, data.frame(binsGRangesList), max)
+    seqnames <- aggregate(seqnames ~ group_name, data.frame(binsGRangesList), unique)
+    strands  <- aggregate(strand ~ group_name, data.frame(binsGRangesList), unique)
+    rangos   <- merge(strands, merge(seqnames, merge(starts, ends, by = "group_name"), by = "group_name"), by = "group_name")
+    grangos  <- makeGRangesListFromDataFrame(rangos, names.field = "group_name")
+    names(grangos) <- rangos$group_name
+    if ( packageVersion("IRanges") < 2.6 ) {
+      locus <- findOverlaps( grangos, ignoreSelf=TRUE, ignore.strand = T ) 
+    } else {
+      locus <- findOverlaps( grangos, drop.self=TRUE, ignore.strand = T ) 
+    }
+    
+    # -------------------------------------------------------------------------- #
+    
+    locusOverlap <- rep("-", length( grangos ) )  
+    
+    # -------------------------------------------------------------------------- #
+    # Si hay genes que se solapan, se recuperan todos los nombres de los genes
+    if ( length( locus ) > 0 ) {
+      names      <- names( grangos[ to( locus ) ] )
+      geneIndex  <- from ( locus ) 
+      aggregated <- data.frame( aggregate( names ~ geneIndex, 
+                                           FUN = paste, collapse = ';' ) )
+      locusOverlap[ aggregated$geneIndex ] <- aggregated$names
+    }
+    # -------------------------------------------------------------------------- #    
+    
   }
-  # -------------------------------------------------------------------------- #
+  
+  
   
   return ( locusOverlap )
   
 }
-
 .createGRangesExons <- function( aTxDb, geneSymbols ) {
   
   # -------------------------------------------------------------------------- #
