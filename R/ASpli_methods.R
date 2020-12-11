@@ -495,6 +495,13 @@ setMethod(
         counts@junction.counts <- dt3
         counts@junction.counts[is.na(counts@junction.counts)] <- 0
       }
+      #Sacamos filas que tengan NA en todos lados
+      filas_con_na <- which(apply(counts@junction.counts, 1, function(s){any(is.na(s))}))
+      if(length(filas_con_na) > 0){
+        warning(paste0(length(filas_con_na), " NA functions removed from a total of ",  nrow(counts@junction.counts), " junctions"))
+        counts@junction.counts <- counts@junction.counts[-filas_con_na, ]
+      }
+      
       if(ntargets == 1) message("Junction summarization completed")
       if(length(grep("NA", rownames(counts@junction.counts))) > 0){
         print(target)
@@ -628,8 +635,8 @@ setMethod(
     }
     minReadLength <- readLength
     cores <- 1
-    libType=libType
-    strandMode=strandMode
+    #libType=libType
+    #strandMode=strandMode
     
     as  <- new(Class = "ASpliAS")
     as@.ASpliVersion = "1" #Last version before 2.0.0 was 1.14.0.    
