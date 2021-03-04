@@ -56,58 +56,73 @@ library(ASpli)
 @
 
 \section{Quick start}\label{qstart}
-Here is an example for a pairwise comparison between 2 conditions (Control vs Treatment, 3 replicates each) using default parameters. \\
+Here is an example included in ASpli, for a pairwise comparison between 2 conditions (Control vs Treatment, 3 replicates each) using default parameters. For the sake of computational speed we will consider a custom gtf file (included in ASpli) containing info just for 10 artificial genes.\\
 
 Extract features from genome, define {\em targets} data.frame with phenotype data, and {\em mBAMs} data.frame with phenotype data for merged BAMs:
 
 <<quickStart1, echo=TRUE, eval=FALSE>>=
-genome   <- loadDb("txdb.sqlite")
-features <- binGenome(genome)
-targets  <- data.frame(bam = c("CT_1.BAM", "CT_2.BAM","CT_3.BAM",
-                               "TR_1.BAM", "TR_2.BAM", "TR_3.BAM"),
-                  genotype = c( "CT", "CT", "CT",  "TR", "TR", "TR" ),
-                  stringsAsFactors = FALSE )
-mBAMs <- data.frame(bam=c("CT.BAM", "TR.BAM"),condition=c("CT","TR"))
+library(ASpli)
+library(GenomicFeatures)
+
+# gtf preprocessing ----
+gtfFileName <- aspliExampleGTF()
+genomeTxDb  <- makeTxDbFromGFF( gtfFileName )
+
+# feature extraction ----
+features    <- binGenome( genomeTxDb )
+
+#bams and target file ----
+BAMFiles <- aspliExampleBamList()
+targets  <- data.frame(row.names = paste0('Sample',c(1:6)),
+                       bam = BAMFiles[1:6],
+                       f1  = c( 'control','control','control','treatment','treatment','treatment'),
+                       stringsAsFactors = FALSE)
+mBAMs <- data.frame( bam = sub("_[012]","",targets$bam[c(1,4)]),
+                     condition = c("control","treatment"))
+
 @
+
+
 
 Read counting against annotated features: 
 
 <<quickStart2, echo=TRUE, eval=FALSE>>=
-gbcounts  <- gbCounts( features = features, 
-                           targets = targets, 
-                           minReadLength = 100, maxISize = 50000,
-                           libType="SE", 
-                           strandMode=0)
+gbcounts <- gbCounts(features=features, targets=targets,
+                     minReadLength = 100, maxISize = 50000)
+gbcounts
 @
 
-Junction-based {\em de-novo} counting:
+Junction-based {\em de-novo} counting and splicing signal estimation:
 
 <<quickStart2b, echo=TRUE, eval=FALSE>>=
-asd         <-  jCounts(counts = gbcounts, 
-                     features = features, 
-                     minReadLength = 125L,
-                     libType="SE", 
-                     strandMode=0)
+asd <- jCounts(counts=gbcounts, features=features, minReadLength=100)
+asd
 @
 
-Differential signal estimation:
-
+Differential gene expression and bin usage signal estimation:
 <<quickStart3, echo=TRUE, eval=FALSE>>=
-gb        <- gbDUreport(counts, contrast = c(-1, 1))
-jdur      <- jDUreport(    asd, contrast = c(-1, 1))
+gb  <- gbDUreport(gbcounts, contrast = c(-1,1))
+gb
 @
 
-Report and signal integration:
+Differential junction usage analysis:
+<<quickStart3b, echo=TRUE, eval=FALSE>>=
+jdur <- jDUreport(asd, contrast=c(-1,1))
+jdur
+@
 
+Bin and junction signal integration:
 <<quickStart4, echo=TRUE, eval=FALSE>>=
-sr      <- splicingReport(gb, jdur, counts)
-is      <- integrateSignals(sr,asd)
+sr <- splicingReport(gb, jdur, counts=gbcounts)
+@
+
+Summary of integration of splicing signals along genomic-regions. 
+<<quickStart4b, echo=TRUE, eval=FALSE>>=
+is <- integrateSignals(sr,asd)
 @
 
 Export results:
-
 <<quickStart5, echo=TRUE, eval=FALSE>>=
-exportSplicingReports( sr, output.dir="results")
 exportIntegratedSignals(is,sr=sr,
                           output.dir = "results",
                           counts=counts,features=features,asd=asd,
