@@ -50,17 +50,13 @@ Differently form other approaches, ASpli was specifically designed to integrate 
 
 A typical ASpli workflow  involves: parsing the genome annotation into subgenic features called bins, overlapping read alignments against them, perform junction counting, fulfill inference tasks of differential bin and junction usage and, finally, report integrated splicing signals. At every step ASpli generates self-contained outcomes that, if required, can be easily exported and integrated into other processing pipelines. 
 
-<<loadAspli, echo=FALSE, eval=TRUE>>=
-library(ASpli)
-#devtools::load_all("~/Documents/ASpli-labo/")
-@
 
 \section{Quick start}\label{qstart}
 Here is an example included in ASpli, for a pairwise comparison between 2 conditions (Control vs Treatment, 3 replicates each) using default parameters. For the sake of computational speed we will consider a custom gtf file (included in ASpli) containing info just for 10 artificial genes.\\
 
 Extract features from genome, define {\em targets} data.frame with phenotype data, and {\em mBAMs} data.frame with phenotype data for merged BAMs:
 
-<<quickStart1, echo=TRUE, eval=FALSE>>=
+<<quickStart1, echo=TRUE, eval=TRUE>>=
 library(ASpli)
 library(GenomicFeatures)
 
@@ -86,7 +82,7 @@ mBAMs <- data.frame( bam = sub("_[012]","",targets$bam[c(1,4)]),
 
 Read counting against annotated features: 
 
-<<quickStart2, echo=TRUE, eval=FALSE>>=
+<<quickStart2, echo=TRUE, eval=TRUE>>=
 gbcounts <- gbCounts(features=features, targets=targets,
                      minReadLength = 100, maxISize = 50000)
 gbcounts
@@ -94,38 +90,38 @@ gbcounts
 
 Junction-based {\em de-novo} counting and splicing signal estimation:
 
-<<quickStart2b, echo=TRUE, eval=FALSE>>=
+<<quickStart2b, echo=TRUE, eval=TRUE>>=
 asd <- jCounts(counts=gbcounts, features=features, minReadLength=100)
 asd
 @
 
 Differential gene expression and bin usage signal estimation:
-<<quickStart3, echo=TRUE, eval=FALSE>>=
+<<quickStart3, echo=TRUE, eval=TRUE>>=
 gb  <- gbDUreport(gbcounts, contrast = c(-1,1))
 gb
 @
 
 Differential junction usage analysis:
-<<quickStart3b, echo=TRUE, eval=FALSE>>=
+<<quickStart3b, echo=TRUE, eval=TRUE>>=
 jdur <- jDUreport(asd, contrast=c(-1,1))
 jdur
 @
 
 Bin and junction signal integration:
-<<quickStart4, echo=TRUE, eval=FALSE>>=
+<<quickStart4, echo=TRUE, eval=TRUE>>=
 sr <- splicingReport(gb, jdur, counts=gbcounts)
 @
 
 Summary of integration of splicing signals along genomic-regions. 
-<<quickStart4b, echo=TRUE, eval=FALSE>>=
+<<quickStart4b, echo=TRUE, eval=TRUE>>=
 is <- integrateSignals(sr,asd)
 @
 
 Export results:
-<<quickStart5, echo=TRUE, eval=FALSE>>=
+<<quickStart5, echo=TRUE, eval=TRUE>>=
 exportIntegratedSignals(is,sr=sr,
-                          output.dir = "results",
-                          counts=counts,features=features,asd=asd,
+                          output.dir = "aspliExample",
+                          counts=gbcounts,features=features,asd=asd,
                           mergedBams = mBAMs)
 @ 
 
@@ -300,7 +296,7 @@ that has as many rows as samples. The first column  should be named \textit{bam}
 For instance, for a two-factor design (e.g. {\em genotype} and {\em time}) the {\em targets} 
 data.frame could have been defined like this:
 
-<<targetsDF2, echo=TRUE, eval=TRUE>>=
+<<targetsDF2, echo=TRUE, eval=FALSE>>=
 BAMFiles <- c("path_to_bams/CT_time1_rep1.BAM", "path_to_bams/CT_time1_rep2.BAM",
               "path_to_bams/CT_time2_rep1.BAM", "path_to_bams/CT_time2_rep2.BAM",
               "path_to_bams/TR_time1_rep1.BAM", "path_to_bams/TR_time1_rep2.BAM",
@@ -316,7 +312,7 @@ BAMFiles <- c("path_to_bams/CT_time1_rep1.BAM", "path_to_bams/CT_time1_rep2.BAM"
 
 The {\em targets} dataframe contains experimental factor values for each sample. \texttt{ASpli} generates simple code-name for each experimental condition concatenating the corresponding factor levels. We recommend to check using the \texttt{getConditions()} function. 
 
-<<targetsDF2b, echo=TRUE, eval=TRUE>>=
+<<targetsDF2b, echo=TRUE, eval=FALSE>>=
 getConditions( targets )
 @
 
@@ -871,7 +867,7 @@ and \textbf{B.D}. Table \ref{tab:Ex01} summarizes the  experimental design.
 
 The firts step of the workflow is to load the small {\em gtf}, build the TxDb object and extract their features. In this case \texttt{gtfFileName} contains the full path to the example gtf file in your system.
 
-<<Ex02.a, echo=TRUE, eval=TRUE>>=
+<<Ex02.a, echo=TRUE, eval=FALSE>>=
 #library( ASpli )
 library( GenomicFeatures )
 gtfFileName <- aspliExampleGTF()
@@ -882,7 +878,7 @@ features <- binGenome( genomeTxDb )
 Then you should define your {\em targets} table.
 \texttt{aspliExampleBAMList()} provides the full path to the BAMs files.
 
-<<Ex02.e, echo=TRUE, eval=TRUE>>=
+<<Ex02.e, echo=TRUE, eval=FALSE>>=
 BAMFiles <- aspliExampleBamList()
 
 targets <- data.frame( 
@@ -897,20 +893,20 @@ targets <- data.frame(
 
 Experimental conditions are inferred from the experimental factors in the {\em target} dataframe:
 
-<<Ex02.g, echo=TRUE, eval=TRUE>>=
+<<Ex02.g, echo=TRUE, eval=FALSE>>=
 getConditions(targets)
 @
 
 We define a dataframe with path information for merged bams:
 
-<<Ex02.f, echo=TRUE, eval=TRUE>>=
+<<Ex02.f, echo=TRUE, eval=FALSE>>=
 mBAMs <- data.frame(bam      = sub("_[02]","",targets$bam[c(1,4,7,10)]),
                     condition= c("A_C","A_D","B_C","B_D"))
 @
 
 Next step is to overlap reads and features:
 
-<<Ex02.i, echo=TRUE, eval=TRUE>>=
+<<Ex02.i, echo=TRUE, eval=FALSE>>=
 gbcounts  <- gbCounts( features = features, 
                            targets = targets, 
                            minReadLength = 100, maxISize = 50000,
@@ -920,7 +916,7 @@ gbcounts  <- gbCounts( features = features,
 
 And also quantify junctions:
 
-<<Ex02.j, echo=TRUE, eval=TRUE>>=
+<<Ex02.j, echo=TRUE, eval=FALSE>>=
 asd<- jCounts(counts = gbcounts, 
                      features = features, 
                      minReadLength = 100,
@@ -961,7 +957,7 @@ represented as the {\em contrast} vector $[ 1,-1,-1, 1]$.
 
 We estimate gene differential expression and annotation-based differential splicing patterns for the contrast of interest as follow:  
 
-<<Ex02.k, echo=TRUE, eval=TRUE>>=
+<<Ex02.k, echo=TRUE, eval=FALSE>>=
 gb      <- gbDUreport(gbcounts,contrast = c( 1, -1, -1, 1 ) )
 
 @
@@ -969,7 +965,7 @@ gb      <- gbDUreport(gbcounts,contrast = c( 1, -1, -1, 1 ) )
 \texttt{genesDE()} and \texttt{binsDU()} accesors report the statistical significance results. We can see that in this example no evidence of a statistically significant interaction term was found at gene expression level. However, 9 out of 14 bins displayed statistically significant interaction 
 effect (fdr < 0.01) 
 
-<<Ex02.k2, echo=TRUE, eval=TRUE>>=
+<<Ex02.k2, echo=TRUE, eval=FALSE>>=
 genesDE(gb)[1:5,]
 binsDU(gb)[1:5,]
 @
@@ -977,7 +973,7 @@ binsDU(gb)[1:5,]
 
 The analysis of annotation-free junction-based AS events can be done with \footnote{Note that as we required to compute non-uniform intron coverage, we should specify merged-BAMs information}:
 
-<<Ex02.l, echo=TRUE, eval=TRUE>>=
+<<Ex02.l, echo=TRUE, eval=FALSE>>=
 jdur    <- jDUreport(asd, contrast =  c( 1, -1, -1, 1 ))
 @
 
@@ -995,20 +991,20 @@ Rownames correspond to cluster-ids. Rows are ordered by FDR values. The {\em par
 
 {\em localej(jdur)} shows locale-information for each analyzed junction, reporting results of statistical tests at junction level in the first 8 columns:
 
-<<Ex02.kkk, echo=TRUE, eval=TRUE>>=
+<<Ex02.kkk, echo=TRUE, eval=FALSE>>=
 localej(jdur)[1:5,1:8]
 @
 
 We integrate all our data:
 
-<<Ex02.m, echo=TRUE, eval=TRUE>>=
+<<Ex02.m, echo=TRUE, eval=FALSE>>=
 sr      <- splicingReport(gb, jdur, counts = gbcounts)
 is      <- integrateSignals(sr,asd)
 @
 
 And finally we export integrate signals into an interactive HTML page
 
-<<Ex03, echo=TRUE, eval=TRUE>>=
+<<Ex03, echo=TRUE, eval=FALSE>>=
 exportIntegratedSignals( is, output.dir="aspliExample", 
                          sr, gbcounts, features, asd, mBAMs)
 
@@ -1018,13 +1014,13 @@ exportIntegratedSignals( is, output.dir="aspliExample",
 In \texttt{ASpli} it is also possible to use {\em formulas} to test different hypothesis.
 In our example we will consider the following formula to model our data:
 
-<<Ex04, echo=TRUE, eval=TRUE>>=
+<<Ex04, echo=TRUE, eval=FALSE>>=
  form <- formula(~f1+f2+f1:f2)
 @
 
 This formula corresponds to the following model matrix:
 
-<<Ex05, echo=TRUE, eval=TRUE>>=
+<<Ex05, echo=TRUE, eval=FALSE>>=
  model.matrix(form,targets)
 @
 
