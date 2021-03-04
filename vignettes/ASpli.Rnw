@@ -1,4 +1,4 @@
-\documentclass{article}
+\documentclass[hidelinks]{article}
 
 % \VignetteIndexEntry{ASpli}
 
@@ -49,6 +49,9 @@ AS events.
 Differently form other approaches, ASpli was specifically designed to integrate several independent signals in order to deal with the complexity that might arise in splicing patterns. Taking into account genome annotation information, ASpli considers bin-based signals along  with junction inclusion indexes in order to assess for statistically significant changes in read coverage. In addition, annotation-independent signals are estimated based on the complete set of experimentally detected splice junctions.  ASpli makes use of a generalized linear model framework (as implemented in edgeR R-package \cite{Robinson2010}) to assess for the statistical  analysis of specific contrasts of interest. In this way, ASpli can provide a comprehensive description of genome-wide splicing alterations even for complex experimental designs. 
 
 A typical ASpli workflow  involves: parsing the genome annotation into subgenic features called bins, overlapping read alignments against them, perform junction counting, fulfill inference tasks of differential bin and junction usage and, finally, report integrated splicing signals. At every step ASpli generates self-contained outcomes that, if required, can be easily exported and integrated into other processing pipelines. 
+
+\section{Citation}
+{\em ASpli: Integrative analysis of splicing landscapes through RNA-seq assays}, Mancini E, Rabinovich A, Iserte J, Yanovsky M, Chernomoretz A, Bioinformatics, March 2021,  [\href{https://doi.org/10.1093/bioinformatics/btab141}{journal},\href{https://tinyurl.com/mjvet53u}{preprint}]
 
 
 \section{Quick start}\label{qstart}
@@ -122,7 +125,7 @@ Export results:
 exportIntegratedSignals(is,sr=sr,
                           output.dir = "aspliExample",
                           counts=gbcounts,features=features,asd=asd,
-                          mergedBams = mBAMs)
+                          mergedBams = mBAMs,bforce=FALSE)
 @ 
 
 \section{Getting started}
@@ -170,6 +173,28 @@ Please, \texttt{make sure all files use the same coordinate system}.
 \item IMPORTANT: In order to estimate uniform coverage statistics and to generate graphical reports through the {\texttt exportIntegratedSignals} function, replicate merged \texttt{BAM} files for each contrasted condition are needed. These merged BAMs can easily be computed from individual replicate BAM files using {\bf samtools merge} utility (you can check \hyperref[samtools]{http://www.htslib.org/doc/samtools-merge.html}). Index for these merged BAM files should also be provided. They can be easily generated with {\bf samtools index} utility (https://www.htslib.org/doc/samtools-index.html).
 
 \end{itemize}
+
+\section{ASpli description}
+\texttt{ASpli} analyzes read coverage over {\em bins}, defined as maximal sub-genic features entirely included or entirely excluded from  annotated  mature tanscripts (see Figure \ref{fig:aspliWorkflow}). 
+Read junctions are considered in order to provide supporting evidence of differential bin usage. Additionally, annotation-independent signals are estimated based on the complete set of experimentally detected splice junctions (see Figure \ref{fig:aspliWorkflow}). 
+
+We leverage on the statistical framework implemented in \texttt{edgeR} to asses for the statistical significance of different splicing signals in a consistent and unified way. As depicted in Figure \ref{fig:aspliWorkflow}.3, statistically significant evidence is collected from: bin coverage differential signals, relative changes in junction's flanking genomic regions (junction-anchorage signal), and junction usage variations displayed inside junction clusters (junction-locale signal).\\
+ 
+%In practice, a typical ASpli workflow  involves several steps: parsing the genome annotation into bins, counting aligned reads, assessing for differential bin and junction usage, consolidating junction and bin-coverage splicing evidence and, finally, reporting integrated splicing signals. At every step ASpli generates self-contained outcomes that, if required, could be easily exported and integrated into other processing pipelines. 
+Figure \ref{fig:aspliWorkflow}.4 shows an example of the interactive html report generated as a final output.\\ 
+
+\begin{figure*}[!htpb]%figure1
+\centerline{\includegraphics[width=\textwidth]{images/newFig1_E.pdf}}
+\caption{ ASpli main features.
+Panel 1: binning of a three-isoform gene. Six bins (plus one intron-original bin) were defined. According to the local bin classification model two external, two intronic, one exonic and one alternative bin were recognized. Reads aligned to the genome are used to tally bin counts. In the figure, darker boxes represent non-annotated junctions and reads. Panel 2: Summary of splicing signals. 
+Bin coverage is depicted in the blueish sub-panel. Junction-based signals are shown in the yellow sub-panel. 
+The Percent-Spliced-In (PSI) statistics is used to quantify the inclusion evidence of exon-skipping and for the alternative use of 5' or 3' splicing sites. On the other hand, the Percent-of-Intron-Retention (PIR) is considered for IR events. It combines counts for the junction of interest and counts tallied over exon-intron boundaries ($r_{IE}$ and $r_{EI}$). The Percent-Junction-Usage (PJU) statistics (rightmost junction-panel) quantifies the relative strength of a given junction with respect to locally {\em competing} ones for alternative 5' or 3' splicing sites. The participation coefficient $\Pi$ serves to quantify the relative strength of a given junction $J$ with respect to the set of junctions of the corresponding junction-cluster.
+For annotation-compliant events ASpli takes into account bin-coverage along with PSI\textsubscript{exon skip}, PSI\textsubscript{Alt i} 
+or PIR signals depending on the event-class assigned to the analyzed bin. PIR and PJU\textsubscript{i} signals estimated for experimentally detected junctions are use to produce annotation-free statistics.
+ Panel 3: Summary of differential splicing signals. ASpli applies a GLM approach on three different sets of reads and junctions to define complementary splicing cues: differential bin-coverage, junction anchorage and junction-locale signals. 4: Example of ASpli generated output.
+}\label{fig:aspliWorkflow}
+\end{figure*}
+
 
 \section{Using \texttt{ASpli}}
 
