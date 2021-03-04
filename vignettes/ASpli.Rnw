@@ -125,7 +125,7 @@ Export results:
 exportIntegratedSignals(is,sr=sr,
                           output.dir = "aspliExample",
                           counts=gbcounts,features=features,asd=asd,
-                          mergedBams = mBAMs,bforce=FALSE)
+                          mergedBams = mBAMs)
 @ 
 
 \section{Getting started}
@@ -174,7 +174,7 @@ Please, \texttt{make sure all files use the same coordinate system}.
 
 \end{itemize}
 
-\section{ASpli description}
+\section{ASpli overview}
 \texttt{ASpli} analyzes read coverage over {\em bins}, defined as maximal sub-genic features entirely included or entirely excluded from  annotated  mature tanscripts (see Figure \ref{fig:aspliWorkflow}). 
 Read junctions are considered in order to provide supporting evidence of differential bin usage. Additionally, annotation-independent signals are estimated based on the complete set of experimentally detected splice junctions (see Figure \ref{fig:aspliWorkflow}). 
 
