@@ -1,3 +1,21 @@
+CHANGES IN VERSION 2.1
+-------------------------
+
+NEW FUNCTIONS AND FUNCTIONALITIES
+    * New locus plot helper function .plotGenePattern.
+       * plots coverage, junctions and architecture
+       
+FEATURES
+    
+    * Enhancement to the vignettes.
+        * Quick start section was modify in order to use gtf and bam files provided by Aspli package
+        * Add new section ASpli overview in vignette
+
+BUG FIXES
+
+    * binGenome function correctly assign bins at the start and the end of each gene    
+    * binGenome function correctly calculates gene range overlap
+
 CHANGES IN VERSION 1.99.3
 -------------------------
 
