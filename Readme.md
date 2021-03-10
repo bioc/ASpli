@@ -19,14 +19,9 @@ the early days of NGS (Next generation sequencing) technologies.  Since then, ev
 A typical `ASpli` workflow  involves: parsing the genome annotation into subgenic features called bins, overlapping read alignments against them, perform junction counting, fulfill inference tasks of differential bin and junction usage and, finally, report integrated splicing signals. At every step `ASpli` generates self-contained outcomes that, if required, can be easily exported and integrated into other processing pipelines. 
 
 ## Installation
-As of July 2020, ASpli is freely available at Bioconductor devel branch. It will be part of the next Bioconductor official release scheduled for October 2020
 
     if (!requireNamespace("BiocManager", quietly = TRUE))
       install.packages("BiocManager")
-   
-    # The following line initializes usage of Bioc devel branch and 
-    # should not be necessary after the next official release scheduled for October 2020
-    if(Sys.Date()<"2020-11-01") BiocManager::install(version='devel')
    
     BiocManager::install("ASpli")
    
@@ -37,7 +32,7 @@ As of July 2020, ASpli is freely available at Bioconductor devel branch. It will
 Note: **samtools** is also required for image creation when exporting integrated signals (reports can be generated without **samtools** if images are not required).
 
 ## Quick start
-ASpli's installation provides toy BAM and GTF files to introduce the working pipeline.
+ASpli provides toy BAM and GTF files to introduce the working pipeline.
 Here is an example for a pairwise comparison between 2 conditions (Control vs Treatment, 3 replicates each) using default parameters.
 
 Extract features from genome, define *targets* data.frame with phenotype data, and *mBAMs* data.frame with phenotype data for merged BAMs:
@@ -114,5 +109,10 @@ Entry point for ASpli documentation is ASpli vignette, available after installin
 
     browseVignettes("ASpli")
     
-If user has a question not answered in ASpli vignette, ASpli has an issue board with previous issues available in gitlab.
+If user has a question not answered in ASpli vignette, ASpli has an issue board with previous issues available in https://github.com/chernolab/ASpli.
 If no previous issue answers the question, user can upload a new issue requesting help.
+
+## Citation
+*ASpli: Integrative analysis of splicing landscapes through RNA-seq assays*, Mancini E, Rabinovich A, Iserte J, Yanovsky M, Chernomoretz A, Bioinformatics, March 2021, 
+
+
