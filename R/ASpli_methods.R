@@ -503,13 +503,13 @@ setMethod(
       }
       
       if(ntargets == 1) message("Junction summarization completed")
-      if(length(grep("NA", rownames(counts@junction.counts))) > 0){
-        print(target)
-        break
-      }
-      if(length(grep("NA", rownames(junction.hits ))) > 0){
-        print(target)
-      }
+      #if(length(grep("NA", rownames(counts@junction.counts))) > 0){
+      #  print(target)
+      #  break
+      #}
+      #if(length(grep("NA", rownames(junction.hits ))) > 0){
+      #  print(target)
+      #}
       gc()
       if(ntargets > 1){     
         sptm <- (proc.time() - ptm)[3]/target/60        
