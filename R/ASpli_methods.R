@@ -503,10 +503,11 @@ setMethod(
       }
       
       if(ntargets == 1) message("Junction summarization completed")
-      #if(length(grep("NA", rownames(counts@junction.counts))) > 0){
-      #  print(target)
-      #  break
-      #}
+      na_junctions <- which(is.na(counts@junction.counts$junction))
+      if(length(na_junctions) > 0){
+        warning(paste0("Removing ", length(na_junctions), " NA junctions"))
+        counts@junction.counts <- counts@junction.counts[-na_junctions, ]
+      }
       #if(length(grep("NA", rownames(junction.hits ))) > 0){
       #  print(target)
       #}
@@ -567,7 +568,7 @@ setMethod(
     if(counts@.ASpliVersion == "1"){
       stop("Your version of ASpliCounts can not be used with this version of ASpli, please run gbCounts first. See vignette for details on the new pipeline.")
     }
-    as <- AsDiscover( counts = counts, targets = NULL, features = features, bam = NULL, readLength = minReadLength, threshold = threshold, cores = 1, minAnchor = 10,
+    as <- AsDiscover( counts = counts, targets = NULL, features = features, bam = NULL, readLength = minReadLength, threshold = threshold, cores = 1, minAnchor = minAnchor,
                       libType = libType,
                       strandMode = strandMode, alignFastq = alignFastq, dropBAM = dropBAM)
     as@.ASpliVersion = "2" #Marks ASpliCounts object with the ASpli update 2.0.0    
