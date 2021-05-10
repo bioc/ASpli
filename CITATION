@@ -1,0 +1,10 @@
+citEntry(
+  entry = "article",
+  title = ASpli: integrative analysis of splicing landscapes through RNA-Seq assays",
+  author = "Mancini Estefania, Rabinovich Andres, Iserte Javier, Yanovsky Marcelo, Chernomoretz Ariel",
+  journal = "Bioinformatics",
+  year = 2021,
+  doi = "https://doi.org/10.1093/bioinformatics/btab141",
+  textVersion = "Mancini E,  Rabinovich A, Iserte J, Yanovsky M, Chernomoretz A (2021). ASpli: integrative analysis of splicing landscapes through RNA-Seq assays. Bioinformatics"
+)
+
