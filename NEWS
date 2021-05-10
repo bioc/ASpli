@@ -1,3 +1,13 @@
+CHANGES IN VERSION 2.1.2
+-------------------------
+NEW CITATION 
+  * ASpli was published on Bioinformatics
+  * https://doi.org/10.1093/bioinformatics/btab141
+
+BUG FIXES
+    * gbCounts identifies correctly NA in junction's name
+
+
 CHANGES IN VERSION 2.1
 -------------------------
 
@@ -8,13 +18,13 @@ NEW FUNCTIONS AND FUNCTIONALITIES
 FEATURES
     
     * Enhancement to the vignettes.
-        * Quick start section was modify in order to use gtf and bam files provided by Aspli package
+        * Quick start section was modify in order to use gtf and bam files provided by ASpli package
         * Add new section ASpli overview in vignette
 
 BUG FIXES
 
-    * binGenome function correctly assign bins at the start and the end of each gene    
-    * binGenome function correctly calculates gene range overlap
+    * binGenome function assigns correctly  bins located at the start and the end of each gene    
+    * binGenome function calculates correctly  gene range overlap
 
 CHANGES IN VERSION 1.99.3
 -------------------------
