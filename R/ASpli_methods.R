@@ -168,7 +168,7 @@ setMethod(
     #geneNames <- DataFrame(gene=names(a),tx=mcols(a)$tx_name)
     geneNames <- DataFrame(gene=names(a))
     rownames(geneNames)<-mcols(a)$tx_name
-    mcols( transcriptExons ) <- append ( mcols( transcriptExons ), geneNames[names(transcriptExons),,drop=FALSE] )
+    mcols( transcriptExons ) <- append ( mcols( transcriptExons ), geneNames[names(transcriptExons), , drop=FALSE] )
 
     features@genes <- genes.by.exons
     features@bins <- fullT
@@ -180,14 +180,17 @@ setMethod(
     #de donde salio el disjoin.
     
     # Start the clock!
-    ptm <- proc.time()
+    #ptm <- proc.time()
     
     locus <- unique(fullT$locus)
     fullTcorregido <- fullT[fullT$locus %in% locus]
     dtFullTcorregido <- as.data.table(fullTcorregido)
     lFullTcorregidos <- split(dtFullTcorregido, dtFullTcorregido$locus)
     
-    fullTcorregido <- mclapply(lFullTcorregidos, mc.cores = cores, function(l){
+    message( "Correcting Io ends, this might take a while..." )
+    #pb <- txtProgressBar(min=1,max=length(lFullTcorregidos),style=3)
+    #i <- 0
+    fullTcorregido <- pbmclapply(lFullTcorregidos, mc.cores = cores, function(l){
       #print(l$locus[1])
       lIo    <- l[l$feature == "Io", ]
       lSinIo <- l[l$feature != "Io", ]
@@ -212,8 +215,7 @@ setMethod(
       }
       return(rbind(lSinIo, lIo))
     })
-    
-    
+
     fullTcorregido <- rbindlist(fullTcorregido)
     fullTcorregido <- GRanges(seqnames      = fullTcorregido$seqnames, 
                               ranges        = IRanges(start = fullTcorregido$start, end = fullTcorregido$end, width = fullTcorregido$width),
@@ -227,10 +229,10 @@ setMethod(
                               event         = fullTcorregido$event, 
                               eventJ        = fullTcorregido$eventJ)
     # Stop the clock
-    proc.time() - ptm
+    #proc.time() - ptm
     names(fullTcorregido) <- paste0(fullTcorregido$locus, ":", fullTcorregido$bin)
     features@bins <- fullTcorregido
-    
+    message( "Genome binning completed" )
     return( features ) 
   })
 
