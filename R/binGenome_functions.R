@@ -69,7 +69,8 @@
     if ( packageVersion("IRanges") < 2.6 ) {
       locus <- findOverlaps( binsGRangesList, ignoreSelf=TRUE, ignore.strand = T ) 
     } else {
-      locus <- findOverlaps( binsGRangesList[c(i, j)], drop.self=TRUE, ignore.strand = T ) 
+      locus <- findOverlaps( binsGRangesList, drop.self=TRUE, ignore.strand = T ) 
+      #locus <- findOverlaps( binsGRangesList[c(i, j)], drop.self=TRUE, ignore.strand = T ) 
     }
     
     

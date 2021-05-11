@@ -6,7 +6,7 @@ NEW CITATION
 
 BUG FIXES
     * gbCounts identifies correctly NA in junction's name
-
+    * minAnchor in jCounts was hardcoded so it had no impact on analysis. It is being passed correctly now.
 
 CHANGES IN VERSION 2.1
 -------------------------

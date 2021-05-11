@@ -10,13 +10,15 @@
   bins or alternative splicing (AS) bins .
 }
 
-\usage{ binGenome(genome,  geneSymbols, logTo = "ASpli_binFeatures.log" ) }
+\usage{ binGenome(genome,  geneSymbols = NULL, logTo = "ASpli_binFeatures.log", cores = 1) }
 
 \arguments{
   \item{genome}{ An object of class transcriptDb (TxDb) }
   \item{geneSymbols}{ A dataframe with symbol (common names) of TxDb genes. 
     If geneSymbols is NULL, gene name will be repeated }
-  \item{ logTo }{ Filename where to print features extraction log } }
+  \item{ logTo }{ Filename where to print features extraction log }
+  \item{ cores }{ Number of cores to use in parallel when binning the genome }
+ }
 
 \details{ 
   Exon and intron coordinates are extracted from gene annotation, only those 
