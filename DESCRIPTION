@@ -11,7 +11,7 @@ biocViews: ImmunoOncology, GeneExpression, Transcription, AlternativeSplicing,
 Depends: methods, grDevices, stats, utils, parallel, edgeR, limma, AnnotationDbi
 Imports: GenomicRanges, GenomicFeatures, BiocGenerics,
          IRanges, GenomicAlignments, Gviz, S4Vectors, Rsamtools,
-         BiocStyle, igraph, htmltools, data.table, UpSetR, tidyr, DT, MASS, grid, graphic,
+         BiocStyle, igraph, htmltools, data.table, UpSetR, tidyr, DT, MASS, grid, graphics,
          pbmcapply
 Description: Integrative pipeline for the analysis of alternative
              splicing using RNAseq.
