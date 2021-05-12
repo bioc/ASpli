@@ -26,6 +26,7 @@ import(Gviz, except=c(tags))
 import(DT)
 import(grid)
 import(htmltools)
+import(pbmcapply)
 exportMethods(
     "jCounts",
     "binGenome",
