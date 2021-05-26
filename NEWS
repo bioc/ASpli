@@ -1,4 +1,4 @@
-CHANGES IN VERSION 2.2.1
+CHANGES IN VERSION 2.3.1
 ------------------------
 BUG FIXES
    * Function vecMin inside .filterJunctionBySample threw an error if every element in counts vector was larger than the filter. Now works correctly using pmin instead. 
