@@ -8,15 +8,16 @@
   # Example:
   # vecMin( c(1,2,3), c(2,0,0) ) -> c(1,0,0)
   vecMin <- function ( a, b ) {
-    at <- a < b
-    bt <- a >= b
-    av <- rep( NA, length( a ) )
-    bv <- rep( NA, length( b ) )
-    av[ at ] <- a[ at ]
-    av[ !at ] <- 0
-    bv[ bt ] <- b[ bt ]
-    bv[ !bt ] <- 0
-    return( av + bv )
+    #at <- a < b
+    #bt <- a >= b
+    #av <- rep( NA, length( a ) )
+    #bv <- rep( NA, length( b ) )
+    #av[ at ] <- a[ at ]
+    #av[ !at ] <- 0
+    #bv[ bt ] <- b[ bt ]
+    #bv[ !bt ] <- 0
+    #return( av + bv )
+    return(pmin(a, b))
   }
   
   cropped <- .extractCountColumns( df0, targets ) 
