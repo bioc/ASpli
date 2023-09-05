@@ -530,7 +530,7 @@ setMethod(
     #junctions.order <- sort(junctions.order)
     #junctions.order <- paste(junctions.order@seqnames, junctions.order@ranges@start, (junctions.order@ranges@start+junctions.order@ranges@width-1), sep=".")
     junctions.order <- order(junctions.order)
-    counts@junction.counts <- counts@junction.counts[junctions.order, ]
+   counts@junction.counts <- counts@junction.counts[junctions.order, ]
     
     # Create result object
     counts <- rds( counts, targets )

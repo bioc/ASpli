@@ -1,3 +1,9 @@
+CHANGES IN VERSION 2.11.1
+------------------------
+BUG FIXES
+  * Solve bug in readCounts. Undefined seqnames produced invalid junctions.orders
+  * Change package mantainer
+
 CHANGES IN VERSION 2.10.1
 ------------------------
 BUG FIXES
