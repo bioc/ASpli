@@ -119,7 +119,7 @@ The last columns are the PIR metrics calculated for each condition. The PIR metr
   # Create a transcript DB from gff/gtf annotation file.
   # Warnings in this examples can be ignored. 
   library(GenomicFeatures)
-  genomeTxDb <- makeTxDbFromGFF( system.file('extdata','genes.mini.gtf', 
+  genomeTxDb <- txdbmaker::makeTxDbFromGFF( system.file('extdata','genes.mini.gtf', 
                                  package="ASpli") )
   
   # Create an ASpliFeatures object from TxDb

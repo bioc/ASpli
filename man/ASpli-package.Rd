@@ -70,7 +70,7 @@
 \examples{ 
 library(GenomicFeatures)
 gtfFileName <- aspliExampleGTF()
-genomeTxDb <- makeTxDbFromGFF( gtfFileName )
+genomeTxDb <- txdbmaker::makeTxDbFromGFF( gtfFileName )
 features <- binGenome( genomeTxDb )
 BAMFiles <- aspliExampleBamList()
 targets <- data.frame( 

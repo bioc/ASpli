@@ -65,7 +65,7 @@ library(GenomicFeatures)
 
 # gtf preprocessing ----
 gtfFileName <- aspliExampleGTF()
-genomeTxDb  <- makeTxDbFromGFF( gtfFileName )
+genomeTxDb  <- txdbmaker::makeTxDbFromGFF( gtfFileName )
 
 # feature extraction ----
 features    <- binGenome( genomeTxDb )
@@ -157,7 +157,7 @@ See "Creating New TxDb Objects or Packages" in the \texttt{GenomicFeatures} vign
 
 <<makeTx, echo=TRUE, eval=FALSE>>=
 library(GenomicFeatures)
-TxDb <- makeTxDbFromGFF(
+TxDb <- txdbmaker::makeTxDbFromGFF(
   file="genes.gtf",
   format="gtf")
 @

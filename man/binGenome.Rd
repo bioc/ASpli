@@ -73,7 +73,7 @@
   # Create a transcript DB from gff/gtf annotation file.
   library(GenomicFeatures)
   gtfFileName <- aspliExampleGTF()
-  genomeTxDb <- makeTxDbFromGFF( gtfFileName )
+  genomeTxDb <- txdbmaker::makeTxDbFromGFF( gtfFileName )
   
   # Create an ASpliFeatures object from TxDb
   features <- binGenome( genomeTxDb )
