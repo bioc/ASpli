@@ -34,7 +34,7 @@ An object of class ASpliCounts.
   0: strand of the pair is always *.
   1: strand of the pair is strand of its first alignment. This mode should be used when the paired-end data was generated using one of the following stranded protocols: Directional Illumina (Ligation), Standard SOLiD.
  2: strand of the pair is strand of its last alignment. This mode should be used when the paired-end data was generated using one of the following stranded protocols: dUTP, NSR, NNSR, Illumina stranded TruSeq PE protocol. For more information see ?strandMode}
- \item{alignFastq}{Experimental (that means it's highly recommended to, leave the default, FALSE): executes an alignment step previous to Bam summarization. Useful if not enough space on local disks for beans so fasts can be aligned on the fly, even from a remote machine, and then the BAMs can be deleted after each summarization. If set to TRUE, targets data frame must have a column named alignerCall with complete call to aligner for each sample. ie: STAR --runMode alignReads --outSAMtype BAM SortedByCoordinate --readFilesCommand zcat --genomeDir /path/to/STAR/genome/folder -runThreadN 4 --outFileNamePrefix {sample name} --readFilesIn /path/to/R1 /path/to/R2. Output must match bam files provided in targets. }
+ \item{alignFastq}{Experimental (that means it's highly recommended to, leave the default, FALSE): executes an alignment step previous to Bam summarization. Useful if not enough space on local disks for beans so fasts can be aligned on the fly, even from a remote machine, and then the BAMs can be deleted after each summarization. If set to TRUE, targets data frame must have a column named alignerCall with complete call to aligner for each sample. ie: STAR --runMode alignReads --outSAMtype BAM SortedByCoordinate --readFilesCommand zcat --genomeDir /path/to/STAR/genome/folder -runThreadN 4 --outFileNamePrefix sample-name --readFilesIn /path/to/R1 /path/to/R2. Output must match bam files provided in targets. }
 
  \item{dropBAM}{Experimental (that means it's highly recommended to leave the default, FALSE): If alignFastq is TRUE, deletes BAMs after sumarization. Used in conjunction with alignFastq to delete BAMs when there's not enough free space on disk. Use with caution as it will delete all files in "bam" column in targets dataframe.}
 
@@ -104,11 +104,11 @@ The last columns are the PIR metrics calculated for each condition. The PIR metr
   gene_coordinates: gene coordinates.
   bin_spanned: semicolon separated list of all the bins spaned by this junction.
   j_within_bin: other junctions in the bins.
-  StartHit: all the junctions sharing the start with this junction and $PJU_{J1}=J3/(J1+ J3)$ for each condition, 
-  EndHit: all the junctions sharing the end with this junction and $PJU_{J2}=J3/(J2+ J3)$ for each condition. 
+  StartHit: all the junctions sharing the start with this junction and \eqn{PJU_{J1}=J3/(J1+J3)} for each condition, 
+  EndHit: all the junctions sharing the end with this junction and \eqn{PJU_{J2}=J3/(J2+ J3)} for each condition. 
   All the columns between j_within_bin and StartHit are the counts for J3 in the different samples for each region. 
-  From there to EndHit, the J1 counts and $PJU_{J1}=J3/(J1+ J3)$ for each condition. 
-  Then after EndHit, the J2 counts and $PJU_{J2}=J3/(J2+ J3)$.
+  From there to EndHit, the J1 counts and \eqn{PJU_{J1}=J3/(J1+ J3)} for each condition. 
+  Then after EndHit, the J2 counts and \eqn{PJU_{J2}=J3/(J2+ J3)}.
   Rownames are J3 range. StartHit is J1 range and EndHit is J2 range.
 }
 

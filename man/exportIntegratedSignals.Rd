@@ -107,8 +107,7 @@ jcounts   <- jCounts(counts = gbcounts,
 }
 
 \seealso{
-  \code{\link{gbDUreport}}, \code{\link{jDUreport}}, \code{\link{ASpliSplicingReport}},  \code{\link{splicingReport}}, \
-  code{\link{ASpliIntegratedSignals}}
+  \code{\link{gbDUreport}}, \code{\link{jDUreport}}, \code{\link{ASpliSplicingReport}},  \code{\link{splicingReport}}, \code{\link{ASpliIntegratedSignals}}
 }
 
 

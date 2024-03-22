@@ -125,8 +125,7 @@ jcounts   <- jCounts(counts = gbcounts,
 Accesors: \link{signals}, 
           \link{filters},
 Export:   \link{exportIntegratedSignals}
-  \code{\link{gbDUreport}}, \code{\link{jDUreport}}, \code{\link{ASpliSplicingReport}},  \code{\link{splicingReport}}, \
-  code{\link{ASpliIntegratedSignals}}
+  \code{\link{gbDUreport}}, \code{\link{jDUreport}}, \code{\link{ASpliSplicingReport}},  \code{\link{splicingReport}}, \code{\link{ASpliIntegratedSignals}}
 
 }
 
