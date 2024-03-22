@@ -66,7 +66,8 @@
   # diferentes.
   #Modificaciones hechas por AR 20201128
   if(F){
-    if ( packageVersion("IRanges") < 2.6 ) {
+    #if ( packageVersion("IRanges") < 2.6 )
+    if (compareVersion(as.character(packageVersion("IRanges")),'2.6')<0){
       locus <- findOverlaps( binsGRangesList, ignoreSelf=TRUE, ignore.strand = T ) 
     } else {
       locus <- findOverlaps( binsGRangesList, drop.self=TRUE, ignore.strand = T ) 
@@ -96,7 +97,8 @@
     rangos   <- merge(strands, merge(seqnames, merge(starts, ends, by = "group_name"), by = "group_name"), by = "group_name")
     grangos  <- makeGRangesListFromDataFrame(rangos, names.field = "group_name")
     names(grangos) <- rangos$group_name
-    if ( packageVersion("IRanges") < 2.6 ) {
+    #if ( packageVersion("IRanges") < 2.6 )
+    if (compareVersion(as.character(packageVersion("IRanges")),'2.6')<0){      
       locus <- findOverlaps( grangos, ignoreSelf=TRUE, ignore.strand = T ) 
     } else {
       locus <- findOverlaps( grangos, drop.self=TRUE, ignore.strand = T ) 
