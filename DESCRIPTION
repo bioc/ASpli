@@ -1,7 +1,7 @@
 Package: ASpli
 Type: Package
 Title: Analysis of Alternative Splicing Using RNA-Seq
-Version: 2.13.1
+Version: 2.14.0
 Date: 2024-03-22
 Author: Estefania Mancini, Andres Rabinovich, Javier Iserte, Marcelo Yanovsky and Ariel Chernomoretz
 License: GPL
