@@ -1,7 +1,7 @@
 Package: ASpli
 Type: Package
 Title: Analysis of Alternative Splicing Using RNA-Seq
-Version: 2.24.0
+Version: 2.25.0
 Date: 2026-11-10
 Authors@R: c(
     person("Estefania", "Mancini", role = "aut"),
